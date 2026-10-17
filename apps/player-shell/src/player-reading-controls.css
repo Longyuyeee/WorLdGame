@@ -71,7 +71,14 @@
 .player-control-layer[data-open="true"] .player-playback-controls > span { position: static; flex-basis: 100%; width: auto; height: auto; min-width: 0; clip-path: none; white-space: normal; color: var(--player-muted, #c1bed2); font-size: 12px; }
 .player-control-layer[data-open="true"] .player-save__quick-controls { display: flex; gap: 10px; flex-wrap: wrap; }
 .player-control-layer[data-open="true"] .player-media-error { position: static; width: 100%; max-width: none; margin: 0; flex-shrink: 0; }
-.player-compact-toolbar .player-media-problem-trigger { border-color: var(--player-accent, #b9a1ff); font-weight: 700; }
+.player-compact-toolbar :is(.player-media-problem-trigger, .player-progress-problem-trigger) { border-color: var(--player-accent, #b9a1ff); font-weight: 700; }
+.player-progress-problem { flex-shrink: 0; display: grid; gap: 10px; padding: 14px; border: 1px solid var(--player-accent, #c5afff); border-radius: 14px; background: var(--player-panel, #111425); color: var(--player-ink, #f8f7ff); }
+.player-progress-problem p { margin: 0; line-height: 1.6; overflow-wrap: anywhere; }
+.player-progress-problem small { color: inherit; }
+.player-progress-problem__actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.player-progress-problem button { min-height: 44px; padding: 8px 12px; border: 1px solid currentColor; border-radius: 10px; color: inherit; background: transparent; cursor: pointer; }
+.player-progress-problem button:disabled { opacity: .45; cursor: not-allowed; }
+.player-shell[data-settings-high-contrast="true"] .player-progress-problem { color: #fff; background: #000; border-color: #fff; }
 .player-control-layer[data-open="true"] .player-history-controls button span:not([aria-hidden="true"]) { position: static; width: auto; height: auto; clip-path: none; }
 .player-control-layer[data-open="true"] button:focus-visible, .player-compact-toolbar button:focus-visible, .player-artwork-return:focus-visible span { outline: 3px solid var(--player-accent, #b9a1ff); outline-offset: 3px; }
 .player-artwork-return { position: absolute; inset: 0; z-index: 36; display: grid; align-items: end; justify-items: end; width: 100%; padding: 20px; border: 0; color: var(--player-ink, #f8f7ff); background: transparent; cursor: pointer; }

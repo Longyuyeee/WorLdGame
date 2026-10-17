@@ -17,11 +17,13 @@ function setup(write?: (value: WorldPlayerSaveSlotV3) => Promise<void>) {
 }
 it('shows a persistent nonmodal failure and lets the player save current progress manually', async () => {
   const test = setup(async slot => { if (slot.kind === 'auto') throw Error('disk'); });
-  const notice = await screen.findByRole('alert', { name: '后台保存提醒' });
+  await screen.findByRole('button', { name: '查看保存问题' });
   expect(test.container.querySelector('main')).toHaveAttribute('data-save-operation', 'idle');
-  expect(notice).toHaveTextContent('自动保存失败');
   fireEvent.click(screen.getByRole('button', { name: '继续下一句' }));
   expect(test.container.querySelector('.player-dialogue__text')).toHaveTextContent('After');
+  fireEvent.click(screen.getByRole('button', { name: '查看保存问题' }));
+  const notice = screen.getByRole('alert', { name: '后台保存提醒' });
+  expect(notice).toHaveTextContent('自动保存失败');
   fireEvent.click(within(notice).getByRole('button', { name: '保存当前进度' }));
   const panel = screen.getByRole('dialog', { name: '存读档槽位' });
   expect(within(panel).getByRole('button', { name: '保存进度' })).toHaveAttribute('aria-pressed', 'true');
@@ -31,6 +33,7 @@ it('shows a persistent nonmodal failure and lets the player save current progres
   fireEvent.click(screen.getByRole('button', { name: '关闭存读档' }));
   expect(screen.queryByRole('dialog', { name: '存读档槽位' })).not.toBeInTheDocument();
   expect(screen.queryByRole('alert', { name: '后台保存提醒' })).not.toBeInTheDocument();
+  expect(screen.queryByRole('button', { name: '查看保存问题' })).not.toBeInTheDocument();
   expect(test.container.querySelector('.player-dialogue__text')).toHaveTextContent('After');
 });
 it('does not replace an active manual write status when an earlier background write fails', async () => {
@@ -52,12 +55,14 @@ it('does not replace an active manual write status when an earlier background wr
 });
 it('keeps the reminder until explicitly dismissed without taking focus or stopping reading', async () => {
   const test = setup(async () => { throw Error('disk'); });
-  const notice = await screen.findByRole('alert', { name: '后台保存提醒' });
-  expect(notice.contains(document.activeElement)).toBe(false);
+  const entrance = await screen.findByRole('button', { name: '查看保存问题' });
+  expect(entrance).not.toHaveFocus();
   vi.useFakeTimers(); await act(async () => { await vi.advanceTimersByTimeAsync(6001); });
-  expect(screen.getByRole('alert', { name: '后台保存提醒' })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: '查看保存问题' })).toBeInTheDocument();
+  fireEvent.click(entrance); const notice = screen.getByRole('alert', { name: '后台保存提醒' });
   fireEvent.click(within(notice).getByRole('button', { name: '关闭保存提醒' }));
   expect(screen.queryByRole('alert', { name: '后台保存提醒' })).not.toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: '返回故事' }));
   fireEvent.click(screen.getByRole('button', { name: '继续下一句' }));
   expect(test.container.querySelector('.player-dialogue__text')).toHaveTextContent('After');
 });

@@ -1698,6 +1698,30 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
   const endingActionBlocked = hostActivity !== "active" || saveOperation === "busy" || preferencesOpen || savePanelOpen || additionalContentOpen || historyPanelOpen || readingMenuOpen;
   const readingMediaSurface = content.kind === 'dialogue' || content.kind === 'narration';
   const hasMediaProblem = stage.missingAssetIds.length > 0 || visibleMediaErrors.length > 0 || readingMediaSurface && stageImageError;
+  const hasRecoveryProblem = content.kind !== 'title' && recoveryStore !== undefined && !snapshot.sceneReplay.active && (recoveryCandidate !== null || recoveryOperation === 'error');
+  const hasProgressProblem = content.kind !== 'title' && !snapshot.sceneReplay.active && (hasRecoveryProblem || backgroundSaveFailure !== null);
+  const hasReadingProblem = hasProgressProblem || readingMediaSurface && hasMediaProblem;
+  const openCurrentProgressSave = () => {
+    if (hostActivity !== 'active' || saveOperation === 'busy' || !saveBoundaryAllowed || !saveStore || snapshot.sceneReplay.active) return;
+    setSaveView('manual'); setPendingOverwriteSlotId(null); openSavePanel('save');
+  };
+  const recoveryProblem = hasRecoveryProblem && <section className="player-progress-problem" role={recoveryOperation === 'error' ? 'alert' : 'status'} aria-label="恢复保护提醒">
+    <strong>{recoveryOperation === 'error' ? '恢复保护需要处理' : '发现可恢复进度'}</strong><p>{recoveryMessage}</p>
+    {recoveryCandidate !== null && <small>{recoveryCandidate.sceneId} · {new Date(recoveryCandidate.savedAtEpochMilliseconds).toLocaleString('zh-CN', { hour12: false })} · 本地时间</small>}
+    <div className="player-progress-problem__actions">
+      {saveStore && <button type="button" disabled={hostActivity !== 'active' || saveOperation === 'busy' || !saveBoundaryAllowed} onClick={openCurrentProgressSave}>保存当前进度</button>}
+      {recoveryCandidate !== null && <button type="button" disabled={hostActivity !== 'active' || saveOperation === 'busy' || !recoveryBuildCompatible} onClick={() => void restoreRecovery()}>恢复上次进度</button>}
+      <button type="button" disabled={hostActivity !== 'active' || saveOperation === 'busy' || recoveryErrorAction === 'retry' && recoveryWritePending.current?.coordinator === recoveryCoordinator} onClick={() => {
+        if (recoveryErrorAction === 'load') { void restoreRecovery(); return; }
+        if (recoveryErrorAction === 'retry') { setRecoveryOperation('idle'); setRecoveryErrorAction(null); queueMicrotask(() => readingMenu.current?.querySelector<HTMLButtonElement>('header button')?.focus()); }
+        else void clearRecovery();
+      }}>{recoveryErrorAction === 'load' ? '重试读取恢复记录' : recoveryErrorAction === 'retry' ? '重试恢复保护' : '放弃并清除'}</button>
+    </div>
+  </section>;
+  const backgroundProgressProblem = backgroundSaveFailure && <section className="player-progress-problem" role="alert" aria-label="后台保存提醒">
+    <strong>{backgroundSaveFailure.kind === 'auto' ? '自动保存未完成' : '检查点未保存'}</strong><p>{backgroundSaveFailure.message}</p>
+    <div className="player-progress-problem__actions"><button type="button" disabled={!saveBoundaryAllowed || hostActivity !== 'active' || saveOperation === 'busy'} onClick={openCurrentProgressSave}>保存当前进度</button><button type="button" aria-label="关闭保存提醒" onClick={() => { setBackgroundSaveFailure(null); queueMicrotask(() => readingMenu.current?.querySelector<HTMLButtonElement>('header button')?.focus()); }}>知道了</button></div>
+  </section>;
   const returnFromMediaRecovery = () => {
     if (readingMediaSurface && readingMenuOpen) setReadingMenuOpen(false);
     queueMicrotask(() => reading.element.current?.focus({ preventScroll: true }));
@@ -2096,15 +2120,19 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
             <button ref={replayExitButton} type="button" aria-label="退出回想，返回原剧情" onClick={exitSceneReplay}>退出回想</button>
           </aside>
         )}
-        {content.kind !== 'title' && <div className="player-compact-toolbar" data-media-problem={readingMediaSurface && hasMediaProblem ? 'true' : undefined} inert={artworkView} style={componentLayout && layoutSurface === "reading" ? componentLayout.secondary : undefined}>
+        {content.kind !== 'title' && <div className="player-compact-toolbar" data-media-problem={hasReadingProblem ? 'true' : undefined} inert={artworkView} style={componentLayout && layoutSurface === "reading" ? componentLayout.secondary : undefined}>
           {layoutSurface === "reading" && inlineLayoutComponents}
-          {readingMediaSurface && hasMediaProblem && <>
+          {hasProgressProblem && <>
+            {!readingMenuOpen && <span className="player-sound-status" role="alert">保存问题：进度保护需要处理。请打开保存问题核对，及时手动保存，不要直接关闭游戏；阅读仍可继续。</span>}
+            <button type="button" className="player-progress-problem-trigger" aria-label="查看保存问题" aria-controls="player-reading-menu" aria-expanded={readingMenuOpen} disabled={hostActivity !== 'active' || preferencesOpen || historyPanelOpen || savePanelOpen || additionalContentOpen} onClick={event => { readingMenuReturnTrigger.current = event.currentTarget; stopSkip(); setReadingMenuOpen(true); }}>保存问题</button>
+          </>}
+          {readingMediaSurface && hasMediaProblem && !hasProgressProblem && <>
             {!readingMenuOpen && <span className="player-sound-status" role="alert">媒体问题：部分声音或画面未能呈现，可打开媒体问题查看详情并重试；声音失败时也可先无声阅读。正文进度不变。</span>}
             <button type="button" className="player-media-problem-trigger" aria-label="查看媒体问题" aria-controls="player-reading-menu" aria-expanded={readingMenuOpen} disabled={hostActivity !== 'active' || preferencesOpen || historyPanelOpen || savePanelOpen || additionalContentOpen} onClick={event => { readingMenuReturnTrigger.current = event.currentTarget; stopSkip(); setReadingMenuOpen(true); }}>媒体问题</button>
           </>}
           {canViewArtwork && <button type="button" className="player-artwork-trigger" aria-label="欣赏画面" title="隐藏对白并停止自动推进（H）" disabled={hostActivity !== 'active' || preferencesOpen || historyPanelOpen || savePanelOpen || additionalContentOpen || readingMenuOpen} onClick={showArtwork}><svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.7"><rect x="3" y="3" width="18" height="18" rx="3" /><circle cx="8" cy="8" r="1.5" /><path d="m3 17 5-5 4 4 4-7 5 8" /></svg> {silentReading ? '画面' : '欣赏画面'}</button>}
-          {silentReading && <><span className="player-sound-status" role="status">本次无声阅读。进度和个人音量未改变；恢复时会重新播放当前声音。</span><button type="button" aria-label="恢复当前声音" title="本次无声阅读；点击重新播放当前声音，不改变剧情进度或个人音量" disabled={hostActivity !== 'active' || preferencesOpen || historyPanelOpen || savePanelOpen || additionalContentOpen || readingMenuOpen} onClick={() => { setSilentReading(false); setMediaErrors(current => current.filter(id => !audibleTracks.some(track => track.assetId === id))); queueMicrotask(() => reading.element.current?.focus({ preventScroll: true })); }}>{readingMediaSurface && hasMediaProblem ? '恢复声音' : '无声 · 恢复'}</button></>}
-          {autoEnabled && <button type="button" aria-label="停止自动阅读" onClick={() => { playbackAdvance.cancel(); setAutoEnabled(false); setAutoPlayback('off'); }}>{readingMediaSurface && hasMediaProblem ? '停止自动' : '自动中 · 停止'}</button>}
+          {silentReading && <><span className="player-sound-status" role="status">本次无声阅读。进度和个人音量未改变；恢复时会重新播放当前声音。</span><button type="button" aria-label="恢复当前声音" title="本次无声阅读；点击重新播放当前声音，不改变剧情进度或个人音量" disabled={hostActivity !== 'active' || preferencesOpen || historyPanelOpen || savePanelOpen || additionalContentOpen || readingMenuOpen} onClick={() => { setSilentReading(false); setMediaErrors(current => current.filter(id => !audibleTracks.some(track => track.assetId === id))); queueMicrotask(() => reading.element.current?.focus({ preventScroll: true })); }}>{hasReadingProblem ? '恢复声音' : '无声 · 恢复'}</button></>}
+          {autoEnabled && <button type="button" aria-label="停止自动阅读" onClick={() => { playbackAdvance.cancel(); setAutoEnabled(false); setAutoPlayback('off'); }}>{hasReadingProblem ? '停止自动' : '自动中 · 停止'}</button>}
           <button ref={readingMenuTrigger} type="button" aria-label={readingMenuOpen ? '关闭阅读菜单' : '打开阅读菜单'} aria-expanded={readingMenuOpen} aria-controls="player-reading-menu" disabled={hostActivity !== 'active' || preferencesOpen || historyPanelOpen || savePanelOpen || additionalContentOpen} onClick={event => { if (readingMenuOpen) closeReadingMenu(); else { readingMenuReturnTrigger.current = event.currentTarget; stopSkip(); setReadingMenuOpen(true); } }}>{readingMenuOpen ? '返回故事 ×' : '菜单 ☰'}</button>
         </div>}
         {compactReading && content.kind !== 'title' && !silentReading && !autoEnabled && <p className="player-portrait-hint">横屏更适合观看演出</p>}
@@ -2114,8 +2142,10 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
         </PlayerPanelRegion>
         <PlayerPanelRegion enabled={menuLayout.enabled} rect={menuLayout.layout?.primary} kind="primary">
         {readingMenuOpen && panelComponents("menu", true)}
+        {readingMenuOpen && recoveryProblem}
+        {readingMenuOpen && hasProgressProblem && backgroundProgressProblem}
         {readingMediaSurface && readingMenuOpen && mediaError}
-        {compactReading && readingMediaSurface && hasMediaProblem && canViewArtwork && <button className="player-menu-only player-reading-menu-artwork" type="button" disabled={hostActivity !== 'active'} onClick={() => { setReadingMenuOpen(false); showArtwork(); }}>欣赏画面</button>}
+        {compactReading && hasReadingProblem && canViewArtwork && <button className="player-menu-only player-reading-menu-artwork" type="button" disabled={hostActivity !== 'active'} onClick={() => { setReadingMenuOpen(false); showArtwork(); }}>欣赏画面</button>}
         <nav hidden={content.kind === 'title'} className="player-history-controls" aria-label="剧情历史控制">
           <h3 className="player-menu-only player-menu-section-title">回看与内容</h3>
           <button className="player-menu-only" ref={preferencesTrigger} type="button" aria-label="打开玩家设置" disabled={hostActivity !== 'active' || preferencesOpen || historyPanelOpen || savePanelOpen || additionalContentOpen} onClick={event => { infoTrigger.current = event.currentTarget; stopSkip(); setReadingMenuOpen(false); setInfoView('preferences'); setPreferencesOpen(true); }}>设置</button>
@@ -2457,32 +2487,11 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
         {readingMenuOpen && <>{panelComponents("menu")}{panelAudit("menu")}</>}
         </div>
         {saveFeedback && !readingResume.restored && !interruptedAudio && !interruptedVideo && !savePanelOpen && !storyAdvance.busy && !storyAdvance.error && !playbackAdvance.busy && !playbackAdvance.error && <p className="player-save-feedback" role="status" aria-live="polite">{saveFeedback}</p>}
-        {backgroundSaveFailure && content.kind !== "title" && !savePanelOpen && !readingMenuOpen && !preferencesOpen && !historyPanelOpen && !additionalContentOpen && !artworkView && !snapshot.sceneReplay.active && <aside className="player-background-save-notice" role="alert" aria-label="后台保存提醒">
-          <div><strong>{backgroundSaveFailure.kind === "auto" ? "自动保存未完成" : "检查点未保存"}</strong><p>{backgroundSaveFailure.message}</p></div>
-          <div className="player-background-save-notice__actions"><button type="button" disabled={!saveBoundaryAllowed || hostActivity !== "active"} onClick={() => { setSaveIntent("save"); setSaveView("manual"); setPendingOverwriteSlotId(null); openSavePanel(); }}>保存当前进度</button><button type="button" aria-label="关闭保存提醒" onClick={() => setBackgroundSaveFailure(null)}>知道了</button></div>
-        </aside>}
         {(playbackAdvance.busy || playbackAdvance.error) && !readingMenuOpen && !preferencesOpen && !historyPanelOpen && !savePanelOpen && !additionalContentOpen && !artworkView && <aside className="player-story-progress" role={playbackAdvance.error ? 'alert' : 'status'}>
           <span>{playbackAdvance.error ?? (autoEnabled ? '正在自动继续，当前句保持不变…' : '正在快进，当前句保持不变…')}</span>
           <button type="button" onClick={() => { playbackAdvance.cancel(); stopSkip(); setAutoEnabled(false); setAutoPlayback('off'); reading.element.current?.focus({ preventScroll: true }); }}>{playbackAdvance.error ? '切回手动阅读' : '停止并留在当前句'}</button>
         </aside>}
         {content.kind !== 'title' && sessionRead.pending && !savePanelOpen && <aside className="player-story-progress" role="status"><span>正在完整校验并准备故事… 当前进度保持不变。</span><button type="button" onClick={() => cancelActiveRead()}>取消读取</button></aside>}
-        {content.kind !== "title" && recoveryStore !== undefined && !snapshot.sceneReplay.active && (recoveryCandidate !== null || recoveryOperation === "error") && (
-          <aside className="player-recovery" role={recoveryOperation === "error" ? "alert" : "status"} aria-live="polite">
-            <div>
-              <strong>{recoveryOperation === "error" ? "恢复保护需要处理" : "发现可恢复进度"}</strong>
-              <span>{recoveryMessage}</span>
-              {recoveryCandidate !== null && <small>{recoveryCandidate.sceneId} · {new Date(recoveryCandidate.savedAtEpochMilliseconds).toLocaleString("zh-CN", { hour12: false })} · 本地时间</small>}
-            </div>
-            {recoveryCandidate !== null && <button type="button" disabled={hostActivity !== "active" || saveOperation === 'busy' || !recoveryBuildCompatible} onClick={() => void restoreRecovery()}>恢复上次进度</button>}
-            <button type="button" disabled={saveOperation === 'busy' || recoveryErrorAction === "retry" && recoveryWritePending.current?.coordinator === recoveryCoordinator} onClick={() => {
-              if(recoveryErrorAction === "load"){void restoreRecovery();return;}
-              if (recoveryErrorAction === "retry") {
-                setRecoveryOperation("idle");
-                setRecoveryErrorAction(null);
-              } else void clearRecovery();
-            }}>{recoveryErrorAction === "load" ? "重试读取恢复记录" : recoveryErrorAction === "retry" ? "重试恢复保护" : "放弃并清除"}</button>
-          </aside>
-        )}
 
         {!readingMediaSurface && content.kind !== 'choice' && mediaError}
 

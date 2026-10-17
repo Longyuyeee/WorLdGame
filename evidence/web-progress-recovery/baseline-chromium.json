@@ -1,0 +1,41 @@
+{
+  "passed": true,
+  "engine": "chromium",
+  "browser": "151.0.7922.34",
+  "artifactSha256": "00feefe7cdd763bdea8924b5dbdd664dc6f7be03f565025746bd4d3725343f74",
+  "realTime": true,
+  "heldPackingBytes": 85121,
+  "checks": [
+    {
+      "name": "real-time-packing-delay-reproduces-timeout-overlay-blocking-native-reading",
+      "protectedState": {
+        "hash": "e7d0495dc09ea90f6469376b12be4fe6f2f1b7f154aa0905d0fd0ce478f64fc9",
+        "cursor": "34",
+        "recovery": "ready",
+        "text": "候车室的门开了，一对提着购物袋的老人进来避雨。林远给他们让出靠近暖气的位置，把自己的椅子挪到小夏旁边。信还剩最后一页，小夏说那页可以在路上读，也可以留到别的地方。林远重新把纸放进信封，觉得这一次不是拖延，而是知道故事还有可以抵达的地方。"
+      },
+      "held": {
+        "hash": "60114e3dca3a8f08d831e6a5fedd11eea2ad31207e22b2891d39f7e2331b19a7",
+        "cursor": "35",
+        "recovery": "ready",
+        "text": "列车即将进站的提示亮在屏幕上。小夏站起来，把干燥的纸袋交还给他。他们没有说服彼此选同一条路，却已经知道无论林远今晚走不走，有几个约定都不必再等：回信，见面，还有把没完成的愿望告诉一个真正愿意听的人。"
+      },
+      "before": {
+        "hash": "60114e3dca3a8f08d831e6a5fedd11eea2ad31207e22b2891d39f7e2331b19a7",
+        "cursor": "35",
+        "recovery": "error",
+        "text": "列车即将进站的提示亮在屏幕上。小夏站起来，把干燥的纸袋交还给他。他们没有说服彼此选同一条路，却已经知道无论林远今晚走不走，有几个约定都不必再等：回信，见面，还有把没完成的愿望告诉一个真正愿意听的人。"
+      },
+      "overlap": 112,
+      "blocked": true,
+      "durableBefore": [
+        {
+          "hash": "e7d0495dc09ea90f6469376b12be4fe6f2f1b7f154aa0905d0fd0ce478f64fc9",
+          "sceneId": "scene_fff36353633c42d1"
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "scope": "Actual 1.11 game and real timers; one native session-packing digest delayed before real IndexedDB IO, old records and real manual save checked read-only, native taps/keys/menu/retry/reload. No fabricated narrative/save/worker/transaction or geometry. Not a cure for Firefox controlled-clock compression timing, physical phone/Safari, natural listening/timing, permissions or HTTPS."
+}

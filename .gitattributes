@@ -103,3 +103,5 @@ evidence/web-choice-keyboard/*.worldsave -text
 evidence/web-choice-keyboard/**/*.worldsave -text
 evidence/web-reading-media-recovery/*.html -text
 evidence/web-reading-media-recovery/**/*.worldsave -text
+evidence/web-progress-recovery/*.html -text
+evidence/web-progress-recovery/**/*.worldsave -text

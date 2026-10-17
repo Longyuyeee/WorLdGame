@@ -1,0 +1,185 @@
+{
+  "passed": true,
+  "contentVersion": "1.11.0",
+  "technicalVersion": "S0.41",
+  "promoted": true,
+  "artifacts": {
+    "html": {
+      "bytes": 46790046,
+      "sha256": "d63fc9280774f6260ee4a85b6496e08c86666a655f28af7d1b0464015181c864"
+    },
+    "website": {
+      "bytes": 35376495,
+      "sha256": "f4c11fc1fc754a904069008e3a88b6d988e356d49bf4edea650985ca72aeeaf1"
+    }
+  },
+  "sourceAndNotes": "evidence/web-story-plans-and-farewell",
+  "pendingNotes": 25,
+  "retained": [
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops-project.zip",
+      "sha256": "43ef6e1673ed3dffbf705b4f178b2122fc960971eaf47286b33742fa285f0576"
+    },
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops.worldreview",
+      "sha256": "747534249345da6ce337054b4e7f47a1516556beda7079ef7b6d093e590bce8f"
+    },
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops.html",
+      "sha256": "6e5dfb4dfb88b5e210354fbcaeb8ccc4e79d50aa935a1d449f750bde8fc822fa"
+    },
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops-website.zip",
+      "sha256": "25ef0ab90a396f01dcfb09e60f754fb31a82f59aedb8da869b4a199a59e8f19e"
+    },
+    {
+      "file": "evidence/web-reading-media-recovery/before-rain-stops.html",
+      "sha256": "00feefe7cdd763bdea8924b5dbdd664dc6f7be03f565025746bd4d3725343f74"
+    },
+    {
+      "file": "evidence/web-reading-media-recovery/before-rain-stops-website.zip",
+      "sha256": "d322ab25ade9bcc897dca6b17dc7288e777b8f9438170e113b0da815593e6de3"
+    }
+  ],
+  "browsers": [
+    {
+      "engine": "chromium",
+      "version": "151.0.7922.34",
+      "progressReadingAndRealStoragePassed": true,
+      "priorMediaChoiceAndPointerPassed": true,
+      "controlledRecoveryObservation": {
+        "operation": "ready",
+        "progressProblemVisible": false,
+        "serializer": "{\"active\":0,\"peakActive\":1,\"started\":6,\"completed\":6,\"cancelled\":0,\"fallback\":0,\"failed\":0}"
+      },
+      "realRecoveryObservation": {
+        "operation": "ready",
+        "progressProblemVisible": false,
+        "serializer": "{\"active\":0,\"peakActive\":1,\"started\":6,\"completed\":6,\"cancelled\":0,\"fallback\":0,\"failed\":0}"
+      },
+      "nativeSoundRetry": {
+        "currentTime": 0.021366,
+        "error": null,
+        "playback": "playing",
+        "failureCode": null,
+        "paused": false,
+        "readyState": 4,
+        "networkState": 1,
+        "src": "data:audio/wav;base64,UklGRqSIFQBXQVZFZm",
+        "settledWithinObservation": true,
+        "nativePlaybackConfirmed": true
+      }
+    },
+    {
+      "engine": "firefox",
+      "version": "153.0",
+      "progressReadingAndRealStoragePassed": true,
+      "priorMediaChoiceAndPointerPassed": true,
+      "controlledRecoveryObservation": {
+        "operation": "ready",
+        "progressProblemVisible": false,
+        "serializer": "{\"active\":0,\"peakActive\":1,\"started\":6,\"completed\":6,\"cancelled\":0,\"fallback\":0,\"failed\":0}"
+      },
+      "realRecoveryObservation": {
+        "operation": "ready",
+        "progressProblemVisible": false,
+        "serializer": "{\"active\":0,\"peakActive\":1,\"started\":6,\"completed\":6,\"cancelled\":0,\"fallback\":0,\"failed\":0}"
+      },
+      "nativeSoundRetry": {
+        "currentTime": 0.053213,
+        "error": null,
+        "playback": "playing",
+        "failureCode": null,
+        "paused": false,
+        "readyState": 4,
+        "networkState": 2,
+        "src": "data:audio/wav;base64,UklGRqSIFQBXQVZFZm",
+        "settledWithinObservation": true,
+        "nativePlaybackConfirmed": true
+      }
+    },
+    {
+      "engine": "webkit",
+      "version": "26.5",
+      "progressReadingAndRealStoragePassed": true,
+      "priorMediaChoiceAndPointerPassed": true,
+      "controlledRecoveryObservation": {
+        "operation": "ready",
+        "progressProblemVisible": false,
+        "serializer": "{\"active\":0,\"peakActive\":1,\"started\":5,\"completed\":5,\"cancelled\":0,\"fallback\":0,\"failed\":0}"
+      },
+      "realRecoveryObservation": {
+        "operation": "ready",
+        "progressProblemVisible": false,
+        "serializer": "{\"active\":0,\"peakActive\":1,\"started\":6,\"completed\":6,\"cancelled\":0,\"fallback\":0,\"failed\":0}"
+      },
+      "nativeSoundRetry": {
+        "currentTime": 0,
+        "error": null,
+        "playback": "playing",
+        "failureCode": null,
+        "paused": true,
+        "readyState": 0,
+        "networkState": 2,
+        "src": "data:audio/wav;base64,UklGRqSIFQBXQVZFZm",
+        "settledWithinObservation": false,
+        "nativePlaybackConfirmed": false
+      }
+    }
+  ],
+  "tests": {
+    "files": 141,
+    "distinctTests": 1292,
+    "newProgressTests": 11,
+    "nodeTests": 48,
+    "preservedInitialDefaultTimeouts": 2
+  },
+  "architecture": {
+    "audit-architecture": {
+      "status": "PASS",
+      "auditedPortableFiles": 118,
+      "auditedNodeAdapterFiles": 4,
+      "guarantees": [
+        "narrative-vm-spike has no UI, DOM, platform-shell, filesystem, process, crypto-provider, wall-clock, or ambient-random dependency",
+        "story-core has no UI, DOM, platform-shell, filesystem, or process dependency",
+        "story-language has no UI, DOM, platform-shell, filesystem, or process dependency",
+        "story-language depends only on story-core",
+        "project-compiler is portable and depends only on project-domain/story-language, never the VM spike or platform APIs",
+        "runtime is portable and depends only on project-compiler, never the VM spike, editor, filesystem, wall clock, randomness, or platform APIs",
+        "runtime-host is portable and depends only on formal runtime, never UI, DOM, shell, filesystem, wall clock, randomness, or platform APIs",
+        "player-core is portable and consumes only canonical project, formal Compiler IR, Runtime, and Runtime Host without a parallel StoryStatement interpreter",
+        "gal-settings is dependency-free and portable with no UI, DOM, filesystem, process, shell, wall-clock, or ambient-random dependency",
+        "route-graph is portable and projects only canonical project and compiler facts through the Project Service boundary",
+        "project-persistence has no UI, DOM, platform-shell, filesystem, process, or runtime third-party dependency",
+        "project-domain depends only on portable Gal settings and has no UI, DOM, platform-shell, filesystem, process, crypto-provider, or runtime third-party dependency",
+        "project-persistence-node is isolated from the web editor and depends only on portable project-domain/project-persistence contracts",
+        "editor declares the Gal settings dependency explicitly",
+        "editor declares the story-core dependency explicitly",
+        "editor declares the story-language dependency explicitly",
+        "editor declares the project-persistence dependency explicitly",
+        "web editor does not bundle the Node filesystem adapter",
+        "VM Web Worker conformance Harness depends only on the portable Spike, formal Runtime, and portable Runtime Host and imports no shell or Node adapter",
+        "VM conformance CLI is an isolated Node reference host and depends only on the portable narrative VM",
+        "Windows Electron host keeps isolation and sandboxing enabled with the frozen WindowsHostV1 storage bridge",
+        "Windows Tauri host exposes only the frozen WindowsHostV1 storage commands and no generic privileged plugin",
+        "Windows project grant roots stay native-only and both hosts reject reparse roots and existing reparse path segments",
+        "story-core has no runtime third-party dependency"
+      ]
+    },
+    "audit-n52-e5b-runtime-history-v2": {
+      "status": "PASS",
+      "node": "N52-E5b-runtime-history-v2",
+      "engineeringStatus": "complete",
+      "productAcceptance": "blocked",
+      "continuation": {
+        "node": "N52-E5c-gal-history-policy-and-player-core-projection",
+        "gate": "only-after-e5b-exact-head-windows-ci-is-green"
+      },
+      "violations": []
+    }
+  },
+  "underlyingRecoveryStorageAndControlledTimingGate": "open; non-blocking UI and explicit recovery verified, not a codec/IO or arbitrary timing cure",
+  "pendingMediaPermissions": 26,
+  "approvedMediaPermissions": 0,
+  "scope": "Real-time native packing delay, real IndexedDB preservation/manual save/latest explicit retry and reload; three engines, media/choice regressions and pointer flow with real and controlled clocks, two complete routes and author save/reopen/dual export. Not full format/route matrix, arbitrary device timing, phone/Safari, natural listening/timing, rights, public HTTPS or long soak."
+}

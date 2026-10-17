@@ -81,6 +81,7 @@ it("retains the old durable recovery after validation fails and retries only on 
   fireEvent.click(test.getByRole("button", { name: "继续下一句" }));
   await waitFor(() => expect(test.jobs).toHaveLength(2));
   await act(async () => test.jobs[1]!.fail());
+  fireEvent.click(test.getByRole('button', { name: '查看保存问题' }));
   expect(test.getByText(/恢复保护后台校验失败/)).toBeDefined(); expect(test.saved()).toBe(prior);
   expect(test.jobs).toHaveLength(2);
   fireEvent.click(test.getByRole("button", { name: "重试恢复保护" }));

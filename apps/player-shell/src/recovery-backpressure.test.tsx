@@ -49,11 +49,14 @@ it("keeps one physical recovery write during 150 story steps and persists only t
 it("keeps timeout visible until physical settlement and explicit retry saves the current line", async () => {
   const test = await setup(true);
   await act(async () => { await vi.advanceTimersByTimeAsync(8001); });
+  fireEvent.click(test.getByRole('button', { name: '查看保存问题' }));
   expect(test.getByRole("button", { name: "重试恢复保护" })).toBeDisabled();
+  fireEvent.click(test.getByRole('button', { name: '返回故事' }));
   fireEvent.click(test.getByRole("button", { name: "继续下一句" }));
   expect(test.write).toHaveBeenCalledTimes(1);
   await act(async () => test.finish());
   expect(test.container.querySelector("main")!.dataset.recoveryOperation).toBe("error");
+  fireEvent.click(test.getByRole('button', { name: '查看保存问题' }));
   expect(test.getByRole("button", { name: "重试恢复保护" })).not.toBeDisabled();
   await act(async () => fireEvent.click(test.getByRole("button", { name: "重试恢复保护" })));
   expect(test.write).toHaveBeenCalledTimes(2);
@@ -68,6 +71,7 @@ it("explains quota failure without deleting prior data, and retries after space 
   fireEvent.click(test.getByRole("button", { name: "继续下一句" }));
   await waitFor(() => expect(test.write).toHaveBeenCalledTimes(2));
   await act(async () => test.reject(new DOMException("full", "QuotaExceededError")));
+  fireEvent.click(test.getByRole('button', { name: '查看保存问题' }));
   expect(test.getByText(/设备存储空间不足/)).toBeDefined();
   expect(test.saved()).toBe(prior);
   fireEvent.click(test.getByRole("button", { name: "重试恢复保护" }));

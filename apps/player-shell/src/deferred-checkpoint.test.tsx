@@ -55,6 +55,7 @@ it.each(['unmount', 'project', 'timeout'] as const)('ignores late checkpoint res
   expect(test.slots.get('checkpoint-1')).toBeUndefined();
   if (reason === 'timeout') {
     expect(test.container.querySelector('main')).toHaveAttribute('data-save-operation', 'idle');
+    fireEvent.click(screen.getByRole('button', { name: '查看保存问题' }));
     expect(screen.getByRole('alert', { name: '后台保存提醒' })).toHaveTextContent('剧情检查点保存失败');
     expect(test.container.querySelector('.player-dialogue__text')).toHaveTextContent('After');
   }
