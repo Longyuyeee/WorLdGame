@@ -19,7 +19,7 @@ export interface WebDeliveryManifest {
   readonly progressEntry?: "review/playtest-progress.worldplaytest" | null;
   readonly files: readonly { readonly path: string; readonly byteLength: number; readonly digest: string }[];
 }
-type GameArtifact = Pick<FormalWebArtifact, "filename" | "projectDigest"> & ({ readonly html: string } | { readonly archive: Uint8Array });
+type GameArtifact = Pick<FormalWebArtifact, "filename" | "projectDigest"> & ({ readonly html: string } | { readonly archive: Uint8Array; readonly websiteOnly?: boolean });
 
 export async function createWebDeliveryBundle(project: CanonicalProject, index: AssetIndex, reader: { read(digest: BlobDigest): Promise<Uint8Array | null> }, game: GameArtifact, notes: readonly PlaytestNote[] | null, signal?: AbortSignal, onProgress?: (label: string) => void, progress: readonly PlaytestCompletion[] | null = null) {
   signal?.throwIfAborted();
@@ -27,6 +27,7 @@ export async function createWebDeliveryBundle(project: CanonicalProject, index: 
   if (game.projectDigest !== semanticHash(normalized)) throw Error("游戏与当前工程不是同一次内容，请重新生成交付包。");
   const files: Record<string, Uint8Array> = {};
   const directory = "archive" in game;
+  const websiteOnly = directory && game.websiteOnly === true;
   if (directory) for (const [path, bytes] of Object.entries(importProjectBinaryZip(game.archive, LIMITS))) files[`game/${path}`] = bytes;
   else files["game/index.html"] = encode(game.html);
   onProgress?.("正在收集可编辑工程和原素材…");
@@ -35,8 +36,8 @@ export async function createWebDeliveryBundle(project: CanonicalProject, index: 
   files['release/准备上线.txt'] = encode(formatWebReleasePreparation(project));
   if (notes !== null) files["review/playtest-notes.worldreview"] = encode(writePlaytestNotes(project.manifest.projectId, notes));
   if (progress !== null) files["review/playtest-progress.worldplaytest"] = encode(writePlaytestProgress(project.manifest.projectId, progress));
-  files["开始使用.txt"] = encode(`制作交付包\n\n作品：${publication.name}\n版本：${publication.version}\n\n本包用于作者备份、继续制作或交接。完整解压后：\n1. 游戏试玩：打开 game/index.html。${directory ? "网站部署仅使用 game 文件夹；保持里面的素材路径不变。本地站点预览见 game/使用说明.txt。" : "这是单文件游戏，可直接分享 game/index.html；网站目录需要另行导出。"}\n2. 继续制作：在 WorLd Studio 首页导入整个交付 ZIP，或导入 source/project.zip。源工程包含可编辑剧情、原素材和设置。\n3. 校订记录：${notes !== null ? "恢复工程后，可选择合并包内记录；也可在检查页导入 review/playtest-notes.worldreview。" : "本次没有附带校订记录，原浏览器中的记录仍保留。"}\n4. 试玩进度：${progress !== null ? "恢复工程后，可选择合并包内记录；也可在检查页导入 review/playtest-progress.worldplaytest。旧稿记录不会计入当前稿，不代表人工验收。" : "本次没有附带试玩进度，原浏览器中的记录仍保留。"}\n5. 交付清单：delivery.json 列出源工程、游戏和所附记录的大小及 SHA-256。\n\n给玩家的文件在 game 中。source 和 review 是作者资料，网站发布不要上传这两个文件夹。\n本包不包含玩家存档。内容来自同一次保存快照；不代表真人阅读、素材许可、真机或所有分支已经验收。游戏使用发布名称，源工程保留编辑器中的项目名称。\n`);
-  files['开始使用.txt'] = encode(decode(files['开始使用.txt']!) + '\n发布准备：release/preparation.json 和 release/准备上线.txt 是同一源工程的内部清单，含逐素材来源及待办。source、release、review 均是作者资料，不要上传到玩家网站；只有明确加入“制作名单”的公开署名进入游戏。确认依据不等于工具作出授权结论；实际部署、真机和离线升级仍需按清单执行。\n');
+  const gameGuide = websiteOnly ? 'game 文件夹已是同版纯网站内容，不含本地启动或检查助手。只上传 game 中的内容（含 build-info.json），不要把 game 再套一层目录；保持素材路径，最后更新 sw.js。生成不等于已上传或验收。' : directory ? 'game 含本地预览与检查助手，本地站点说明见 game/使用说明.txt。网站发布前用其中 check-deployment.cmd 生成纯网站目录，或在编辑器选择同版“网站上传 ZIP”；不要直接上传整个 game。' : '这是单文件游戏，可直接分享 game/index.html；网站发布请在编辑器另行生成“网站上传 ZIP”。';
+  files["开始使用.txt"] = encode(`制作交付包（作者内部备份，不可整包上传）\n\n作品：${publication.name}\n版本：${publication.version}\n\n本包用于作者备份、继续制作或交接。完整解压后：\n1. 游戏试玩：打开 game/index.html。${gameGuide}\n2. 继续制作：在 WorLd Studio 首页导入整个交付 ZIP，或导入 source/project.zip。源工程包含可编辑剧情、原素材和设置。\n3. 校订记录：${notes !== null ? "恢复工程后，可选择合并包内记录；也可在检查页导入 review/playtest-notes.worldreview。" : "本次没有附带校订记录，原浏览器中的记录仍保留。"}\n4. 试玩进度：${progress !== null ? "恢复工程后，可选择合并包内记录；也可在检查页导入 review/playtest-progress.worldplaytest。旧稿记录不会计入当前稿，不代表人工验收。" : "本次没有附带试玩进度，原浏览器中的记录仍保留。"}\n5. 交付清单：delivery.json 列出源工程、游戏和所附记录的大小及 SHA-256。\n\nsource、release、review 均是作者资料，不要上传到玩家网站。release/preparation.json 和 release/准备上线.txt 是同一源工程的内部来源清单，含逐素材来源及待办。只有明确加入“制作名单”的公开署名进入游戏；确认依据不等于工具作出授权结论。\n本包不包含玩家存档。内容来自同一次保存快照；不代表真人阅读、素材许可、真机或所有分支已经验收。游戏使用发布名称，源工程保留编辑器中的项目名称。实际部署、真机和离线升级仍需按清单执行。\n`);
   const rows = Object.entries(files).sort(([a], [b]) => a.localeCompare(b)).map(([path, bytes]) => ({ path, byteLength: bytes.length, digest: createBlobDigest(bytes) }));
   if (rows.length + 1 > LIMITS.maxEntries || rows.reduce((sum, row) => sum + row.byteLength, 0) > LIMITS.maxTotalBytes - 1024 * 1024) throw Error("制作交付包超过 512 MB，请分别导出游戏和源工程。");
   const manifest: WebDeliveryManifest = { schemaVersion: 1, kind: "world-production-delivery", projectId: project.manifest.projectId, publication: { name: publication.name, version: publication.version }, format: directory ? "directory" : "html", sourceProjectDigest: semanticHash(project), gameProjectDigest: game.projectDigest, gameEntry: "game/index.html", sourceEntry: "source/project.zip", reviewEntry: notes !== null ? "review/playtest-notes.worldreview" : null, progressEntry: progress !== null ? "review/playtest-progress.worldplaytest" : null, files: rows };

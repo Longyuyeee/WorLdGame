@@ -1,0 +1,101 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "name": "chromium-purpose-three-viewports-save-reopen-and-checks-return-without-expired-links",
+      "detail": {
+        "version": "151.0.7922.34",
+        "physicalPhone": false
+      }
+    },
+    {
+      "name": "actual-website-zip-has-only-same-build-public-bytes-private-data-only-in-restorable-source-and-production",
+      "detail": {
+        "publicFiles": 36,
+        "noNodeRequiredByExport": true,
+        "originalStoryVersion": "1.7.14"
+      }
+    },
+    {
+      "name": "pure-website-local-byte-check-http-check-offline-cache-disconnect-reload-and-explicit-save-load",
+      "detail": {
+        "physicalPhone": false,
+        "publicHttps": false,
+        "strictUpgradeLifecycle": false
+      }
+    },
+    {
+      "name": "website-production-restores-editable-source-and-private-evidence-in-fresh-author-profile",
+      "detail": {}
+    },
+    {
+      "name": "firefox-purpose-three-viewports-save-reopen-and-checks-return-without-expired-links",
+      "detail": {
+        "version": "153.0",
+        "physicalPhone": false
+      }
+    },
+    {
+      "name": "webkit-purpose-three-viewports-save-reopen-and-checks-return-without-expired-links",
+      "detail": {
+        "version": "26.5",
+        "physicalPhone": false
+      }
+    }
+  ],
+  "errors": [],
+  "results": [
+    {
+      "engine": "chromium",
+      "version": "151.0.7922.34",
+      "passed": true
+    },
+    {
+      "engine": "firefox",
+      "version": "153.0",
+      "passed": true
+    },
+    {
+      "engine": "webkit",
+      "version": "26.5",
+      "passed": true
+    }
+  ],
+  "artifacts": {
+    "editor": {
+      "/assets/index-Dw38quf7.js": "7b3dcbd842addd94a8d1e28d178464ee63a95e0648930fdfb78d5a9d3c0eda81",
+      "/assets/index-CcVETxYI.css": "bc9c485039c35e2f2593cb02e5d4a3b8b44161c897949e17975e5123ef86d45d"
+    },
+    "website": {
+      "bytes": 32507489,
+      "sha256": "57fa7def0338e38e39e562dcc735349f8c10890b887197c12eeed5c2d3033c07",
+      "files": 36,
+      "projectDigest": "3485a72873713fc3ee796341950c7867adbea6f09db901c12cd6ab2abca93325",
+      "version": "1.7.14"
+    },
+    "local": {
+      "bytes": 32534807,
+      "sha256": "025faee929444510d4c98b66168b3c810fea61e854404ca5f24e892e9a14ebc3",
+      "publicFilesExactlyEqual": true,
+      "extraAuthorHelpers": 5
+    },
+    "production": {
+      "bytes": 64243452,
+      "sha256": "0deee7ad5f117fd3e00b60fca4ae0873987c48c2fa902ff84502f0fd883be50d",
+      "unchangedNonManifestSourceEntries": 64,
+      "pendingAssets": 25,
+      "confirmedAssets": 0
+    },
+    "localSite": {
+      "checkedFiles": 36,
+      "loopback": true,
+      "offlineReloadFromServiceWorker": true,
+      "offlineStageImagesReady": true,
+      "savedHash": "323e3a93d5bd78bb4c6911e6cfc2a2e55fbe226a4956cf911c3211e4fa7e67c2",
+      "loadedHash": "323e3a93d5bd78bb4c6911e6cfc2a2e55fbe226a4956cf911c3211e4fa7e67c2",
+      "publicDeployment": false,
+      "naturalAudioAcceptance": false
+    }
+  },
+  "scope": "Three desktop engines for author choice/resize/reopen only; Chromium actual local/website/production exports, original 1.7.14 source and loopback offline saved-position checks. No public hosting, physical devices/Safari, permission approval, human listening or full offline update lifecycle. Temporary validation downloads cleaned; original source/media unmodified."
+}

@@ -10,6 +10,8 @@ import { unzipSync, strFromU8 } from 'fflate';
 import { readGamePayload } from './audit-rain-story-refinement.mjs';
 
 const root = path.resolve(import.meta.dirname, '..'), output = path.resolve(root, process.env.STUDIO_CONTEXTUAL_OUTPUT_DIRECTORY ?? 'evidence/web-contextual-review');
+const directoryPurpose = process.env.STUDIO_CONTEXTUAL_DIRECTORY_PURPOSE ?? 'directory';
+assert.ok(['directory', 'website'].includes(directoryPurpose));
 await mkdir(output, { recursive: true });
 const baseline = process.argv.includes('--baseline'), require = createRequire(import.meta.url);
 let chromium;
@@ -201,17 +203,18 @@ try {
     temporary = await mkdtemp(path.join(tmpdir(), 'world-context-review-'));
     const downloads = {}, outputs = {};
     for (const format of ['html', 'directory']) {
-      await page.locator(`input[name="publication-format"][value="${format}"]`).check();
+      const selection = format === 'directory' ? directoryPurpose : format, link = selection === 'website' ? '下载网站上传包' : '下载游戏';
+      await page.locator(`input[name="publication-format"][value="${selection}"]`).check();
       for (const label of ['同时生成制作交付包', '附带校订记录', '附带试玩进度']) await page.getByLabel(label, { exact: true }).check();
       await page.getByRole('button', { name: '继续：生成游戏 →', exact: true }).click();
       await page.getByText('故事与素材检查通过', { exact: true }).waitFor();
-      await page.getByRole('button', { name: format === 'html' ? '构建试玩 HTML' : '构建目录 ZIP', exact: true }).click();
-      await page.getByRole('link', { name: '下载游戏', exact: true }).waitFor({ timeout: 90_000 });
-      downloads[format] = await download(page.getByRole('link', { name: '下载游戏', exact: true }));
+      await page.getByRole('button', { name: format === 'html' ? '构建试玩 HTML' : selection === 'website' ? '构建网站上传 ZIP' : '构建目录 ZIP', exact: true }).click();
+      await page.getByRole('link', { name: link, exact: true }).waitFor({ timeout: 90_000 });
+      downloads[format] = await download(page.getByRole('link', { name: link, exact: true }));
       const delivery = await download(page.getByRole('link', { name: '下载制作交付包', exact: true })), pack = unzipSync(delivery), manifest = JSON.parse(strFromU8(pack['delivery.json']));
       assert.deepEqual(JSON.parse(strFromU8(pack[manifest.reviewEntry])), notes);
       assert.equal(JSON.parse(strFromU8(pack[manifest.progressEntry])).completions.length, 2);
-      outputs[format] = { bytes: downloads[format].length, sha256: digest(downloads[format]), productionBytes: delivery.length, productionSha256: digest(delivery), fixedNotes: 11, explicitHumanReviews: 0, entryCompletions: 2 };
+      outputs[format] = { selection, bytes: downloads[format].length, sha256: digest(downloads[format]), productionBytes: delivery.length, productionSha256: digest(delivery), fixedNotes: 11, explicitHumanReviews: 0, entryCompletions: 2 };
       if (format === 'html') await page.getByRole('button', { name: '← 导出方式', exact: true }).click();
     }
     const web = unzipSync(downloads.directory), htmlPayload = readGamePayload(downloads.html.toString()), webPayload = readGamePayload(strFromU8(web['index.html']));

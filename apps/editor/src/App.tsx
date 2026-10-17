@@ -3255,12 +3255,12 @@ interface PreviewPanelProps extends CommonProps {
   readonly pendingReviewNotes?: number;
   readonly onOpenReviewNotes?: () => void;
   readonly initialPublicationStep?: number;
-  readonly initialPublicationFormat?: "html" | "directory";
+  readonly initialPublicationFormat?: PublicationWorkflow['format'];
   readonly reviewTrace?: RouteReviewTrace | null;
   readonly playtestProgress?: PlaytestProgressState;
-  readonly onRestartPlaytest?: (format: "html" | "directory") => void;
-  readonly onReleaseFix?: (finding: WebReleaseFinding, format: "html" | "directory") => void;
-  readonly onReleaseReview?: (route: boolean, format: "html" | "directory") => void;
+  readonly onRestartPlaytest?: (format: PublicationWorkflow['format']) => void;
+  readonly onReleaseFix?: (finding: WebReleaseFinding, format: PublicationWorkflow['format']) => void;
+  readonly onReleaseReview?: (route: boolean, format: PublicationWorkflow['format']) => void;
   readonly continuity?: PreviewContinuity | undefined;
   readonly onContinuityChange?: ((continuity: PreviewContinuity) => void) | undefined;
   readonly hidden?: boolean;
@@ -3308,7 +3308,7 @@ function PreviewPanel({ focusMode = false, onFocusModeChange, publicationWorkflo
   const setIncludeReviewNotes = (value: boolean) => updateWorkflow({ includeReviewNotes: value });
   const setIncludePlaytestProgress = (value: boolean) => updateWorkflow({ includePlaytestProgress: value });
   const setPublicationStep = (value: number) => updateWorkflow({ step: value });
-  const setPublicationFormat = (value: 'html' | 'directory') => updateWorkflow({ format: value });
+  const setPublicationFormat = (value: PublicationWorkflow['format']) => updateWorkflow({ format: value });
   useEffect(() => { onDraftChange?.(publicationDirty); }, [publicationDirty, onDraftChange]);
   useEffect(() => () => onDraftChange?.(false), [onDraftChange]);
   const [viewportProfileId, setViewportProfileId] = useState<PreviewViewportProfileId>(
@@ -3332,7 +3332,7 @@ function PreviewPanel({ focusMode = false, onFocusModeChange, publicationWorkflo
   const [runtimeDetailsOpen, setRuntimeDetailsOpen] = useState(() => resumption!.continuity.detailsOpen);
   const [resumed, setResumed] = useState(() => resumption!.resumed);
   const [hotUpdate, setHotUpdate] = useState<Exclude<FormalPreviewHotUpdateResult, { readonly kind: "unchanged" }> | null>(() => resumption!.update);
-  const [webBuild, setWebBuild] = useState<(Omit<FormalWebArtifact, "html"> & { readonly directory: boolean; readonly href: string; readonly production?: { readonly href: string; readonly filename: string; readonly byteLength: number; readonly notesIncluded: boolean; readonly progressIncluded: boolean }; readonly dispose: () => void }) | null>(null);
+  const [webBuild, setWebBuild] = useState<(Omit<FormalWebArtifact, "html"> & { readonly directory: boolean; readonly websiteOnly: boolean; readonly href: string; readonly production?: { readonly href: string; readonly filename: string; readonly byteLength: number; readonly notesIncluded: boolean; readonly progressIncluded: boolean }; readonly dispose: () => void }) | null>(null);
   const [webBuilding, setWebBuilding] = useState(false);
   const [webBuildPhase, setWebBuildPhase] = useState("正在打包当前游戏…");
   const webBuildGeneration = useRef(0);
@@ -3673,7 +3673,8 @@ function PreviewPanel({ focusMode = false, onFocusModeChange, publicationWorkflo
     onPlaytestRequestHandled?.({ serial: playtestRequest.serial, sourceHash: started.reviewSourceHash, started: started.status !== 'error' && started.status !== 'idle' });
   }, [playtestRequest, projectRunBlocked, canonicalProject, assetIndex, onPlaytestRequestHandled]);
 
-  const preparePlayableWeb = async (directory = false) => {
+  const preparePlayableWeb = async () => {
+    const directory = publicationFormat !== 'html', websiteOnly = publicationFormat === 'website';
     if (projectRunBlocked || publicationDirty || webBuilding || !releaseInspection.ready) return;
     webBuildController.current?.abort();
     const controller = new AbortController(); webBuildController.current = controller;
@@ -3689,7 +3690,7 @@ function PreviewPanel({ focusMode = false, onFocusModeChange, publicationWorkflo
       const { default: runtime } = await import("virtual:world-player-export");
       const reader = assetRepository ?? { read: async () => null };
       const artifact = directory
-        ? await createFormalWebDirectoryArtifact(canonicalProject, reader, runtime, controller.signal, atlasPreview.verification.verify)
+        ? await createFormalWebDirectoryArtifact(canonicalProject, reader, runtime, controller.signal, atlasPreview.verification.verify, websiteOnly ? 'website' : 'local')
         : await createFormalWebArtifact(canonicalProject, reader, runtime, controller.signal, atlasPreview.verification.verify);
       const production = includeProductionBundle ? await createWebDeliveryBundle(canonicalProject, assetIndex, reader, artifact, includeReviewNotes ? deliveryReviewNotes : null, controller.signal, label => { if (generation === webBuildGeneration.current) setWebBuildPhase(label); }, includePlaytestProgress ? playtestProgress?.completions ?? [] : null) : null;
       if (generation !== webBuildGeneration.current) return;
@@ -3697,7 +3698,7 @@ function PreviewPanel({ focusMode = false, onFocusModeChange, publicationWorkflo
       const href = URL.createObjectURL(new Blob([contents], { type: directory ? "application/zip" : "text/html;charset=utf-8" }));
       let productionHref: string | null = null;
       try { productionHref = production ? URL.createObjectURL(new Blob([new Uint8Array(production.archive)], { type: "application/zip" })) : null; } catch (error) { URL.revokeObjectURL(href); throw error; }
-      setWebBuild({ filename: artifact.filename, byteLength: artifact.byteLength, projectDigest: artifact.projectDigest, optimizationReport: artifact.optimizationReport, directory, href, ...(production && productionHref ? { production: { href: productionHref, filename: production.filename, byteLength: production.byteLength, notesIncluded: includeReviewNotes, progressIncluded: includePlaytestProgress } } : {}), dispose: () => { URL.revokeObjectURL(href); if (productionHref) URL.revokeObjectURL(productionHref); } });
+      setWebBuild({ filename: artifact.filename, byteLength: artifact.byteLength, projectDigest: artifact.projectDigest, optimizationReport: artifact.optimizationReport, directory, websiteOnly, href, ...(production && productionHref ? { production: { href: productionHref, filename: production.filename, byteLength: production.byteLength, notesIncluded: includeReviewNotes, progressIncluded: includePlaytestProgress } } : {}), dispose: () => { URL.revokeObjectURL(href); if (productionHref) URL.revokeObjectURL(productionHref); } });
     } catch (error) {
       if (generation === webBuildGeneration.current) {
         if (error instanceof WebReleaseValidationError) {
@@ -4152,10 +4153,11 @@ function PreviewPanel({ focusMode = false, onFocusModeChange, publicationWorkflo
         {publicationDirty && <p className="publication-draft-note">请先应用或放弃上面的作品信息修改。</p>}
       </section>
       <section className="publication-step-panel" hidden={publicationStep !== 1} aria-label="选择导出方式">
-        <h3>选择适合你的交付方式</h3><p className="publication-section-intro">两种方式都包含当前故事、素材和播放器。</p>
+        <h3>选择适合你的交付方式</h3><p className="publication-section-intro">都包含当前故事、素材和播放器；按试玩分享、本地排查或网站上传选择。</p>
         <fieldset className="publication-formats"><legend className="sr-only">游戏导出格式</legend>
           <label className={publicationFormat === "html" ? "is-selected" : ""}><input type="radio" name="publication-format" value="html" checked={publicationFormat === "html"} onChange={() => setPublicationFormat("html")} /><span><strong>单文件 HTML <em>推荐</em></strong><small>一个文件，下载后直接打开。适合试玩和分享。</small></span></label>
-          <label className={publicationFormat === "directory" ? "is-selected" : ""}><input type="radio" name="publication-format" value="directory" checked={publicationFormat === "directory"} onChange={() => setPublicationFormat("directory")} /><span><strong>网页目录 ZIP</strong><small>素材独立存放。适合大作品和网站部署。</small></span></label>
+          <label className={publicationFormat === "directory" ? "is-selected" : ""}><input type="radio" name="publication-format" value="directory" checked={publicationFormat === "directory"} onChange={() => setPublicationFormat("directory")} /><span><strong>网页目录 ZIP</strong><small>素材独立存放，附本地预览与部署核对助手。适合本地试玩和排查。</small></span></label>
+          <label className={publicationFormat === "website" ? "is-selected" : ""}><input type="radio" name="publication-format" value="website" checked={publicationFormat === "website"} onChange={() => setPublicationFormat("website")} /><span><strong>网站上传 ZIP</strong><small>只含网站公开文件，不含本地助手或作者资料。无需安装 Node.js 生成，解压后将内容上传静态网站；不会自动上线。</small></span></label>
         </fieldset>
         <section className="production-delivery-options" aria-label="制作交付选项">
           <label><input type="checkbox" aria-label="同时生成制作交付包" checked={includeProductionBundle} disabled={projectRunBlocked || webBuilding || publicationDirty} onChange={event => setIncludeProductionBundle(event.target.checked)} /><span><strong>同时生成制作交付包</strong><small>先保存当前内容，再把游戏、可编辑工程和交付清单放进一个 ZIP，方便备份与继续制作。</small></span></label>
@@ -4180,31 +4182,32 @@ function PreviewPanel({ focusMode = false, onFocusModeChange, publicationWorkflo
       <section className="publication-step-panel publication-generation" hidden={publicationStep !== 2} aria-label="生成可运行的游戏">
         <h3>检查当前作品并生成游戏</h3><p className="publication-section-intro">自动核对故事和源文件，发现问题后可以直接定位修复。</p>
         <div className="publication-package">
-          <span className="publication-package__mark" aria-hidden="true"><StudioIcon name="publish" /></span><div><strong>{readWebPublication(canonicalProject).name}</strong><span>{readWebPublication(canonicalProject).version} · Web · {publicationFormat === "html" ? "单文件 HTML" : "网页目录 ZIP"}</span></div>
+          <span className="publication-package__mark" aria-hidden="true"><StudioIcon name="publish" /></span><div><strong>{readWebPublication(canonicalProject).name}</strong><span>{readWebPublication(canonicalProject).version} · Web · {publicationFormat === "html" ? "单文件 HTML" : publicationFormat === 'website' ? '网站上传 ZIP' : "网页目录 ZIP"}</span></div>
         </div>
         <dl className="publication-inventory"><div><dt>故事场景</dt><dd>{session.project.scenes.length} 个</dd></div><div><dt>创作素材</dt><dd>{assetIndex.assets.length} 项</dd></div><div><dt>运行方式</dt><dd>离线可运行</dd></div></dl>
         {pendingReviewNotes > 0 && <section className="release-review-notes" aria-label="发布前校订提醒"><StudioIcon name="write" /><div><strong>{pendingReviewNotes} 条试玩问题仍待跟进</strong><p>请确认这些问题是否影响交付；记录不会自动判定作品通过。</p></div><button type="button" disabled={projectRunBlocked || publicationDirty || webBuilding} onClick={onOpenReviewNotes}>查看校订清单</button></section>}
         <WebReleasePreparation project={canonicalProject} disabled={projectRunBlocked || publicationDirty || webBuilding} onOpen={target => setSourcesOpen(target ?? {})} />
       <WebReleaseReadiness project={canonicalProject} inspection={releaseInspection} blocked={projectRunBlocked || publicationDirty} busy={webBuilding} trace={reviewTrace} progress={playtestProgress} onRestartPreview={() => onRestartPlaytest?.(publicationFormat)} onOpen={finding => { if (finding.target === "publication") setPublicationStep(0); else onReleaseFix?.(finding, publicationFormat); }} onPreview={() => onReleaseReview?.(false, publicationFormat)} onRoutes={() => onReleaseReview?.(true, publicationFormat)} />
-        <div className="publication-step-actions"><button type="button" disabled={webBuilding} onClick={() => setPublicationStep(1)}>← 导出方式</button><button className="studio-primary publication-build" type="button" aria-label={publicationFormat === "html" ? "构建试玩 HTML" : "构建目录 ZIP"} onClick={() => void preparePlayableWeb(publicationFormat === "directory")} disabled={projectRunBlocked || webBuilding || publicationDirty || !releaseInspection.ready}>{webBuilding ? "正在打包游戏…" : releaseInspection.checking ? "正在检查…" : "↗ 导出游戏"}</button></div>
+        <div className="publication-step-actions"><button type="button" disabled={webBuilding} onClick={() => setPublicationStep(1)}>← 导出方式</button><button className="studio-primary publication-build" type="button" aria-label={publicationFormat === "html" ? "构建试玩 HTML" : publicationFormat === "website" ? "构建网站上传 ZIP" : "构建目录 ZIP"} onClick={() => void preparePlayableWeb()} disabled={projectRunBlocked || webBuilding || publicationDirty || !releaseInspection.ready}>{webBuilding ? "正在打包游戏…" : releaseInspection.checking ? "正在检查…" : publicationFormat === "website" ? "↗ 生成网站上传包" : "↗ 导出游戏"}</button></div>
         {webBuilding && <button type="button" onClick={() => { webBuildController.current?.abort(); webBuildGeneration.current++; setWebBuilding(false); setWebBuildError("构建已取消，源工程未改变，可重新构建。"); }}>取消本次构建</button>}
         {projectRunBlocked && <p className="publication-draft-note" role="status">工程有尚未应用或待修复的内容，请先完成编辑再导出。</p>}
         {webBuild && <button className="studio-primary publication-next" type="button" onClick={() => setPublicationStep(3)}>继续：试玩与部署 →</button>}
       </section>
       <section className="publication-step-panel" hidden={publicationStep !== 3} aria-label="试玩与部署">
-        <WebReleaseGuide format={webBuild ? webBuild.directory ? "directory" : "html" : publicationFormat} ready={webBuild !== null} productionReady={webBuild?.production !== undefined} />
+        <WebReleaseGuide format={webBuild ? webBuild.websiteOnly ? "website" : webBuild.directory ? "directory" : "html" : publicationFormat} ready={webBuild !== null} productionReady={webBuild?.production !== undefined} />
         <WebReleasePreparation project={canonicalProject} disabled={projectRunBlocked || publicationDirty || webBuilding} onOpen={target => setSourcesOpen(target ?? {})} />
         <div className="publication-step-actions"><button type="button" onClick={() => setPublicationStep(2)}>← 生成游戏</button><button type="button" onClick={() => setPublicationStep(1)}>更换导出方式</button></div>
       </section>
       </div>
       <aside className={`publication-result${webBuild ? " is-ready" : ""}`} aria-label="游戏导出结果">
         <span className="publication-result__icon" aria-hidden="true">{webBuild ? "✓" : webBuilding ? "…" : "↗"}</span>
-        <h3>{webBuild ? "游戏已生成" : webBuilding ? "正在生成游戏" : "等待导出"}</h3>
+        <h3>{webBuild ? webBuild.websiteOnly ? "网站上传包已生成" : "游戏已生成" : webBuilding ? "正在生成游戏" : "等待导出"}</h3>
         <p>{webBuild ? "可以下载并试玩。文件还未上传到网站。" : webBuilding ? webBuildPhase : "完成左侧步骤，生成属于你的游戏。"}</p>
-        {webBuild && <><div className="publication-file"><span aria-hidden="true">▤</span><strong>{webBuild.filename}</strong></div><dl><div><dt>文件大小</dt><dd>{formatBytes(webBuild.byteLength)}</dd></div><div><dt>格式</dt><dd>{webBuild.directory ? "目录 ZIP" : "单文件 HTML"}</dd></div></dl>
-          {!publicationDirty && <a className="studio-primary" href={webBuild.href} download={webBuild.filename}>下载游戏</a>}
+        {webBuild && <><div className="publication-file"><span aria-hidden="true">▤</span><strong>{webBuild.filename}</strong></div><dl><div><dt>文件大小</dt><dd>{formatBytes(webBuild.byteLength)}</dd></div><div><dt>格式</dt><dd>{webBuild.websiteOnly ? "网站上传 ZIP（仅公开文件）" : webBuild.directory ? "目录 ZIP（含本地助手）" : "单文件 HTML"}</dd></div></dl>
+          {!publicationDirty && <a className="studio-primary" href={webBuild.href} download={webBuild.filename}>{webBuild.websiteOnly ? '下载网站上传包' : '下载游戏'}</a>}
           {!publicationDirty && webBuild.production && <a className="production-delivery-download" href={webBuild.production.href} download={webBuild.production.filename}>下载制作交付包</a>}
-          {webBuild.production && <p className="production-delivery-summary">含可编辑工程、游戏和交付清单{webBuild.production.notesIncluded ? "、校订记录" : ""}{webBuild.production.progressIncluded ? "、试玩进度" : ""} · {formatBytes(webBuild.production.byteLength)}。可从首页导入这个包继续制作；网站仅部署包内 game 文件夹。</p>}
+          {webBuild.websiteOnly && <p className="production-delivery-summary">上传包已排除本地助手和作者资料。完整解压，把其中内容放到网站目录根层，保持 media 路径；最后更新 sw.js。没有执行上传或上线验收。</p>}
+          {webBuild.production && <p className="production-delivery-summary">作者内部备份：含可编辑工程、游戏和交付清单{webBuild.production.notesIncluded ? "、校订记录" : ""}{webBuild.production.progressIncluded ? "、试玩进度" : ""} · {formatBytes(webBuild.production.byteLength)}。可从首页导入继续制作；不要把整个制作交付包上传玩家网站。{webBuild.websiteOnly ? '包内 game 是同版纯网站文件。' : '网站发布请选择网站上传 ZIP，或用目录包助手生成纯网站目录。'}</p>}
           {!publicationDirty && !webBuild.directory && <a className="publication-open" href={webBuild.href} target="_blank" rel="noreferrer">▷ 打开试玩</a>}
           <small>修改工程后，需要重新生成文件。</small>
         </>}
@@ -4301,7 +4304,7 @@ export function App({ workspaceReferenceId, initialDeliveryReview, onDeliveryRev
   const [settingsOpen, setSettingsOpen] = useState(loadedWorkPosition.value?.page === "appearance");
   const [publishOpen, setPublishOpen] = useState(loadedWorkPosition.value?.page === "publish");
   const [publicationWorkflow, setPublicationWorkflow] = useState<PublicationWorkflow>(() => resumePublicationWorkflow(loadedWorkPosition.value?.publication ?? DEFAULT_PUBLICATION_WORKFLOW));
-  const [releaseReturnFormat, setReleaseReturnFormat] = useState<"html" | "directory" | null>(loadedWorkPosition.value?.releaseReturnFormat ?? null);
+  const [releaseReturnFormat, setReleaseReturnFormat] = useState<PublicationWorkflow['format'] | null>(loadedWorkPosition.value?.releaseReturnFormat ?? null);
   const [pageDirty, setPageDirty] = useState(false);
   const [textReplaceOpen, setTextReplaceOpen] = useState(false);
   const [batchAssetOpen, setBatchAssetOpen] = useState(false);
@@ -5667,7 +5670,7 @@ export function App({ workspaceReferenceId, initialDeliveryReview, onDeliveryRev
     else if (page === "checks") selectWorkspaceMode("debug-qa");
     else if (page === "story" && (workspaceMode === "production" || workspaceMode === "debug-qa")) selectWorkspaceMode("writer");
   };
-  const openReleaseFix = (finding: WebReleaseFinding, format: "html" | "directory") => {
+  const openReleaseFix = (finding: WebReleaseFinding, format: PublicationWorkflow['format']) => {
     setReleaseReturnFormat(format);
     openStudioPage(finding.target === "publication" ? "publish" : finding.target);
     if (finding.target === "assets") {
@@ -5683,7 +5686,7 @@ export function App({ workspaceReferenceId, initialDeliveryReview, onDeliveryRev
       }
     }
   };
-  const openReleaseReview = (route: boolean, format: "html" | "directory") => {
+  const openReleaseReview = (route: boolean, format: PublicationWorkflow['format']) => {
     setReleaseReturnFormat(format); openStudioPage("story");
     setWorkspaceMode(route ? "flow" : "writer"); setMode(route ? "flow" : "sequence"); setPreviewOpen(!route);
   };

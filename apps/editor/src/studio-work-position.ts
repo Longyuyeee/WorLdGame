@@ -6,7 +6,7 @@ import { readReviewList, readReviewTask, type ReviewListView, type ReviewTask } 
 
 export interface PublicationWorkflow {
   readonly step: number;
-  readonly format: 'html' | 'directory';
+  readonly format: 'html' | 'directory' | 'website';
   readonly includeProductionBundle: boolean;
   readonly includeReviewNotes: boolean;
   readonly includePlaytestProgress: boolean;
@@ -24,12 +24,12 @@ export interface StudioWorkPosition {
   readonly productionSection: 'assets' | 'localization' | 'collections';
   readonly previewOpen: boolean;
   readonly publication: PublicationWorkflow;
-  readonly releaseReturnFormat: 'html' | 'directory' | null;
+  readonly releaseReturnFormat: PublicationWorkflow['format'] | null;
   readonly reviewTask?: ReviewTask | null;
   readonly reviewList?: ReviewListView;
 }
 const pages = ['story', 'assets', 'appearance', 'checks', 'publish'];
-const format = (value: unknown) => value === 'html' || value === 'directory';
+const format = (value: unknown) => value === 'html' || value === 'directory' || value === 'website';
 export const studioWorkPositionKey = (referenceId: string) => `world-studio:work-position:${referenceId}`;
 /** Only personal navigation and choices. Never a draft, runtime session or generated download. */
 export function readStudioWorkPosition(raw: string | null, referenceId: string, projectId: string): StudioWorkPosition | null {
@@ -56,7 +56,7 @@ export function resumeWorkSelection(session: StudioSession, position: StudioWork
 }
 export function studioWorkDescription(referenceId: string, projectId: string): string | undefined {
   const value = loadStudioWorkPosition(referenceId, projectId).value; if (!value) return;
-  if (value.page === 'publish') return `继续发布 · ${['作品信息', '导出方式', '生成游戏'][Math.min(value.publication.step, 2)]} · ${value.publication.format === 'html' ? '单文件 HTML' : '目录 ZIP'}`;
+  if (value.page === 'publish') return `继续发布 · ${['作品信息', '导出方式', '生成游戏'][Math.min(value.publication.step, 2)]} · ${value.publication.format === 'html' ? '单文件 HTML' : value.publication.format === 'website' ? '网站上传 ZIP' : '目录 ZIP'}`;
   if (value.page === 'assets') return `继续${({ assets: '整理素材', localization: '翻译与配音', collections: '制作附加内容' })[value.productionSection]}`;
   if (value.page === 'story' && value.reviewTask) return '继续校订';
   if (value.page === 'story') return value.workspaceMode === 'director' ? '继续编排演出' : value.workspaceMode === 'flow' ? '继续整理路线' : '继续写作';

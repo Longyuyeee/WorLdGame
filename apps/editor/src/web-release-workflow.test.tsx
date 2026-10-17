@@ -52,15 +52,16 @@ it("paginates blockers, collapses warnings and accurately marks a stale playtest
   expect(screen.getByText("作品已修改，请重新试玩")).toBeVisible();
 });
 
-it("takes a creator from a real release blocker to its stable source and back to the selected export format", async () => {
+it.each(['directory', 'website'] as const)("takes a creator from a real release blocker to its stable source and back to %s", async format => {
+  const buildName = format === 'website' ? '构建网站上传 ZIP' : '构建目录 ZIP';
   render(<App initialProject={project()} autosaveDebounceMs={60_000} />);
   fireEvent.click(within(screen.getByRole("navigation", { name: "主要功能" })).getByRole("button", { name: "发布" }));
   fireEvent.click(screen.getByRole("button", { name: "继续：导出方式 →" }));
-  fireEvent.click(screen.getByRole("radio", { name: /网页目录 ZIP/ }));
+  fireEvent.click(screen.getByRole("radio", { name: format === 'website' ? /网站上传 ZIP/ : /网页目录 ZIP/ }));
   fireEvent.click(screen.getByRole("button", { name: "继续：生成游戏 →" }));
   const checklist = await screen.findByRole("region", { name: "生成前检查" });
   const finding = (await within(checklist).findByText("跳转目标不存在")).closest("li")!;
-  expect(screen.getByRole("button", { name: "构建目录 ZIP" })).toBeDisabled();
+  expect(screen.getByRole("button", { name: buildName })).toBeDisabled();
   fireEvent.click(within(finding).getByRole("button", { name: "定位并修复" }));
   expect(screen.getByTestId("workspace-shell")).toHaveAttribute("data-context-statement-id", "jump");
   expect(screen.getByRole("button", { name: "返回生成游戏" })).toBeVisible();
@@ -70,6 +71,6 @@ it("takes a creator from a real release blocker to its stable source and back to
   await waitFor(() => expect(screen.getByRole("button", { name: "返回生成游戏" })).toBeEnabled());
   fireEvent.click(screen.getByRole("button", { name: "返回生成游戏" }));
   expect(screen.getByRole("region", { name: "生成可运行的游戏" })).toBeVisible();
-  await waitFor(() => expect(screen.getByRole("button", { name: "构建目录 ZIP" })).toBeEnabled());
+  await waitFor(() => expect(screen.getByRole("button", { name: buildName })).toBeEnabled());
   expect(screen.getByText("故事与素材检查通过")).toBeVisible();
 });

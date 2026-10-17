@@ -65,8 +65,9 @@ export async function createFormalWebArtifact(
 export async function createFormalWebDirectoryArtifact(
   project: CanonicalProject,
   reader: { read(digest: BlobDigest): Promise<Uint8Array | null> } & AtlasExportReader,
-  runtime: { readonly javascript: string; readonly css: string }, signal?: AbortSignal, verify?: NativeAtlasVerifier
+  runtime: { readonly javascript: string; readonly css: string }, signal?: AbortSignal, verify?: NativeAtlasVerifier, purpose: 'local' | 'website' = 'local'
 ) {
+  if (purpose !== 'local' && purpose !== 'website') throw Error('目录用途不正确，请重新选择导出方式。');
   const publication = readWebPublication(project);
   project = withoutWebAuthoringMetadata({ ...project, manifest: { ...project.manifest, title: publication.name } });
   const encode = (text: string) => new TextEncoder().encode(text);
@@ -96,6 +97,9 @@ export async function createFormalWebDirectoryArtifact(
   addWebOfflineFiles(files, project.manifest.title, publication.version, iconInfo);
   const projectDigest = semanticHash(project);
   files["build-info.json"] = encode(JSON.stringify({ schemaVersion: 1, format: "world-web-directory", projectTitle: project.manifest.title, publication, projectId: project.manifest.projectId, projectDigest, entry: "index.html", files: Object.entries(files).map(([path, bytes]) => ({ path, byteLength: bytes.byteLength, digest: createBlobDigest(bytes) })) }, null, 2));
+  // Public website bytes are exactly this fresh build's inventory plus build-info.
+  // Author-side helpers are added only to the local-preview directory below.
+  if (purpose === 'local') {
   files["preview.mjs"] = encode(previewServer);
   files['deployment-check.mjs'] = encode(deploymentCheck);
   files['check-deployment.cmd'] = encode('@echo off\r\nchcp 65001 >nul\r\nwhere node >nul 2>nul\r\nif errorlevel 1 (\r\n  echo 请先安装 Node.js 22 或更高版本：https://nodejs.org/\r\n  pause\r\n  exit /b 1\r\n)\r\nnode "%~dp0deployment-check.mjs" --interactive\r\npause\r\n');
@@ -114,6 +118,7 @@ export async function createFormalWebDirectoryArtifact(
 preview.mjs、deployment-check.mjs 和两个 CMD 入口仅供作者本地使用，不属于离线缓存。纯网站目录会保留 build-info.json 和清单列出的游戏文件，排除这些助手及作者资料。
 
 分享和发布：
+如果仍在编辑器中，可直接选择“网站上传 ZIP”生成同版纯网站文件，无需先安装 Node.js。当前目录包保留本地助手供试玩与核对；两种用途的公开游戏文件一致。
 分享整个 ZIP，不要只发送 index.html。发布网站前先双击 check-deployment.cmd，选择“生成纯网站目录”；其他系统运行 node deployment-check.mjs --prepare。它会逐份核对文件大小/摘要，再生成独立 website-ready-* 文件夹，不覆盖原目录、不上传网站。只上传该文件夹中的内容（含 build-info.json），最后上传 sw.js；不要直接上传源工程、作者交付资料或整个解压根目录。
 已有网站时，双击 check-deployment.cmd 选择“只读核对已部署网站”，填写有权限核对的最终 HTTPS 目录地址；其他系统运行 node deployment-check.mjs --url=https://example.invalid/your-game/ 。该地址只是格式示例，不是已部署网址。检查器只 GET 本包列出的公开文件，逐份比对本地/远端大小与 SHA-256，发现漏传、混版、错误类型、跳转或 SPA 回退会指出具体文件。不会上传文件、登录账户或修改网站；不检查素材许可或替代实际游玩/真机/离线更新验收。报告可加 --json 输出到终端。
 
@@ -130,6 +135,7 @@ preview.mjs、deployment-check.mjs 和两个 CMD 入口仅供作者本地使用�
 
 素材导出策略：${delivery.report.mode === "native-atlas" ? "原生 Atlas Canvas 图块绘制，包含离线原图回退包" : delivery.report.mode === "atlas-compatible" ? "Atlas 兼容普通纹理（不是原生图集渲染）" : delivery.report.mode === "lossless-png" ? "安全 PNG 无损重压缩，不适用或无收益时保留原文件" : "原始文件"}。optimization-report.json 记录素材/共享组成本与回退原因。源工程原素材不修改；恢复原素材导出后重新构建即可恢复。普通媒体使用目录文件；原生 Atlas 组内嵌于 index.html，成本已包含 Base64。打包与播放仍需要浏览器内存，不保证 GPU 内存收益。build-info.json 记录工程标识、文件大小与摘要。
 `);
+  }
   const archive = await new Promise<Uint8Array>((resolve, reject) => {
     const abort = () => { terminate(); reject(new DOMException("游戏构建已取消", "AbortError")); };
     const terminate = zip(files, { level: 0 }, (error, data) => { signal?.removeEventListener("abort", abort); error ? reject(error) : resolve(data); });
@@ -137,5 +143,5 @@ preview.mjs、deployment-check.mjs 和两个 CMD 入口仅供作者本地使用�
     if (signal?.aborted) abort();
   });
   signal?.throwIfAborted();
-  return { filename: `${exportStem(project)}-web.zip`, archive, byteLength: archive.byteLength, projectDigest, optimizationReport: delivery.report };
+  return { filename: purpose === 'website' ? `${exportStem(project)}-${publication.version}-website.zip` : `${exportStem(project)}-web.zip`, archive, byteLength: archive.byteLength, projectDigest, optimizationReport: delivery.report, websiteOnly: purpose === 'website' };
 }
