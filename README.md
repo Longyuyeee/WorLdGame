@@ -1,5 +1,7 @@
 # WorLd Studio（工作名）产品与开发设计文档
 
+> 当前接续（2026-10-17）：[#383 缓存空间与选择清理](docs/383-web-cache-space-and-selected-cleanup.md)。可查看本游戏各构建的缓存内容大小，只清理已备份且不在使用的版本；保护当前／默认／其他窗口和更新中的游戏，确认时重核，存档不删除。103 项相关回归、18 项工具测试及三版本真实清理／两条完整路线范围见 #383。源工程、26 媒体和 19 条记录沿 #380，HTML 沿 #382，当前网站在 evidence/web-cache-management；作品 1.9.0／技术 S0.41 不变。下一批回完整作品内容、演出与实际交付，人工／真机／发行／公网与原生搁置保持。以下为历史。
+
 > 当前接续（2026-10-17）：[#382 内容更新前备份与旧版接续](docs/382-web-content-update-and-old-version-continuity.md)。备份入口、本版浏览器内链接、新版等待／明确启用与另开窗口接通；旧缓存缺失拒绝混用，修复双窗口版本识别与迟到状态。91 项相关回归、18 项工具测试及实际更新／两条完整路线范围见 #382。当前 HTML／网站在 evidence/web-version-retention，1.9.0 源工程、26 媒体与 19 条记录沿 #380，技术 S0.41 不变。缓存非永久备份，新旧共用槽位需先导出进度；下一批补空间与清理，再回完整作品交付。人工／真机／发行／公网及原生搁置保持。以下为历史。
 
 > 当前接续（2026-10-17）：[#381 离线下载进度、取消与恢复](docs/381-web-offline-download-and-recovery.md)。同版网站支持文件进度、取消、具体失败文件和正确重试，修复取消／错误回包时序，原缓存与存档保持。71 项相关回归、18 项工具测试及真实导出／缓存／完整两路线任务通过，范围见 #381。作品仍 1.9.0，源工程、HTML、19 条记录沿 #380，当前网站 ZIP 在 evidence/web-offline-download；剧情、26 媒体和技术基线 S0.41 不变。下一批处理内容变化更新前的备份／保留原版入口引导，人工／真机／发行／公网及原生搁置范围保持。以下为历史。
@@ -46,7 +48,7 @@
 
 > 开发进度与后续方向（2026-10-17）：[#358 剧情动效预设与作者复用](docs/358-web-story-motion-presets.md)。人物/文字动效已接通静音试看、应用、保存重开、跨场景预设和配置往返；样章 0.4.0 保持原正文、路线、外观和七份素材。下一批按 #357 顺序推进带素材皮肤包，再做存档缩略图/创作连续性和自由布局。
 
-> 完整作品接续：《雨停之前》1.9.0 的工程与 19 条校订记录沿 [web-story-branch-context](evidence/web-story-branch-context)，当前 HTML／网站在 [web-version-retention](evidence/web-version-retention)，范围见 [#382](docs/382-web-content-update-and-old-version-continuity.md)。不兼容 1.8.0 或更早剧情存档；旧 1.8.0 源工程在 [web-story-continuity](evidence/web-story-continuity)、原游戏在 [web-reading-position](evidence/web-reading-position)，均保留接续。长篇剩余成本见 [#373](docs/373-web-history-result-transport.md)，外观样章 0.9.0 与历史产物不改写。
+> 完整作品接续：《雨停之前》1.9.0 的工程与 19 条校订记录沿 [web-story-branch-context](evidence/web-story-branch-context)，HTML 沿 [web-version-retention](evidence/web-version-retention)，当前网站在 [web-cache-management](evidence/web-cache-management)，范围见 [#383](docs/383-web-cache-space-and-selected-cleanup.md)。不兼容 1.8.0 或更早剧情存档；旧 1.8.0 源工程在 [web-story-continuity](evidence/web-story-continuity)、原游戏在 [web-reading-position](evidence/web-reading-position)，均保留接续。长篇剩余成本见 [#373](docs/373-web-history-result-transport.md)，外观样章 0.9.0 与历史产物不改写。
 
 > #358 历史判断：基础创作、主要页面模板和首批剧情动效作者流程可用。199 项相关测试、根类型、双构建、便携架构审计及六组实际静音任务通过；当时 HTML file:// 桌面一路和目录 HTTP 手机一路合计独立 Player 两结局，编辑器整部仍 0/2。未计全格式×路线组合、真机/Safari、人工/许可/公网或长篇性能收尾，范围见 #358；不替代顶部当前验证结果。
 
@@ -54,7 +56,7 @@
 > 文档基线：2026-10-17
 > 当前交付目标：[Web 完整 Gal 作品 #304](docs/304-web-complete-gal-delivery.md)。先完成 Web 编辑器与玩家的完整制作、导出和部署上线流程，Windows／Android 原生版本先搁置；当前验收以一部完整作品的实际创作和上线为主线。
 > 当前进展：1.9.0 内容候选为 9 场景/两结局、9,751 字符/85 演出/26 项素材与来源台账；不兼容 1.8.0 或更早剧情存档，原版入口及工程保留。编辑器技术版本与作品版本分别记录，不宣布 Stable。
-> 最新开发记录：[当前状态 #99](docs/99-current-development-status-audit.md)与 [#382 内容更新前备份与旧版接续](docs/382-web-content-update-and-old-version-continuity.md)。[#380](docs/380-web-story-branch-context.md) 保留当前内容／素材基线，#354–#367 保留创作与外观交付，#373 的长篇剩余成本保持；不把旧阶段的下一步当作当前接续。
+> 最新开发记录：[当前状态 #99](docs/99-current-development-status-audit.md)与 [#383 缓存空间与选择清理](docs/383-web-cache-space-and-selected-cleanup.md)。[#380](docs/380-web-story-branch-context.md) 保留当前内容／素材基线，#354–#367 保留创作与外观交付，#373 的长篇剩余成本保持；不把旧阶段的下一步当作当前接续。
 > 当前开发入口：[用户任务优先路线 #289](docs/289-user-centered-delivery-route.md)。N62-E1–E5 已实现，当前优先贯通正式 Web 游戏导出，玩家路线图后置；下方旧阶段记录保留为历史背景。以真实创作和交付任务推进，只做必要验证，真人测试等功能与整体 UI 就绪。
 > 当前重心：《雨停之前》1.9.0 的完整内容／演出复核与 Web 交付，19 条记录待人工复核；《给明天的回信》0.9.0 保留为外观功能样章。自然阅读／听感、真机／Safari、26 项素材发行条件与实际公网仍待验，不反复扩展无关装饰或导出选项。
 > 当前交付边界：优先交付 Web 完整作品能力。原三端 M1 保留为后续整体范围，Windows／Android 未完成项不阻断本轮 Web 交付；M2 以后保留为愿景池。

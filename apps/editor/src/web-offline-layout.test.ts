@@ -31,6 +31,7 @@ it.each([true, false])('does not measure or observe player layout, even without 
   expect(measure).not.toHaveBeenCalled(); expect(observer).not.toHaveBeenCalled();
   expect(host.requestAnimationFrame).not.toHaveBeenCalled(); expect(writes).not.toHaveBeenCalled();
   expect(doc.getElementById('offline-action')!.hidden).toBe(true);
+  expect(doc.getElementById('offline-storage-open')!.hidden).toBe(true);
   expect(doc.getElementById('offline-summary')?.textContent).toBe('本地文件');
   expect(doc.getElementById('offline-status')?.textContent).toContain('本地目录可直接试玩');
 });

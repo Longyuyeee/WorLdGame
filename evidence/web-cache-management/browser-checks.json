@@ -1,0 +1,237 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "name": "actual-editor-source-and-game-exports-retain-all-original-content-and-media",
+      "detail": [
+        {
+          "version": "1.9.0",
+          "filename": "../web-version-retention/before-rain-stops.html",
+          "byteLength": 46745525,
+          "sha256": "9466b66ee583376162de42f0941813d20a02b2c3a68f70a336b4180bb11f5354",
+          "originalMedia": 26,
+          "identicalProjectAndOriginalMedia": true
+        },
+        {
+          "version": "1.9.0",
+          "filename": "before-rain-stops-website.zip",
+          "byteLength": 35331971,
+          "sha256": "72ad9b526b9f5e729ba5da8b202aa1f44bb13db4fbab861ca3ac2c36deb3d6c5",
+          "sourcePath": "evidence/web-story-branch-context/before-rain-stops-project.zip",
+          "sourceSha256": "e4b13a27dc72fda43efe655d49a9b5ca5091c01382b9d0cd0c79932eaa86400d",
+          "sourceEntries": 66,
+          "publicFiles": 37,
+          "originalMedia": 26,
+          "releaseId": "sha256:3af1c02c899a3f03e574380326acfcf5f98b6bc651bcd4297f4daad1a63a1679"
+        }
+      ]
+    },
+    {
+      "name": "real-three-builds-same-version-identities-exact-payload-space-and-open-window-protection",
+      "detail": {
+        "expected": [
+          {
+            "id": "sha256:f2f327e129aab21df42095465cfe4dec6039cbdc6bde5a76364966c79843b0d4",
+            "fileCount": 34,
+            "byteLength": 32500731
+          },
+          {
+            "id": "sha256:c48615475d9c3aa93dd41f07c3810758cc00fbdc552f4873c3573fc6d979a922",
+            "fileCount": 35,
+            "byteLength": 35290819
+          },
+          {
+            "id": "sha256:3af1c02c899a3f03e574380326acfcf5f98b6bc651bcd4297f4daad1a63a1679",
+            "fileCount": 35,
+            "byteLength": 35299508
+          }
+        ],
+        "totalPayloadBytes": 103091058,
+        "actualDiskUsageClaimed": false
+      }
+    },
+    {
+      "name": "cancel-is-non-destructive-and-confirmation-rechecks-new-old-version-window",
+      "detail": {}
+    },
+    {
+      "name": "delete-only-selected-1.8-cache-preserves-save-and-preview-bytes-backups-current-and-other-old-game",
+      "detail": {
+        "savedHash": "6aac2d7b80ab06ff905cd43392ceebf93ce907661e5f35d16e4adb8814c82cee",
+        "unchangedSlotsAndPreviewsSha256": "25f4424d180d5c46c50ca66dd4608bbbb881ded7c971ddd1fddee3b3b56bd414",
+        "oldBackupSha256": "71da7e94fb3d7463820656539f112604771181248e8870dadb71cadeca9a0a94",
+        "currentBackupSha256": "4028f877ac83b565499649a528f501877f3a227e29b1392af024d6fdc7dd62e6",
+        "removedEntryStatus": 410
+      }
+    },
+    {
+      "name": "offline-cleanup-of-second-inactive-build-leaves-current-default-protected",
+      "detail": {
+        "remaining": {
+          "id": "sha256:3af1c02c899a3f03e574380326acfcf5f98b6bc651bcd4297f4daad1a63a1679",
+          "fileCount": 35,
+          "byteLength": 35299508
+        },
+        "savedHash": "6aac2d7b80ab06ff905cd43392ceebf93ce907661e5f35d16e4adb8814c82cee"
+      }
+    },
+    {
+      "name": "current-website-offline-phone-stay-complete-route",
+      "detail": {
+        "ids": [
+          "stmt_ui_5",
+          "stmt_ui_7",
+          "stmt_ui_9",
+          "stmt_ui_11",
+          "stmt_ui_13",
+          "stmt_ui_15",
+          "stmt_ui_17",
+          "stmt_ui_19",
+          "stmt_ui_21",
+          "stmt_ui_25",
+          "stmt_ui_23",
+          "stmt_ui_31",
+          "stmt_ui_33",
+          "stmt_ui_35",
+          "stmt_ui_37",
+          "stmt_ui_39",
+          "stmt_ui_41",
+          "stmt_ui_43",
+          "stmt_ui_45",
+          "stmt_ui_51",
+          "stmt_ui_47",
+          "stmt_ui_49",
+          "stmt_ui_61",
+          "stmt_ui_63",
+          "stmt_ui_65",
+          "stmt_ui_67",
+          "stmt_ui_69",
+          "stmt_ui_71",
+          "stmt_ui_73",
+          "stmt_ui_75",
+          "stmt_ui_77",
+          "stmt_ui_79",
+          "stmt_ui_81",
+          "stmt_ui_91",
+          "stmt_ui_93",
+          "stmt_ui_95",
+          "stmt_ui_97",
+          "stmt_ui_99",
+          "stmt_ui_101",
+          "stmt_ui_103",
+          "stmt_ui_105",
+          "stmt_ui_107",
+          "stmt_ui_109",
+          "stmt_ui_113",
+          "stmt_ui_119",
+          "stmt_ui_121",
+          "stmt_ui_123",
+          "stmt_ui_125",
+          "stmt_ui_127",
+          "stmt_ui_129",
+          "stmt_ui_139",
+          "stmt_ui_131",
+          "stmt_ui_133",
+          "stmt_ui_135",
+          "stmt_ui_137",
+          "stmt_ui_146",
+          "stmt_ui_148",
+          "stmt_ui_150",
+          "stmt_ui_152",
+          "stmt_ui_167",
+          "stmt_ui_154",
+          "stmt_ui_156",
+          "stmt_ui_158",
+          "stmt_ui_160",
+          "stmt_ui_162",
+          "stmt_ui_164"
+        ],
+        "naturallyEndedVoices": 6,
+        "ending": "故事告一段落\n同行的约定\n\n已达成 1 / 2 个结局\n\n已读、画廊、音乐与结局记录会保留。可以查看收藏，或读取存档探索其他选择。\n\n查看收藏与结局\n读取存档探索其他路线\n回到标题",
+        "sameVersionSaveReloadRestored": true,
+        "humanListening": false,
+        "physicalPhone": false
+      }
+    },
+    {
+      "name": "current-html-desktop-remote-complete-route",
+      "detail": {
+        "ids": [
+          "stmt_ui_5",
+          "stmt_ui_7",
+          "stmt_ui_9",
+          "stmt_ui_11",
+          "stmt_ui_13",
+          "stmt_ui_15",
+          "stmt_ui_17",
+          "stmt_ui_19",
+          "stmt_ui_21",
+          "stmt_ui_25",
+          "stmt_ui_23",
+          "stmt_ui_31",
+          "stmt_ui_33",
+          "stmt_ui_35",
+          "stmt_ui_37",
+          "stmt_ui_39",
+          "stmt_ui_41",
+          "stmt_ui_43",
+          "stmt_ui_45",
+          "stmt_ui_51",
+          "stmt_ui_47",
+          "stmt_ui_49",
+          "stmt_ui_61",
+          "stmt_ui_63",
+          "stmt_ui_65",
+          "stmt_ui_67",
+          "stmt_ui_69",
+          "stmt_ui_71",
+          "stmt_ui_73",
+          "stmt_ui_75",
+          "stmt_ui_77",
+          "stmt_ui_79",
+          "stmt_ui_81",
+          "stmt_ui_174",
+          "stmt_ui_176",
+          "stmt_ui_196",
+          "stmt_ui_178",
+          "stmt_ui_180",
+          "stmt_ui_182",
+          "stmt_ui_184",
+          "stmt_ui_186",
+          "stmt_ui_188",
+          "stmt_ui_190",
+          "stmt_ui_192",
+          "stmt_ui_203",
+          "stmt_ui_205",
+          "stmt_ui_207",
+          "stmt_ui_209",
+          "stmt_ui_211",
+          "stmt_ui_223",
+          "stmt_ui_213",
+          "stmt_ui_215",
+          "stmt_ui_217",
+          "stmt_ui_219",
+          "stmt_ui_221",
+          "stmt_ui_230",
+          "stmt_ui_232",
+          "stmt_ui_234",
+          "stmt_ui_236",
+          "stmt_ui_250",
+          "stmt_ui_238",
+          "stmt_ui_240",
+          "stmt_ui_242",
+          "stmt_ui_244",
+          "stmt_ui_246",
+          "stmt_ui_248"
+        ],
+        "naturallyEndedVoices": 6,
+        "ending": "故事告一段落\n远行的约定\n\n已达成 1 / 2 个结局\n\n已读、画廊、音乐与结局记录会保留。可以查看收藏，或读取存档探索其他选择。\n\n查看收藏与结局\n读取存档探索其他路线\n回到标题",
+        "sameVersionSaveReloadRestored": true,
+        "humanListening": false,
+        "physicalPhone": false
+      }
+    }
+  ],
+  "errors": [],
+  "scope": "Actual historical 1.8.0 and 1.9.0 packages plus current editor export; Chromium loopback, three-build update and selected cleanup, browser caches only. Real save slots and previews remain byte-identical. Offline phone-size website stay route plus unchanged standalone desktop remote route; muted natural voice completion, not physical-phone, human listening, public HTTPS or full format matrix."
+}

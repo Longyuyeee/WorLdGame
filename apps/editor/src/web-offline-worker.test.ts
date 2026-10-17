@@ -38,7 +38,7 @@ it('reports bounded file progress in this scope and caches only exact inventory 
   expect(f.notices.at(-1)).toMatchObject({ completed: total, requestId: 'install', phase: 'progress', path: '' });
   expect(f.notices.every(n => (n.completed as number) >= 0 && (n.completed as number) <= total)).toBe(true); expect(f.foreign).not.toHaveBeenCalled();
   const status = f.dispatch('message', { type: 'STATUS' }); await status.promise; expect(status.reply).toHaveBeenCalledWith(expect.objectContaining({ ready: true }));
-  expect(f.buckets.has(f.oldKey)).toBe(true); // Only normal activation can remove the old version.
+  expect(f.buckets.has(f.oldKey)).toBe(true); // Install must not remove another release.
 });
 
 it('cancels an installing download, deletes only its incomplete cache and does not write the blocked file', async () => {

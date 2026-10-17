@@ -6,8 +6,8 @@ class Worker extends EventTarget {
   state = 'installing';
   ready = true;
   messages: string[] = [];
-  handle?: (message: { type: string; requestId?: string }, reply: (value: unknown) => void) => void;
-  postMessage(message: { type: string; requestId?: string }, ports: { reply: (value: unknown) => void }[]) { this.messages.push(message.type); queueMicrotask(() => this.handle ? this.handle(message, ports[0]!.reply) : ports[0]!.reply({ ready: this.ready })); }
+  handle?: (message: { type: string; requestId?: string; releaseId?: string; confirmed?: boolean }, reply: (value: unknown) => void) => void;
+  postMessage(message: { type: string; requestId?: string; releaseId?: string; confirmed?: boolean }, ports: { reply: (value: unknown) => void }[]) { this.messages.push(message.type); queueMicrotask(() => this.handle ? this.handle(message, ports[0]!.reply) : ports[0]!.reply({ ready: this.ready })); }
   change(state: string) { this.state = state; this.dispatchEvent(new Event('statechange')); }
 }
 class Channel {
@@ -145,4 +145,42 @@ it.each([true, false])('ignores an old active worker STATUS after controller rep
   const oldInfo = { ready: true, latest: { releaseId: 'sha256:' + 'a'.repeat(64), publicationVersion: '1.8.0' } }, nextInfo = { ready: true, retained: true, latest: { releaseId: 'sha256:' + 'b'.repeat(64), publicationVersion: '1.9.0' } };
   if (oldFirst) { oldReply!(oldInfo); newReply!(nextInfo); } else { newReply!(nextInfo); oldReply!(oldInfo); }
   await screen.findByRole('button', { name: '查看版本与备份' }); expect(document.getElementById('offline-status')).toHaveTextContent('本机另有新版'); expect(document.getElementById('offline-version-note')).toHaveTextContent('1.9.0');
+});
+
+const oldRelease = 'sha256:' + 'c'.repeat(64);
+const storageResult = (reason: string | null = null) => ({ schemaVersion: 1, byteLength: 4194304, releases: [{ releaseId: oldRelease, publicationVersion: '1.8.0', fileCount: 34, complete: true, byteLength: 4194304, reason }] });
+
+it('shows only reported game payload size and requires a fresh destructive acknowledgement, with cancel focus restored', async () => {
+  const { active } = client(); await screen.findByRole('button', { name: '检查更新' }); active.handle = (message, reply) => reply(message.type === 'STORAGE' ? storageResult() : { ready: true });
+  fireEvent.click(screen.getByRole('button', { name: '查看缓存与空间' })); await screen.findByText(/本游戏 1 份缓存/u); expect(document.getElementById('offline-storage-status')).toHaveTextContent('4.0 MiB'); expect(document.getElementById('offline-storage')).toHaveTextContent('不含存档');
+  fireEvent.click(screen.getByRole('button', { name: '清理这个版本' })); expect(screen.getByRole('button', { name: '确认清理所选版本' })).toBeDisabled(); expect(active.messages).not.toContain('DELETE_RELEASE');
+  fireEvent.click(screen.getByRole('checkbox', { name: '我已保留需要的原版游戏与进度备份' })); fireEvent.click(screen.getByRole('button', { name: '取消清理' })); expect(screen.getByRole('button', { name: '清理这个版本' })).toHaveFocus();
+  fireEvent.click(screen.getByRole('button', { name: '清理这个版本' })); expect(screen.getByRole('button', { name: '确认清理所选版本' })).toBeDisabled(); expect(active.messages).not.toContain('DELETE_RELEASE');
+});
+
+it('handles a newly protected release at confirmation, refreshes it and never claims deletion', async () => {
+  const { active } = client(); await screen.findByRole('button', { name: '检查更新' }); let used = false;
+  active.handle = (message, reply) => { if (message.type === 'DELETE_RELEASE') { expect(message).toMatchObject({ releaseId: oldRelease, confirmed: true }); used = true; reply({ deleted: false, reason: 'used' }); } else reply(message.type === 'STORAGE' ? storageResult(used ? 'used' : null) : { ready: true }); };
+  fireEvent.click(screen.getByRole('button', { name: '查看缓存与空间' })); await screen.findByRole('button', { name: '清理这个版本' }); fireEvent.click(screen.getByRole('button', { name: '清理这个版本' })); fireEvent.click(screen.getByRole('checkbox', { name: '我已保留需要的原版游戏与进度备份' })); fireEvent.click(screen.getByRole('button', { name: '确认清理所选版本' }));
+  await waitFor(() => expect(document.getElementById('offline-storage-status')).toHaveTextContent('其他游戏窗口正在使用')); expect(screen.getByRole('button', { name: '清理这个版本' })).toBeDisabled(); expect(screen.getByRole('button', { name: '刷新缓存列表' })).toHaveFocus(); expect(document.getElementById('offline-storage-status')).not.toHaveTextContent('已移除');
+});
+
+it('does not submit duplicate cleanup while waiting and refreshes only after a confirmed deletion', async () => {
+  const { active } = client(); await screen.findByRole('button', { name: '检查更新' }); let finish: ((value: unknown) => void) | undefined, deleted = false;
+  active.handle = (message, reply) => { if (message.type === 'DELETE_RELEASE') finish = value => { deleted = true; reply(value); }; else reply(message.type === 'STORAGE' ? deleted ? { schemaVersion: 1, byteLength: 0, releases: [] } : storageResult() : { ready: true }); };
+  fireEvent.click(screen.getByRole('button', { name: '查看缓存与空间' })); await screen.findByRole('button', { name: '清理这个版本' }); fireEvent.click(screen.getByRole('button', { name: '清理这个版本' })); fireEvent.click(screen.getByRole('checkbox', { name: '我已保留需要的原版游戏与进度备份' })); fireEvent.click(screen.getByRole('button', { name: '确认清理所选版本' })); await waitFor(() => expect(finish).toBeDefined()); fireEvent.click(screen.getByRole('button', { name: '确认清理所选版本' })); expect(active.messages.filter(type => type === 'DELETE_RELEASE')).toHaveLength(1);
+  expect(screen.getByRole('button', { name: '取消清理' })).toBeDisabled(); expect(screen.getByRole('button', { name: '刷新缓存列表' })).toBeDisabled();
+  finish!({ deleted: true }); await waitFor(() => expect(document.getElementById('offline-storage-status')).toHaveTextContent('存档未删除')); expect(screen.queryByRole('button', { name: '清理这个版本' })).toBeNull();
+});
+
+it('refuses unavailable list responses and does not render an old worker list after replacement', async () => {
+  const { active, registration } = client(); await screen.findByRole('button', { name: '检查更新' }); fireEvent.click(screen.getByRole('button', { name: '查看缓存与空间' })); await screen.findByText(/暂时无法读取缓存列表/u); expect(screen.queryByRole('button', { name: '清理这个版本' })).toBeNull();
+  let reply: ((value: unknown) => void) | undefined; active.handle = (_message, response) => { reply = response; }; fireEvent.click(screen.getByRole('button', { name: '刷新缓存列表' })); await waitFor(() => expect(reply).toBeDefined()); registration.active = new Worker(); reply!(storageResult()); await screen.findByText('离线组件已切换，请刷新缓存列表。'); expect(screen.queryByRole('button', { name: '清理这个版本' })).toBeNull();
+});
+
+it('preserves the confirmed cleanup outcome if refreshing the list subsequently fails', async () => {
+  const { active } = client(); await screen.findByRole('button', { name: '检查更新' }); let deleted = false;
+  active.handle = (message, reply) => { if (message.type === 'DELETE_RELEASE') { deleted = true; reply({ deleted: true }); } else reply(message.type === 'STORAGE' && !deleted ? storageResult() : { ready: true }); };
+  fireEvent.click(screen.getByRole('button', { name: '查看缓存与空间' })); await screen.findByRole('button', { name: '清理这个版本' }); fireEvent.click(screen.getByRole('button', { name: '清理这个版本' })); fireEvent.click(screen.getByRole('checkbox', { name: '我已保留需要的原版游戏与进度备份' })); fireEvent.click(screen.getByRole('button', { name: '确认清理所选版本' }));
+  await waitFor(() => expect(document.getElementById('offline-storage-status')).toHaveTextContent('暂时无法刷新')); expect(document.getElementById('offline-storage-status')).toHaveTextContent('所选版本缓存已移除'); expect(document.getElementById('offline-storage-status')).not.toHaveTextContent('未执行清理');
 });

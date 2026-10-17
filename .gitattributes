@@ -78,3 +78,4 @@ evidence/web-story-branch-context/*.worldsave -text
 evidence/web-story-branch-context/*.worldreview -text
 evidence/web-version-retention/*.html -text
 evidence/web-version-retention/*.worldsave -text
+evidence/web-cache-management/*.worldsave -text

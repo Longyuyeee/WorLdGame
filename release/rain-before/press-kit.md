@@ -6,9 +6,9 @@
 | --- | --- |
 | 可编辑工程与内部来源台账 | [工程 ZIP](../../evidence/web-story-branch-context/before-rain-stops-project.zip) |
 | 单文件游戏 | [HTML](../../evidence/web-version-retention/before-rain-stops.html) |
-| 纯公开网站文件 | [网站上传 ZIP](../../evidence/web-version-retention/before-rain-stops-website.zip)，更新前备份与旧版接续版 |
+| 纯公开网站文件 | [网站上传 ZIP](../../evidence/web-cache-management/before-rain-stops-website.zip)，缓存空间与选择清理版 |
 | 十九条待人工复核记录 | [校订记录](../../evidence/web-story-branch-context/before-rain-stops.worldreview) |
-| 当前改动与验证 | [更新说明](release-notes-1.9.0.md)、[内容 #380](../../docs/380-web-story-branch-context.md)、[版本接续 #382](../../docs/382-web-content-update-and-old-version-continuity.md) |
+| 当前改动与验证 | [更新说明](release-notes-1.9.0.md)、[内容 #380](../../docs/380-web-story-branch-context.md)、[缓存管理 #383](../../docs/383-web-cache-space-and-selected-cleanup.md) |
 | 新背景制作来源 | [完整提示词／摘要／待确认条件](../../assets/rain-story/source-manifest-v1.9.json) |
 
 1.9.0 不兼容 1.8.0 或更早剧情存档。旧玩家保留 [1.8.0 原游戏](../../evidence/web-reading-position/before-rain-stops.html)和备份继续，新候选从头开始。生成网站不等于已上线，工程／来源／校订资料不可整包上传。26 项素材发行条件、人工定稿与自然听感、物理手机／Safari、真实阅读计时及获准公网站点仍待验；不虚构发行身份、发布日期、分级或统一版权承诺。下面各“当前”均为对应历史版本当时状态。

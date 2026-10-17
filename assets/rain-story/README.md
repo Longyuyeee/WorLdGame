@@ -2,6 +2,8 @@
 
 项目制作样例素材，2026-10-13。
 
+2026-10-17 当前网站在 [web-cache-management](../../evidence/web-cache-management)，缓存空间与选择清理见 [#383](../../docs/383-web-cache-space-and-selected-cleanup.md)；HTML 沿 #382，源工程、全部 26 媒体、来源台账和 19 条人工记录沿 #380，素材没有改动。下方按历史批次保留。
+
 2026-10-17 当前 HTML／网站运行文件移至 [web-version-retention](../../evidence/web-version-retention)，更新前备份和旧版接续范围见 [#382](../../docs/382-web-content-update-and-old-version-continuity.md)。1.9.0 源工程、26 媒体、来源台账与 19 条待人工复核记录仍沿 #380；下方游戏路径为对应历史批次。
 
 2026-10-17 [#380](../../docs/380-web-story-branch-context.md)更新当前候选为 **1.9.0**：[工程／当前游戏／19 条待人工复核记录](../../evidence/web-story-branch-context)。新增 [bus-stop-night.png](bus-stop-night.png)，内置 imagegen 从文字生成，无输入图像、无 CLI 回退、不覆盖旧图；完整提示词、摘要和 pending 来源条件见 [source-manifest-v1.9.json](source-manifest-v1.9.json)。原 25 媒体与台账保持，总数 26，全部发行条件仍待确认。一次旁白与四步演出校订见 [editorial-review-v1.9.md](editorial-review-v1.9.md)。以下为各历史版本制作事实。
