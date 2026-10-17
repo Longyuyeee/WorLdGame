@@ -8,6 +8,8 @@
     "packages/*"
   ],
   "scripts": {
+    "audit:web-reading-delivery": "node tools/run-web-reading-delivery-tests.mjs",
+    "audit:web-reading-delivery:browser": "npm run build --workspace @world-studio/editor && node tools/run-web-reading-delivery-batch.mjs",
     "audit:web-history-reading": "node tools/run-web-history-reading-tests.mjs",
     "audit:web-history-reading:browser": "npm run build --workspace @world-studio/editor && node tools/run-web-history-reading-batch.mjs",
     "audit:web-load-wait": "node tools/run-web-load-wait-tests.mjs",

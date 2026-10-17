@@ -8,7 +8,7 @@ import { pathToFileURL } from 'node:url';
 import { unzipSync } from 'fflate';
 import { listenBrowserLoopback } from './listen-browser-loopback.mjs';
 import { sha } from './audit-rain-story-refinement.mjs';
-const root = path.resolve(import.meta.dirname, '..'), output = path.join(root, 'evidence/web-voice-reading-continuity');
+const root = path.resolve(import.meta.dirname, '..'), output = path.resolve(root, process.env.STUDIO_VOICE_READING_OUTPUT_DIRECTORY ?? 'evidence/web-voice-reading-continuity');
 const baseline = process.argv.includes('--baseline'), file = process.argv.includes('--file'), websiteMode = process.argv.includes('--website'), inlineFallback = process.argv.includes('--inline-fallback'), engine = process.argv.find(x => x.startsWith('--engine='))?.slice(9) ?? 'chromium';
 assert.ok(['chromium', 'firefox', 'webkit'].includes(engine));
 const source = path.join(output, baseline ? 'baseline-work' : process.argv.includes('--published') ? '' : 'work', 'before-rain-stops.html'), html = await readFile(source), label = baseline ? 'baseline' : engine + (file ? '-file' : websiteMode ? '-website' : inlineFallback ? '-inline-fallback' : '');

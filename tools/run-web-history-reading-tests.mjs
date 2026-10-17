@@ -1,7 +1,7 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { spawn } from 'node:child_process';
 import path from 'node:path';
-const root = path.resolve(import.meta.dirname, '..'), output = 'evidence/web-history-reading/related-tests.json';
+const root = path.resolve(import.meta.dirname, '..'), output = process.env.STUDIO_HISTORY_READING_TEST_OUTPUT ?? 'evidence/web-history-reading/related-tests.json';
 const previous = JSON.parse(await readFile(path.join(root, 'evidence/web-load-wait/related-tests.json'), 'utf8'));
 const files = new Set(previous.testResults.map(item => {
   const match = item.name.replaceAll('\\', '/').match(/(?:^|\/)((?:apps|packages)\/.*)$/);

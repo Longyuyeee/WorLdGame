@@ -1,0 +1,112 @@
+{
+  "passed": false,
+  "error": "AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:\n\n  assert.ok(completed.length >= 2 && completed.every(item => item.success && item.encoding === 'world-player.history-lists.1'))\n",
+  "stack": "AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:\n\n  assert.ok(completed.length >= 2 && completed.every(item => item.success && item.encoding === 'world-player.history-lists.1'))\n\n    at file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-reading-delivery-load.mjs:99:76",
+  "checks": [
+    {
+      "name": "actual-complete-game-cancel-and-late-native-worker-reply-preserve-story-and-slot",
+      "detail": {
+        "target": {
+          "hash": "da3f414e1f215b9d41886af02cf1f47d419405f46b21cfc0a0dbee074950cd3e",
+          "cursor": "6",
+          "length": "6",
+          "text": "小夏不是来阻止他出发的。她在短信里只说，要把借了半年那本书还给他，顺便把书里的照片也还给他。林远原以为这是一件很容易的事：收下书，认真道谢，等广播响起后挥手。可当她撑着伞从街对面走来，他忽然不记得自己排练过的第一句话是什么了。",
+          "status": "presenting"
+        },
+        "before": {
+          "hash": "395ec5588154bbc7d98197cfd5b19c6fd782e4844e438507e6c85992ea7c92c0",
+          "cursor": "7",
+          "length": "7",
+          "text": "照片上是一片没有拍到人的海。去年他们各自请了半天假，到了车站才知道列车停运，只能在便利店买两杯热饮，坐着听了一下午雨。后来小夏独自去了那片海，把拍下的照片寄给他，背面写着：没到的地方不必作废。林远把它夹进书里，每次搬家都带着，却一次也没有认真回复。",
+          "status": "presenting"
+        },
+        "saved": {
+          "bytes": 15270,
+          "sha256": "4ea39e3eaa9ddd9ac56bfc29e3ff0fbd70dd629c81e3b3b2834894e038b152fc",
+          "artifact": "03bed90472ebe54355bffe10c344eca6c751ff24c9ac1621e4e5e359ce53bbc6",
+          "runtime": "da3f414e1f215b9d41886af02cf1f47d419405f46b21cfc0a0dbee074950cd3e"
+        }
+      }
+    },
+    {
+      "name": "four-phone-sized-viewports-and-escape-cancel",
+      "detail": {
+        "layouts": [
+          {
+            "viewport": {
+              "width": 320,
+              "height": 740
+            },
+            "cancel": {
+              "x": 49,
+              "y": 261.5625,
+              "width": 94,
+              "height": 45.1875
+            }
+          },
+          {
+            "viewport": {
+              "width": 844,
+              "height": 390
+            },
+            "cancel": {
+              "x": 692,
+              "y": 104,
+              "width": 94,
+              "height": 45.1875
+            }
+          },
+          {
+            "viewport": {
+              "width": 568,
+              "height": 320
+            },
+            "cancel": {
+              "x": 429,
+              "y": 108.59375,
+              "width": 94,
+              "height": 45.1875
+            }
+          },
+          {
+            "viewport": {
+              "width": 390,
+              "height": 844
+            },
+            "cancel": {
+              "x": 49,
+              "y": 261.5625,
+              "width": 94,
+              "height": 45.1875
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "lifecycle-cancellation-and-explicit-retry-restore-own-validated-save",
+      "detail": {
+        "loaded": {
+          "hash": "6cf9ef802161ccc850aad29f77bcf6abcca50a5fbeaec8cbcc7d77bf6f1c6957",
+          "cursor": "6",
+          "length": "6",
+          "text": "小夏不是来阻止他出发的。她在短信里只说，要把借了半年那本书还给他，顺便把书里的照片也还给他。林远原以为这是一件很容易的事：收下书，认真道谢，等广播响起后挥手。可当她撑着伞从街对面走来，他忽然不记得自己排练过的第一句话是什么了。",
+          "status": "presenting"
+        },
+        "injectedLifecycleEvents": true
+      }
+    },
+    {
+      "name": "cold-recovery-cancel-and-retry-retain-durable-recovery-and-quick-slot",
+      "detail": {
+        "durable": {
+          "bytes": 15282,
+          "sha256": "4b5457f97993ee24bac8ff143bdf70815737e4a5979cefe894666a20a94e45b7",
+          "artifact": "2a1eaa74cdcc22321e29fb6cc2c7e4a5cbe6cce7edaae85e972303ef6b3310af",
+          "runtime": "6cf9ef802161ccc850aad29f77bcf6abcca50a5fbeaec8cbcc7d77bf6f1c6957"
+        }
+      }
+    }
+  ],
+  "errors": []
+}

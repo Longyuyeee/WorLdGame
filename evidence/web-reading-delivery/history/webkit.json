@@ -1,0 +1,193 @@
+{
+  "passed": true,
+  "baseline": false,
+  "browser": "26.5",
+  "artifactSha256": "e342827d80a0bd18944cc84655437ded37f25f901d81b4bf4229fd9d97080510",
+  "checks": [
+    {
+      "name": "history-reading-text-does-not-navigate-and-dialogue-has-actual-speaker",
+      "detail": {
+        "rowText": "林远 · 已读\n进去读吧。我想先把今天的话说完。\n回到这一句",
+        "saved": {
+          "bytes": 173540,
+          "digest": "2f05aaa6a2ab89259327acb485b26045a66453c636b7fd77f2e5f7a19a14b0be",
+          "artifact": "05fc8602801873d86d3bb3624d84c9b32db4824023c818cf1ac889f4060a1ae2",
+          "runtime": "4a5412b0a327b6185898396f50b125abcf79345b2e0304bc9984a98649ada94c"
+        }
+      }
+    },
+    {
+      "name": "actual-speaker-and-committed-choice-label-are-searchable",
+      "detail": {}
+    },
+    {
+      "name": "four-mobile-viewports-target-answer-and-44px-action-visible-together",
+      "detail": {
+        "layouts": [
+          {
+            "viewport": {
+              "width": 320,
+              "height": 740
+            },
+            "action": {
+              "x": 166,
+              "y": 405.484375,
+              "width": 106,
+              "height": 44
+            },
+            "body": {
+              "x": 27,
+              "y": 269,
+              "width": 258,
+              "height": 191.484375
+            },
+            "prompt": {
+              "x": 40,
+              "y": 329,
+              "width": 232,
+              "height": 37.6875
+            },
+            "selected": {
+              "x": 40,
+              "y": 375.6875,
+              "width": 232,
+              "height": 20.796875
+            },
+            "colors": {
+              "text": "rgb(48, 43, 49)",
+              "inherited": "rgb(48, 43, 49)"
+            }
+          },
+          {
+            "viewport": {
+              "width": 844,
+              "height": 390
+            },
+            "action": {
+              "x": 700,
+              "y": 247.640625,
+              "width": 106,
+              "height": 44
+            },
+            "body": {
+              "x": 383,
+              "y": 142,
+              "width": 434,
+              "height": 158.640625
+            },
+            "prompt": {
+              "x": 394,
+              "y": 198,
+              "width": 412,
+              "height": 18.84375
+            },
+            "selected": {
+              "x": 394,
+              "y": 221.84375,
+              "width": 412,
+              "height": 20.796875
+            },
+            "colors": {
+              "text": "rgb(48, 43, 49)",
+              "inherited": "rgb(48, 43, 49)"
+            }
+          },
+          {
+            "viewport": {
+              "width": 568,
+              "height": 320
+            },
+            "action": {
+              "x": 340,
+              "y": 246.640625,
+              "width": 106,
+              "height": 44
+            },
+            "body": {
+              "x": 23,
+              "y": 146,
+              "width": 434,
+              "height": 145
+            },
+            "prompt": {
+              "x": 34,
+              "y": 197,
+              "width": 412,
+              "height": 18.84375
+            },
+            "selected": {
+              "x": 34,
+              "y": 220.84375,
+              "width": 412,
+              "height": 20.796875
+            },
+            "colors": {
+              "text": "rgb(48, 43, 49)",
+              "inherited": "rgb(48, 43, 49)"
+            }
+          },
+          {
+            "viewport": {
+              "width": 390,
+              "height": 844
+            },
+            "action": {
+              "x": 236,
+              "y": 334.640625,
+              "width": 106,
+              "height": 44
+            },
+            "body": {
+              "x": 27,
+              "y": 217,
+              "width": 328,
+              "height": 172.640625
+            },
+            "prompt": {
+              "x": 40,
+              "y": 277,
+              "width": 302,
+              "height": 18.84375
+            },
+            "selected": {
+              "x": 40,
+              "y": 304.84375,
+              "width": 302,
+              "height": 20.796875
+            },
+            "colors": {
+              "text": "rgb(48, 43, 49)",
+              "inherited": "rgb(48, 43, 49)"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "public-high-contrast-setting-keeps-text-answer-speaker-and-action-readable",
+      "detail": {
+        "expected": "rgb(255, 255, 255)",
+        "colors": [
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)"
+        ]
+      }
+    },
+    {
+      "name": "pending-choice-does-not-borrow-future-input-and-old-branch-remains-readonly",
+      "detail": {}
+    },
+    {
+      "name": "cold-recovery-and-explicit-load-derive-their-own-recorded-choice",
+      "detail": {}
+    },
+    {
+      "name": "escape-clears-query-before-closing-without-extra-navigation",
+      "detail": {}
+    }
+  ],
+  "errors": [],
+  "scope": "Actual unchanged complete story, HTTP single-file HTML, public UI and native IndexedDB. Instant text and mute for a history task, not natural listening or timing. No injected history, fake geometry, physical phone/Safari or public deployment acceptance."
+}
