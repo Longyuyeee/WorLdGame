@@ -21,6 +21,7 @@ import { PlayerCreditsPanel } from './PlayerCreditsPanel';
 import { PlayerHistoryContent } from './PlayerHistoryContent';
 import { historyChoiceSelections } from './history-reading-context';
 import { historyVoiceReferences } from './history-voice';
+import { usePlayerAudioReadiness } from './use-audio-readiness';
 import { PlayerMusicPreview } from './PlayerMusicPreview';
 import { DEFAULT_WEB_CREDITS, readWebCredits, hasWebCredits } from '@world-studio/project-domain';
 import { cancelPlayerAudioRequest, requestPlayerAudioPlayback, cancelPlayerMediaRequest, requestPlayerMediaPlayback } from "./audio-playback-request";
@@ -479,6 +480,9 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
     )
   }));
   const failedAudio = appliedAudio.filter(track => mediaErrors.includes(track.assetId) && audioElements.current.get(track.bus)?.dataset.playerPlayback === 'error');
+  const audioDelays = usePlayerAudioReadiness(audioElements.current, hostActivity === 'active' && skipMode === null);
+  const delayedAudio = appliedAudio.filter(track => { const element = audioElements.current.get(track.bus); return element?.dataset.assetId === track.assetId && audioDelays.has(element); });
+  const delayedVoice = delayedAudio.some(track => track.bus === 'voice');
   const currentMediaIds = new Set([stage.background?.assetId, ...stage.characters.map(item => item.assetId), stage.video?.assetId, ...failedAudio.map(track => track.assetId)]);
   const visibleMediaErrors = mediaErrors.filter(id => currentMediaIds.has(id));
   const visualMediaErrors = visibleMediaErrors.filter(id => !appliedAudio.some(track => track.assetId === id));
@@ -608,6 +612,11 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
     skipModeCurrent.current = null;
     setSkipMode(null);
   }, [playbackAdvance.cancel]);
+  useEffect(() => {
+    if (!delayedVoice) return;
+    setVoicePlaying(false);
+    if (autoEnabled) { stopSkip(); setAutoEnabled(false); setAutoPlayback('stopped'); }
+  }, [delayedVoice, autoEnabled, stopSkip]);
   useEffect(() => {
     if (!playbackAdvance.error) return;
     skipModeCurrent.current = null; setSkipMode(null); setAutoEnabled(false); setAutoPlayback('stopped');
@@ -1002,7 +1011,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
       setLastInputAccepted(false);
       return;
     }
-    if (intent.kind === "primary" && settingsApplication.advance.waitForVoice && voicePlaying) {
+    if (intent.kind === "primary" && settingsApplication.advance.waitForVoice && voicePlaying && !delayedVoice) {
       setLastInputAccepted(false);
       return;
     }
@@ -1014,7 +1023,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
       setState(next); return;
     }
     setState((current) => dispatchPlayerCoreIntentV1(current, project, intent));
-  }, [sessionRead.isPending, artworkView, content.kind, project, recoveryCandidate, recoveryOperation, recoveryStore, saveOperation, settingsApplication, stopSkip, textReady, voicePlaying, preferencesOpen, readingMenuOpen, historyPanelOpen, savePanelOpen, additionalContentOpen, snapshot.runtimeStateHash, snapshot.runtimeHostSnapshotHash, reading, playbackAdvance.busy, playbackAdvance.cancel, restartVoice]);
+  }, [sessionRead.isPending, artworkView, content.kind, project, recoveryCandidate, recoveryOperation, recoveryStore, saveOperation, settingsApplication, stopSkip, textReady, voicePlaying, delayedVoice, preferencesOpen, readingMenuOpen, historyPanelOpen, savePanelOpen, additionalContentOpen, snapshot.runtimeStateHash, snapshot.runtimeHostSnapshotHash, reading, playbackAdvance.busy, playbackAdvance.cancel, restartVoice]);
   useEffect(() => {
     if (hostActivity !== 'active' || artworkView || preferencesOpen || readingMenuOpen || historyPanelOpen || savePanelOpen || additionalContentOpen || !deferredMenuCompletion.current) return;
     const completion = deferredMenuCompletion.current;
@@ -1717,7 +1726,8 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
   const inlineLayoutComponents = <PlayerLayoutComponents rows={componentLayout?.components} inline media={mediaAssets} disabled={layoutDisabled} onAction={layoutAction} actionEnabled={layoutActionEnabled} />;
   const endingActionBlocked = hostActivity !== "active" || saveOperation === "busy" || preferencesOpen || savePanelOpen || additionalContentOpen || historyPanelOpen || readingMenuOpen;
   const readingMediaSurface = content.kind === 'dialogue' || content.kind === 'narration';
-  const hasMediaProblem = stage.missingAssetIds.length > 0 || visibleMediaErrors.length > 0 || readingMediaSurface && stageImageError;
+  const hasMediaFailure = stage.missingAssetIds.length > 0 || visibleMediaErrors.length > 0 || readingMediaSurface && stageImageError;
+  const hasMediaProblem = hasMediaFailure || delayedAudio.length > 0;
   const hasRecoveryProblem = content.kind !== 'title' && recoveryStore !== undefined && !snapshot.sceneReplay.active && (recoveryCandidate !== null || recoveryOperation === 'error');
   const hasProgressProblem = content.kind !== 'title' && !snapshot.sceneReplay.active && (hasRecoveryProblem || backgroundSaveFailure !== null);
   const hasReadingProblem = hasProgressProblem || readingMediaSurface && hasMediaProblem;
@@ -1751,10 +1761,15 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
     <button type="button" disabled={hostActivity !== 'active'} style={{minHeight:44}} onClick={event => { event.stopPropagation(); setImageAttempt(value => value + 1); returnFromMediaRecovery(); }}>重试画面资源</button>
   </>;
   const mediaError = hasMediaProblem && (
-    <div className="player-media-error" role="alert">
+    <div className="player-media-error" role={hasMediaFailure ? 'alert' : 'status'}>
       {readingMediaSurface && imageResourceRecovery}
       {(stage.missingAssetIds.length > 0 || visualMediaErrors.length > 0) && <span>媒体未能安全呈现：{[...new Set([...stage.missingAssetIds, ...visualMediaErrors])].join("、")}</span>}
       {failedAudio.map(track => <span key={track.bus}>声音“{track.displayName}”：{playerAudioFailureHint(Number(audioElements.current.get(track.bus)?.dataset.audioFailureCode))}</span>)}
+      {delayedAudio.map(track => <span key={`waiting:${track.bus}`}>声音“{track.displayName}”：{audioDelays.get(audioElements.current.get(track.bus)!) === 'preparing' ? '声音准备时间较长' : '声音暂未继续播放'}，可再等一会、仅重试未就绪声音，或先无声阅读。这不是文件损坏的判断，当前正文和存档不变。</span>)}
+      {delayedAudio.length > 0 && <button type="button" disabled={hostActivity !== 'active'} onClick={() => {
+        setAudioAttempts(current => ({ ...current, ...Object.fromEntries(delayedAudio.map(track => [track.bus, (current[track.bus] ?? 0) + 1])) }));
+        onRetryMedia?.(); returnFromMediaRecovery();
+      }}>重试未就绪声音</button>}
       {(stage.missingAssetIds.length > 0 || visibleMediaErrors.length > 0) && <button type="button" disabled={hostActivity !== 'active'} onClick={() => {
         if (stage.missingAssetIds.length === 0 && visualMediaErrors.length === 0) {
           setMediaErrors(current => current.filter(id => !failedAudio.some(track => track.assetId === id)));
@@ -1763,7 +1778,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
         } else { setMediaErrors([]); setMediaGeneration(current => current + 1); onRetryMedia?.(); }
         returnFromMediaRecovery();
       }}>重试媒体</button>}
-      {failedAudio.length > 0 && <button type="button" disabled={hostActivity !== 'active'} onClick={() => { chooseSilentReading(); returnFromMediaRecovery(); }}>本次先无声阅读</button>}
+      {(failedAudio.length > 0 || delayedAudio.length > 0) && <button type="button" disabled={hostActivity !== 'active'} onClick={() => { chooseSilentReading(); returnFromMediaRecovery(); }}>本次先无声阅读</button>}
     </div>
   );
   const panelAction = (surface: PlayerLayoutPanel, action: WebLayoutAction, trigger: HTMLButtonElement, source: "pointer" | "touch" | "keyboard") => {
@@ -2103,6 +2118,10 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
               }
             }}
             onError={(event) => audioFailed(event.currentTarget)}
+            onPlaying={event => {
+              const element = event.currentTarget;
+              if (track.bus === 'voice' && element.isConnected && audioElements.current.get('voice') === element && !element.paused && audioActivity.current.hostActivity === 'active' && !audioActivity.current.skipActive && element.dataset.shouldPlay === 'true' && historyVoiceOwner.current === null && element.dataset.historyVoiceInterrupted !== 'true') setVoicePlaying(true);
+            }}
           />
         ))}
         {showPlaybackRecovery && (
@@ -2147,7 +2166,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
             <button type="button" className="player-progress-problem-trigger" aria-label="查看保存问题" aria-controls="player-reading-menu" aria-expanded={readingMenuOpen} disabled={hostActivity !== 'active' || preferencesOpen || historyPanelOpen || savePanelOpen || additionalContentOpen} onClick={event => { readingMenuReturnTrigger.current = event.currentTarget; stopSkip(); setReadingMenuOpen(true); }}>保存问题</button>
           </>}
           {readingMediaSurface && hasMediaProblem && !hasProgressProblem && <>
-            {!readingMenuOpen && <span className="player-sound-status" role="alert">媒体问题：部分声音或画面未能呈现，可打开媒体问题查看详情并重试；声音失败时也可先无声阅读。正文进度不变。</span>}
+            {!readingMenuOpen && <span className="player-sound-status" role={hasMediaFailure ? 'alert' : 'status'}>{hasMediaFailure ? '媒体问题：部分声音或画面未能呈现，可打开媒体问题查看详情并重试；声音失败时也可先无声阅读。正文进度不变。' : '声音等待：部分声音暂未就绪，可查看详情后重试或先无声阅读。正文进度不变。'}</span>}
             <button type="button" className="player-media-problem-trigger" aria-label="查看媒体问题" aria-controls="player-reading-menu" aria-expanded={readingMenuOpen} disabled={hostActivity !== 'active' || preferencesOpen || historyPanelOpen || savePanelOpen || additionalContentOpen} onClick={event => { readingMenuReturnTrigger.current = event.currentTarget; stopSkip(); setReadingMenuOpen(true); }}>媒体问题</button>
           </>}
           {canViewArtwork && <button type="button" className="player-artwork-trigger" aria-label="欣赏画面" title="隐藏对白并停止自动推进（H）" disabled={hostActivity !== 'active' || preferencesOpen || historyPanelOpen || savePanelOpen || additionalContentOpen || readingMenuOpen} onClick={showArtwork}><svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.7"><rect x="3" y="3" width="18" height="18" rx="3" /><circle cx="8" cy="8" r="1.5" /><path d="m3 17 5-5 4 4 4-7 5 8" /></svg> {silentReading ? '画面' : '欣赏画面'}</button>}
@@ -2409,7 +2428,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
             type="button"
             aria-label="自动播放"
             aria-pressed={autoEnabled}
-            disabled={snapshot.status !== "presenting" || (content.kind !== "dialogue" && content.kind !== "narration")}
+            disabled={delayedVoice || snapshot.status !== "presenting" || (content.kind !== "dialogue" && content.kind !== "narration")}
             onClick={() => {
               stopSkip();
               setAutoEnabled((enabled) => {
@@ -2425,7 +2444,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
             voice.dataset.voiceCompleted = 'false'; setVoicePlaying(!voice.paused); requestAudio(voice);
             queueMicrotask(() => reading.element.current?.focus({ preventScroll: true }));
           }}>重听当前语音</button>}
-          {readingMenuOpen && !silentReading && appliedAudio.length > 0 && !(readingMediaSurface && failedAudio.length > 0) && <button className="player-menu-only" type="button" disabled={hostActivity !== 'active' || saveOperation === 'busy'} onClick={() => { setReadingMenuOpen(false); chooseSilentReading(); }}>本次先无声阅读</button>}
+          {readingMenuOpen && !silentReading && appliedAudio.length > 0 && !(readingMediaSurface && (failedAudio.length > 0 || delayedAudio.length > 0)) && <button className="player-menu-only" type="button" disabled={hostActivity !== 'active' || saveOperation === 'busy'} onClick={() => { setReadingMenuOpen(false); chooseSilentReading(); }}>本次先无声阅读</button>}
           <button
             type="button"
             aria-label="快进已读"

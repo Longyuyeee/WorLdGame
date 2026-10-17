@@ -33,6 +33,7 @@ async function setup(localized = false, resume = true) {
 it('relistens a past line without rewinding the story, rewriting a slot or changing read knowledge/preferences', async () => {
   const f = await setup(), originalCursor = Number(f.main().dataset.historyCursor); ended.set(f.voice(), true); fireEvent.ended(f.voice()); fireEvent.click(screen.getByRole('button', { name: '继续下一句' })); expect(Number(f.main().dataset.historyCursor)).toBeGreaterThan(originalCursor);
   fireEvent.click(screen.getByRole('button', { name: '快速保存' })); await waitFor(() => expect(f.main()).toHaveAttribute('data-save-operation', 'saved'));
+  await waitFor(() => expect(Object.keys(localStorage).some(key => key.startsWith('world-player.collection.v1:') && localStorage.getItem(key)?.includes('next_text'))).toBe(true));
   const before = f.main().dataset.runtimeStateHash, cursor = f.main().dataset.historyCursor, slot = await f.store.read(f.props.project.manifest.projectId, 'quick-1'), preferences = JSON.stringify(localStorage);
   f.open(); fireEvent.click(screen.getByRole('button', { name: '重听语音：Every cue must remain ordered.' })); await act(async () => {});
   expect(within(f.view.container.querySelector<HTMLElement>('.player-history-panel-body')!).getByRole('region', { name: '历史语音重听' })).toBeInTheDocument();

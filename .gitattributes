@@ -107,3 +107,5 @@ evidence/web-progress-recovery/*.html -text
 evidence/web-progress-recovery/**/*.worldsave -text
 evidence/web-history-voice/*.html -text
 evidence/web-history-voice/**/*.worldsave -text
+evidence/web-audio-readiness/*.html -text
+evidence/web-audio-readiness/**/*.worldsave -text
