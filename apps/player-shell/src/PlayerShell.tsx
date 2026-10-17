@@ -20,6 +20,7 @@ import { PlayerPublicationTools } from './PlayerPublicationTools';
 import { PlayerCreditsPanel } from './PlayerCreditsPanel';
 import { PlayerHistoryContent } from './PlayerHistoryContent';
 import { historyChoiceSelections } from './history-reading-context';
+import { historyVoiceReferences } from './history-voice';
 import { PlayerMusicPreview } from './PlayerMusicPreview';
 import { DEFAULT_WEB_CREDITS, readWebCredits, hasWebCredits } from '@world-studio/project-domain';
 import { cancelPlayerAudioRequest, requestPlayerAudioPlayback, cancelPlayerMediaRequest, requestPlayerMediaPlayback } from "./audio-playback-request";
@@ -287,6 +288,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
   const [videoPolicyStopReason, setVideoPolicyStopReason] = useState<"none" | "unreadBoundary">("none");
   const [historyPanelOpen, setHistoryPanelOpen] = useState(editorPreview?.initialPanel === 'history');
   const historySelections = useMemo(() => historyPanelOpen ? historyChoiceSelections(state.historySession) : undefined, [historyPanelOpen, state.historySession]);
+  const historyVoices = useMemo(() => historyPanelOpen ? historyVoiceReferences(state.historySession) : undefined, [historyPanelOpen, state.historySession]);
   const [additionalContentOpen, setAdditionalContentOpen] = useState(editorPreview?.initialPanel === 'additional');
   const [additionalContentView, setAdditionalContentView] = useState<"overview" | "gallery" | "replay" | "music" | "endings">(editorPreview?.initialPanel === "additional" && editorPreview.initialAdditionalView && webLayoutIsAdditional(editorPreview.initialAdditionalView) ? editorPreview.initialAdditionalView : "overview");
   const [selectedGalleryAssetId, setSelectedGalleryAssetId] = useState<string | null>(null);
@@ -333,6 +335,8 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
   const galleryPreviewClose = useRef<HTMLButtonElement | null>(null);
   const galleryPreviewWasOpen = useRef(false);
   const audioElements = useRef(new Map<string, HTMLAudioElement>());
+  const historyVoiceOwner = useRef<{ element: HTMLAudioElement | null; resume: boolean } | null>(null);
+  const [historyVoicePlaying, setHistoryVoicePlaying] = useState(false);
   const [, refreshAudioTransport] = useState(0);
   const audioActivity = useRef({ hostActivity, skipActive: skipMode !== null });
   audioActivity.current = { hostActivity, skipActive: skipMode !== null };
@@ -347,10 +351,26 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
   }, []);
   const requestAudio = useCallback((element: HTMLAudioElement, reason: "resuming" | "resuming-after-skip" = "resuming") => {
     const isCurrent = () => element.isConnected && audioElements.current.get(element.dataset.audioBus ?? "") === element
-      && audioActivity.current.hostActivity === "active" && !audioActivity.current.skipActive && element.dataset.shouldPlay === 'true';
+      && audioActivity.current.hostActivity === "active" && !audioActivity.current.skipActive && element.dataset.shouldPlay === 'true'
+      && !(element.dataset.audioBus === 'voice' && historyVoiceOwner.current !== null);
     if (!isCurrent()) return;
+    delete element.dataset.historyVoiceInterrupted;
     requestPlayerAudioPlayback(element, isCurrent, () => refreshAudioTransport(revision => revision + 1), reason, error => audioFailed(element, error));
   }, [audioFailed]);
+  const beginHistoryVoice = useCallback(() => {
+    if (historyVoiceOwner.current !== null) return;
+    const element = audioElements.current.get('voice') ?? null;
+    historyVoiceOwner.current = { element, resume: element !== null && !element.paused && !element.ended && !element.error && element.dataset.voiceCompleted !== 'true' && element.dataset.voiceFailed !== 'true' };
+    if (element) { cancelPlayerAudioRequest(element); element.dataset.historyVoiceInterrupted = 'true'; element.dataset.playerPlayback = 'paused-by-policy'; element.pause(); }
+    setVoicePlaying(false);
+  }, []);
+  const leaveHistoryVoice = useCallback(() => {
+    const owner = historyVoiceOwner.current; historyVoiceOwner.current = null; setHistoryVoicePlaying(false);
+    const element = owner?.element;
+    if (!element || !element.isConnected || audioElements.current.get('voice') !== element || element.ended || element.error || element.dataset.voiceCompleted === 'true' || element.dataset.voiceFailed === 'true') return;
+    if (owner.resume && audioActivity.current.hostActivity === 'active' && settingsApplication.audio.resumeAfterInterruption) requestAudio(element);
+    else { element.dataset.playerPlayback = 'paused-by-policy'; refreshAudioTransport(value => value + 1); }
+  }, [requestAudio, settingsApplication.audio.resumeAfterInterruption]);
   const videoElement = useRef<HTMLVideoElement | null>(null);
   const [, refreshVideoTransport] = useState(0);
   const requestVideo = useCallback((element: HTMLVideoElement) => {
@@ -455,7 +475,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
       settingsApplication,
       (["bgm", "voice", "sfx", "ambient", "ui"].includes(track.bus) ? track.bus : "sfx") as GalAudioBusV1,
       track.volume,
-      voicePlaying
+      voicePlaying || historyVoicePlaying
     )
   }));
   const failedAudio = appliedAudio.filter(track => mediaErrors.includes(track.assetId) && audioElements.current.get(track.bus)?.dataset.playerPlayback === 'error');
@@ -2051,7 +2071,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
             onPlay={(event) => {
               const element = event.currentTarget;
               if (!element.isConnected || audioElements.current.get(track.bus) !== element) return;
-              if (audioActivity.current.hostActivity !== 'active' || audioActivity.current.skipActive || element.dataset.shouldPlay !== 'true') {
+              if (audioActivity.current.hostActivity !== 'active' || audioActivity.current.skipActive || element.dataset.shouldPlay !== 'true' || track.bus === 'voice' && (historyVoiceOwner.current !== null || element.dataset.historyVoiceInterrupted === 'true')) {
                 cancelPlayerAudioRequest(element);
                 element.dataset.playerPlayback = audioActivity.current.hostActivity !== 'active' ? 'suspended' : audioActivity.current.skipActive ? 'skipped' : 'paused-by-policy';
                 element.pause(); return;
@@ -2195,7 +2215,14 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
             </PlayerPanelRegion>
             <PlayerPanelRegion enabled={historyLayout.enabled} rect={historyLayout.layout?.primary} kind="primary">
             {panelComponents("history", true)}
-            {snapshot.history === null ? <p className="player-history-panel__empty">故事开始后会在这里显示历史。</p> : <PlayerHistoryContent history={snapshot.history} locale={typography.locale} speakerNames={speakerNames} selections={historySelections} canNavigate={hostActivity === 'active'} renderText={text => <PlayerRichText text={text} locale={typography.locale} />} onNavigate={entryId => {
+            {snapshot.history === null ? <p className="player-history-panel__empty">故事开始后会在这里显示历史。</p> : <PlayerHistoryContent history={snapshot.history} locale={typography.locale} speakerNames={speakerNames} selections={historySelections} canNavigate={hostActivity === 'active'} voicePlayback={{ active: hostActivity === 'active', muted: effectiveMuted || silentReading, volume: galAudioGainV1(settingsApplication, 'voice'), onStart: beginHistoryVoice, onPlaying: setHistoryVoicePlaying, onLeave: leaveHistoryVoice }} voiceFor={(entryId, event) => {
+              if (event.kind !== 'dialogue' && event.kind !== 'narration') return undefined;
+              const localized = resolvePlayerLocalizedMediaV1(snapshot.localization.selectedLocale, snapshot.localization.sourceLocale, event.textId, project.assets.assets, mediaAssets);
+              if (localized.voiceMapped) return localized.voice && localized.voice.mimeType.startsWith('audio/') ? { source: localized.voice, volume: 1 } : null;
+              const reference = historyVoices?.get(entryId); if (!reference) return undefined;
+              const source = localized.stageSources.find(source => source.assetId === reference.assetId && source.mimeType.startsWith('audio/'));
+              return source ? { source, volume: reference.volume } : null;
+            }} renderText={text => <PlayerRichText text={text} locale={typography.locale} />} onNavigate={entryId => {
               applyIntent({ kind: 'history-back-to', entryId }, pointerInput.current);
               setHistoryPanelOpen(false);
               queueMicrotask(() => reading.element.current?.focus({ preventScroll: true }));

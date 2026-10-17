@@ -105,3 +105,5 @@ evidence/web-reading-media-recovery/*.html -text
 evidence/web-reading-media-recovery/**/*.worldsave -text
 evidence/web-progress-recovery/*.html -text
 evidence/web-progress-recovery/**/*.worldsave -text
+evidence/web-history-voice/*.html -text
+evidence/web-history-voice/**/*.worldsave -text

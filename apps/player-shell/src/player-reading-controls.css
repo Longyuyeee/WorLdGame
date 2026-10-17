@@ -14,6 +14,13 @@
 .player-history-search :is(input, button):focus-visible { outline: 3px solid var(--player-accent, #b9a1ff); outline-offset: 2px; }
 .player-history-search p { margin: 8px 0 0; color: var(--player-muted, #c1bed2); font-size: 12px; line-height: 1.5; }
 .player-history-panel-body { min-height: 0; overflow: auto; overscroll-behavior: contain; display: grid; align-content: start; gap: 14px; }
+.player-history-voice { display: grid; gap: 8px; padding: 10px; border: 1px solid currentColor; border-radius: 10px; }
+.player-history-voice p { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; margin: 0; line-height: 1.5; }
+.player-history-voice > span { font-size: 12px; line-height: 1.5; }
+.player-history-voice > div { display: flex; flex-wrap: wrap; gap: 8px; }
+.player-history-voice button { min-height: 44px; padding: 8px 12px; color: inherit; background: transparent; border: 1px solid currentColor; border-radius: 8px; }
+.player-history-voice button:disabled { opacity: .45; }
+.player-history-voice button:focus-visible { outline: 3px solid var(--player-accent, #c5afff); outline-offset: 2px; }
 .player-history-page-records li { scroll-margin-block: 120px 8px; }
 .player-history-list .player-history-record { color: inherit; }
 .player-shell .player-history-list .player-history-record > :is(strong, p, span, button) { color: inherit; }

@@ -1,0 +1,59 @@
+{
+  "passed": false,
+  "checks": [
+    {
+      "name": "past-voice-audition-owns-only-temporary-sound-not-story-music-or-slots",
+      "before": {
+        "hash": "a44c449acea9ab2bcf89a4448d21cb40cbc88141f347cb1764b7bd17b15edef5",
+        "cursor": "32",
+        "auto": "off",
+        "host": "active",
+        "text": "把那个日期圈起来，变化了我们提前说。"
+      },
+      "owned": {
+        "currentPaused": true,
+        "currentTime": 1.2634792,
+        "sameVoice": true,
+        "sameMusic": true,
+        "musicPlaying": true,
+        "muted": true
+      },
+      "saved": [
+        {
+          "slotId": "auto-1",
+          "hash": "82e2acf507042ca294db18181ea77af0e7eed1889ee86690bac318ce59634412",
+          "artifactHash": "2369ad0bebc828efba458571abc4dbd59a1c09d3b959cb99e5eccad2abe452b5",
+          "savedAt": 1792278863729,
+          "bytes": 10666,
+          "storedSha256": "74d56960893156335a3949b26664751931030aa2572b80bf8170a15b37a0f52a"
+        },
+        {
+          "slotId": "auto-2",
+          "hash": "990c7b6d164d4aecd2113de3a9d467df9890f67e8defe2764f9f6963370b8269",
+          "artifactHash": "19be8af97cf845b0730c1ea6d999c7f9b7c8f3a9c4cd840ae8c17790bf0fe8cc",
+          "savedAt": 1792278870658,
+          "bytes": 53060,
+          "storedSha256": "003edcd468730b58bf829576ded42f276e3527d5fdd635392ea5ecf7e96321a4"
+        },
+        {
+          "slotId": "quick-1",
+          "hash": "a44c449acea9ab2bcf89a4448d21cb40cbc88141f347cb1764b7bd17b15edef5",
+          "artifactHash": "f2b22c7362a545931d0feb50f2e8f77f04a2c62fc790c538dcb07b09e9d2527a",
+          "savedAt": 1792278872301,
+          "bytes": 11932,
+          "storedSha256": "bad82fa662100a2cf8037aeb7514adc366f928d25f75ae0afcb156758fc48dc3"
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "error": "AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:\n\n  assert.ok(ended.some(row => row.trusted && row.time > 0 && row.duration > 0))\n",
+  "stack": "AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:\n\n  assert.ok(ended.some(row => row.trusted && row.time > 0 && row.duration > 0))\n\n    at file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-history-voice.mjs:57:172",
+  "state": {
+    "hash": "a44c449acea9ab2bcf89a4448d21cb40cbc88141f347cb1764b7bd17b15edef5",
+    "cursor": "32",
+    "auto": "off",
+    "host": "active",
+    "text": "把那个日期圈起来，变化了我们提前说。"
+  }
+}

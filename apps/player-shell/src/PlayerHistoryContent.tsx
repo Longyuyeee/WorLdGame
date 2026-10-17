@@ -3,6 +3,7 @@ import type { PlayerCoreSnapshotV1, PlayerHistoryVisibleEventV1 } from '@world-s
 import { PlayerHistoryPage } from './PlayerHistoryPage';
 import { parsePlayerRichTextV1 } from './player-typography';
 import type { HistoryChoiceSelections } from './history-reading-context';
+import { useHistoryVoice, type HistoryVoiceClip, type HistoryVoicePlaybackProps } from './use-history-voice';
 
 const noNames: Readonly<Record<string, string>> = {};
 
@@ -35,7 +36,7 @@ function searchText(event: PlayerHistoryVisibleEventV1, names: Readonly<Record<s
  * options or a story catalog. Core remains the navigation authority;
  * archived and future rows never gain a rollback action through filtering.
  */
-export function PlayerHistoryContent({ history, locale, canNavigate, onNavigate, renderText, speakerNames = noNames, selections }: {
+export function PlayerHistoryContent({ history, locale, canNavigate, onNavigate, renderText, speakerNames = noNames, selections, voiceFor, voicePlayback }: {
   readonly history: NonNullable<PlayerCoreSnapshotV1['history']>;
   readonly locale: string;
   readonly canNavigate: boolean;
@@ -43,7 +44,10 @@ export function PlayerHistoryContent({ history, locale, canNavigate, onNavigate,
   readonly renderText: (text: string) => ReactNode;
   readonly speakerNames?: Readonly<Record<string, string>>;
   readonly selections?: HistoryChoiceSelections | undefined;
+  readonly voiceFor?: ((entryId: string, event: PlayerHistoryVisibleEventV1) => HistoryVoiceClip | null | undefined) | undefined;
+  readonly voicePlayback?: HistoryVoicePlaybackProps | undefined;
 }) {
+  const audition = useHistoryVoice(voicePlayback ?? { active: canNavigate, muted: false, volume: 1 });
   const [query, setQuery] = useState(''), search = normalize(query.trim());
   const input = useRef<HTMLInputElement | null>(null);
   const indexed = useMemo(() => ({ active: history.activeEntries.map(entry => ({ entry, text: searchText(entry.event, speakerNames, selections?.active.get(entry.entryId)) })),
@@ -51,13 +55,14 @@ export function PlayerHistoryContent({ history, locale, canNavigate, onNavigate,
   const active = indexed.active.filter(row => !search || row.text.includes(search)).map(row => row.entry);
   const archives = indexed.archives.map(item => ({ ...item, entries: item.rows.filter(row => !search || row.text.includes(search)).map(row => row.entry) }));
   const matches = active.length + archives.reduce((count, archive) => count + archive.entries.length, 0);
-  const record = (event: PlayerHistoryVisibleEventV1, position: string, optionId: string | undefined, navigate?: () => void) => {
+  const record = (event: PlayerHistoryVisibleEventV1, position: string, optionId: string | undefined, navigate?: () => void, voice?: HistoryVoiceClip | null) => {
     const choice = selectedLabel(event, optionId), label = eventLabel(event);
     return <div className="player-history-record">
       <span className="player-history-record__identity">{speaker(event, speakerNames) ?? eventKind(event)} · {position}</span>
       <strong className="player-typography-text" lang={locale}>{renderText(label)}</strong>
       {choice !== undefined && <p className="player-history-choice">已选择：{renderText(choice)}</p>}
       {event.kind === 'choice' && position === '当前' && <p className="player-history-choice-pending">等待选择</p>}
+      {voice !== undefined && <button type="button" aria-label={`重听语音：${label}`} disabled={!canNavigate || voice === null} onClick={event => { if (voice) audition.play(voice, label, event.currentTarget); }}>重听语音{voice === null ? ' · 资源不可用' : ''}</button>}
       {navigate && <button type="button" aria-label={`回退到：${label}`} disabled={!canNavigate} onClick={navigate}>回到这一句</button>}
     </div>;
   };
@@ -69,8 +74,10 @@ export function PlayerHistoryContent({ history, locale, canNavigate, onNavigate,
       }} />
         {query && <button type="button" onClick={() => { setQuery(''); input.current?.focus(); }}>清除查找</button>}</div>
       <p role="status">{search ? `找到 ${matches} 条记录` : '查找当前主线与只读归档。回看不改变剧情，点击“回到这一句”才回退；前方及归档记录不能回退。'}</p>
+      {voiceFor && !search && <p>重听只播放声音，不回退剧情；未保留声音关联、前方及归档记录不提供重听。</p>}
     </div>
     <div className="player-history-panel-body">
+      {audition.player}
       {history.forwardPolicy.blocked && <p className="player-history-panel__notice" role="status">项目设置禁止在回退后沿原分支前进。</p>}
       {history.backwardBarrier !== null && <p className="player-history-panel__barrier" role="status"><strong>不可逆边界</strong><span>{history.backwardBarrier.reason}</span><small>距离当前位置 {history.backwardBarrier.distance} 步 · {history.backwardBarrier.descriptorId}</small></p>}
       {search && matches === 0 && <p className="player-history-panel__empty">没有找到匹配记录，试试更短的词句，或清除查找回到当前句。</p>}
@@ -78,7 +85,7 @@ export function PlayerHistoryContent({ history, locale, canNavigate, onNavigate,
         <h3>当前主线{search ? ` · ${active.length} 条` : ''}</h3>
         {active.length === 0 ? <p className="player-history-panel__empty">尚无可显示条目。</p> : <PlayerHistoryPage key={`active:${search}`} entries={active} currentEntryId={active.find(entry => entry.position === 'current')?.entryId} label="当前主线">{visible => <ol className="player-history-list">{visible.map(entry => {
           const position = entry.position === 'current' ? '当前' : entry.position === 'future' ? '前方 · 不可回退' : entry.canNavigateBack ? '已读' : '已读 · 不可回退';
-          return <li key={entry.entryId} data-history-position={entry.position} aria-current={entry.position === 'current' ? 'location' : undefined}>{record(entry.event, position, selections?.active.get(entry.entryId), entry.canNavigateBack && entry.position === 'past' ? () => onNavigate(entry.entryId) : undefined)}</li>;
+          return <li key={entry.entryId} data-history-position={entry.position} aria-current={entry.position === 'current' ? 'location' : undefined}>{record(entry.event, position, selections?.active.get(entry.entryId), entry.canNavigateBack && entry.position === 'past' ? () => onNavigate(entry.entryId) : undefined, entry.position !== 'future' ? voiceFor?.(entry.entryId, entry.event) : undefined)}</li>;
         })}</ol>}</PlayerHistoryPage>}
       </section>}
       {archives.filter(item => !search || item.entries.length > 0).map(({ archive, index, entries }) => <section className="player-history-panel__section player-history-panel__archive" key={archive.archiveId} data-archive-id={archive.archiveId}>

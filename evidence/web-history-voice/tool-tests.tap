@@ -1,0 +1,340 @@
+TAP version 13
+# Subtest: maps all 26 actual files and the revised voice_04 without approving sources or natural listening
+ok 1 - maps all 26 actual files and the revised voice_04 without approving sources or natural listening
+  ---
+  duration_ms: 147.6223
+  ...
+# Subtest: rejects missing or duplicate source records
+ok 2 - rejects missing or duplicate source records
+  ---
+  duration_ms: 4.2964
+  ...
+# Subtest: rejects stale digests, arbitrary paths and invented approval or attribution
+ok 3 - rejects stale digests, arbitrary paths and invented approval or attribution
+  ---
+  duration_ms: 46.9615
+  ...
+# Subtest: rejects changed archive bytes and repository mismatches
+ok 4 - rejects changed archive bytes and repository mismatches
+  ---
+  duration_ms: 4.4668
+  ...
+# Subtest: rejects the old voice_04 file even with its original valid digest
+ok 5 - rejects the old voice_04 file even with its original valid digest
+  ---
+  duration_ms: 75.307
+  ...
+# Subtest: rejects changed dialogue, wrong bus and nonadjacent voice context
+ok 6 - rejects changed dialogue, wrong bus and nonadjacent voice context
+  ---
+  duration_ms: 406.4152
+  ...
+# Subtest: accepts only the UI-authored own-branch plan and weaker return rain with original 26 media
+ok 7 - accepts only the UI-authored own-branch plan and weaker return rain with original 26 media
+  ---
+  duration_ms: 67.2225
+  ...
+# Subtest: refuses the unexplained fallback plan or extra edits elsewhere in either branch
+ok 8 - refuses the unexplained fallback plan or extra edits elsewhere in either branch
+  ---
+  duration_ms: 235.6934
+  ...
+# Subtest: refuses missing, misplaced, duplicated, wrong-volume or wrong-bus rain cues
+ok 9 - refuses missing, misplaced, duplicated, wrong-volume or wrong-bus rain cues
+  ---
+  duration_ms: 410.6228
+  ...
+# Subtest: refuses changed branch labels, targets, IDs, dialogue, media and source permissions
+ok 10 - refuses changed branch labels, targets, IDs, dialogue, media and source permissions
+  ---
+  duration_ms: 283.9246
+  ...
+# Subtest: refuses legacy save approval or a missing content version change
+ok 11 - refuses legacy save approval or a missing content version change
+  ---
+  duration_ms: 43.9723
+  ...
+# Subtest: preserves 23 previous notes and keeps both new records unapproved
+ok 12 - preserves 23 previous notes and keeps both new records unapproved
+  ---
+  duration_ms: 12.2805
+  ...
+# Subtest: rejects another original prose draft instead of silently replacing it
+ok 13 - rejects another original prose draft instead of silently replacing it
+  ---
+  duration_ms: 0.9756
+  ...
+# Subtest: checks every exact local file without counting author extras or declaring product acceptance
+ok 14 - checks every exact local file without counting author extras or declaring product acceptance
+  ---
+  duration_ms: 103.0685
+  ...
+# Subtest: detects missing, same-size corrupt and longer files with an actionable file path
+ok 15 - detects missing, same-size corrupt and longer files with an actionable file path
+  ---
+  duration_ms: 48.6111
+  ...
+# Subtest: rejects malformed, duplicate, private, traversal, absolute and incomplete manifest inventories
+ok 16 - rejects malformed, duplicate, private, traversal, absolute and incomplete manifest inventories
+  ---
+  duration_ms: 18.5124
+  ...
+# Subtest: generates a new exact public-only directory without merging existing output or touching the source
+ok 17 - generates a new exact public-only directory without merging existing output or touching the source
+  ---
+  duration_ms: 110.162
+  ...
+# Subtest: does not create a ready folder from a corrupt source
+ok 18 - does not create a ready folder from a corrupt source
+  ---
+  duration_ms: 37.1883
+  ...
+# Subtest: rejects a website manifest that omits a media file still required by the offline worker
+ok 19 - rejects a website manifest that omits a media file still required by the offline worker
+  ---
+  duration_ms: 87.3303
+  ...
+# Subtest: rejects a directory junction instead of copying a linked source
+ok 20 - rejects a directory junction instead of copying a linked source
+  ---
+  duration_ms: 43.7908
+  ...
+# Subtest: normalizes directory/index addresses and rejects credentials, tokens, remote HTTP and non-directory artifacts
+ok 21 - normalizes directory/index addresses and rejects credentials, tokens, remote HTTP and non-directory artifacts
+  ---
+  duration_ms: 1.7023
+  ...
+# Subtest: performs read-only exact checks against the requested directory only
+ok 22 - performs read-only exact checks against the requested directory only
+  ---
+  duration_ms: 183.0155
+  ...
+# Subtest: identifies missing, stale, changed manifest, wrong MIME and SPA fallback responses
+ok 23 - identifies missing, stale, changed manifest, wrong MIME and SPA fallback responses
+  ---
+  duration_ms: 179.2676
+  ...
+# Subtest: does not follow redirects and bounds a stalled response, keeping version headers advisory
+ok 24 - does not follow redirects and bounds a stalled response, keeping version headers advisory
+  ---
+  duration_ms: 104.0091
+  ...
+# Subtest: the shipped helper executes offline using only Node built-ins and returns a machine-readable report
+ok 25 - the shipped helper executes offline using only Node built-ins and returns a machine-readable report
+  ---
+  duration_ms: 108.8526
+  ...
+# Subtest: rejects empty target and ambiguous command flags instead of silently reporting a local success
+ok 26 - rejects empty target and ambiguous command flags instead of silently reporting a local success
+  ---
+  duration_ms: 277.3289
+  ...
+# Subtest: listens only on a browser-safe high loopback port and removes temporary listeners
+ok 27 - listens only on a browser-safe high loopback port and removes temporary listeners
+  ---
+  duration_ms: 38.6749
+  ...
+# Subtest: retries an occupied port without changing the existing server
+ok 28 - retries an occupied port without changing the existing server
+  ---
+  duration_ms: 5.1927
+  ...
+# Subtest: rejects unsafe or invalid candidates without binding a broad interface
+ok 29 - rejects unsafe or invalid candidates without binding a broad interface
+  ---
+  duration_ms: 0.8272
+  ...
+# Subtest: retries a Windows excluded port and removes the failed attempt listeners
+ok 30 - retries a Windows excluded port and removes the failed attempt listeners
+  ---
+  duration_ms: 0.5939
+  ...
+# Subtest: bounds excluded-port retries and preserves the final error instead of hiding other failures
+ok 31 - bounds excluded-port retries and preserves the final error instead of hiding other failures
+  ---
+  duration_ms: 0.7794
+  ...
+# Subtest: bundles existing Player Shell fixtures with the recovery worker source
+ok 32 - bundles existing Player Shell fixtures with the recovery worker source
+  ---
+  duration_ms: 511.8623
+  ...
+# Subtest: forwards frozen baseline source overrides into the child worker build
+ok 33 - forwards frozen baseline source overrides into the child worker build
+  ---
+  duration_ms: 259.7613
+  ...
+# Subtest: awaits resolved false and returns only the later positive snapshot
+ok 34 - awaits resolved false and returns only the later positive snapshot
+  ---
+  duration_ms: 22.6093
+  ...
+# Subtest: a never-ready asynchronous result times out instead of passing
+ok 35 - a never-ready asynchronous result times out instead of passing
+  ---
+  duration_ms: 27.2911
+  ...
+# Subtest: propagates browser read failures rather than accepting them
+ok 36 - propagates browser read failures rather than accepting them
+  ---
+  duration_ms: 0.4544
+  ...
+# Subtest: refuses existing before-rain-stops.html before changing any report or starting a browser
+ok 37 - refuses existing before-rain-stops.html before changing any report or starting a browser
+  ---
+  duration_ms: 350.6694
+  ...
+# Subtest: refuses existing before-rain-stops-website.zip before changing any report or starting a browser
+ok 38 - refuses existing before-rain-stops-website.zip before changing any report or starting a browser
+  ---
+  duration_ms: 393.1919
+  ...
+# Subtest: preserves baseline-chromium-file.json before loading game files or starting a browser
+ok 39 - preserves baseline-chromium-file.json before loading game files or starting a browser
+  ---
+  duration_ms: 186.43
+  ...
+# Subtest: preserves webkit-website.json before loading game files or starting a browser
+ok 40 - preserves webkit-website.json before loading game files or starting a browser
+  ---
+  duration_ms: 164.8849
+  ...
+# Subtest: preserves existing chromium-navigation.json before reading a game or starting browsers
+ok 41 - preserves existing chromium-navigation.json before reading a game or starting browsers
+  ---
+  duration_ms: 188.4458
+  ...
+# Subtest: preserves existing webkit-navigation.json before reading a game or starting browsers
+ok 42 - preserves existing webkit-navigation.json before reading a game or starting browsers
+  ---
+  duration_ms: 196.0622
+  ...
+# Subtest: preserves existing matrix.json before reading a game or starting browsers
+ok 43 - preserves existing matrix.json before reading a game or starting browsers
+  ---
+  duration_ms: 182.549
+  ...
+# Subtest: rejects an unsupported engine or a purported WebKit full-audio matrix
+ok 44 - rejects an unsupported engine or a purported WebKit full-audio matrix
+  ---
+  duration_ms: 310.966
+  ...
+# Subtest: promotes exact HTML and website bytes and removes only the verified working pair
+ok 45 - promotes exact HTML and website bytes and removes only the verified working pair
+  ---
+  duration_ms: 31.4793
+  ...
+# Subtest: accepts identical previously promoted bytes without rewriting them
+ok 46 - accepts identical previously promoted bytes without rewriting them
+  ---
+  duration_ms: 18.0621
+  ...
+# Subtest: promotes an explicitly named child staging pair without touching another working pair
+ok 47 - promotes an explicitly named child staging pair without touching another working pair
+  ---
+  duration_ms: 12.2843
+  ...
+# Subtest: rejects a non-child staging path before writing a game or removing any working file
+ok 48 - rejects a non-child staging path before writing a game or removing any working file
+  ---
+  duration_ms: 9.3181
+  ...
+# Subtest: rejects a staging junction without following it or removing the original pair
+ok 49 - rejects a staging junction without following it or removing the original pair
+  ---
+  duration_ms: 7.6733
+  ...
+# Subtest: rejects changed html bytes before publishing either file
+ok 50 - rejects changed html bytes before publishing either file
+  ---
+  duration_ms: 11.9963
+  ...
+# Subtest: rejects changed website bytes before publishing either file
+ok 51 - rejects changed website bytes before publishing either file
+  ---
+  duration_ms: 12.8838
+  ...
+# Subtest: rejects a mismatched reported size before publishing
+ok 52 - rejects a mismatched reported size before publishing
+  ---
+  duration_ms: 14.5243
+  ...
+# Subtest: a different existing website candidate blocks HTML promotion and preserves both working files
+ok 53 - a different existing website candidate blocks HTML promotion and preserves both working files
+  ---
+  duration_ms: 18.2229
+  ...
+# Subtest: a missing website leaves the HTML unpublished and retained for diagnosis
+ok 54 - a missing website leaves the HTML unpublished and retained for diagnosis
+  ---
+  duration_ms: 14.4444
+  ...
+# Subtest: derives both complete 66-paragraph and six-voice routes from the unchanged actual game
+ok 55 - derives both complete 66-paragraph and six-voice routes from the unchanged actual game
+  ---
+  duration_ms: 2.74
+  ...
+# Subtest: rejects an unknown branch and missing or ambiguous scene instead of selecting another route
+ok 56 - rejects an unknown branch and missing or ambiguous scene instead of selecting another route
+  ---
+  duration_ms: 2.2377
+  ...
+# Subtest: rejects duplicate source text that would make visible-prose identity ambiguous
+ok 57 - rejects duplicate source text that would make visible-prose identity ambiguous
+  ---
+  duration_ms: 0.8275
+  ...
+# Subtest: rejects missing, repeated and reordered texts, even if the counts still look plausible
+ok 58 - rejects missing, repeated and reordered texts, even if the counts still look plausible
+  ---
+  duration_ms: 1.6909
+  ...
+# Subtest: rejects missing, repeated and reordered voices, even if the counts still look plausible
+ok 59 - rejects missing, repeated and reordered voices, even if the counts still look plausible
+  ---
+  duration_ms: 0.9732
+  ...
+# Subtest: rejects the other ending despite matching paragraph and voice counts
+ok 60 - rejects the other ending despite matching paragraph and voice counts
+  ---
+  duration_ms: 0.5244
+  ...
+# Subtest: does not accept Auto movement or a voice count as native audio completion
+ok 61 - does not accept Auto movement or a voice count as native audio completion
+  ---
+  duration_ms: 2.0576
+  ...
+# Subtest: requires the actual autoAdvanced user task
+ok 62 - requires the actual autoAdvanced user task
+  ---
+  duration_ms: 0.4077
+  ...
+# Subtest: requires the actual explicitLoadStoppedAuto user task
+ok 63 - requires the actual explicitLoadStoppedAuto user task
+  ---
+  duration_ms: 0.4447
+  ...
+# Subtest: requires the actual actualReopenResumed user task
+ok 64 - requires the actual actualReopenResumed user task
+  ---
+  duration_ms: 0.4951
+  ...
+# Subtest: requires the actual slotPreserved user task
+ok 65 - requires the actual slotPreserved user task
+  ---
+  duration_ms: 0.3003
+  ...
+# Subtest: accepts only the four distinct successful format/route cells with real website-offline results
+ok 66 - accepts only the four distinct successful format/route cells with real website-offline results
+  ---
+  duration_ms: 3.5113
+  ...
+1..66
+# tests 66
+# suites 0
+# pass 66
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1447.5158
