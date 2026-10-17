@@ -1,0 +1,151 @@
+{
+  "passed": true,
+  "contentVersion": "1.11.0",
+  "technicalVersion": "S0.41",
+  "productSourceUnchangedFrom": "be2a4f8",
+  "gameDirectory": "evidence/web-progress-recovery",
+  "artifacts": {
+    "html": {
+      "bytes": 46790046,
+      "sha256": "d63fc9280774f6260ee4a85b6496e08c86666a655f28af7d1b0464015181c864"
+    },
+    "website": {
+      "bytes": 35376495,
+      "sha256": "f4c11fc1fc754a904069008e3a88b6d988e356d49bf4edea650985ca72aeeaf1"
+    }
+  },
+  "retained": [
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops-project.zip",
+      "sha256": "43ef6e1673ed3dffbf705b4f178b2122fc960971eaf47286b33742fa285f0576"
+    },
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops.worldreview",
+      "sha256": "747534249345da6ce337054b4e7f47a1516556beda7079ef7b6d093e590bce8f"
+    },
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops.html",
+      "sha256": "6e5dfb4dfb88b5e210354fbcaeb8ccc4e79d50aa935a1d449f750bde8fc822fa"
+    },
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops-website.zip",
+      "sha256": "25ef0ab90a396f01dcfb09e60f754fb31a82f59aedb8da869b4a199a59e8f19e"
+    },
+    {
+      "file": "evidence/web-reading-media-recovery/before-rain-stops.html",
+      "sha256": "00feefe7cdd763bdea8924b5dbdd664dc6f7be03f565025746bd4d3725343f74"
+    },
+    {
+      "file": "evidence/web-reading-media-recovery/before-rain-stops-website.zip",
+      "sha256": "d322ab25ade9bcc897dca6b17dc7288e777b8f9438170e113b0da815593e6de3"
+    }
+  ],
+  "fullRouteMatrix": [
+    {
+      "format": "html",
+      "branch": 0,
+      "offline": false,
+      "texts": 66,
+      "nativeCompletedVoices": 6,
+      "reopenKind": "native-leave-and-history-back",
+      "loadStopsAuto": true
+    },
+    {
+      "format": "html",
+      "branch": 1,
+      "offline": false,
+      "texts": 66,
+      "nativeCompletedVoices": 6,
+      "reopenKind": "native-leave-and-history-back",
+      "loadStopsAuto": true
+    },
+    {
+      "format": "website",
+      "branch": 0,
+      "offline": true,
+      "texts": 66,
+      "nativeCompletedVoices": 6,
+      "reopenKind": "offline-service-worker-reload",
+      "loadStopsAuto": true
+    },
+    {
+      "format": "website",
+      "branch": 1,
+      "offline": true,
+      "texts": 66,
+      "nativeCompletedVoices": 6,
+      "reopenKind": "offline-service-worker-reload",
+      "loadStopsAuto": true
+    }
+  ],
+  "navigation": [
+    {
+      "engine": "chromium",
+      "format": "html",
+      "explicitRecovery": true,
+      "newDocument": true,
+      "persistedPageShow": false,
+      "restoredCharacterOffset": 55,
+      "sameStoryAndFormalSlots": true
+    },
+    {
+      "engine": "chromium",
+      "format": "website",
+      "explicitRecovery": true,
+      "newDocument": true,
+      "persistedPageShow": false,
+      "restoredCharacterOffset": 55,
+      "sameStoryAndFormalSlots": true
+    },
+    {
+      "engine": "firefox",
+      "format": "html",
+      "explicitRecovery": true,
+      "newDocument": true,
+      "persistedPageShow": false,
+      "restoredCharacterOffset": 55,
+      "sameStoryAndFormalSlots": true
+    },
+    {
+      "engine": "firefox",
+      "format": "website",
+      "explicitRecovery": true,
+      "newDocument": true,
+      "persistedPageShow": false,
+      "restoredCharacterOffset": 55,
+      "sameStoryAndFormalSlots": true
+    },
+    {
+      "engine": "webkit",
+      "format": "html",
+      "explicitRecovery": true,
+      "newDocument": true,
+      "persistedPageShow": false,
+      "restoredCharacterOffset": 44,
+      "sameStoryAndFormalSlots": true
+    },
+    {
+      "engine": "webkit",
+      "format": "website",
+      "explicitRecovery": true,
+      "newDocument": true,
+      "persistedPageShow": false,
+      "restoredCharacterOffset": 44,
+      "sameStoryAndFormalSlots": true
+    }
+  ],
+  "tests": {
+    "relatedFiles": 7,
+    "relatedTests": 68,
+    "nodeTests": 64,
+    "newToolTests": 16
+  },
+  "preservedInitialHarnessFailures": [
+    "webkit-navigation.json",
+    "final/matrix.json"
+  ],
+  "pendingNotes": 25,
+  "pendingMediaPermissions": 26,
+  "approvedMediaPermissions": 0,
+  "scope": "Frozen #400 game revalidation. Chromium full 2-format x 2-route matrix; both website routes offline service-worker reload. Three desktop engines x two formats actual leave/back, all fresh documents and explicit recovery, NOT observed BFCache persistence. No author rerun or re-export, content/runtime changes, physical phone/Safari/background/lock, natural listening/timing, public HTTPS, rights or long-soak approval."
+}

@@ -1,5 +1,7 @@
 # WorLd Studio（工作名）产品与开发设计文档
 
+> 当前接续（2026-10-18）：[#401 完整路线矩阵与真实导航续读](docs/401-web-work-continuity-matrix.md)。补齐 Chromium 的 HTML／离线网站 × 两条完整路线，三桌面引擎 × 两格式真实离开／后退后的明确恢复与阅读位置检查；68 项功能复验、64 项工具测试通过。该批是验证工具与证据补齐，未改剧情或播放器、未重导出游戏；1.11.0 候选／S0.41、#394 源及 #400 双游戏保持。未观察到 BFCache 原页保留，人工／真机／声音／许可／公网等剩余范围见 #401。以下为历史。
+
 > 当前接续（2026-10-18）：[#400 保存异常后的连续阅读与进度保护](docs/400-web-progress-recovery.md)。恢复／自动保存／检查点问题不再以浮层拦截阅读，详情沿现有菜单，支持明确手动保存、保留旧恢复点、迟到结果提醒和最新段落重试／刷新恢复；媒体问题合并入口但不互相清除。当前 [HTML](evidence/web-progress-recovery/before-rain-stops.html)／[网站 ZIP](evidence/web-progress-recovery/before-rain-stops-website.zip)，真实计时与 IndexedDB 故障任务、三引擎十五份定向报告和完整作者／路线范围见 #400。1.11.0／S0.41、#394 源／25 条人工记录与 26 媒体保持，#399 原包保留。底层存储／受控时钟等待、WebKit 音频及人工／真机／许可／公网、长期／长篇成本仍开放，原生搁置。以下为历史。
 
 > 当前接续（2026-10-18）：[#399 媒体失败时保持阅读与明确恢复](docs/399-web-reading-media-recovery.md)。普通正文的声音／Canvas 画面失败不再自动浮层遮字，详情收进阅读菜单，明确重试／无声后保留原段落与本段位置；窄屏故障＋无声＋Auto 的操作可达。当前 [HTML](evidence/web-reading-media-recovery/before-rain-stops.html)／[网站 ZIP](evidence/web-reading-media-recovery/before-rain-stops-website.zip)的作者保存重开、完整路线、三引擎与回归范围见 #399。1.11.0／S0.41、#394 源／25 条人工记录及 26 媒体保持，#398 原游戏保留；WebKit 播放、Firefox 受控时钟下的恢复保存超时、人工／真机／许可／公网与长期／长篇成本仍开放，原生搁置。以下为历史。

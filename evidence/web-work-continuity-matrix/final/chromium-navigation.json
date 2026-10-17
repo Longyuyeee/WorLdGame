@@ -1,0 +1,2119 @@
+{
+  "passed": true,
+  "engine": "chromium",
+  "browser": "151.0.7922.34",
+  "version": "1.11.0",
+  "artifacts": {
+    "html": {
+      "bytes": 46790046,
+      "sha256": "d63fc9280774f6260ee4a85b6496e08c86666a655f28af7d1b0464015181c864"
+    },
+    "website": {
+      "bytes": 35376495,
+      "sha256": "f4c11fc1fc754a904069008e3a88b6d988e356d49bf4edea650985ca72aeeaf1"
+    }
+  },
+  "source": "evidence/web-progress-recovery",
+  "checks": [
+    {
+      "name": "native-navigation-preserves-current-paragraph-and-visible-anchor",
+      "format": "html",
+      "navigation": {
+        "before": {
+          "hash": "82e2acf507042ca294db18181ea77af0e7eed1889ee86690bac318ce59634412",
+          "cursor": "4",
+          "auto": "off",
+          "recovery": "ready",
+          "host": "active",
+          "text": "售票员把窗口里的灯关掉时，雨正沿着站台的屋檐连成一条线。站台上的钟比手机慢了三分钟。林远核对了两次，没有走去询问值班员。他看见玻璃上自己的倒影，才发现他已经穿着这件外套站了很久。行李箱旁挂着新公司的地址，手机里存着一份还没签字的合同；这些东西都能说明他要去哪里，却没有一样能替他解释为什么迟迟不肯往前走。"
+        },
+        "after": {
+          "hash": "82e2acf507042ca294db18181ea77af0e7eed1889ee86690bac318ce59634412",
+          "cursor": "4",
+          "auto": "off",
+          "recovery": "loaded",
+          "host": "active",
+          "text": "售票员把窗口里的灯关掉时，雨正沿着站台的屋檐连成一条线。站台上的钟比手机慢了三分钟。林远核对了两次，没有走去询问值班员。他看见玻璃上自己的倒影，才发现他已经穿着这件外套站了很久。行李箱旁挂着新公司的地址，手机里存着一份还没签字的合同；这些东西都能说明他要去哪里，却没有一样能替他解释为什么迟迟不肯往前走。"
+        },
+        "explicitRecovery": true,
+        "originalDocument": "b51faf7b-8d69-4ec0-ba46-128c3d3b9c27",
+        "returnedDocument": "f9c3e03a-56bc-4743-b046-9f0483f723be",
+        "events": [
+          {
+            "name": "pageshow",
+            "persisted": false,
+            "trusted": true
+          }
+        ]
+      },
+      "anchor": {
+        "top": 296.37421383647796,
+        "bottom": 771.000786163522,
+        "scrollTop": 220,
+        "max": 236,
+        "first": 55,
+        "lines": [
+          {
+            "offset": 0,
+            "top": 102.375,
+            "bottom": 137.375
+          },
+          {
+            "offset": 11,
+            "top": 150.28125,
+            "bottom": 185.28125
+          },
+          {
+            "offset": 22,
+            "top": 198.1875,
+            "bottom": 233.1875
+          },
+          {
+            "offset": 33,
+            "top": 246.09375,
+            "bottom": 281.09375
+          },
+          {
+            "offset": 44,
+            "top": 294,
+            "bottom": 329
+          },
+          {
+            "offset": 55,
+            "top": 341.90625,
+            "bottom": 376.90625
+          },
+          {
+            "offset": 66,
+            "top": 389.8125,
+            "bottom": 424.8125
+          },
+          {
+            "offset": 77,
+            "top": 437.71875,
+            "bottom": 472.71875
+          },
+          {
+            "offset": 87,
+            "top": 485.625,
+            "bottom": 520.625
+          },
+          {
+            "offset": 98,
+            "top": 533.53125,
+            "bottom": 568.53125
+          },
+          {
+            "offset": 109,
+            "top": 581.4375,
+            "bottom": 616.4375
+          },
+          {
+            "offset": 120,
+            "top": 629.34375,
+            "bottom": 664.34375
+          },
+          {
+            "offset": 131,
+            "top": 677.25,
+            "bottom": 712.25
+          },
+          {
+            "offset": 142,
+            "top": 725.15625,
+            "bottom": 760.15625
+          }
+        ]
+      },
+      "resumed": {
+        "top": 296.37421383647796,
+        "bottom": 771.000786163522,
+        "scrollTop": 220,
+        "max": 236,
+        "first": 55,
+        "lines": [
+          {
+            "offset": 0,
+            "top": 102.375,
+            "bottom": 137.375
+          },
+          {
+            "offset": 11,
+            "top": 150.28125,
+            "bottom": 185.28125
+          },
+          {
+            "offset": 22,
+            "top": 198.1875,
+            "bottom": 233.1875
+          },
+          {
+            "offset": 33,
+            "top": 246.09375,
+            "bottom": 281.09375
+          },
+          {
+            "offset": 44,
+            "top": 294,
+            "bottom": 329
+          },
+          {
+            "offset": 55,
+            "top": 341.90625,
+            "bottom": 376.90625
+          },
+          {
+            "offset": 66,
+            "top": 389.8125,
+            "bottom": 424.8125
+          },
+          {
+            "offset": 77,
+            "top": 437.71875,
+            "bottom": 472.71875
+          },
+          {
+            "offset": 87,
+            "top": 485.625,
+            "bottom": 520.625
+          },
+          {
+            "offset": 98,
+            "top": 533.53125,
+            "bottom": 568.53125
+          },
+          {
+            "offset": 109,
+            "top": 581.4375,
+            "bottom": 616.4375
+          },
+          {
+            "offset": 120,
+            "top": 629.34375,
+            "bottom": 664.34375
+          },
+          {
+            "offset": 131,
+            "top": 677.25,
+            "bottom": 712.25
+          },
+          {
+            "offset": 142,
+            "top": 725.15625,
+            "bottom": 760.15625
+          }
+        ]
+      },
+      "layouts": [
+        {
+          "viewport": {
+            "width": 320,
+            "height": 740
+          },
+          "prior": {
+            "top": 296.37421383647796,
+            "bottom": 771.000786163522,
+            "scrollTop": 220,
+            "max": 236,
+            "first": 55,
+            "lines": [
+              {
+                "offset": 0,
+                "top": 102.375,
+                "bottom": 137.375
+              },
+              {
+                "offset": 11,
+                "top": 150.28125,
+                "bottom": 185.28125
+              },
+              {
+                "offset": 22,
+                "top": 198.1875,
+                "bottom": 233.1875
+              },
+              {
+                "offset": 33,
+                "top": 246.09375,
+                "bottom": 281.09375
+              },
+              {
+                "offset": 44,
+                "top": 294,
+                "bottom": 329
+              },
+              {
+                "offset": 55,
+                "top": 341.90625,
+                "bottom": 376.90625
+              },
+              {
+                "offset": 66,
+                "top": 389.8125,
+                "bottom": 424.8125
+              },
+              {
+                "offset": 77,
+                "top": 437.71875,
+                "bottom": 472.71875
+              },
+              {
+                "offset": 87,
+                "top": 485.625,
+                "bottom": 520.625
+              },
+              {
+                "offset": 98,
+                "top": 533.53125,
+                "bottom": 568.53125
+              },
+              {
+                "offset": 109,
+                "top": 581.4375,
+                "bottom": 616.4375
+              },
+              {
+                "offset": 120,
+                "top": 629.34375,
+                "bottom": 664.34375
+              },
+              {
+                "offset": 131,
+                "top": 677.25,
+                "bottom": 712.25
+              },
+              {
+                "offset": 142,
+                "top": 725.15625,
+                "bottom": 760.15625
+              }
+            ]
+          },
+          "position": {
+            "top": 257,
+            "bottom": 667,
+            "scrollTop": 268,
+            "max": 588,
+            "first": 48,
+            "lines": [
+              {
+                "offset": 0,
+                "top": 15,
+                "bottom": 50
+              },
+              {
+                "offset": 8,
+                "top": 62.90625,
+                "bottom": 97.90625
+              },
+              {
+                "offset": 16,
+                "top": 110.8125,
+                "bottom": 145.8125
+              },
+              {
+                "offset": 24,
+                "top": 158.71875,
+                "bottom": 193.71875
+              },
+              {
+                "offset": 32,
+                "top": 206.625,
+                "bottom": 241.625
+              },
+              {
+                "offset": 40,
+                "top": 254.53125,
+                "bottom": 289.53125
+              },
+              {
+                "offset": 48,
+                "top": 302.4375,
+                "bottom": 337.4375
+              },
+              {
+                "offset": 56,
+                "top": 350.34375,
+                "bottom": 385.34375
+              },
+              {
+                "offset": 64,
+                "top": 398.25,
+                "bottom": 433.25
+              },
+              {
+                "offset": 72,
+                "top": 446.15625,
+                "bottom": 481.15625
+              },
+              {
+                "offset": 80,
+                "top": 494.0625,
+                "bottom": 529.0625
+              },
+              {
+                "offset": 87,
+                "top": 541.96875,
+                "bottom": 576.96875
+              },
+              {
+                "offset": 95,
+                "top": 589.875,
+                "bottom": 624.875
+              },
+              {
+                "offset": 103,
+                "top": 637.78125,
+                "bottom": 672.78125
+              },
+              {
+                "offset": 111,
+                "top": 685.6875,
+                "bottom": 720.6875
+              },
+              {
+                "offset": 119,
+                "top": 733.59375,
+                "bottom": 768.59375
+              },
+              {
+                "offset": 127,
+                "top": 781.5,
+                "bottom": 816.5
+              },
+              {
+                "offset": 135,
+                "top": 829.40625,
+                "bottom": 864.40625
+              },
+              {
+                "offset": 143,
+                "top": 877.3125,
+                "bottom": 912.3125
+              },
+              {
+                "offset": 150,
+                "top": 925.21875,
+                "bottom": 960.21875
+              }
+            ]
+          },
+          "paged": {
+            "top": 257,
+            "bottom": 667,
+            "scrollTop": 588,
+            "max": 588,
+            "first": 95,
+            "lines": [
+              {
+                "offset": 0,
+                "top": -305,
+                "bottom": -270
+              },
+              {
+                "offset": 8,
+                "top": -257.09375,
+                "bottom": -222.09375
+              },
+              {
+                "offset": 16,
+                "top": -209.1875,
+                "bottom": -174.1875
+              },
+              {
+                "offset": 24,
+                "top": -161.28125,
+                "bottom": -126.28125
+              },
+              {
+                "offset": 32,
+                "top": -113.375,
+                "bottom": -78.375
+              },
+              {
+                "offset": 40,
+                "top": -65.46875,
+                "bottom": -30.46875
+              },
+              {
+                "offset": 48,
+                "top": -17.5625,
+                "bottom": 17.4375
+              },
+              {
+                "offset": 56,
+                "top": 30.34375,
+                "bottom": 65.34375
+              },
+              {
+                "offset": 64,
+                "top": 78.25,
+                "bottom": 113.25
+              },
+              {
+                "offset": 72,
+                "top": 126.15625,
+                "bottom": 161.15625
+              },
+              {
+                "offset": 80,
+                "top": 174.0625,
+                "bottom": 209.0625
+              },
+              {
+                "offset": 87,
+                "top": 221.96875,
+                "bottom": 256.96875
+              },
+              {
+                "offset": 95,
+                "top": 269.875,
+                "bottom": 304.875
+              },
+              {
+                "offset": 103,
+                "top": 317.78125,
+                "bottom": 352.78125
+              },
+              {
+                "offset": 111,
+                "top": 365.6875,
+                "bottom": 400.6875
+              },
+              {
+                "offset": 119,
+                "top": 413.59375,
+                "bottom": 448.59375
+              },
+              {
+                "offset": 127,
+                "top": 461.5,
+                "bottom": 496.5
+              },
+              {
+                "offset": 135,
+                "top": 509.40625,
+                "bottom": 544.40625
+              },
+              {
+                "offset": 143,
+                "top": 557.3125,
+                "bottom": 592.3125
+              },
+              {
+                "offset": 150,
+                "top": 605.21875,
+                "bottom": 640.21875
+              }
+            ]
+          },
+          "nativeTap": true
+        },
+        {
+          "viewport": {
+            "width": 568,
+            "height": 320
+          },
+          "prior": {
+            "top": 257,
+            "bottom": 667,
+            "scrollTop": 588,
+            "max": 588,
+            "first": 95,
+            "lines": [
+              {
+                "offset": 0,
+                "top": -305,
+                "bottom": -270
+              },
+              {
+                "offset": 8,
+                "top": -257.09375,
+                "bottom": -222.09375
+              },
+              {
+                "offset": 16,
+                "top": -209.1875,
+                "bottom": -174.1875
+              },
+              {
+                "offset": 24,
+                "top": -161.28125,
+                "bottom": -126.28125
+              },
+              {
+                "offset": 32,
+                "top": -113.375,
+                "bottom": -78.375
+              },
+              {
+                "offset": 40,
+                "top": -65.46875,
+                "bottom": -30.46875
+              },
+              {
+                "offset": 48,
+                "top": -17.5625,
+                "bottom": 17.4375
+              },
+              {
+                "offset": 56,
+                "top": 30.34375,
+                "bottom": 65.34375
+              },
+              {
+                "offset": 64,
+                "top": 78.25,
+                "bottom": 113.25
+              },
+              {
+                "offset": 72,
+                "top": 126.15625,
+                "bottom": 161.15625
+              },
+              {
+                "offset": 80,
+                "top": 174.0625,
+                "bottom": 209.0625
+              },
+              {
+                "offset": 87,
+                "top": 221.96875,
+                "bottom": 256.96875
+              },
+              {
+                "offset": 95,
+                "top": 269.875,
+                "bottom": 304.875
+              },
+              {
+                "offset": 103,
+                "top": 317.78125,
+                "bottom": 352.78125
+              },
+              {
+                "offset": 111,
+                "top": 365.6875,
+                "bottom": 400.6875
+              },
+              {
+                "offset": 119,
+                "top": 413.59375,
+                "bottom": 448.59375
+              },
+              {
+                "offset": 127,
+                "top": 461.5,
+                "bottom": 496.5
+              },
+              {
+                "offset": 135,
+                "top": 509.40625,
+                "bottom": 544.40625
+              },
+              {
+                "offset": 143,
+                "top": 557.3125,
+                "bottom": 592.3125
+              },
+              {
+                "offset": 150,
+                "top": 605.21875,
+                "bottom": 640.21875
+              }
+            ]
+          },
+          "position": {
+            "top": 73.2471590909091,
+            "bottom": 246.7528409090909,
+            "scrollTop": 166,
+            "max": 166,
+            "first": 84,
+            "lines": [
+              {
+                "offset": 0,
+                "top": -75.75,
+                "bottom": -46.75
+              },
+              {
+                "offset": 21,
+                "top": -36.296875,
+                "bottom": -7.296875
+              },
+              {
+                "offset": 42,
+                "top": 3.15625,
+                "bottom": 32.15625
+              },
+              {
+                "offset": 63,
+                "top": 42.609375,
+                "bottom": 71.609375
+              },
+              {
+                "offset": 84,
+                "top": 82.0625,
+                "bottom": 111.0625
+              },
+              {
+                "offset": 105,
+                "top": 121.515625,
+                "bottom": 150.515625
+              },
+              {
+                "offset": 126,
+                "top": 160.96875,
+                "bottom": 189.96875
+              },
+              {
+                "offset": 147,
+                "top": 200.421875,
+                "bottom": 229.421875
+              }
+            ]
+          },
+          "paged": {
+            "top": 73.2471590909091,
+            "bottom": 246.7528409090909,
+            "scrollTop": 166,
+            "max": 166,
+            "first": 84,
+            "lines": [
+              {
+                "offset": 0,
+                "top": -75.75,
+                "bottom": -46.75
+              },
+              {
+                "offset": 21,
+                "top": -36.296875,
+                "bottom": -7.296875
+              },
+              {
+                "offset": 42,
+                "top": 3.15625,
+                "bottom": 32.15625
+              },
+              {
+                "offset": 63,
+                "top": 42.609375,
+                "bottom": 71.609375
+              },
+              {
+                "offset": 84,
+                "top": 82.0625,
+                "bottom": 111.0625
+              },
+              {
+                "offset": 105,
+                "top": 121.515625,
+                "bottom": 150.515625
+              },
+              {
+                "offset": 126,
+                "top": 160.96875,
+                "bottom": 189.96875
+              },
+              {
+                "offset": 147,
+                "top": 200.421875,
+                "bottom": 229.421875
+              }
+            ]
+          },
+          "nativeTap": false
+        },
+        {
+          "viewport": {
+            "width": 844,
+            "height": 390
+          },
+          "prior": {
+            "top": 73.2471590909091,
+            "bottom": 246.7528409090909,
+            "scrollTop": 166,
+            "max": 166,
+            "first": 84,
+            "lines": [
+              {
+                "offset": 0,
+                "top": -75.75,
+                "bottom": -46.75
+              },
+              {
+                "offset": 21,
+                "top": -36.296875,
+                "bottom": -7.296875
+              },
+              {
+                "offset": 42,
+                "top": 3.15625,
+                "bottom": 32.15625
+              },
+              {
+                "offset": 63,
+                "top": 42.609375,
+                "bottom": 71.609375
+              },
+              {
+                "offset": 84,
+                "top": 82.0625,
+                "bottom": 111.0625
+              },
+              {
+                "offset": 105,
+                "top": 121.515625,
+                "bottom": 150.515625
+              },
+              {
+                "offset": 126,
+                "top": 160.96875,
+                "bottom": 189.96875
+              },
+              {
+                "offset": 147,
+                "top": 200.421875,
+                "bottom": 229.421875
+              }
+            ]
+          },
+          "position": {
+            "top": 135.2174762228261,
+            "bottom": 316.9856487771739,
+            "scrollTop": 79,
+            "max": 79,
+            "first": 52,
+            "lines": [
+              {
+                "offset": 0,
+                "top": 73.21875,
+                "bottom": 102.21875
+              },
+              {
+                "offset": 26,
+                "top": 112.671875,
+                "bottom": 141.671875
+              },
+              {
+                "offset": 52,
+                "top": 152.125,
+                "bottom": 181.125
+              },
+              {
+                "offset": 78,
+                "top": 191.578125,
+                "bottom": 220.578125
+              },
+              {
+                "offset": 104,
+                "top": 231.03125,
+                "bottom": 260.03125
+              },
+              {
+                "offset": 129,
+                "top": 270.484375,
+                "bottom": 299.484375
+              }
+            ]
+          },
+          "paged": {
+            "top": 135.2174762228261,
+            "bottom": 316.9856487771739,
+            "scrollTop": 79,
+            "max": 79,
+            "first": 52,
+            "lines": [
+              {
+                "offset": 0,
+                "top": 73.21875,
+                "bottom": 102.21875
+              },
+              {
+                "offset": 26,
+                "top": 112.671875,
+                "bottom": 141.671875
+              },
+              {
+                "offset": 52,
+                "top": 152.125,
+                "bottom": 181.125
+              },
+              {
+                "offset": 78,
+                "top": 191.578125,
+                "bottom": 220.578125
+              },
+              {
+                "offset": 104,
+                "top": 231.03125,
+                "bottom": 260.03125
+              },
+              {
+                "offset": 129,
+                "top": 270.484375,
+                "bottom": 299.484375
+              }
+            ]
+          },
+          "nativeTap": false
+        },
+        {
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "prior": {
+            "top": 135.2174762228261,
+            "bottom": 316.9856487771739,
+            "scrollTop": 79,
+            "max": 79,
+            "first": 52,
+            "lines": [
+              {
+                "offset": 0,
+                "top": 73.21875,
+                "bottom": 102.21875
+              },
+              {
+                "offset": 26,
+                "top": 112.671875,
+                "bottom": 141.671875
+              },
+              {
+                "offset": 52,
+                "top": 152.125,
+                "bottom": 181.125
+              },
+              {
+                "offset": 78,
+                "top": 191.578125,
+                "bottom": 220.578125
+              },
+              {
+                "offset": 104,
+                "top": 231.03125,
+                "bottom": 260.03125
+              },
+              {
+                "offset": 129,
+                "top": 270.484375,
+                "bottom": 299.484375
+              }
+            ]
+          },
+          "position": {
+            "top": 296.37421383647796,
+            "bottom": 771.000786163522,
+            "scrollTop": 236,
+            "max": 236,
+            "first": 55,
+            "lines": [
+              {
+                "offset": 0,
+                "top": 86.375,
+                "bottom": 121.375
+              },
+              {
+                "offset": 11,
+                "top": 134.28125,
+                "bottom": 169.28125
+              },
+              {
+                "offset": 22,
+                "top": 182.1875,
+                "bottom": 217.1875
+              },
+              {
+                "offset": 33,
+                "top": 230.09375,
+                "bottom": 265.09375
+              },
+              {
+                "offset": 44,
+                "top": 278,
+                "bottom": 313
+              },
+              {
+                "offset": 55,
+                "top": 325.90625,
+                "bottom": 360.90625
+              },
+              {
+                "offset": 66,
+                "top": 373.8125,
+                "bottom": 408.8125
+              },
+              {
+                "offset": 77,
+                "top": 421.71875,
+                "bottom": 456.71875
+              },
+              {
+                "offset": 87,
+                "top": 469.625,
+                "bottom": 504.625
+              },
+              {
+                "offset": 98,
+                "top": 517.53125,
+                "bottom": 552.53125
+              },
+              {
+                "offset": 109,
+                "top": 565.4375,
+                "bottom": 600.4375
+              },
+              {
+                "offset": 120,
+                "top": 613.34375,
+                "bottom": 648.34375
+              },
+              {
+                "offset": 131,
+                "top": 661.25,
+                "bottom": 696.25
+              },
+              {
+                "offset": 142,
+                "top": 709.15625,
+                "bottom": 744.15625
+              }
+            ]
+          },
+          "paged": {
+            "top": 296.37421383647796,
+            "bottom": 771.000786163522,
+            "scrollTop": 236,
+            "max": 236,
+            "first": 55,
+            "lines": [
+              {
+                "offset": 0,
+                "top": 86.375,
+                "bottom": 121.375
+              },
+              {
+                "offset": 11,
+                "top": 134.28125,
+                "bottom": 169.28125
+              },
+              {
+                "offset": 22,
+                "top": 182.1875,
+                "bottom": 217.1875
+              },
+              {
+                "offset": 33,
+                "top": 230.09375,
+                "bottom": 265.09375
+              },
+              {
+                "offset": 44,
+                "top": 278,
+                "bottom": 313
+              },
+              {
+                "offset": 55,
+                "top": 325.90625,
+                "bottom": 360.90625
+              },
+              {
+                "offset": 66,
+                "top": 373.8125,
+                "bottom": 408.8125
+              },
+              {
+                "offset": 77,
+                "top": 421.71875,
+                "bottom": 456.71875
+              },
+              {
+                "offset": 87,
+                "top": 469.625,
+                "bottom": 504.625
+              },
+              {
+                "offset": 98,
+                "top": 517.53125,
+                "bottom": 552.53125
+              },
+              {
+                "offset": 109,
+                "top": 565.4375,
+                "bottom": 600.4375
+              },
+              {
+                "offset": 120,
+                "top": 613.34375,
+                "bottom": 648.34375
+              },
+              {
+                "offset": 131,
+                "top": 661.25,
+                "bottom": 696.25
+              },
+              {
+                "offset": 142,
+                "top": 709.15625,
+                "bottom": 744.15625
+              }
+            ]
+          },
+          "nativeTap": false
+        }
+      ],
+      "formalSlotsPreserved": true
+    },
+    {
+      "name": "native-navigation-preserves-current-paragraph-and-visible-anchor",
+      "format": "website",
+      "navigation": {
+        "before": {
+          "hash": "82e2acf507042ca294db18181ea77af0e7eed1889ee86690bac318ce59634412",
+          "cursor": "4",
+          "auto": "off",
+          "recovery": "ready",
+          "host": "active",
+          "text": "售票员把窗口里的灯关掉时，雨正沿着站台的屋檐连成一条线。站台上的钟比手机慢了三分钟。林远核对了两次，没有走去询问值班员。他看见玻璃上自己的倒影，才发现他已经穿着这件外套站了很久。行李箱旁挂着新公司的地址，手机里存着一份还没签字的合同；这些东西都能说明他要去哪里，却没有一样能替他解释为什么迟迟不肯往前走。"
+        },
+        "after": {
+          "hash": "82e2acf507042ca294db18181ea77af0e7eed1889ee86690bac318ce59634412",
+          "cursor": "4",
+          "auto": "off",
+          "recovery": "loaded",
+          "host": "active",
+          "text": "售票员把窗口里的灯关掉时，雨正沿着站台的屋檐连成一条线。站台上的钟比手机慢了三分钟。林远核对了两次，没有走去询问值班员。他看见玻璃上自己的倒影，才发现他已经穿着这件外套站了很久。行李箱旁挂着新公司的地址，手机里存着一份还没签字的合同；这些东西都能说明他要去哪里，却没有一样能替他解释为什么迟迟不肯往前走。"
+        },
+        "explicitRecovery": true,
+        "originalDocument": "b2126c0d-7986-40de-be5f-81106fad5895",
+        "returnedDocument": "3c7e230e-75bf-4412-8482-b182c076e973",
+        "events": [
+          {
+            "name": "pageshow",
+            "persisted": false,
+            "trusted": true
+          }
+        ]
+      },
+      "anchor": {
+        "top": 296.37421383647796,
+        "bottom": 771.000786163522,
+        "scrollTop": 220,
+        "max": 236,
+        "first": 55,
+        "lines": [
+          {
+            "offset": 0,
+            "top": 102.375,
+            "bottom": 137.375
+          },
+          {
+            "offset": 11,
+            "top": 150.28125,
+            "bottom": 185.28125
+          },
+          {
+            "offset": 22,
+            "top": 198.1875,
+            "bottom": 233.1875
+          },
+          {
+            "offset": 33,
+            "top": 246.09375,
+            "bottom": 281.09375
+          },
+          {
+            "offset": 44,
+            "top": 294,
+            "bottom": 329
+          },
+          {
+            "offset": 55,
+            "top": 341.90625,
+            "bottom": 376.90625
+          },
+          {
+            "offset": 66,
+            "top": 389.8125,
+            "bottom": 424.8125
+          },
+          {
+            "offset": 77,
+            "top": 437.71875,
+            "bottom": 472.71875
+          },
+          {
+            "offset": 87,
+            "top": 485.625,
+            "bottom": 520.625
+          },
+          {
+            "offset": 98,
+            "top": 533.53125,
+            "bottom": 568.53125
+          },
+          {
+            "offset": 109,
+            "top": 581.4375,
+            "bottom": 616.4375
+          },
+          {
+            "offset": 120,
+            "top": 629.34375,
+            "bottom": 664.34375
+          },
+          {
+            "offset": 131,
+            "top": 677.25,
+            "bottom": 712.25
+          },
+          {
+            "offset": 142,
+            "top": 725.15625,
+            "bottom": 760.15625
+          }
+        ]
+      },
+      "resumed": {
+        "top": 296.37421383647796,
+        "bottom": 771.000786163522,
+        "scrollTop": 220,
+        "max": 236,
+        "first": 55,
+        "lines": [
+          {
+            "offset": 0,
+            "top": 102.375,
+            "bottom": 137.375
+          },
+          {
+            "offset": 11,
+            "top": 150.28125,
+            "bottom": 185.28125
+          },
+          {
+            "offset": 22,
+            "top": 198.1875,
+            "bottom": 233.1875
+          },
+          {
+            "offset": 33,
+            "top": 246.09375,
+            "bottom": 281.09375
+          },
+          {
+            "offset": 44,
+            "top": 294,
+            "bottom": 329
+          },
+          {
+            "offset": 55,
+            "top": 341.90625,
+            "bottom": 376.90625
+          },
+          {
+            "offset": 66,
+            "top": 389.8125,
+            "bottom": 424.8125
+          },
+          {
+            "offset": 77,
+            "top": 437.71875,
+            "bottom": 472.71875
+          },
+          {
+            "offset": 87,
+            "top": 485.625,
+            "bottom": 520.625
+          },
+          {
+            "offset": 98,
+            "top": 533.53125,
+            "bottom": 568.53125
+          },
+          {
+            "offset": 109,
+            "top": 581.4375,
+            "bottom": 616.4375
+          },
+          {
+            "offset": 120,
+            "top": 629.34375,
+            "bottom": 664.34375
+          },
+          {
+            "offset": 131,
+            "top": 677.25,
+            "bottom": 712.25
+          },
+          {
+            "offset": 142,
+            "top": 725.15625,
+            "bottom": 760.15625
+          }
+        ]
+      },
+      "layouts": [
+        {
+          "viewport": {
+            "width": 320,
+            "height": 740
+          },
+          "prior": {
+            "top": 296.37421383647796,
+            "bottom": 771.000786163522,
+            "scrollTop": 220,
+            "max": 236,
+            "first": 55,
+            "lines": [
+              {
+                "offset": 0,
+                "top": 102.375,
+                "bottom": 137.375
+              },
+              {
+                "offset": 11,
+                "top": 150.28125,
+                "bottom": 185.28125
+              },
+              {
+                "offset": 22,
+                "top": 198.1875,
+                "bottom": 233.1875
+              },
+              {
+                "offset": 33,
+                "top": 246.09375,
+                "bottom": 281.09375
+              },
+              {
+                "offset": 44,
+                "top": 294,
+                "bottom": 329
+              },
+              {
+                "offset": 55,
+                "top": 341.90625,
+                "bottom": 376.90625
+              },
+              {
+                "offset": 66,
+                "top": 389.8125,
+                "bottom": 424.8125
+              },
+              {
+                "offset": 77,
+                "top": 437.71875,
+                "bottom": 472.71875
+              },
+              {
+                "offset": 87,
+                "top": 485.625,
+                "bottom": 520.625
+              },
+              {
+                "offset": 98,
+                "top": 533.53125,
+                "bottom": 568.53125
+              },
+              {
+                "offset": 109,
+                "top": 581.4375,
+                "bottom": 616.4375
+              },
+              {
+                "offset": 120,
+                "top": 629.34375,
+                "bottom": 664.34375
+              },
+              {
+                "offset": 131,
+                "top": 677.25,
+                "bottom": 712.25
+              },
+              {
+                "offset": 142,
+                "top": 725.15625,
+                "bottom": 760.15625
+              }
+            ]
+          },
+          "position": {
+            "top": 257,
+            "bottom": 667,
+            "scrollTop": 268,
+            "max": 588,
+            "first": 48,
+            "lines": [
+              {
+                "offset": 0,
+                "top": 15,
+                "bottom": 50
+              },
+              {
+                "offset": 8,
+                "top": 62.90625,
+                "bottom": 97.90625
+              },
+              {
+                "offset": 16,
+                "top": 110.8125,
+                "bottom": 145.8125
+              },
+              {
+                "offset": 24,
+                "top": 158.71875,
+                "bottom": 193.71875
+              },
+              {
+                "offset": 32,
+                "top": 206.625,
+                "bottom": 241.625
+              },
+              {
+                "offset": 40,
+                "top": 254.53125,
+                "bottom": 289.53125
+              },
+              {
+                "offset": 48,
+                "top": 302.4375,
+                "bottom": 337.4375
+              },
+              {
+                "offset": 56,
+                "top": 350.34375,
+                "bottom": 385.34375
+              },
+              {
+                "offset": 64,
+                "top": 398.25,
+                "bottom": 433.25
+              },
+              {
+                "offset": 72,
+                "top": 446.15625,
+                "bottom": 481.15625
+              },
+              {
+                "offset": 80,
+                "top": 494.0625,
+                "bottom": 529.0625
+              },
+              {
+                "offset": 87,
+                "top": 541.96875,
+                "bottom": 576.96875
+              },
+              {
+                "offset": 95,
+                "top": 589.875,
+                "bottom": 624.875
+              },
+              {
+                "offset": 103,
+                "top": 637.78125,
+                "bottom": 672.78125
+              },
+              {
+                "offset": 111,
+                "top": 685.6875,
+                "bottom": 720.6875
+              },
+              {
+                "offset": 119,
+                "top": 733.59375,
+                "bottom": 768.59375
+              },
+              {
+                "offset": 127,
+                "top": 781.5,
+                "bottom": 816.5
+              },
+              {
+                "offset": 135,
+                "top": 829.40625,
+                "bottom": 864.40625
+              },
+              {
+                "offset": 143,
+                "top": 877.3125,
+                "bottom": 912.3125
+              },
+              {
+                "offset": 150,
+                "top": 925.21875,
+                "bottom": 960.21875
+              }
+            ]
+          },
+          "paged": {
+            "top": 257,
+            "bottom": 667,
+            "scrollTop": 588,
+            "max": 588,
+            "first": 95,
+            "lines": [
+              {
+                "offset": 0,
+                "top": -305,
+                "bottom": -270
+              },
+              {
+                "offset": 8,
+                "top": -257.09375,
+                "bottom": -222.09375
+              },
+              {
+                "offset": 16,
+                "top": -209.1875,
+                "bottom": -174.1875
+              },
+              {
+                "offset": 24,
+                "top": -161.28125,
+                "bottom": -126.28125
+              },
+              {
+                "offset": 32,
+                "top": -113.375,
+                "bottom": -78.375
+              },
+              {
+                "offset": 40,
+                "top": -65.46875,
+                "bottom": -30.46875
+              },
+              {
+                "offset": 48,
+                "top": -17.5625,
+                "bottom": 17.4375
+              },
+              {
+                "offset": 56,
+                "top": 30.34375,
+                "bottom": 65.34375
+              },
+              {
+                "offset": 64,
+                "top": 78.25,
+                "bottom": 113.25
+              },
+              {
+                "offset": 72,
+                "top": 126.15625,
+                "bottom": 161.15625
+              },
+              {
+                "offset": 80,
+                "top": 174.0625,
+                "bottom": 209.0625
+              },
+              {
+                "offset": 87,
+                "top": 221.96875,
+                "bottom": 256.96875
+              },
+              {
+                "offset": 95,
+                "top": 269.875,
+                "bottom": 304.875
+              },
+              {
+                "offset": 103,
+                "top": 317.78125,
+                "bottom": 352.78125
+              },
+              {
+                "offset": 111,
+                "top": 365.6875,
+                "bottom": 400.6875
+              },
+              {
+                "offset": 119,
+                "top": 413.59375,
+                "bottom": 448.59375
+              },
+              {
+                "offset": 127,
+                "top": 461.5,
+                "bottom": 496.5
+              },
+              {
+                "offset": 135,
+                "top": 509.40625,
+                "bottom": 544.40625
+              },
+              {
+                "offset": 143,
+                "top": 557.3125,
+                "bottom": 592.3125
+              },
+              {
+                "offset": 150,
+                "top": 605.21875,
+                "bottom": 640.21875
+              }
+            ]
+          },
+          "nativeTap": true
+        },
+        {
+          "viewport": {
+            "width": 568,
+            "height": 320
+          },
+          "prior": {
+            "top": 257,
+            "bottom": 667,
+            "scrollTop": 588,
+            "max": 588,
+            "first": 95,
+            "lines": [
+              {
+                "offset": 0,
+                "top": -305,
+                "bottom": -270
+              },
+              {
+                "offset": 8,
+                "top": -257.09375,
+                "bottom": -222.09375
+              },
+              {
+                "offset": 16,
+                "top": -209.1875,
+                "bottom": -174.1875
+              },
+              {
+                "offset": 24,
+                "top": -161.28125,
+                "bottom": -126.28125
+              },
+              {
+                "offset": 32,
+                "top": -113.375,
+                "bottom": -78.375
+              },
+              {
+                "offset": 40,
+                "top": -65.46875,
+                "bottom": -30.46875
+              },
+              {
+                "offset": 48,
+                "top": -17.5625,
+                "bottom": 17.4375
+              },
+              {
+                "offset": 56,
+                "top": 30.34375,
+                "bottom": 65.34375
+              },
+              {
+                "offset": 64,
+                "top": 78.25,
+                "bottom": 113.25
+              },
+              {
+                "offset": 72,
+                "top": 126.15625,
+                "bottom": 161.15625
+              },
+              {
+                "offset": 80,
+                "top": 174.0625,
+                "bottom": 209.0625
+              },
+              {
+                "offset": 87,
+                "top": 221.96875,
+                "bottom": 256.96875
+              },
+              {
+                "offset": 95,
+                "top": 269.875,
+                "bottom": 304.875
+              },
+              {
+                "offset": 103,
+                "top": 317.78125,
+                "bottom": 352.78125
+              },
+              {
+                "offset": 111,
+                "top": 365.6875,
+                "bottom": 400.6875
+              },
+              {
+                "offset": 119,
+                "top": 413.59375,
+                "bottom": 448.59375
+              },
+              {
+                "offset": 127,
+                "top": 461.5,
+                "bottom": 496.5
+              },
+              {
+                "offset": 135,
+                "top": 509.40625,
+                "bottom": 544.40625
+              },
+              {
+                "offset": 143,
+                "top": 557.3125,
+                "bottom": 592.3125
+              },
+              {
+                "offset": 150,
+                "top": 605.21875,
+                "bottom": 640.21875
+              }
+            ]
+          },
+          "position": {
+            "top": 73.2471590909091,
+            "bottom": 246.7528409090909,
+            "scrollTop": 166,
+            "max": 166,
+            "first": 84,
+            "lines": [
+              {
+                "offset": 0,
+                "top": -75.75,
+                "bottom": -46.75
+              },
+              {
+                "offset": 21,
+                "top": -36.296875,
+                "bottom": -7.296875
+              },
+              {
+                "offset": 42,
+                "top": 3.15625,
+                "bottom": 32.15625
+              },
+              {
+                "offset": 63,
+                "top": 42.609375,
+                "bottom": 71.609375
+              },
+              {
+                "offset": 84,
+                "top": 82.0625,
+                "bottom": 111.0625
+              },
+              {
+                "offset": 105,
+                "top": 121.515625,
+                "bottom": 150.515625
+              },
+              {
+                "offset": 126,
+                "top": 160.96875,
+                "bottom": 189.96875
+              },
+              {
+                "offset": 147,
+                "top": 200.421875,
+                "bottom": 229.421875
+              }
+            ]
+          },
+          "paged": {
+            "top": 73.2471590909091,
+            "bottom": 246.7528409090909,
+            "scrollTop": 166,
+            "max": 166,
+            "first": 84,
+            "lines": [
+              {
+                "offset": 0,
+                "top": -75.75,
+                "bottom": -46.75
+              },
+              {
+                "offset": 21,
+                "top": -36.296875,
+                "bottom": -7.296875
+              },
+              {
+                "offset": 42,
+                "top": 3.15625,
+                "bottom": 32.15625
+              },
+              {
+                "offset": 63,
+                "top": 42.609375,
+                "bottom": 71.609375
+              },
+              {
+                "offset": 84,
+                "top": 82.0625,
+                "bottom": 111.0625
+              },
+              {
+                "offset": 105,
+                "top": 121.515625,
+                "bottom": 150.515625
+              },
+              {
+                "offset": 126,
+                "top": 160.96875,
+                "bottom": 189.96875
+              },
+              {
+                "offset": 147,
+                "top": 200.421875,
+                "bottom": 229.421875
+              }
+            ]
+          },
+          "nativeTap": false
+        },
+        {
+          "viewport": {
+            "width": 844,
+            "height": 390
+          },
+          "prior": {
+            "top": 73.2471590909091,
+            "bottom": 246.7528409090909,
+            "scrollTop": 166,
+            "max": 166,
+            "first": 84,
+            "lines": [
+              {
+                "offset": 0,
+                "top": -75.75,
+                "bottom": -46.75
+              },
+              {
+                "offset": 21,
+                "top": -36.296875,
+                "bottom": -7.296875
+              },
+              {
+                "offset": 42,
+                "top": 3.15625,
+                "bottom": 32.15625
+              },
+              {
+                "offset": 63,
+                "top": 42.609375,
+                "bottom": 71.609375
+              },
+              {
+                "offset": 84,
+                "top": 82.0625,
+                "bottom": 111.0625
+              },
+              {
+                "offset": 105,
+                "top": 121.515625,
+                "bottom": 150.515625
+              },
+              {
+                "offset": 126,
+                "top": 160.96875,
+                "bottom": 189.96875
+              },
+              {
+                "offset": 147,
+                "top": 200.421875,
+                "bottom": 229.421875
+              }
+            ]
+          },
+          "position": {
+            "top": 135.2174762228261,
+            "bottom": 316.9856487771739,
+            "scrollTop": 79,
+            "max": 79,
+            "first": 52,
+            "lines": [
+              {
+                "offset": 0,
+                "top": 73.21875,
+                "bottom": 102.21875
+              },
+              {
+                "offset": 26,
+                "top": 112.671875,
+                "bottom": 141.671875
+              },
+              {
+                "offset": 52,
+                "top": 152.125,
+                "bottom": 181.125
+              },
+              {
+                "offset": 78,
+                "top": 191.578125,
+                "bottom": 220.578125
+              },
+              {
+                "offset": 104,
+                "top": 231.03125,
+                "bottom": 260.03125
+              },
+              {
+                "offset": 129,
+                "top": 270.484375,
+                "bottom": 299.484375
+              }
+            ]
+          },
+          "paged": {
+            "top": 135.2174762228261,
+            "bottom": 316.9856487771739,
+            "scrollTop": 79,
+            "max": 79,
+            "first": 52,
+            "lines": [
+              {
+                "offset": 0,
+                "top": 73.21875,
+                "bottom": 102.21875
+              },
+              {
+                "offset": 26,
+                "top": 112.671875,
+                "bottom": 141.671875
+              },
+              {
+                "offset": 52,
+                "top": 152.125,
+                "bottom": 181.125
+              },
+              {
+                "offset": 78,
+                "top": 191.578125,
+                "bottom": 220.578125
+              },
+              {
+                "offset": 104,
+                "top": 231.03125,
+                "bottom": 260.03125
+              },
+              {
+                "offset": 129,
+                "top": 270.484375,
+                "bottom": 299.484375
+              }
+            ]
+          },
+          "nativeTap": false
+        },
+        {
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "prior": {
+            "top": 135.2174762228261,
+            "bottom": 316.9856487771739,
+            "scrollTop": 79,
+            "max": 79,
+            "first": 52,
+            "lines": [
+              {
+                "offset": 0,
+                "top": 73.21875,
+                "bottom": 102.21875
+              },
+              {
+                "offset": 26,
+                "top": 112.671875,
+                "bottom": 141.671875
+              },
+              {
+                "offset": 52,
+                "top": 152.125,
+                "bottom": 181.125
+              },
+              {
+                "offset": 78,
+                "top": 191.578125,
+                "bottom": 220.578125
+              },
+              {
+                "offset": 104,
+                "top": 231.03125,
+                "bottom": 260.03125
+              },
+              {
+                "offset": 129,
+                "top": 270.484375,
+                "bottom": 299.484375
+              }
+            ]
+          },
+          "position": {
+            "top": 296.37421383647796,
+            "bottom": 771.000786163522,
+            "scrollTop": 236,
+            "max": 236,
+            "first": 55,
+            "lines": [
+              {
+                "offset": 0,
+                "top": 86.375,
+                "bottom": 121.375
+              },
+              {
+                "offset": 11,
+                "top": 134.28125,
+                "bottom": 169.28125
+              },
+              {
+                "offset": 22,
+                "top": 182.1875,
+                "bottom": 217.1875
+              },
+              {
+                "offset": 33,
+                "top": 230.09375,
+                "bottom": 265.09375
+              },
+              {
+                "offset": 44,
+                "top": 278,
+                "bottom": 313
+              },
+              {
+                "offset": 55,
+                "top": 325.90625,
+                "bottom": 360.90625
+              },
+              {
+                "offset": 66,
+                "top": 373.8125,
+                "bottom": 408.8125
+              },
+              {
+                "offset": 77,
+                "top": 421.71875,
+                "bottom": 456.71875
+              },
+              {
+                "offset": 87,
+                "top": 469.625,
+                "bottom": 504.625
+              },
+              {
+                "offset": 98,
+                "top": 517.53125,
+                "bottom": 552.53125
+              },
+              {
+                "offset": 109,
+                "top": 565.4375,
+                "bottom": 600.4375
+              },
+              {
+                "offset": 120,
+                "top": 613.34375,
+                "bottom": 648.34375
+              },
+              {
+                "offset": 131,
+                "top": 661.25,
+                "bottom": 696.25
+              },
+              {
+                "offset": 142,
+                "top": 709.15625,
+                "bottom": 744.15625
+              }
+            ]
+          },
+          "paged": {
+            "top": 296.37421383647796,
+            "bottom": 771.000786163522,
+            "scrollTop": 236,
+            "max": 236,
+            "first": 55,
+            "lines": [
+              {
+                "offset": 0,
+                "top": 86.375,
+                "bottom": 121.375
+              },
+              {
+                "offset": 11,
+                "top": 134.28125,
+                "bottom": 169.28125
+              },
+              {
+                "offset": 22,
+                "top": 182.1875,
+                "bottom": 217.1875
+              },
+              {
+                "offset": 33,
+                "top": 230.09375,
+                "bottom": 265.09375
+              },
+              {
+                "offset": 44,
+                "top": 278,
+                "bottom": 313
+              },
+              {
+                "offset": 55,
+                "top": 325.90625,
+                "bottom": 360.90625
+              },
+              {
+                "offset": 66,
+                "top": 373.8125,
+                "bottom": 408.8125
+              },
+              {
+                "offset": 77,
+                "top": 421.71875,
+                "bottom": 456.71875
+              },
+              {
+                "offset": 87,
+                "top": 469.625,
+                "bottom": 504.625
+              },
+              {
+                "offset": 98,
+                "top": 517.53125,
+                "bottom": 552.53125
+              },
+              {
+                "offset": 109,
+                "top": 565.4375,
+                "bottom": 600.4375
+              },
+              {
+                "offset": 120,
+                "top": 613.34375,
+                "bottom": 648.34375
+              },
+              {
+                "offset": 131,
+                "top": 661.25,
+                "bottom": 696.25
+              },
+              {
+                "offset": 142,
+                "top": 709.15625,
+                "bottom": 744.15625
+              }
+            ]
+          },
+          "nativeTap": false
+        }
+      ],
+      "formalSlotsPreserved": true
+    }
+  ],
+  "errors": [],
+  "scope": "Actual native leave/back and pageshow, explicit recovery when a new document loads, local text anchor and unchanged formal slots across phone-sized reflow and real taps, actual HTML and website. No synthetic lifecycle, native media or narrative events. Not physical phone/background/lock/Safari, audio acceptance or long soak."
+}
