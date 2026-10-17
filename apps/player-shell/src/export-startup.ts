@@ -3,11 +3,12 @@ import { prepareNativeAtlasMediaAsync } from "./lazy-atlas-media";
 
 /** Owns startup attempts and their URLs independently of the mounted Player. */
 export function startExportedPlayer(root: HTMLElement, payload: HTMLElement) {
+  const publicationHome = root.id === 'player-root' ? root.ownerDocument.getElementById('world-publication-home') : null;
   let controller: AbortController | undefined;
   let dispose: (() => void) | undefined;
   let player: ReturnType<typeof mountWorldPlayerV1> | undefined;
   let generation = 0, closed = false;
-  const clear = () => { controller?.abort(); player?.unmount(); player = undefined; dispose?.(); dispose = undefined; };
+  const clear = () => { controller?.abort(); player?.unmount(); player = undefined; dispose?.(); dispose = undefined; if (publicationHome) publicationHome.hidden = false; };
   const message = (text: string, label: string, action: () => void, alert = false) => {
     root.replaceChildren();
     const status = document.createElement("p"); status.textContent = text; status.setAttribute("role", alert ? "alert" : "status");
@@ -34,6 +35,7 @@ export function startExportedPlayer(root: HTMLElement, payload: HTMLElement) {
       dispose = native.dispose;
       root.replaceChildren();
       player = mountWorldPlayerV1(root, { ...data, mediaAssets: native.media, onReleaseIdleResources: native.trimIdle });
+      if (publicationHome) publicationHome.hidden = true;
       root.dataset.startupState = "ready";
     } catch {
       if (closed || current !== generation) return;

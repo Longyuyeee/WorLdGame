@@ -13,6 +13,7 @@ import { restorePlayerCollection, usePlayerCollection } from './use-player-colle
 import { restorePlayerReplayArchive, usePlayerReplayArchive } from './use-player-replay-archive';
 import { usePlayerFullscreen } from './use-player-fullscreen';
 import { PlayerPreferencesPanel } from './PlayerPreferencesPanel';
+import { PlayerPublicationTools } from './PlayerPublicationTools';
 import { PlayerCreditsPanel } from './PlayerCreditsPanel';
 import { PlayerHistoryContent } from './PlayerHistoryContent';
 import { PlayerMusicPreview } from './PlayerMusicPreview';
@@ -1405,7 +1406,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
       if (readingMenuOpen) {
         if (event.key === 'Escape') { event.preventDefault(); closeReadingMenu(); }
         if (event.key === 'Tab') {
-          const buttons = [...(readingMenu.current?.querySelectorAll<HTMLElement>('button:not(:disabled),select:not(:disabled)') ?? [])];
+          const buttons = [...(readingMenu.current?.querySelectorAll<HTMLElement>('button,select,summary') ?? [])].filter(control => !control.matches(':disabled') && !control.closest('[hidden]') && (!control.closest('details:not([open])') || control.tagName === 'SUMMARY'));
           if (buttons.length) { const index = buttons.indexOf(document.activeElement as HTMLElement); event.preventDefault(); buttons[(index + (event.shiftKey ? -1 : 1) + buttons.length) % buttons.length]?.focus(); }
         }
         return;
@@ -1444,8 +1445,8 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
         return;
       }
       if (event.key === 'Escape' && snapshot.sceneReplay.active) { event.preventDefault(); exitSceneReplay(); return; }
-      if (!event.repeat && !event.altKey && !event.ctrlKey && !event.metaKey && event.key.toLowerCase() === 'h' && canViewArtwork && !(event.target instanceof HTMLElement && event.target.closest('input,select,textarea,[contenteditable]'))) { event.preventDefault(); showArtwork(); return; }
-      if (event.target instanceof HTMLElement && event.target.closest('input,select,textarea,[contenteditable],button:not(.player-dialogue)')) return;
+      if (!event.repeat && !event.altKey && !event.ctrlKey && !event.metaKey && event.key.toLowerCase() === 'h' && canViewArtwork && !(event.target instanceof HTMLElement && event.target.closest('input,select,textarea,summary,[contenteditable]'))) { event.preventDefault(); showArtwork(); return; }
+      if (event.target instanceof HTMLElement && event.target.closest('input,select,textarea,summary,[contenteditable],button:not(.player-dialogue)')) return;
       if (event.repeat && !settingsApplication.advance.allowHold || event.altKey || event.ctrlKey || event.metaKey) return;
       if (content.kind === "choice" && (event.key === "ArrowUp" || event.key === "ArrowDown")) {
         event.preventDefault();
@@ -2302,6 +2303,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
             )}
           </aside>
         )}
+        {readingMenuOpen && !editorPreview && <PlayerPublicationTools />}
         </PlayerPanelRegion>
         {readingMenuOpen && <>{panelComponents("menu")}{panelAudit("menu")}</>}
         </div>
@@ -2370,6 +2372,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
                 const locale = event.target.value; setState(current => configurePlayerCoreLocaleV1(current, locale)); if (!editorPreview) storePlayerLocalePreference(project.manifest.projectId, locale);
               }}>{snapshot.localization.availableLocales.map(locale => <option key={locale} value={locale}>{locale}</option>)}</select></label>}
             </nav>
+            {!editorPreview && <PlayerPublicationTools />}
             {recoveryStore !== undefined && (recoveryCandidate !== null || recoveryOperation === 'scanning' || recoveryOperation === 'error' || newStoryConfirmation) && <div className="player-title-recovery" aria-label="开始与恢复进度">
               <div className="player-recovery" role={recoveryOperation === "error" ? "alert" : "status"} aria-live="polite" aria-busy={recoveryOperation === "scanning"}>
                 <div><strong>{newStoryConfirmation ? "确认开始新故事？" : recoveryCandidate ? "发现可恢复进度" : "恢复保护"}</strong>

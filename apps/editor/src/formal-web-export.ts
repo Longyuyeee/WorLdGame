@@ -58,7 +58,7 @@ export async function createFormalWebArtifact(
   if (icon) publicationIconSize(Uint8Array.from(atob(icon.url.split(',')[1]!), value => value.charCodeAt(0)));
   const html = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${title}</title><style>${runtime.css.replace(/<\/style/gi, "<\\/style")}</style></head><body><div id="player-root">正在打开游戏…</div><script id="world-project" type="application/json">${payload}</script><script>${runtime.javascript.replace(/<\/script/gi, "<\\/script")}</script></body></html>`;
   const stem = exportStem(project);
-  const brandedHtml = html.replace('</head>', `${icon ? `<link rel="icon" type="image/png" href="${icon.url}">` : ""}<meta name="application-version" content="${htmlText(publication.version)}"></head>`).replace('<body>', `<body style="--player-viewport-offset:24px"><p style="margin:0;height:24px;padding:4px 12px;background:#181827;color:#eee;font:12px/16px system-ui;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${title} · ${htmlText(publication.version)}</p>`);
+  const brandedHtml = html.replace('</head>', `${icon ? `<link rel="icon" type="image/png" href="${icon.url}">` : ""}<meta name="application-version" content="${htmlText(publication.version)}"></head>`).replace('<body>', `<body><div id="world-publication-home" hidden><section id="world-publication-tools" aria-label="游戏信息"><p id="world-publication-version">${title} · ${htmlText(publication.version)}</p></section></div>`);
   return { filename: `${stem}.html`, html: brandedHtml, byteLength: new TextEncoder().encode(brandedHtml).byteLength, projectDigest: semanticHash(project), optimizationReport: delivery.report };
 }
 
@@ -127,7 +127,7 @@ preview.mjs、deployment-check.mjs 和两个 CMD 入口仅供作者本地使用�
 本地文件存档取决于浏览器支持，移动文件夹、换浏览器或换电脑不保证保留存档。请保留原目录和原浏览器，不要把游戏 ZIP 当作存档备份。
 迁移进度：打开“存读档”→“备份”，导出当前进度或已有槽位的 .worldsave 文件；在新浏览器/设备打开同一作品后，在“备份”页选择文件、核对进度并导入到手动槽位，再点击读取继续。默认选择空槽位，覆盖旧槽位需确认。备份包含一份完整进度、历史和可用截图；个人设置和游戏素材需另行保留。文件上限 96 MiB，只接受当前或作者核对过的兼容版本，剧情变化的迁移未实现。离线也可以导出/导入；当前播放器需要安全导入支持，写入失败不会部分覆盖原槽位。
 网站离线与安装：
-将完整目录发布到 HTTPS 站点（开发调试可用 localhost），不要仅上传 index.html。玩家展开页面顶部“离线与安装”，主动下载离线内容；“离线内容已就绪”表示清单中的文件已缓存，不代替目标浏览器实际断网重开及画面、声音、存读档检查。首次未下载、下载失败或浏览器清理数据后不可假定能离线。媒体错误时可联网后重试媒体或下载完整游戏文件，并反馈具体浏览器/设备。
+将完整目录发布到 HTTPS 站点（开发调试可用 localhost），不要仅上传 index.html。玩家展开标题页或阅读菜单中的“离线与安装”，主动下载离线内容；“离线内容已就绪”表示清单中的文件已缓存，不代替目标浏览器实际断网重开及画面、声音、存读档检查。首次未下载、下载失败或浏览器清理数据后不可假定能离线。媒体错误时可联网后重试媒体或下载完整游戏文件，并反馈具体浏览器/设备。
 安装按钮在浏览器提供安装入口时出现，也可使用浏览器菜单“安装/添加到主屏幕”；不同浏览器支持有差异。本地 file 地址不注册离线缓存，但仍可直接玩。
 检查更新后若显示“新版已下载”，当前窗口继续原版，不会强制重载剧情。关闭所有游戏窗口后重新打开会使用新版。只有作者核对过、内容完全一致的版本号更新支持继续旧档；正文、分支、设置和素材变化不支持本轮兼容，需要提供原版入口。旧存档不会被清空，读取不会改写原槽位，继续保存仍遵循槽位覆盖规则。离线缓存并非永久存储保证。
 本包已核对旧版本：${saveCompatibility.status === "verified" ? saveCompatibility.versions.join("、") : "无（未核对或核对已失效）"}。范围见 save-compatibility.json；作者在发布设置上传上一版完整工程 ZIP 核对，保存工程后重新生成游戏。

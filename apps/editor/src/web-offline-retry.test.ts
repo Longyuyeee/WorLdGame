@@ -16,6 +16,7 @@ class Channel {
 function client() {
   const files: Record<string, Uint8Array> = { 'index.html': new TextEncoder().encode('<html><head></head><body></body></html>') };
   addWebOfflineFiles(files, '更新测试'); document.body.innerHTML = new DOMParser().parseFromString(new TextDecoder().decode(files['index.html']), 'text/html').body.innerHTML;
+  document.getElementById('world-publication-home')!.hidden = false;
   document.getElementById('offline-panel')!.setAttribute('open', '');
   const active = new Worker(), registration = Object.assign(new EventTarget(), { active, installing: null as Worker | null, waiting: null as Worker | null, scope: 'http://localhost/' });
   const update = vi.fn(async () => {}); const register = vi.fn(async () => ({ ...registration, update }));

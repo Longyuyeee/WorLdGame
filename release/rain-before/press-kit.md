@@ -5,14 +5,14 @@
 | 当前资料 | 路径 |
 | --- | --- |
 | 可编辑工程与内部来源台账 | [工程 ZIP](../../evidence/web-story-continuity/before-rain-stops-project.zip) |
-| 单文件游戏 | [HTML](../../evidence/web-story-continuity/before-rain-stops.html) |
-| 纯公开网站文件 | [网站上传 ZIP](../../evidence/web-story-continuity/before-rain-stops-website.zip) |
+| 单文件游戏 | [HTML](../../evidence/web-publication-reading/before-rain-stops.html)，标题／菜单收纳版 |
+| 纯公开网站文件 | [网站上传 ZIP](../../evidence/web-publication-reading/before-rain-stops-website.zip) |
 | 十六条待人工复核记录 | [校订记录](../../evidence/web-story-continuity/before-rain-stops.worldreview) |
-| 当前改动与验证范围 | [更新说明](release-notes-1.8.0.md)、[开发记录 #377](../../docs/377-web-story-continuity-candidate.md) |
+| 当前改动与验证范围 | [更新说明](release-notes-1.8.0.md)、[内容 #377](../../docs/377-web-story-continuity-candidate.md)、[阅读界面 #378](../../docs/378-web-publication-reading.md) |
 
 1.8.0 已改变正文和演出，不承诺 1.7.x 或更早存档迁移。原版入口及源工程保留，旧玩家使用原版和备份继续，新候选从头开始。只有网站包内公开文件可用于部署；工程、来源台账、制作包和校订资料不可整包上传。生成文件不代表已取得托管或发行授权。
 
-本批 Chromium 完整作者两路线及独立 HTML／网站各一路合计两结局、指定演出、同版保存重开和原备份拒绝通过；不扩写成全格式／三引擎矩阵、人工全文／听音、物理手机／Safari、公开 URL 或离线更新通过。25 项素材发行条件及真实作者／发行身份仍待确认，不虚构发布日期、分级、联系方式或统一版权承诺。以下保留历史资料与验证范围。
+当前游戏另在 #378 收纳版本／离线入口，不改剧情版本；独立两路线、三桌面引擎的菜单／视口与 loopback 原 1.8.0 缓存更新回读已检查。#377 完整作者路线、指定演出和旧剧情备份拒绝范围保留。以上不扩写成全格式／三引擎完整路线、人工全文／听音、物理手机／Safari、公开 URL 或真实站点升级验收。25 项素材发行条件及真实作者／发行身份仍待确认，不虚构发布日期、分级、联系方式或统一版权承诺。以下保留历史资料与验证范围。
 
 ## 1.7.14 历史候选展示资料
 

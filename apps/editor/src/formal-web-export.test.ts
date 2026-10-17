@@ -38,8 +38,10 @@ describe("formal Web game packaging", () => {
     expect(project.manifest.title).toBe(source.manifest.title);
     expect(readWebPublication(project)).toEqual(settings);
     const single = await createFormalWebArtifact(project, { read: async () => null }, { javascript: "", css: "" });
-    expect(single.html).toContain('--player-viewport-offset:24px');
-    expect(single.html).toContain('font:12px/16px');
+    const singlePage = new DOMParser().parseFromString(single.html, "text/html");
+    expect(singlePage.getElementById('world-publication-home')?.hidden).toBe(true);
+    expect(singlePage.getElementById('world-publication-version')?.textContent).toBe('发布作品 · 2.1.0-beta');
+    expect(single.html).not.toContain('--player-viewport-offset:');
     const artifact = await createFormalWebDirectoryArtifact(project, { read: async () => null }, { javascript: "", css: "" });
     const files = unzipSync(artifact.archive);
     const text = (path: string) => new TextDecoder().decode(files[path]);

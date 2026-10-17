@@ -1,0 +1,366 @@
+{
+  "passed": false,
+  "checks": [
+    {
+      "name": "actual-editor-source-roundtrip-and-three-export-formats-exact-story-media-and-public-inventory",
+      "detail": {}
+    },
+    {
+      "name": "actual-previous-1.8.0-cache-update-waits-for-close-and-restores-same-progress-offline",
+      "detail": {
+        "oldHash": "60c5fea355f55f41765a3f22cf9d742dcc1f90ff64f963720209267e76a94867",
+        "storyVersionChanged": false,
+        "loopbackOnly": true
+      }
+    },
+    {
+      "name": "new-menu-keeps-live-update-failure-retry-and-waiting-state-across-close-reopen",
+      "detail": {
+        "reverseShellBytesOnly": true,
+        "storyContentChanged": false
+      }
+    },
+    {
+      "name": "chromium-title-keyboard-menu-long-status-four-viewports-and-exact-story-return",
+      "detail": {
+        "browser": "151.0.7922.34",
+        "physicalPhone": false,
+        "safari": false
+      }
+    },
+    {
+      "name": "firefox-title-keyboard-menu-long-status-four-viewports-and-exact-story-return",
+      "detail": {
+        "browser": "153.0",
+        "physicalPhone": false,
+        "safari": false
+      }
+    },
+    {
+      "name": "webkit-title-keyboard-menu-long-status-four-viewports-and-exact-story-return",
+      "detail": {
+        "browser": "26.5",
+        "physicalPhone": false,
+        "safari": false
+      }
+    }
+  ],
+  "measurements": [
+    {
+      "name": "before-844x390",
+      "offset": 68,
+      "shellTop": 68
+    },
+    {
+      "name": "updated-844x390",
+      "viewport": [
+        844,
+        390
+      ],
+      "offset": 0,
+      "shellTop": 0,
+      "stage": {
+        "x": 75.328125,
+        "y": 0,
+        "width": 693.328125,
+        "height": 389.984375,
+        "top": 0,
+        "right": 768.65625,
+        "bottom": 389.984375,
+        "left": 75.328125
+      },
+      "ratio": 1.7778356504667654,
+      "width": 844,
+      "visibleTools": 0
+    },
+    {
+      "name": "offline-restored-844x390",
+      "viewport": [
+        844,
+        390
+      ],
+      "offset": 0,
+      "shellTop": 0,
+      "stage": {
+        "x": 75.328125,
+        "y": 0,
+        "width": 693.328125,
+        "height": 389.984375,
+        "top": 0,
+        "right": 768.65625,
+        "bottom": 389.984375,
+        "left": 75.328125
+      },
+      "ratio": 1.7778356504667654,
+      "width": 844,
+      "visibleTools": 0
+    },
+    {
+      "name": "chromium-reading-390x844",
+      "viewport": [
+        390,
+        844
+      ],
+      "offset": 0,
+      "shellTop": 0,
+      "stage": {
+        "x": 0,
+        "y": 64,
+        "width": 390,
+        "height": 219.375,
+        "top": 64,
+        "right": 390,
+        "bottom": 283.375,
+        "left": 0
+      },
+      "ratio": 1.7777777777777777,
+      "width": 390,
+      "visibleTools": 0
+    },
+    {
+      "name": "chromium-reading-844x390",
+      "viewport": [
+        844,
+        390
+      ],
+      "offset": 0,
+      "shellTop": 0,
+      "stage": {
+        "x": 75.328125,
+        "y": 0,
+        "width": 693.328125,
+        "height": 389.984375,
+        "top": 0,
+        "right": 768.65625,
+        "bottom": 389.984375,
+        "left": 75.328125
+      },
+      "ratio": 1.7778356504667654,
+      "width": 844,
+      "visibleTools": 0
+    },
+    {
+      "name": "chromium-reading-320x740",
+      "viewport": [
+        320,
+        740
+      ],
+      "offset": 0,
+      "shellTop": 0,
+      "stage": {
+        "x": 0,
+        "y": 64,
+        "width": 320,
+        "height": 180,
+        "top": 64,
+        "right": 320,
+        "bottom": 244,
+        "left": 0
+      },
+      "ratio": 1.7777777777777777,
+      "width": 320,
+      "visibleTools": 0
+    },
+    {
+      "name": "chromium-reading-1280x900",
+      "viewport": [
+        1280,
+        900
+      ],
+      "offset": 0,
+      "shellTop": 0,
+      "stage": {
+        "x": 51,
+        "y": 119.125,
+        "width": 1178,
+        "height": 661.75,
+        "top": 119.125,
+        "right": 1229,
+        "bottom": 780.875,
+        "left": 51
+      },
+      "ratio": 1.7801284472988288,
+      "width": 1280,
+      "visibleTools": 0
+    },
+    {
+      "name": "firefox-reading-390x844",
+      "viewport": [
+        390,
+        844
+      ],
+      "offset": 0,
+      "shellTop": 0,
+      "stage": {
+        "x": 0,
+        "y": 64,
+        "width": 390,
+        "height": 219.38333129882812,
+        "top": 64,
+        "right": 390,
+        "bottom": 283.3833312988281,
+        "left": 0
+      },
+      "ratio": 1.7777102649096443,
+      "width": 390,
+      "visibleTools": 0
+    },
+    {
+      "name": "firefox-reading-844x390",
+      "viewport": [
+        844,
+        390
+      ],
+      "offset": 0,
+      "shellTop": 0,
+      "stage": {
+        "x": 75.33332824707031,
+        "y": 0,
+        "width": 693.3333740234375,
+        "height": 390,
+        "top": 0,
+        "right": 768.6667022705078,
+        "bottom": 390,
+        "left": 75.33332824707031
+      },
+      "ratio": 1.777777882111378,
+      "width": 844,
+      "visibleTools": 0
+    },
+    {
+      "name": "firefox-reading-320x740",
+      "viewport": [
+        320,
+        740
+      ],
+      "offset": 0,
+      "shellTop": 0,
+      "stage": {
+        "x": 0,
+        "y": 64,
+        "width": 320,
+        "height": 180,
+        "top": 64,
+        "right": 320,
+        "bottom": 244,
+        "left": 0
+      },
+      "ratio": 1.7777777777777777,
+      "width": 320,
+      "visibleTools": 0
+    },
+    {
+      "name": "firefox-reading-1280x900",
+      "viewport": [
+        1280,
+        900
+      ],
+      "offset": 0,
+      "shellTop": 0,
+      "stage": {
+        "x": 51,
+        "y": 119.11666870117188,
+        "width": 1178,
+        "height": 661.75,
+        "top": 119.11666870117188,
+        "right": 1229,
+        "bottom": 780.8666687011719,
+        "left": 51
+      },
+      "ratio": 1.7801284472988288,
+      "width": 1280,
+      "visibleTools": 0
+    },
+    {
+      "name": "webkit-reading-390x844",
+      "viewport": [
+        390,
+        844
+      ],
+      "offset": 0,
+      "shellTop": 0,
+      "stage": {
+        "x": 0,
+        "y": 64,
+        "width": 390,
+        "height": 219.375,
+        "top": 64,
+        "right": 390,
+        "bottom": 283.375,
+        "left": 0
+      },
+      "ratio": 1.7777777777777777,
+      "width": 390,
+      "visibleTools": 0
+    },
+    {
+      "name": "webkit-reading-844x390",
+      "viewport": [
+        844,
+        390
+      ],
+      "offset": 0,
+      "shellTop": 0,
+      "stage": {
+        "x": 75.328125,
+        "y": 0,
+        "width": 693.328125,
+        "height": 389.984375,
+        "top": 0,
+        "right": 768.65625,
+        "bottom": 389.984375,
+        "left": 75.328125
+      },
+      "ratio": 1.7778356504667654,
+      "width": 844,
+      "visibleTools": 0
+    },
+    {
+      "name": "webkit-reading-320x740",
+      "viewport": [
+        320,
+        740
+      ],
+      "offset": 0,
+      "shellTop": 0,
+      "stage": {
+        "x": 0,
+        "y": 64,
+        "width": 320,
+        "height": 180,
+        "top": 64,
+        "right": 320,
+        "bottom": 244,
+        "left": 0
+      },
+      "ratio": 1.7777777777777777,
+      "width": 320,
+      "visibleTools": 0
+    },
+    {
+      "name": "webkit-reading-1280x900",
+      "viewport": [
+        1280,
+        900
+      ],
+      "offset": 0,
+      "shellTop": 0,
+      "stage": {
+        "x": 51,
+        "y": 119.125,
+        "width": 1178,
+        "height": 661.75,
+        "top": 119.125,
+        "right": 1229,
+        "bottom": 780.875,
+        "left": 51
+      },
+      "ratio": 1.7801284472988288,
+      "width": 1280,
+      "visibleTools": 0
+    }
+  ],
+  "errors": [],
+  "error": "TimeoutError: locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: '打开阅读菜单', exact: true })\u001b[22m\n",
+  "stack": "locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: '打开阅读菜单', exact: true })\u001b[22m\n\n    at openMenu (E:\\ProjectSave\\GeminiProject\\WorLdGame\\tools\\run-web-publication-reading.mjs:28:56)\n    at offline (E:\\ProjectSave\\GeminiProject\\WorLdGame\\tools\\run-web-publication-reading.mjs:30:87)\n    at async file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-publication-reading.mjs:129:57"
+}

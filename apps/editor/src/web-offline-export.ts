@@ -1,43 +1,12 @@
 import { createBlobDigest } from "@world-studio/project-persistence";
 
 const client = String.raw`(() => {
-  const panel = document.getElementById('offline-panel');
-  const version = document.getElementById('world-publication-version');
-  const publishHeight = height => {
-    const value = Math.ceil(height) + 'px';
-    if (document.body.style.getPropertyValue('--player-viewport-offset') !== value) document.body.style.setProperty('--player-viewport-offset', value);
-  };
-  if (typeof ResizeObserver === 'function') {
-    // Use completed border-box layout before paint. Synchronous measurement
-    // here used to force the entire initial player layout a second time.
-    const heights = new Map();
-    const observer = new ResizeObserver(entries => {
-      for (const entry of entries) {
-        const box = entry.borderBoxSize?.[0] ?? entry.borderBoxSize;
-        heights.set(entry.target, box?.blockSize ?? entry.target.getBoundingClientRect().height);
-      }
-      if ((!panel || heights.has(panel)) && (!version || heights.has(version))) publishHeight((heights.get(panel) ?? 0) + (heights.get(version) ?? 0));
-    });
-    if (panel) observer.observe(panel);
-    if (version) observer.observe(version);
-  } else {
-    // Older hosts retain measurement, batched once per frame after mutations.
-    let queued = false;
-    const layout = () => {
-      if (queued) return;
-      queued = true;
-      window.requestAnimationFrame(() => { queued = false; publishHeight((panel?.getBoundingClientRect().height ?? 0) + (version?.getBoundingClientRect().height ?? 0)); });
-    };
-    layout();
-    panel?.addEventListener('toggle', layout);
-    if (panel && typeof MutationObserver === 'function') new MutationObserver(layout).observe(panel, { attributes: true, attributeFilter: ['open'] });
-    window.addEventListener('resize', layout);
-  }
   const status = document.getElementById('offline-status');
+  const summary = document.getElementById('offline-summary');
   const action = document.getElementById('offline-action');
   const install = document.getElementById('offline-install');
   let registration, promptEvent;
-  const say = text => { status.textContent = text; };
+  const say = (text, label) => { status.textContent = text; summary.textContent = label; };
   window.addEventListener('beforeinstallprompt', event => {
     event.preventDefault(); promptEvent = event; install.hidden = false;
   });
@@ -47,13 +16,13 @@ const client = String.raw`(() => {
     promptEvent = undefined; install.hidden = true;
   };
   if (location.protocol === 'world-game:') {
-    say('桌面播放器已使用本地游戏文件，无需下载网站离线内容。'); action.hidden = true; return;
+    say('桌面播放器已使用本地游戏文件，无需下载网站离线内容。', '本地文件'); action.hidden = true; return;
   }
   if (location.protocol === 'file:') {
-    say('本地目录可直接试玩；网站离线与安装需发布到 HTTPS 站点。'); action.hidden = true; return;
+    say('本地目录可直接试玩；网站离线与安装需发布到 HTTPS 站点。', '本地文件'); action.hidden = true; return;
   }
   if (!isSecureContext || !('serviceWorker' in navigator)) {
-    say('当前浏览器或网址不支持网站离线，可继续在线玩；请使用 HTTPS 或下载完整目录包。'); action.hidden = true; return;
+    say('当前浏览器或网址不支持网站离线，可继续在线玩；请使用 HTTPS 或下载完整目录包。', '当前环境不支持'); action.hidden = true; return;
   }
   const request = (worker, type) => new Promise((resolve, reject) => {
     const channel = new MessageChannel();
@@ -63,7 +32,7 @@ const client = String.raw`(() => {
   });
   const waiting = () => {
     if (!registration?.waiting) return false;
-    say('新版已下载，当前故事仍使用原版，不会自动打断。只有作者核对过的兼容版本才能继续旧档；未经核对的更新请保留原版入口。关闭所有游戏窗口后重新打开会使用新版。');
+    say('新版已下载，当前故事仍使用原版，不会自动打断。只有作者核对过的兼容版本才能继续旧档；未经核对的更新请保留原版入口。关闭所有游戏窗口后重新打开会使用新版。', '新版等待重开');
     action.disabled = false; action.textContent = '检查更新'; return true;
   };
   const ready = async () => {
@@ -72,17 +41,17 @@ const client = String.raw`(() => {
     try {
       const result = await request(registration.active, 'STATUS');
       if (waiting()) return;
-      if (result.ready) { say('离线内容已就绪（文件已缓存）。请在当前浏览器断网重开并核对画面、声音和存读档；浏览器清理站点数据后需重新下载。'); action.textContent = '检查更新'; }
-      else { say('离线内容不完整，请联网重新下载；在线游玩仍可继续。'); action.textContent = '重试离线下载'; }
-    } catch { say('暂时无法确认离线内容，请联网重试。'); action.textContent = '重试离线下载'; }
+      if (result.ready) { say('离线内容已就绪（文件已缓存）。请在当前浏览器断网重开并核对画面、声音和存读档；浏览器清理站点数据后需重新下载。', '文件已缓存'); action.textContent = '检查更新'; }
+      else { say('离线内容不完整，请联网重新下载；在线游玩仍可继续。', '需要重新下载'); action.textContent = '重试离线下载'; }
+    } catch { say('暂时无法确认离线内容，请联网重试。', '状态未确认'); action.textContent = '重试离线下载'; }
     action.disabled = false;
   };
   const observe = worker => {
     if (!worker) return;
-    say('正在下载离线内容，请保持页面打开；你可以继续游玩。'); action.disabled = true;
+    say('正在下载离线内容，请保持页面打开；你可以继续游玩。', '下载中'); action.disabled = true;
     const changed = () => {
       if (worker.state === 'activated') void ready();
-      if (worker.state === 'installed') { if (!waiting()) say('离线下载完成，正在准备…'); }
+      if (worker.state === 'installed') { if (!waiting()) say('离线下载完成，正在准备…', '正在准备'); }
       if (worker.state === 'redundant') failed(false);
     };
     worker.addEventListener('statechange', changed); changed();
@@ -93,7 +62,7 @@ const client = String.raw`(() => {
   };
   const failed = cacheRepair => {
     const updating = Boolean(registration?.active) && !cacheRepair;
-    say(updating ? '新版下载或更新失败，原有离线内容保留。请检查网络和可用空间后重试更新；当前故事不会切换。' : '离线下载失败，请检查网络和可用空间后重试；在线游戏仍可继续。');
+    say(updating ? '新版下载或更新失败，原有离线内容保留。请检查网络和可用空间后重试更新；当前故事不会切换。' : '离线下载失败，请检查网络和可用空间后重试；在线游戏仍可继续。', updating ? '更新失败' : '下载失败');
     action.disabled = false; action.textContent = updating ? '重试更新' : '重试离线下载';
   };
   action.onclick = async () => {
@@ -102,7 +71,7 @@ const client = String.raw`(() => {
     try {
       if (!registration || (!registration.active && !registration.waiting && !registration.installing)) { registration = await navigator.serviceWorker.register('./sw.js', { scope: './', updateViaCache: 'none' }); watch(); }
       else if (cacheRepair) {
-        say('正在重新下载离线内容…');
+        say('正在重新下载离线内容…', '下载中');
         const result = await request(registration.active, 'CACHE');
         if (!result.ready) throw new Error('cache failed');
         await ready();
@@ -114,7 +83,7 @@ const client = String.raw`(() => {
   };
   navigator.serviceWorker.getRegistration('./').then(value => {
     if (value && value.scope === new URL('./', location.href).href) { registration = value; watch(); }
-  }).catch(() => { say('无法读取离线状态，请重试。'); });
+  }).catch(() => { say('无法读取离线状态，请重试。', '状态未确认'); });
 })();`;
 
 const worker = String.raw`
@@ -178,9 +147,9 @@ export function addWebOfflineFiles(files: Record<string, Uint8Array>, title: str
   files["offline.js"] = encode(client);
   files["app-icon.svg"] = encode('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="100" fill="#181827"/><path d="M96 148h56l40 180 38-132h52l38 132 40-180h56l-66 224h-56l-38-128-38 128h-56z" fill="#c5b5ff"/></svg>');
   files["manifest.webmanifest"] = encode(JSON.stringify({ id: "./", name: title, short_name: title.slice(0, 24), lang: "zh-CN", start_url: "./index.html", scope: "./", display: "standalone", background_color: "#181827", theme_color: "#181827", icons: [{ src: icon?.path ?? "app-icon.svg", sizes: icon ? `${icon.size}x${icon.size}` : "any", type: icon ? "image/png" : "image/svg+xml", purpose: "any" }] }));
-  files["index.html"] = encode(new TextDecoder().decode(files["index.html"]).replace('</head>', `<meta name="application-version" content="${publicationVersion}"><link rel="icon" href="${icon?.path ?? "app-icon.svg"}"></head>`).replace('<body>', `<body style="--player-viewport-offset:68px"><p id="world-publication-version" style="margin:0;padding:4px 12px;background:#181827;color:#eee;font:12px/16px system-ui">版本 ${publicationVersion}</p>`));
-  const panel = `<details id="offline-panel"><summary>离线与安装 · <span id="offline-status" role="status">尚未下载离线内容</span></summary><p>需要约 ${size} MiB 空间及下载流量。安装入口由浏览器提供，也可查看浏览器菜单中的“安装/添加到主屏幕”。</p><button id="offline-action" type="button">下载离线内容</button> <button id="offline-install" type="button" hidden>安装游戏</button></details>`;
-  files["offline.css"] = encode('#offline-panel{box-sizing:border-box;width:100%;padding:8px 16px;background:#181827;color:#eee;font:14px/1.5 system-ui;overflow-wrap:anywhere}#offline-panel summary{cursor:pointer;min-height:28px}#offline-panel p{margin:8px 0}#offline-panel button{min-height:44px;padding:8px 14px;border-radius:8px;border:1px solid #b9a8ed;background:#292638;color:#fff}#offline-panel button[hidden]{display:none}');
+  files["index.html"] = encode(new TextDecoder().decode(files["index.html"]).replace('</head>', `<meta name="application-version" content="${publicationVersion}"><link rel="icon" href="${icon?.path ?? "app-icon.svg"}"></head>`));
+  const panel = `<div id="world-publication-home" hidden><section id="world-publication-tools" aria-label="游戏信息"><p id="world-publication-version">版本 ${publicationVersion}</p><details id="offline-panel"><summary>离线与安装 · <span id="offline-summary" role="status">尚未下载</span></summary><p id="offline-status" role="status">尚未下载离线内容</p><p>需要约 ${size} MiB 空间及下载流量。安装入口由浏览器提供，也可查看浏览器菜单中的“安装/添加到主屏幕”。</p><button id="offline-action" type="button">下载离线内容</button> <button id="offline-install" type="button" hidden>安装游戏</button></details></section></div>`;
+  files["offline.css"] = encode('#offline-panel{box-sizing:border-box;width:100%;color:var(--player-ink,#eee);font:14px/1.6 system-ui;overflow-wrap:anywhere}#offline-panel summary{box-sizing:border-box;cursor:pointer;min-height:44px;padding:10px 12px;border:1px solid var(--player-muted,#b9a8ed);border-radius:8px}#offline-panel summary:focus-visible{outline:3px solid var(--player-accent,#b9a8ed);outline-offset:-3px}#offline-panel p{margin:10px 0}#offline-panel button{min-height:44px;padding:8px 14px;border-radius:8px;border:1px solid var(--player-muted,#b9a8ed);background:var(--player-panel,#292638);color:inherit}#offline-panel button[hidden]{display:none}');
   files["index.html"] = encode(new TextDecoder().decode(files["index.html"]).replace('</head>', '<link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#181827"><link rel="stylesheet" href="offline.css"></head>').replace(/<body([^>]*)>/, '<body$1>' + panel).replace('</body>', '<script src="offline.js"></script></body>'));
   const inventory = Object.fromEntries(Object.entries(files).map(([path, bytes]) => [path, createBlobDigest(bytes)]));
   // Worker bytes participate in the version so fixes also create a fresh cache.

@@ -4,7 +4,7 @@ import { prepareNativeAtlasMediaAsync as hydrateNativeAtlasMediaAsync } from "./
 import { mountWorldPlayerV1 } from "./mount-player";
 vi.mock("./lazy-atlas-media",()=>({prepareNativeAtlasMediaAsync:vi.fn()}));
 vi.mock("./mount-player",()=>({mountWorldPlayerV1:vi.fn()}));
-afterEach(()=>vi.resetAllMocks());
+afterEach(()=>{ vi.resetAllMocks(); document.body.replaceChildren(); });
 const fixture=()=>{const root=document.createElement("div"),payload=document.createElement("script");payload.textContent="{}";return{root,payload};};
 it("shows loading, cancels, retries and cleans up only its own successful attempt",async()=>{
   const {root,payload}=fixture(),dispose=vi.fn(),unmount=vi.fn(),trimIdle=vi.fn(),notifyMemoryPressure=vi.fn();
@@ -32,4 +32,15 @@ it("offers retry on damaged payload and does not mount after non-persisted pageh
   payload.textContent="{}";root.querySelector("button")!.click();
   window.dispatchEvent(new PageTransitionEvent("pagehide",{persisted:false}));
   await new Promise(resolve=>setTimeout(resolve,20));expect(mountWorldPlayerV1).not.toHaveBeenCalled();handle.dispose();
+});
+it("keeps game information available during loading, cancellation and failure, hiding its home only after mounting", async () => {
+  const { root, payload } = fixture(); root.id = 'player-root';
+  const home = document.createElement('div'); home.id = 'world-publication-home'; home.hidden = true; document.body.append(home, root);
+  payload.textContent = 'invalid'; const handle = startExportedPlayer(root, payload); expect(home.hidden).toBe(false);
+  root.querySelector('button')!.click(); expect(root.dataset.startupState).toBe('cancelled'); expect(home.hidden).toBe(false);
+  root.querySelector('button')!.click(); await vi.waitFor(() => expect(root.dataset.startupState).toBe('failed')); expect(home.hidden).toBe(false);
+  payload.textContent = '{}'; vi.mocked(hydrateNativeAtlasMediaAsync).mockResolvedValue({ media: [], dispose: vi.fn(), trimIdle: vi.fn() });
+  vi.mocked(mountWorldPlayerV1).mockReturnValue({ unmount: vi.fn() } as unknown as ReturnType<typeof mountWorldPlayerV1>);
+  root.querySelector('button')!.click(); await vi.waitFor(() => expect(root.dataset.startupState).toBe('ready')); expect(home.hidden).toBe(true);
+  handle.dispose(); expect(home.hidden).toBe(false);
 });
