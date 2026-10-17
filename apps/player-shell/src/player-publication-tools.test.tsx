@@ -57,3 +57,14 @@ it.each([false, true])('does not borrow tools from a different mount or an autho
   render(<PlayerShell project={project} {...(preview ? { editorPreview: { autoStart: false } } : {})} />, { container });
   expect(tools.parentElement).toBe(home);
 });
+
+it('includes a newly visible download cancellation action in the live menu keyboard cycle without advancing the story', async () => {
+  const { root, tools, action, details } = fixture();
+  const cancel = document.createElement('button'); cancel.textContent = '取消下载'; cancel.hidden = true; const cancelled = vi.fn(); cancel.onclick = cancelled; details.append(cancel);
+  render(<PlayerShell project={project} />, { container: root }); fireEvent.click(screen.getByRole('button', { name: /开始故事/ })); await act(async () => {});
+  const hash = root.querySelector('main')!.dataset.runtimeStateHash; fireEvent.click(screen.getByRole('button', { name: '打开阅读菜单' })); details.open = true; cancel.hidden = false;
+  action.focus(); fireEvent.keyDown(action, { key: 'Tab' }); expect(cancel).toHaveFocus();
+  fireEvent.keyDown(cancel, { key: 'Tab' }); expect(screen.getByRole('button', { name: '返回故事' })).toHaveFocus();
+  fireEvent.click(cancel); expect(cancelled).toHaveBeenCalledOnce(); expect(tools.closest('[role="dialog"]')).not.toBeNull();
+  fireEvent.keyDown(window, { key: 'Escape' }); await act(async () => {}); expect(root.querySelector('main')!.dataset.runtimeStateHash).toBe(hash);
+});

@@ -1,0 +1,12 @@
+{
+  "passed": true,
+  "state": {
+    "summary": "下载中",
+    "status": "正在下载离线内容，请保持页面打开；你可以继续游玩。",
+    "cancelButtons": 0
+  },
+  "sourceVersion": "1.9.0",
+  "websiteSha256": "4f6dd372d4acf00fcf4efd2033141edbe3b0480bbcefef8584613deaedbfb771",
+  "heldFile": "player.js",
+  "loopbackOnly": true
+}

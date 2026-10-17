@@ -1,0 +1,36 @@
+{
+  "passed": false,
+  "error": "TimeoutError: locator.waitFor: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#offline-status').filter({ hasText: 'HTTP 503' }) to be visible\u001b[22m\n",
+  "stack": "locator.waitFor: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#offline-status').filter({ hasText: 'HTTP 503' }) to be visible\u001b[22m\n\n    at firstDownload (E:\\ProjectSave\\GeminiProject\\WorLdGame\\tools\\run-web-offline-download.mjs:81:128)\n    at async file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-offline-download.mjs:153:28",
+  "checks": [
+    {
+      "name": "exact-website-only-four-file-delta-story-26-media-source-and-html-preserved",
+      "detail": {
+        "passed": true,
+        "version": "1.9.0",
+        "sourceUnchanged": {
+          "path": "evidence/web-story-branch-context/before-rain-stops-project.zip",
+          "sha256": "e4b13a27dc72fda43efe655d49a9b5ca5091c01382b9d0cd0c79932eaa86400d",
+          "entries": 66
+        },
+        "htmlByteIdentical": {
+          "path": "evidence/web-story-branch-context/before-rain-stops.html",
+          "sha256": "43866963a9f43cf156fd96c0940b9121797789e8ba7a85a7b449c43bc97a8125"
+        },
+        "unchangedMedia": 26,
+        "websiteFiles": 37,
+        "allowedChangedFiles": [
+          "index.html",
+          "offline.js",
+          "sw.js",
+          "build-info.json"
+        ],
+        "website": {
+          "byteLength": 35307491,
+          "sha256": "61b78ffc80127f588d6363e78889c3ad49933807a8998d83a12992b2bc2198b0"
+        }
+      }
+    }
+  ],
+  "errors": []
+}
