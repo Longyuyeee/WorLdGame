@@ -1,8 +1,8 @@
-type Anchor = { kind: 'start' } | { kind: 'end' } | { kind: 'text'; offset: number; inset: number } | { kind: 'pixel'; top: number };
+export type ReadingAnchor = { readonly kind: 'start' } | { readonly kind: 'end' } | { readonly kind: 'text'; readonly offset: number; readonly inset: number } | { readonly kind: 'pixel'; readonly top: number };
 
 /** A transient presentation anchor. Never part of narrative state or a save file. */
 export class ReadingPosition {
-  private anchor: Anchor = { kind: 'start' };
+  private anchor: ReadingAnchor = { kind: 'start' };
   private shape = '';
   private appliedTop = 0;
   private hidden = false;
@@ -10,6 +10,18 @@ export class ReadingPosition {
   constructor(readonly element: HTMLElement) {
     element.scrollTop = 0;
     this.shape = this.geometry();
+  }
+
+  snapshot(): ReadingAnchor { return { ...this.anchor }; }
+
+  restore(anchor: ReadingAnchor) {
+    if (anchor.kind === 'text') {
+      const index = this.textIndex();
+      if (!index || anchor.offset >= index.length) { this.anchor = { kind: 'start' }; this.reflow(true); return false; }
+    }
+    this.anchor = { ...anchor };
+    this.reflow(true);
+    return true;
   }
 
   private geometry() {

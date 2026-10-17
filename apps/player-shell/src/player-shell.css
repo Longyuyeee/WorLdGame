@@ -513,3 +513,14 @@ button { font: inherit; }
 }
 .player-story-progress span { flex: 1 1 220px; }
 .player-story-progress button { min-height: 44px; padding: 8px 12px; color: inherit; background: transparent; border: 1px solid currentColor; border-radius: 8px; }
+@media (max-height: 480px) and (orientation: landscape) {
+  /* The ordinary top notice would cover the first restored line. Use the
+     reading-caption lane, leaving the fixed save action and paragraph clear. */
+  .player-reading-resume { position: fixed; top: auto; bottom: env(safe-area-inset-bottom); left: max(14px, env(safe-area-inset-left)); right: calc(max(14px, env(safe-area-inset-right)) + 116px); padding: 8px; font-size: 13px; }
+  .player-reading-resume span { flex-basis: 160px; }
+  .player-reading-resume button { padding-inline: 8px; font: inherit; }
+  .player-shell:has(.player-reading-resume) .player-reading-caption { visibility: hidden; }
+}
+@media (max-height: 480px) and (orientation: landscape) and (max-width: 480px) {
+  .player-reading-resume span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+}

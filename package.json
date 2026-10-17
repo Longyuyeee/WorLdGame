@@ -8,6 +8,8 @@
     "packages/*"
   ],
   "scripts": {
+    "audit:web-reading-resume": "node tools/run-web-reading-resume-tests.mjs",
+    "audit:web-reading-resume:browser": "npm run build --workspace @world-studio/editor && node tools/run-web-reading-resume-batch.mjs",
     "audit:web-playback-advance": "node tools/run-web-playback-tests.mjs",
     "audit:web-playback-advance:profile": "node tools/run-web-playback-advance.mjs --profile",
     "audit:web-playback-advance:browser": "npm run build --workspace @world-studio/editor && node tools/run-web-playback-advance.mjs --matrix && node tools/run-web-playback-advance.mjs --work",

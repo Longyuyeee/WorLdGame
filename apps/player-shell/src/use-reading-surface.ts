@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { hasUnreadBelow } from './player-reading';
-import { ReadingPosition } from './reading-position';
+import { ReadingPosition, type ReadingAnchor } from './reading-position';
 export function useCompactReadingLayout() {
   return useReadingMediaQuery('(max-width: 640px), (max-height: 480px)');
 }
@@ -35,7 +35,9 @@ export function useReadingSurface(identity: string, layoutRevision: unknown) {
     window.addEventListener('resize', reflow);
     return () => { observer?.disconnect(); window.removeEventListener('resize', reflow); };
   }, [identity, layoutRevision]);
-  return { element, unread, measure, gesture,
+  return { element, unread, measure, gesture, identity,
+    capture() { return previous.current === identity ? position.current?.snapshot() ?? null : null; },
+    restore(anchor: ReadingAnchor) { if (previous.current !== identity || !position.current) return false; const restored = position.current.restore(anchor); updateUnread(); return restored; },
     nextPage() {
       const current = element.current;
       if (!current || !hasUnreadBelow(current)) return false;

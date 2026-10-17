@@ -1,0 +1,183 @@
+{
+  "passed": true,
+  "label": "baseline",
+  "browser": "151.0.7922.34",
+  "htmlSha256": "36cd9f801bec80ae155757ca6aa9d926c7aca58c343bd34494ff8b0b60c2862c",
+  "checks": [
+    {
+      "name": "reproduced-paragraph-restored-but-reading-point-lost",
+      "before": {
+        "first": 55,
+        "excerpt": "问值班员。他看见玻璃上自己的倒影，才发现他已经穿着这件外套站",
+        "scrollTop": 220,
+        "max": 236,
+        "top": 296.375,
+        "bottom": 771.375,
+        "lines": [
+          {
+            "index": 0,
+            "top": 102.375,
+            "bottom": 137.375
+          },
+          {
+            "index": 11,
+            "top": 150.28125,
+            "bottom": 185.28125
+          },
+          {
+            "index": 22,
+            "top": 198.1875,
+            "bottom": 233.1875
+          },
+          {
+            "index": 33,
+            "top": 246.09375,
+            "bottom": 281.09375
+          },
+          {
+            "index": 44,
+            "top": 294,
+            "bottom": 329
+          },
+          {
+            "index": 55,
+            "top": 341.90625,
+            "bottom": 376.90625
+          },
+          {
+            "index": 66,
+            "top": 389.8125,
+            "bottom": 424.8125
+          },
+          {
+            "index": 77,
+            "top": 437.71875,
+            "bottom": 472.71875
+          },
+          {
+            "index": 87,
+            "top": 485.625,
+            "bottom": 520.625
+          },
+          {
+            "index": 98,
+            "top": 533.53125,
+            "bottom": 568.53125
+          },
+          {
+            "index": 109,
+            "top": 581.4375,
+            "bottom": 616.4375
+          },
+          {
+            "index": 120,
+            "top": 629.34375,
+            "bottom": 664.34375
+          },
+          {
+            "index": 131,
+            "top": 677.25,
+            "bottom": 712.25
+          },
+          {
+            "index": 142,
+            "top": 725.15625,
+            "bottom": 760.15625
+          }
+        ],
+        "hash": "789868e76600d9a63c12034797655e9af454d7742a5c200cabece029cb9a74cd",
+        "cursor": "4"
+      },
+      "resumed": {
+        "first": 0,
+        "excerpt": "售票员把窗口里的灯关掉时，雨正沿着站台的屋檐连成一条线。站台",
+        "scrollTop": 0,
+        "max": 236,
+        "top": 296.375,
+        "bottom": 771.375,
+        "lines": [
+          {
+            "index": 0,
+            "top": 322.375,
+            "bottom": 357.375
+          },
+          {
+            "index": 11,
+            "top": 370.28125,
+            "bottom": 405.28125
+          },
+          {
+            "index": 22,
+            "top": 418.1875,
+            "bottom": 453.1875
+          },
+          {
+            "index": 33,
+            "top": 466.09375,
+            "bottom": 501.09375
+          },
+          {
+            "index": 44,
+            "top": 514,
+            "bottom": 549
+          },
+          {
+            "index": 55,
+            "top": 561.90625,
+            "bottom": 596.90625
+          },
+          {
+            "index": 66,
+            "top": 609.8125,
+            "bottom": 644.8125
+          },
+          {
+            "index": 77,
+            "top": 657.71875,
+            "bottom": 692.71875
+          },
+          {
+            "index": 87,
+            "top": 705.625,
+            "bottom": 740.625
+          },
+          {
+            "index": 98,
+            "top": 753.53125,
+            "bottom": 788.53125
+          },
+          {
+            "index": 109,
+            "top": 801.4375,
+            "bottom": 836.4375
+          },
+          {
+            "index": 120,
+            "top": 849.34375,
+            "bottom": 884.34375
+          },
+          {
+            "index": 131,
+            "top": 897.25,
+            "bottom": 932.25
+          },
+          {
+            "index": 142,
+            "top": 945.15625,
+            "bottom": 980.15625
+          }
+        ],
+        "hash": "789868e76600d9a63c12034797655e9af454d7742a5c200cabece029cb9a74cd",
+        "cursor": "4"
+      }
+    }
+  ],
+  "saved": {
+    "bytes": 10666,
+    "sha256": "16a6b844f0df5d69c16c39c68839588d7dd4451da3965ef9c98ae5ef288788c5",
+    "artifactHash": "41157418839f89345df60bbe114ba7f7dc623bbb8c54325584448975c69e7949",
+    "hash": "789868e76600d9a63c12034797655e9af454d7742a5c200cabece029cb9a74cd"
+  },
+  "errors": [],
+  "scope": "Actual complete 1.10.0 HTML, public controls, native wheel/Range and IndexedDB. Local UI marks only; no fake story states or DOM geometry. Controlled Auto time is a gate test, not natural reading. Desktop engines/phone-sized windows do not prove physical phone/Safari acceptance."
+}

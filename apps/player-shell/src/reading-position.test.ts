@@ -82,3 +82,19 @@ it('bounds character measurements by logarithmic search and does no character re
 it('retains pixel fallback without Range geometry rather than throwing or advancing narrative state', () => {
   const f = fixture(undefined, false); f.setScroll(220); f.position.scroll(); f.layout.width = 300; f.position.reflow(); expect(f.top).toBe(220);
 });
+it('restores an exported text anchor into a new layout and keeps it across later reflow', () => {
+  const f = fixture(); f.setScroll(220); f.position.scroll(); const saved = f.position.snapshot();
+  vi.restoreAllMocks();
+  const other = fixture(); other.layout.columns = 20; other.position.restore(saved); const middle = other.top;
+  expect(middle).toBeGreaterThan(0); other.layout.columns = 10; other.position.reflow(); expect(other.top).toBe(220);
+  expect(f.position.snapshot()).toEqual(saved);
+});
+it('clamps a restored end/pixel position and lets the user explicitly return to the start', () => {
+  const f = fixture(); f.position.restore({ kind: 'end' }); expect(f.top).toBe(f.element.scrollHeight - f.element.clientHeight);
+  f.position.restore({ kind: 'pixel', top: 9_000_000 }); expect(f.top).toBe(f.element.scrollHeight - f.element.clientHeight);
+  f.position.restore({ kind: 'start' }); expect(f.top).toBe(0);
+});
+it('rejects a text anchor beyond the actual paragraph or without text geometry, instead of jumping to the end', () => {
+  const f = fixture(); expect(f.position.restore({ kind: 'text', offset: 10000, inset: 0 })).toBe(false); expect(f.top).toBe(0);
+  vi.restoreAllMocks(); const fallback = fixture(undefined, false); expect(fallback.position.restore({ kind: 'text', offset: 10, inset: 0 })).toBe(false); expect(fallback.top).toBe(0);
+});
