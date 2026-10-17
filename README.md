@@ -1,5 +1,7 @@
 # WorLd Studio（工作名）产品与开发设计文档
 
+> 当前接续（2026-10-17）：[#377 剧情道具与地点演出校订](docs/377-web-story-continuity-candidate.md)。原完整作品推进为独立 1.8.0 候选，五段旁白、七步演出修正照片／信件去向与午后地点／雨声，25 原素材和所有原 ID 保持。105 项相关回归、25 项工具测试及 Chromium 九组实际任务通过，编辑器与独立游戏均合计两结局；旧剧情不兼容，1.7.14 原入口保留。产品技术基线仍 S0.41，16 条人工复核、真机／许可／公网与原生搁置范围保持。以下为历史。
+
 > 当前接续（2026-10-17）：[#376 工程恢复与换机接续](docs/376-web-project-recovery-and-handoff.md)。选错游戏／存档／记录或不完整包时说明用途、恢复位置并允许重选，不改已有工程；有效包继续原完整校验。136 项相关回归、18 项工具测试与三引擎实际恢复／编辑／保存重开通过，原 1.7.14 和 25 素材保持。下一批回原作品具体校订与同版交付，人工／真机／许可／公网及原生搁置保持。以下为历史。
 
 > 当前接续（2026-10-17）：[#375 网站上传包与同版交付](docs/375-web-website-upload-export.md)。可直接导出仅含公开文件的网站 ZIP，无需先安装 Node.js；用途记忆、定位返回、取消和同版制作包说明已接通。实际导出、断网和完整作品范围见 #375；不把生成文件当作上线，人工／真机／许可／公网与原生搁置保持。以下为历史。
@@ -36,17 +38,17 @@
 
 > 开发进度与后续方向（2026-10-17）：[#358 剧情动效预设与作者复用](docs/358-web-story-motion-presets.md)。人物/文字动效已接通静音试看、应用、保存重开、跨场景预设和配置往返；样章 0.4.0 保持原正文、路线、外观和七份素材。下一批按 #357 顺序推进带素材皮肤包，再做存档缩略图/创作连续性和自由布局。
 
-> 完整作品接续：《雨停之前》1.7.14 的原工程、游戏与校订记录在 [evidence/web-reading-throughput](evidence/web-reading-throughput)，最新网站包与同版交付回归见 [#375](docs/375-web-website-upload-export.md)，素材核对见 [#374](docs/374-web-source-review-workflow.md)，长篇剩余成本见 [#373](docs/373-web-history-result-transport.md)。外观功能样章《给明天的回信》0.9.0 仍在 [evidence/web-additional-layout](evidence/web-additional-layout)，范围见 [#367](docs/367-web-additional-content-layout.md)；历史工程和产物不改写，当前代码的临时验证导出不作为新发行版本。
+> 完整作品接续：《雨停之前》1.8.0 当前内容候选的工程、HTML、网站包与校订记录在 [evidence/web-story-continuity](evidence/web-story-continuity)，范围见 [#377](docs/377-web-story-continuity-candidate.md)。1.7.14 原入口在 [evidence/web-reading-throughput](evidence/web-reading-throughput)，仅原版继续核对过的 1.7.0–1.7.13 旧档，新剧情不兼容。素材核对见 [#374](docs/374-web-source-review-workflow.md)，长篇剩余成本见 [#373](docs/373-web-history-result-transport.md)。外观功能样章《给明天的回信》0.9.0 仍在 [evidence/web-additional-layout](evidence/web-additional-layout)，历史工程与产物不改写。
 
 > 最新判断：基础创作、主要页面模板和首批剧情动效作者流程可用。199 项相关测试、根类型、双构建、便携架构审计及六组实际静音任务通过；HTML file:// 桌面一路和目录 HTTP 手机一路合计独立 Player 两结局，编辑器整部仍 0/2。未计全格式×路线组合、真机/Safari、人工/许可/公网或长篇性能收尾，范围见 #358。
 
 > 状态：S0.41 保留为 Web 技术证据原型；2026-08-13 起执行产品落地主线，D1、S0、M1 均未通过
 > 文档基线：2026-10-17
 > 当前交付目标：[Web 完整 Gal 作品 #304](docs/304-web-complete-gal-delivery.md)。先完成 Web 编辑器与玩家的完整制作、导出和部署上线流程，Windows／Android 原生版本先搁置；当前验收以一部完整作品的实际创作和上线为主线。
-> 当前进展：1.7.14 保持 9 场景/两结局、9,672 字符/74 演出/25 项素材和来源台账；核对 1.7.0–1.7.13，本批现场备份来源为 1.7.13。1.6.0 或更早已变剧情不在兼容范围，旧版游戏与源保留回退。
-> 最新开发记录：[当前状态 #99](docs/99-current-development-status-audit.md)与 [#358 剧情动效预设](docs/358-web-story-motion-presets.md)。[#354](docs/354-web-blank-short-story-and-customization.md) 保留空白创作基线，[#355](docs/355-web-player-ui-fonts-and-skins.md)与 [#356](docs/356-web-player-pages-and-ending.md)保留外观交付；#353 的长篇性能限制保留。
+> 当前进展：1.8.0 内容候选为 9 场景/两结局、9,729 字符/81 演出/25 项原素材与来源台账；已变正文与演出，不兼容 1.7.x 或更早旧档，原版入口及工程保留。编辑器技术版本与作品版本分别记录，不宣布 Stable。
+> 最新开发记录：[当前状态 #99](docs/99-current-development-status-audit.md)与 [#377 剧情道具与地点演出校订](docs/377-web-story-continuity-candidate.md)。[#354](docs/354-web-blank-short-story-and-customization.md) 保留空白创作基线，#355–#367 保留外观交付，#373 的长篇剩余成本保持；不把旧阶段的下一步当作当前接续。
 > 当前开发入口：[用户任务优先路线 #289](docs/289-user-centered-delivery-route.md)。N62-E1–E5 已实现，当前优先贯通正式 Web 游戏导出，玩家路线图后置；下方旧阶段记录保留为历史背景。以真实创作和交付任务推进，只做必要验证，真人测试等功能与整体 UI 就绪。
-> 当前重心：以《给明天的回信》0.4.0 的实际定制结果继续推进作者能力；《雨停之前》1.7.14 及 11 条待复核任务保留在 evidence/web-reading-throughput，原候选不重发。自然阅读/听感、真机、Safari、来源许可与实际公网仍待验。
+> 当前重心：《雨停之前》1.8.0 的完整内容／演出复核与 Web 交付，16 条记录待人工复核；《给明天的回信》0.9.0 保留为外观功能样章。自然阅读／听感、真机／Safari、来源许可与实际公网仍待验，不反复扩展无关装饰或导出选项。
 > 当前交付边界：优先交付 Web 完整作品能力。原三端 M1 保留为后续整体范围，Windows／Android 未完成项不阻断本轮 Web 交付；M2 以后保留为愿景池。
 > M1 发布定位：首个可正式公开发布的 Stable 版本，不是功能演示或技术预览。
 > 交付链纠偏：N00–N41 已建立直接面向 `main` 的 [集中整合权威基线](docs/182-n41-consolidated-integration-baseline-audit.md)，Draft PR #61 的 Candidate Windows CI 已绿色；仍未合入 `main`，N41-E2 只能从该 Authority 继续。

@@ -2,6 +2,8 @@
 
 项目制作样例素材，2026-10-13。
 
+2026-10-17 当前内容候选为 [web-story-continuity](../../evidence/web-story-continuity) 的 **1.8.0**，校订五段旁白和七步地点／人物／雨声演出，详见 [editorial-review-v1.8.md](editorial-review-v1.8.md) 与 [#377](../../docs/377-web-story-continuity-candidate.md)。全部 25 份媒体逐字节保持，来源台账事实不变，未重生成图像或语音；发行条件仍待确认。原 1.7.14 工程和游戏保留，新剧情不承诺兼容其旧档。下方为历史制作事实。
+
 2026-10-16 当前候选为 `evidence/web-audio-compatibility` 的 1.7.3，见 [#341](../../docs/341-web-audio-recovery-and-runtime-baseline.md)；全部 25 媒体和 #339 内部来源台账逐份保持，仅版本/兼容回执变化。来源事实由实际工程 SHA-256 与仓库对齐，见 [#339](../../docs/339-web-asset-provenance-and-release-preparation.md)。12 图、9 系统合成语音、3 程序合成音频、1 图标的发行状态全部待确认，未代填依据/确认人/日期。本机 Windows WebKit 已用独立探针定位原生媒体绕过 Worker，离线原生播放未过；当前新增玩家故障恢复，不将回退或来源可追溯说成播放/许可通过。下方为各版本制作事实。
 
 ## 当前 1.7.0 配音修订

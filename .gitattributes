@@ -68,3 +68,6 @@ evidence/web-reading-throughput/*.worldreview -text
 evidence/web-branch-authoring/branch-authoring.html -text
 
 evidence/web-playtest-revision/review-notes.worldreview -text
+evidence/web-story-continuity/*.html -text
+evidence/web-story-continuity/*.worldsave -text
+evidence/web-story-continuity/*.worldreview -text
