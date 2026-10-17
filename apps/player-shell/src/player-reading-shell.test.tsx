@@ -18,6 +18,11 @@ function project() {
 }
 const policy = { ...DEFAULT_WORLD_PLAYER_PLAYBACK_POLICY_V1, auto: { ...DEFAULT_WORLD_PLAYER_PLAYBACK_POLICY_V1.auto, baseDelayMilliseconds: 10, millisecondsPerReadableUnit: 0 } };
 function compact() { vi.stubGlobal('matchMedia', () => ({ matches: true, addEventListener() {}, removeEventListener() {} })); }
+function pointer(element: HTMLElement, type: string, options: { x?: number; id?: number; primary?: boolean; button?: number } = {}) {
+  const event = new MouseEvent(type, { bubbles: true, clientX: options.x ?? 20, clientY: 20, button: options.button ?? 0 });
+  Object.defineProperties(event, { pointerId: { value: options.id ?? 1 }, pointerType: { value: 'touch' }, isPrimary: { value: options.primary ?? true } });
+  fireEvent(element, event);
+}
 it('pauses the real Auto timer on pagehide and schedules a fresh wait after pageshow without catching up', async () => {
   vi.useFakeTimers(); const view = render(<WebPlayerHost project={project()} playbackPolicy={policy} />);
   fireEvent.click(screen.getByRole('button', { name: /开始故事/ })); await act(async () => { await vi.advanceTimersByTimeAsync(0); });
@@ -30,6 +35,45 @@ it('pauses the real Auto timer on pagehide and schedules a fresh wait after page
   fireEvent(window, new Event('pageshow')); expect(view.container.querySelector('main')).toHaveAttribute('data-runtime-state-hash', hash);
   await act(async () => { await vi.advanceTimersByTimeAsync(11); });
   expect(view.container.querySelector('.player-dialogue__text')).toHaveTextContent('B');
+});
+it('does not apply a held pointer release to the paragraph that Auto presents meanwhile', async () => {
+  vi.useFakeTimers(); const view = render(<PlayerShell project={project()} playbackPolicy={policy} />);
+  fireEvent.click(screen.getByRole('button', { name: /开始故事/ })); await act(async () => { await vi.advanceTimersByTimeAsync(0); });
+  fireEvent.click(screen.getByRole('button', { name: '自动播放' }));
+  const paragraph = screen.getByRole('button', { name: '继续下一句' });
+  fireEvent.pointerDown(paragraph, { clientX: 20, clientY: 20, pointerId: 1, pointerType: 'mouse' });
+  await act(async () => { await vi.advanceTimersByTimeAsync(10); });
+  expect(view.container.querySelector('.player-dialogue__text')).toHaveTextContent('B');
+  const hash = view.container.querySelector('main')!.dataset.runtimeStateHash;
+  fireEvent.pointerUp(paragraph, { pointerId: 1 }); fireEvent.click(paragraph, { detail: 1 });
+  expect(view.container.querySelector('main')).toHaveAttribute('data-runtime-state-hash', hash);
+  expect(screen.getByRole('button', { name: '自动播放' })).toHaveAttribute('aria-pressed', 'true');
+});
+it.each(['menu', 'artwork', 'host-return', 'blur', 'pagehide', 'cancel', 'context-menu', 'drag', 'second-finger', 'wrong-pointer', 'right-button'])('discards a press interrupted by %s, but accepts the next intentional tap', async interruption => {
+  compact(); const source = project(), view = render(<PlayerShell project={source} />);
+  fireEvent.click(screen.getByRole('button', { name: /开始故事/ })); await act(async () => {});
+  const paragraph = screen.getByRole('button', { name: '继续下一句' }), hash = view.container.querySelector('main')!.dataset.runtimeStateHash;
+  pointer(paragraph, 'pointerdown', { button: interruption === 'right-button' ? 2 : 0 });
+  if (interruption === 'menu') { fireEvent.click(screen.getByRole('button', { name: '打开阅读菜单' })); fireEvent.click(screen.getByRole('button', { name: '返回故事' })); }
+  if (interruption === 'artwork') { fireEvent.keyDown(window, { key: 'h' }); fireEvent.keyDown(window, { key: 'h' }); }
+  if (interruption === 'host-return') { view.rerender(<PlayerShell project={source} hostActivity="suspended" />); view.rerender(<PlayerShell project={source} hostActivity="active" />); }
+  if (interruption === 'blur' || interruption === 'pagehide') fireEvent(window, new Event(interruption));
+  if (interruption === 'cancel') pointer(paragraph, 'pointercancel');
+  if (interruption === 'context-menu') fireEvent.contextMenu(paragraph);
+  if (interruption === 'drag') { pointer(paragraph, 'pointermove', { x: 70 }); pointer(paragraph, 'pointermove'); }
+  if (interruption === 'second-finger') pointer(paragraph, 'pointerdown', { id: 2, primary: false });
+  pointer(paragraph, 'pointerup', { id: interruption === 'wrong-pointer' ? 2 : 1 }); fireEvent.click(paragraph, { detail: 1 });
+  expect(view.container.querySelector('main')).toHaveAttribute('data-runtime-state-hash', hash);
+  pointer(paragraph, 'pointerdown'); pointer(paragraph, 'pointerup'); fireEvent.click(paragraph, { detail: 1 });
+  expect(view.container.querySelector('.player-dialogue__text')).toHaveTextContent('B');
+});
+it('consumes a pointer activation once while leaving keyboard and assistive clicks usable', async () => {
+  const view = render(<PlayerShell project={project()} />); fireEvent.click(screen.getByRole('button', { name: /开始故事/ })); await act(async () => {});
+  const paragraph = screen.getByRole('button', { name: '继续下一句' });
+  pointer(paragraph, 'pointerdown'); pointer(paragraph, 'pointerup'); fireEvent.click(paragraph, { detail: 1 });
+  const hash = view.container.querySelector('main')!.dataset.runtimeStateHash;
+  fireEvent.click(paragraph, { detail: 1 }); expect(view.container.querySelector('main')).toHaveAttribute('data-runtime-state-hash', hash);
+  fireEvent.click(paragraph, { detail: 0 }); expect(view.container.querySelector('main')).not.toHaveAttribute('data-runtime-state-hash', hash);
 });
 it('ignores IME confirmation keys, legacy 229 and editable content without advancing or closing the reading menu', async () => {
   const view = render(<PlayerShell project={project()} />); fireEvent.click(screen.getByRole('button', { name: /开始故事/ })); await act(async () => {});

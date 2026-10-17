@@ -9,12 +9,21 @@ import { unzipSync } from 'fflate';
 import { json, sha, readGamePayload } from './audit-rain-story-refinement.mjs';
 import { listenBrowserLoopback } from './listen-browser-loopback.mjs';
 
-const root = path.resolve(import.meta.dirname, '..'), output = path.resolve(root, process.env.STUDIO_AUTO_CONTINUITY_OUTPUT_DIRECTORY ?? 'evidence/web-auto-voice-continuity'), prior = path.join(root, 'evidence/web-story-arrival-and-night');
+const root = path.resolve(import.meta.dirname, '..'), output = path.resolve(root, process.env.STUDIO_AUTO_CONTINUITY_OUTPUT_DIRECTORY ?? 'evidence/web-auto-voice-continuity'), prior = path.resolve(root, process.env.STUDIO_AUTO_CONTINUITY_SOURCE_DIRECTORY ?? 'evidence/web-story-arrival-and-night');
 const ui = process.env.STUDIO_UI_URL ?? 'http://127.0.0.1:5195/', baselineOnly = process.argv.includes('--baseline-only');
+const playOnly = process.argv.includes('--play-only');
+const sourceManifest = json(unzipSync(await readFile(path.join(prior, 'before-rain-stops-project.zip')))['world.project.json']);
+const version = sourceManifest.webPublication.version, notes = json(await readFile(path.join(prior, 'before-rain-stops.worldreview')));
+assert.match(version, /^\d+\.\d+\.\d+$/u); assert.ok(notes.notes.every(note => note.status === 'fixed' && note.checkedSourceHash === null));
+const retained = await Promise.all(['before-rain-stops-project.zip', 'before-rain-stops.worldreview', 'before-rain-stops.html', 'before-rain-stops-website.zip'].map(async name => ({ name, sha256: sha(await readFile(path.join(prior, name))) })));
+if (!baselineOnly && !playOnly) for (const name of ['before-rain-stops.html', 'before-rain-stops-website.zip']) {
+  try { await readFile(path.join(output, name)); } catch (error) { if (error.code === 'ENOENT') continue; throw error; }
+  throw Error(`Refusing to overwrite frozen game ${path.join(output, name)}; use a new output directory or --play-only`);
+}
 const require = createRequire(import.meta.url); let chromium;
 try { ({ chromium } = require('playwright')); } catch { ({ chromium } = require(path.join(homedir(), '.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright'))); }
 await mkdir(output, { recursive: true });
-const reportPath = path.join(output, baselineOnly ? 'baseline-browser.json' : 'browser-checks.json');
+const reportPath = path.join(output, baselineOnly ? 'baseline-browser.json' : playOnly ? 'player-only-checks.json' : 'browser-checks.json');
 await writeFile(reportPath, JSON.stringify({ passed: false, status: 'running', startedAt: new Date().toISOString() }, null, 2));
 const browser = await chromium.launch({ headless: true, args: ['--mute-audio'] }), errors = [], checks = [];
 let current, server;
@@ -78,7 +87,7 @@ async function author() {
   await p.goto(ui); await p.getByLabel('导入工程 ZIP', { exact: true }).setInputFiles(path.join(prior, 'before-rain-stops-project.zip'));
   await p.waitForFunction(() => document.querySelector('.local-save-button')?.disabled === false);
   const nav = name => p.getByRole('navigation', { name: '主要功能' }).getByRole('button', { name, exact: true }).click();
-  await nav('检查'); await p.getByLabel('导入校订记录', { exact: true }).setInputFiles(path.join(prior, 'before-rain-stops.worldreview')); await p.getByRole('button', { name: '待跟进 23', exact: true }).waitFor();
+  await nav('检查'); await p.getByLabel('导入校订记录', { exact: true }).setInputFiles(path.join(prior, 'before-rain-stops.worldreview')); await p.getByRole('button', { name: `待跟进 ${notes.notes.length}`, exact: true }).waitFor();
   await p.locator('.local-save-button').click(); await p.locator('.local-save-button--saved').waitFor();
   if (!await p.locator('.project-switcher').evaluate(e => e.open)) await p.getByLabel('项目菜单', { exact: true }).click();
   await p.getByRole('button', { name: /所有项目/u }).click(); await p.reload(); await button(p, '打开项目：雨停之前').click(); await p.waitForFunction(() => document.querySelector('.local-save-button')?.disabled === false);
@@ -91,14 +100,14 @@ async function author() {
     const link = p.getByRole('link', { name: format === 'html' ? '下载游戏' : '下载网站上传包', exact: true }); await link.waitFor({ timeout: 90000 }); const pending = p.waitForEvent('download'); await link.click(); await writeFile(path.join(output, format === 'html' ? 'before-rain-stops.html' : 'before-rain-stops-website.zip'), await readFile(await (await pending).path()));
     if (format === 'html') await button(p, '← 导出方式').click();
   }
-  check('actual-production-editor-unchanged-source-and-23-notes-save-reopen-dual-export', { sourceSha256: sha(sourceBytes) }); await p.close();
+  check('actual-production-editor-unchanged-source-and-pending-notes-save-reopen-dual-export', { sourceSha256: sha(sourceBytes), pendingNotes: notes.notes.length }); await p.close();
 }
 async function audit() {
   const oldHtml = readGamePayload(await readFile(path.join(prior, 'before-rain-stops.html'), 'utf8')), htmlBytes = await readFile(path.join(output, 'before-rain-stops.html')), websiteBytes = await readFile(path.join(output, 'before-rain-stops-website.zip')), website = unzipSync(websiteBytes), html = readGamePayload(htmlBytes.toString()), web = readGamePayload(Buffer.from(website['index.html']).toString());
   assert.deepEqual(html, oldHtml); assert.deepEqual(web.project, html.project); assert.equal(web.mediaAssets.length, 26);
   for (const asset of web.mediaAssets) assert.equal(sha(website[asset.url]), sha(Buffer.from(html.mediaAssets.find(a => a.assetId === asset.assetId).url.split(',')[1], 'base64')));
   const info = json(website['build-info.json']); assert.equal(Object.keys(website).length, 37); assert.deepEqual(Object.keys(website).sort(), ['build-info.json', ...info.files.map(f => f.path)].sort()); for (const file of info.files) { assert.equal(website[file.path].length, file.byteLength); assert.equal('sha256:' + sha(website[file.path]), file.digest); }
-  const report = { passed: true, unchangedPayloadAndAll26Media: true, sameContentVersion: '1.10.0', unchangedNotesPending: 23, sourceAndNotes: 'evidence/web-story-arrival-and-night', websiteFiles: 37, artifacts: { html: { bytes: htmlBytes.length, sha256: sha(htmlBytes) }, website: { bytes: websiteBytes.length, sha256: sha(websiteBytes) } } }; await writeFile(path.join(output, 'artifact-audit.json'), JSON.stringify(report, null, 2)); check('unchanged-content-media-and-public-files', report); return website;
+  const report = { passed: true, unchangedPayloadAndAll26Media: true, sameContentVersion: version, unchangedNotesPending: notes.notes.length, sourceAndNotes: path.relative(root, prior).replaceAll('\\', '/'), retained, websiteFiles: 37, artifacts: { html: { bytes: htmlBytes.length, sha256: sha(htmlBytes) }, website: { bytes: websiteBytes.length, sha256: sha(websiteBytes) } } }; await writeFile(path.join(output, 'artifact-audit.json'), JSON.stringify(report, null, 2)); check('unchanged-content-media-and-public-files', report); return website;
 }
 async function quickLoad(p) {
   await button(p, '读取存档').click(); const panel = p.getByRole('dialog', { name: '存读档槽位', exact: true }); await panel.getByRole('button', { name: '快速', exact: true }).click(); await panel.getByRole('button', { name: '读取', exact: true }).click();
@@ -145,18 +154,19 @@ async function completeRoute(url, branch) {
 async function originalSave(url) {
   const original = await voicePage(pathToFileURL(path.join(prior, 'before-rain-stops.html')).href, false), p = original.p;
   const before = await hash(p); await button(p, '打开阅读菜单').click(); await button(p, '存读档').click(); const panel = p.getByRole('dialog', { name: '存读档槽位', exact: true }); await panel.getByRole('button', { name: '备份', exact: true }).click(); await panel.getByLabel('备份进度', { exact: true }).selectOption('current');
-  const pending = p.waitForEvent('download'); await panel.getByRole('button', { name: '导出备份文件', exact: true }).click(); const bytes = await readFile(await (await pending).path()), filename = path.join(output, 'original-1.10.0.worldsave'); await writeFile(filename, bytes); assert.equal(json(bytes).payload.slot.runtimeStateHash, before); await original.ctx.close();
+  const pending = p.waitForEvent('download'); await panel.getByRole('button', { name: '导出备份文件', exact: true }).click(); const bytes = await readFile(await (await pending).path()), filename = path.join(output, `original-${version}.worldsave`); await writeFile(filename, bytes); assert.equal(json(bytes).payload.slot.runtimeStateHash, before); await original.ctx.close();
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: 'reduce' }), target = await ctx.newPage(); watch(target); await target.goto(url); await button(target, '读取存档').click(); const slots = target.getByRole('dialog', { name: '存读档槽位', exact: true }); await slots.getByRole('button', { name: '备份', exact: true }).click(); await slots.getByLabel('选择存档备份文件', { exact: true }).setInputFiles(filename);
-  await slots.getByRole('button', { name: '导入到所选槽位', exact: true }).click(); await slots.getByRole('button', { name: '读取导入的存档', exact: true }).click(); if (await target.locator('.player-load-confirm').isVisible()) await button(target, '确认读取').click(); await target.waitForFunction(() => document.querySelector('main')?.dataset.saveOperation === 'loaded'); assert.equal(await hash(target), before); assert.equal(await target.locator('main').getAttribute('data-auto-playback'), 'off'); await shot(target, 'original-1.10-backup-restored'); check('actual-original-1.10-backup-explicit-import-and-load', { before, after: await hash(target), backupSha256: sha(bytes) }); await ctx.close();
+  await slots.getByRole('button', { name: '导入到所选槽位', exact: true }).click(); await slots.getByRole('button', { name: '读取导入的存档', exact: true }).click(); if (await target.locator('.player-load-confirm').isVisible()) await button(target, '确认读取').click(); await target.waitForFunction(() => document.querySelector('main')?.dataset.saveOperation === 'loaded'); assert.equal(await hash(target), before); assert.equal(await target.locator('main').getAttribute('data-auto-playback'), 'off'); await shot(target, `original-${version}-backup-restored`); check('actual-original-same-content-backup-explicit-import-and-load', { version, before, after: await hash(target), backupSha256: sha(bytes) }); await ctx.close();
 }
 try {
   if (baselineOnly) { const url = pathToFileURL(path.join(prior, 'before-rain-stops.html')).href; await faultRoute(url, false, true); await faultRoute(url, true, true); }
   else {
-    if (!process.argv.includes('--play-only')) await author(); const website = await audit();
+    if (!playOnly) await author(); const website = await audit();
     server = createServer((req, res) => { const name = decodeURIComponent(new URL(req.url, 'http://local').pathname).replace(/^\/gal\//u, '') || 'index.html', bytes = website[name], type = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml', '.webmanifest': 'application/manifest+json', '.json': 'application/json', '.png': 'image/png', '.wav': 'audio/wav' }[path.extname(name)] ?? 'application/octet-stream', range = /^bytes=(\d+)-(\d*)$/u.exec(req.headers.range ?? ''); const headers = { 'Content-Type': type, 'Cache-Control': 'no-cache' }; if (bytes && range) { const start = +range[1], end = Math.min(range[2] ? +range[2] : bytes.length - 1, bytes.length - 1); return res.writeHead(206, { ...headers, 'Content-Range': `bytes ${start}-${end}/${bytes.length}`, 'Content-Length': end - start + 1 }).end(bytes.subarray(start, end + 1)); } res.writeHead(bytes ? 200 : 404, headers).end(bytes ?? 'Missing'); }); await listenBrowserLoopback(server);
     const url = `http://127.0.0.1:${server.address().port}/gal/`; await faultRoute(url, false, false); await faultRoute(url, true, false);
     await completeRoute(pathToFileURL(path.join(output, 'before-rain-stops.html')).href, 0); await completeRoute(url, 1); await originalSave(url);
   }
-  assert.deepEqual(errors, []); await writeFile(path.join(output, baselineOnly ? 'baseline-browser.json' : 'browser-checks.json'), JSON.stringify({ passed: true, browser: browser.version(), checks, errors, scope: baselineOnly ? 'Original #384 HTML in Chromium with explicit playback-boundary faults at one voice: rejected play Promise or invalid WAV causing native decode error, then slowed native retry. No synthetic native error/ended events. Not an author run, full route, human listening, physical device or public deployment.' : 'Actual production editor and unchanged source/23 notes; desktop HTML route 0 and offline phone-sized website route 1, 66 texts and six voice lines each, Auto/history/save/reopen, original 1.10 backup import/load. Separate Chromium playback-boundary fault injection, native retry completion, no synthetic native error/ended events. Not a full format/route matrix, human listening, physical phone/Safari, public HTTPS, upgrade or long-soak acceptance.' }, null, 2));
+  for (const file of retained) assert.equal(sha(await readFile(path.join(prior, file.name))), file.sha256);
+  assert.deepEqual(errors, []); await writeFile(path.join(output, baselineOnly ? 'baseline-browser.json' : playOnly ? 'player-only-checks.json' : 'browser-checks.json'), JSON.stringify({ passed: true, browser: browser.version(), version, pendingNotes: notes.notes.length, retained, checks, errors, scope: baselineOnly ? 'Original retained HTML in Chromium with explicit playback-boundary faults at one voice: rejected play Promise or invalid WAV causing native decode error, then slowed native retry. No synthetic native error/ended events. Not an author run, full route, human listening, physical device or public deployment.' : (playOnly ? 'Frozen game revalidation, no author rerun. ' : 'Actual production editor, unchanged source and pending notes, save/reopen/dual export. ') + `Content ${version}; desktop HTML route 0 and offline phone-sized website route 1, 66 texts and six voice lines each, Auto/history/save/reopen, original same-content backup import/load. Separate Chromium playback-boundary fault injection, native retry completion, no synthetic native error/ended events. Not a full format/route matrix, human listening, physical phone/Safari, public HTTPS, upgrade or long-soak acceptance.` }, null, 2));
 } catch (error) { await writeFile(reportPath, JSON.stringify({ passed: false, error: String(error), checks, errors }, null, 2)); if (current && !current.isClosed()) await shot(current, 'failure'); throw error; }
 finally { await browser.close(); if (server?.listening) { server.closeAllConnections(); await new Promise(resolve => server.close(resolve)); } }

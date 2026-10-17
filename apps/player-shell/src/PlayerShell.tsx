@@ -502,7 +502,8 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
     () => presentedText === "" || reducedReadingMotion ? 0 : galTextRevealDurationMillisecondsV1(settingsApplication, presentedText),
     [presentedText, settingsApplication, reducedReadingMotion]
   );
-  const reading = useReadingSurface(`${project.manifest.projectId}:${presentedTextId}:${snapshot.history?.cursor}:${snapshot.localization.selectedLocale}:${presentedText}`, `${compactReading}:${readingMenuOpen}:${fontStatus}:${textReady}:${settingsApplication.text.fontScale}:${fullscreen.active}`);
+  const reading = useReadingSurface(`${project.manifest.projectId}:${presentedTextId}:${snapshot.history?.cursor}:${snapshot.localization.selectedLocale}:${presentedText}`, `${compactReading}:${readingMenuOpen}:${fontStatus}:${textReady}:${settingsApplication.text.fontScale}:${fullscreen.active}`,
+    hostActivity === 'active' && !sessionRead.pending && !storyAdvance.busy && !artworkView && !preferencesOpen && !readingMenuOpen && !historyPanelOpen && !savePanelOpen && !additionalContentOpen);
   const readingTextHash = useMemo(() => sha256(presentedText), [presentedText]);
   const readingResume = useReadingResume(reading, state, !editorPreview && !snapshot.sceneReplay.active && presentedText !== '' && state.runtimeState && snapshot.runtimeStateHash ? {
     projectId: project.manifest.projectId, buildId: state.runtimeState.buildId, runtimeStateHash: snapshot.runtimeStateHash,
@@ -2540,10 +2541,12 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
             data-text-ready={textReady}
             data-text-reveal-duration={textRevealDuration}
             onScroll={() => { reading.measure(); readingResume.capture(); }}
-            onPointerDown={(event) => { pointerInput.current = event.pointerType === "touch" ? "touch" : "pointer"; reading.gesture.current = { x: event.clientX, y: event.clientY, moved: false }; }}
-            onPointerMove={event => { if (Math.abs(event.clientX - reading.gesture.current.x) + Math.abs(event.clientY - reading.gesture.current.y) > 10) reading.gesture.current.moved = true; }}
-            onPointerCancel={() => { reading.gesture.current.moved = true; }}
-            onClick={event => { if (event.detail > 0 && reading.gesture.current.moved) return; applyIntent({ kind: "primary" }, pointerInput.current); }}
+            onPointerDown={event => { pointerInput.current = event.pointerType === "touch" ? "touch" : "pointer"; reading.pointerDown(event); }}
+            onPointerMove={reading.pointerMove}
+            onPointerUp={reading.pointerUp}
+            onPointerCancel={reading.cancelPointer}
+            onContextMenu={reading.cancelPointer}
+            onClick={event => { if (reading.acceptClick(event.detail)) applyIntent({ kind: "primary" }, pointerInput.current); }}
             aria-label="继续下一句"
           >
             {content.kind === "dialogue" && <PlayerDialogueIdentity speakerId={content.speakerId} name={speakerNames[content.speakerId] ?? content.speakerId} skin={skin} media={mediaAssets} />}

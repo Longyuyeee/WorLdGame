@@ -96,3 +96,5 @@ evidence/web-reading-delivery/**/*.worldsave -text
 evidence/web-story-plans-and-farewell/*.html -text
 evidence/web-story-plans-and-farewell/*.worldreview -text
 evidence/web-story-plans-and-farewell/*.worldsave -text
+evidence/web-reading-press/*.html -text
+evidence/web-reading-press/**/*.worldsave -text

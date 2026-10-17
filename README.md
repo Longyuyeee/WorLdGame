@@ -1,5 +1,7 @@
 # WorLd Studio（工作名）产品与开发设计文档
 
+> 当前接续（2026-10-18）：[#395 连续阅读的点按归属与误跳保护](docs/395-web-reading-press-ownership.md)。实际复现并修复 Auto 换段期间松手跳过新段，保护菜单／后台返回和拖动取消，正常点按／键盘保持。新的 [HTML](evidence/web-reading-press/before-rain-stops.html)／[网站 ZIP](evidence/web-reading-press/before-rain-stops-website.zip)经实际编辑器保存重开、完整两路线、同内容原备份和三引擎点按复验；1,058 项相关回归通过。源工程及 25 条待人工记录沿 #394，1.11.0／S0.41、26 媒体不变，旧产物保留。人工／真机／发行／公网、WebKit 内嵌音频和长期／长篇成本仍待验，原生搁置。以下为历史。
+
 > 当前接续（2026-10-18）：[#394 远行见面计划与送别雨声](docs/394-web-story-plans-and-farewell.md)。从完整路线纠正远行备用计划借用另一分支、送别后雨声未减弱，实际编辑器制作 1.11.0 内容候选。当前[工程](evidence/web-story-plans-and-farewell/before-rain-stops-project.zip)、[HTML](evidence/web-story-plans-and-farewell/before-rain-stops.html)、[网站 ZIP](evidence/web-story-plans-and-farewell/before-rain-stops-website.zip)和[25 条待人工记录](evidence/web-story-plans-and-farewell/before-rain-stops.worldreview)集中在 web-story-plans-and-farewell；旧 1.10.0 保留，不登记旧档兼容。9,772 字符／87 演出／26 媒体，技术 S0.41；测试与实际范围见 #394。冷开设置有限复核未复现，不登记修复；人工／真机／许可／公网、内嵌音频、长期与长篇成本仍开放，原生搁置。以下为历史。
 
 > 当前接续（2026-10-18）：[#393 完整作品的连续阅读运行候选](docs/393-web-reading-delivery-candidate.md)。#391 的读档取消／重试、#392 的只读历史与人物／选择上下文已进入新的 [HTML 游戏](evidence/web-reading-delivery/before-rain-stops.html)和[网站 ZIP](evidence/web-reading-delivery/before-rain-stops-website.zip)。实际完整两路线、原 1.10.0 备份、三引擎历史／取消读取／段内续读及限定载体的原生语音复验范围见 #393；旧候选保留。1.10.0／S0.41、#384 源／23 条待人工记录和 26 媒体不变。下一批回完整剧情与演出具体问题，人工／真机／许可／公网、WebKit 内嵌音频及长篇成本仍待验，原生搁置。以下为历史。
@@ -77,10 +79,10 @@
 > 状态：S0.41 保留为 Web 技术证据原型；2026-08-13 起执行产品落地主线，D1、S0、M1 均未通过
 > 文档基线：2026-10-17
 > 当前交付目标：[Web 完整 Gal 作品 #304](docs/304-web-complete-gal-delivery.md)。先完成 Web 编辑器与玩家的完整制作、导出和部署上线流程，Windows／Android 原生版本先搁置；当前验收以一部完整作品的实际创作和上线为主线。
-> 当前进展：1.10.0 内容候选为 9 场景/两结局、9,753 字符/86 演出/26 项素材与来源台账；不兼容 1.9.0 或更早剧情存档，原版入口及工程保留。编辑器技术版本与作品版本分别记录，不宣布 Stable。
-> 最新开发记录：[当前状态 #99](docs/99-current-development-status-audit.md)与 [#394 远行见面计划与送别雨声](docs/394-web-story-plans-and-farewell.md)。当前 1.11.0 工程／双游戏／25 条待人工记录在 [web-story-plans-and-farewell](evidence/web-story-plans-and-farewell)，旧 #393 运行候选和 #384 工程保留，26 媒体／来源沿 #380；#354–#367 保留创作与外观交付，长篇剩余成本保持，不把旧阶段的下一步当作当前接续。
+> 当前进展：1.11.0 内容候选为 9 场景/两结局、9,772 字符/87 演出/26 项素材与来源台账；未批准 1.10.0 或更早剧情存档兼容，原版入口及工程保留。编辑器技术版本与作品版本分别记录，不宣布 Stable。
+> 最新开发记录：[当前状态 #99](docs/99-current-development-status-audit.md)与 [#395 连续阅读的点按归属与误跳保护](docs/395-web-reading-press-ownership.md)。当前双游戏在 [web-reading-press](evidence/web-reading-press)，1.11.0 工程／25 条待人工记录沿 [#394](evidence/web-story-plans-and-farewell)，旧产物保留；26 媒体／来源沿 #380，#354–#367 保留创作与外观交付，长篇剩余成本保持，不把旧阶段的下一步当作当前接续。
 > 当前开发入口：[用户任务优先路线 #289](docs/289-user-centered-delivery-route.md)。N62-E1–E5 已实现，当前优先贯通正式 Web 游戏导出，玩家路线图后置；下方旧阶段记录保留为历史背景。以真实创作和交付任务推进，只做必要验证，真人测试等功能与整体 UI 就绪。
-> 当前重心：《雨停之前》1.10.0 的完整内容／演出复核与 Web 交付，23 条记录待人工复核；《给明天的回信》0.9.0 保留为外观功能样章。自然阅读／听感、真机／Safari、26 项素材发行条件与实际公网仍待验，不反复扩展无关装饰或导出选项。
+> 当前重心：《雨停之前》1.11.0 的完整内容／演出复核与 Web 交付，25 条记录待人工复核；《给明天的回信》0.9.0 保留为外观功能样章。自然阅读／听感、真机／Safari、26 项素材发行条件与实际公网仍待验，不反复扩展无关装饰或导出选项。
 > 当前交付边界：优先交付 Web 完整作品能力。原三端 M1 保留为后续整体范围，Windows／Android 未完成项不阻断本轮 Web 交付；M2 以后保留为愿景池。
 > M1 发布定位：首个可正式公开发布的 Stable 版本，不是功能演示或技术预览。
 > 交付链纠偏：N00–N41 已建立直接面向 `main` 的 [集中整合权威基线](docs/182-n41-consolidated-integration-baseline-audit.md)，Draft PR #61 的 Candidate Windows CI 已绿色；仍未合入 `main`，N41-E2 只能从该 Authority 继续。
