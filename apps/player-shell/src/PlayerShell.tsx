@@ -4,7 +4,7 @@ import { storyMotionStyle } from "./story-motion-style";
 import "./story-motion.css";
 import { RecoverySessionError, RecoverySessionRunner } from "./recovery-session-client";
 import { useStoryAdvance } from './use-story-advance';
-import { startPlayerAutoClock } from "./auto-playback-clock";
+import { notifyPlayerAutoVoiceFailure, startPlayerAutoClock } from "./auto-playback-clock";
 import { readPlayerReadingPace, storePlayerReadingPace, readingMillisecondsPerUnit, type PlayerReadingPace } from './player-reading';
 import { useCompactReadingLayout, useReadingMediaQuery, useReadingSurface } from './use-reading-surface';
 import { applyPlayerPreferences } from './player-preferences';
@@ -330,7 +330,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
     if (!element.isConnected || audioElements.current.get(element.dataset.audioBus ?? '') !== element) return;
     element.dataset.playerPlayback = 'error';
     element.dataset.audioFailureCode = String(element.error?.code ?? (error instanceof DOMException && error.name === 'NotSupportedError' ? 4 : 0));
-    if (element.dataset.audioBus === 'voice') { element.dataset.voiceFailed = 'true'; setVoicePlaying(false); }
+    if (element.dataset.audioBus === 'voice') { element.dataset.voiceFailed = 'true'; setVoicePlaying(false); notifyPlayerAutoVoiceFailure(element); }
     const id = element.dataset.assetId;
     if (id) setMediaErrors(current => current.includes(id) ? current : [...current, id]);
     refreshAudioTransport(revision => revision + 1);
@@ -451,6 +451,10 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
   const visibleMediaErrors = mediaErrors.filter(id => currentMediaIds.has(id));
   const visualMediaErrors = visibleMediaErrors.filter(id => !appliedAudio.some(track => track.assetId === id));
   const audioPlaybackSignature = appliedAudio.map(track => `${mediaGeneration}:${audioAttempts[track.bus] ?? 0}:${track.bus}:${track.assetId}:${track.status}`).join("|");
+  const autoVoice = appliedAudio.find(track => track.bus === 'voice');
+  // A retry or restored sound is a new owner even with the same narrative asset.
+  // Do not restart reading time for unrelated music gain or transport renders.
+  const autoVoiceIdentity = autoVoice ? `${mediaGeneration}:${audioAttempts.voice ?? 0}:${autoVoice.assetId}:${autoVoice.status}` : null;
   useEffect(() => {
     for (const element of audioElements.current.values()) {
       const shouldPlay = element.dataset.shouldPlay;
@@ -1244,7 +1248,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
       setAutoPlayback("advancing");
       setState((current) => schedulePlayerCorePlaybackV1(current, policy));
     });
-  }, [artworkView, autoEnabled, preferencesOpen, historyPanelOpen, savePanelOpen, additionalContentOpen, stageImagesPending, buildStopInstructionIds, canonicalPlaybackPolicy, content, hostActivity, snapshot.playback.stopReason, snapshot.status, stage.video, stage.audio, textReady, mediaGeneration, localizedMedia.voice?.assetId, readingMenuOpen, reading.unread, readingPace]);
+  }, [artworkView, autoEnabled, autoVoiceIdentity, preferencesOpen, historyPanelOpen, savePanelOpen, additionalContentOpen, stageImagesPending, buildStopInstructionIds, canonicalPlaybackPolicy, content, hostActivity, snapshot.playback.stopReason, snapshot.status, stage.video, stage.audio, textReady, mediaGeneration, localizedMedia.voice?.assetId, readingMenuOpen, reading.unread, readingPace]);
 
   useEffect(() => {
     if (!autoEnabled) return;

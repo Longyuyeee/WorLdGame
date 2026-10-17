@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { startPlayerAutoClock } from "./auto-playback-clock";
+import { notifyPlayerAutoVoiceFailure, startPlayerAutoClock } from "./auto-playback-clock";
 afterEach(() => vi.useRealTimers());
 function voice() {
   const element = document.createElement("audio");
@@ -8,6 +8,18 @@ function voice() {
   return element;
 }
 describe("actual voice completion clock", () => {
+  it('settles a request failure once without resetting reading time or fabricating a native error', () => {
+    vi.useFakeTimers(); const audio = voice(), advance = vi.fn(), error = vi.fn(); audio.addEventListener('error', error);
+    const dispose = startPlayerAutoClock(audio, 100, 40, advance);
+    vi.advanceTimersByTime(70); notifyPlayerAutoVoiceFailure(audio); notifyPlayerAutoVoiceFailure(audio); audio.dispatchEvent(new Event('ended'));
+    vi.advanceTimersByTime(29); expect(advance).not.toHaveBeenCalled(); vi.advanceTimersByTime(1); expect(advance).toHaveBeenCalledTimes(1); expect(error).not.toHaveBeenCalled(); dispose();
+  });
+  it('does not notify another owner or a disposed clock, including overlapping effect cleanup', () => {
+    vi.useFakeTimers(); const audio = voice(), other = voice(), stale = vi.fn(), active = vi.fn();
+    const disposeOld = startPlayerAutoClock(audio, 10, 0, stale), disposeNew = startPlayerAutoClock(audio, 10, 0, active);
+    disposeOld(); notifyPlayerAutoVoiceFailure(other); vi.advanceTimersByTime(100); expect(active).not.toHaveBeenCalled();
+    notifyPlayerAutoVoiceFailure(audio); vi.advanceTimersByTime(0); expect(active).toHaveBeenCalledTimes(1); expect(stale).not.toHaveBeenCalled(); disposeNew(); notifyPlayerAutoVoiceFailure(audio);
+  });
   it("does not skip stalled or paused voice even after its metadata duration", () => {
     vi.useFakeTimers(); const audio = voice(), advance = vi.fn();
     const dispose = startPlayerAutoClock(audio, 100, 40, advance);

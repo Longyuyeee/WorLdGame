@@ -1,5 +1,7 @@
 # 《雨停之前》1.10.0 内容与演出候选
 
+当前运行文件更新见 [#385](../../docs/385-web-auto-voice-continuity.md)：修复声音播放请求直接失败时 Auto 卡住，重试／从本次无声阅读恢复后等待新语音自然结束，旧音轨与迟到结果不提前翻句。菜单／后台／主动停止保护保持，不改 Core 或存档协议。当前 [HTML](../../evidence/web-auto-voice-continuity/before-rain-stops.html) 与 [网站 ZIP](../../evidence/web-auto-voice-continuity/before-rain-stops-website.zip) 使用修复后的 Player；1.10.0 源工程、23 条人工记录、全部剧情和 26 媒体沿 #384 不变。原 #384 的 1.10.0 备份已在新游戏实际导入读取，不扩大到 1.9.0 剧情迁移；下方为本篇内容校订说明。
+
 2026-10-17。仍为 Web 制作候选，未公开上线或完成发行确认。
 
 - 小夏到来前不再提前显示她的立绘，实际出场与正文对齐。
@@ -9,7 +11,7 @@
 
 九场景、90 段旁白、九句角色对白、两结局；现为 9,753 字符、86 演出、26 项媒体。原 ID／分支目标、配音、全部媒体及来源台账保持。原 19 条与新增 4 条记录共 23 条仍待人工复核，不把已修改标成已验收。
 
-[可编辑工程](../../evidence/web-story-arrival-and-night/before-rain-stops-project.zip)、[HTML](../../evidence/web-story-arrival-and-night/before-rain-stops.html)、[网站上传 ZIP](../../evidence/web-story-arrival-and-night/before-rain-stops-website.zip)、[校订记录](../../evidence/web-story-arrival-and-night/before-rain-stops.worldreview) 均为本批 1.10.0；只有网站包的公开文件用于部署，内部工程／来源／记录不上传。
+[可编辑工程](../../evidence/web-story-arrival-and-night/before-rain-stops-project.zip)与[校订记录](../../evidence/web-story-arrival-and-night/before-rain-stops.worldreview)仍为 #384 的 1.10.0。内容校订当时的 [HTML](../../evidence/web-story-arrival-and-night/before-rain-stops.html)和[网站 ZIP](../../evidence/web-story-arrival-and-night/before-rain-stops-website.zip)原样保留，当前运行文件见顶部 #385。只有网站包的公开文件用于部署，内部工程／来源／记录不上传。
 
 **不兼容 1.9.0 或更早剧情存档。** 旧玩家保留 [1.9.0 原 HTML](../../evidence/web-version-retention/before-rain-stops.html) 或 [原网站](../../evidence/web-cache-management/before-rain-stops-website.zip) 及进度备份接续。更新后的旧入口依赖同浏览器缓存，不能替代完整原版和换机备份；新旧共用槽位，先备份再继续。保留原版与严格拒绝旧档已在本机 Chromium 实际升级检查，不等于公网或全部设备通过。
 

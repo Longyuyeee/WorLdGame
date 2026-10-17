@@ -1,3 +1,10 @@
+const voiceFailures = new WeakMap<HTMLAudioElement, Set<() => void>>();
+
+/** The owning audio request can reject without a native media error event. */
+export function notifyPlayerAutoVoiceFailure(voice: HTMLAudioElement): void {
+  for (const failed of voiceFailures.get(voice) ?? []) failed();
+}
+
 /** Reading and voice run concurrently. Metadata duration is never proof of completion. */
 export function startPlayerAutoClock(
   voice: HTMLAudioElement | undefined,
@@ -21,6 +28,8 @@ export function startPlayerAutoClock(
     else {
       voice.addEventListener("ended", ended);
       voice.addEventListener("error", failed);
+      const subscribers = voiceFailures.get(voice) ?? new Set();
+      subscribers.add(failed); voiceFailures.set(voice, subscribers);
     }
   } else schedule(0);
   return () => {
@@ -28,5 +37,10 @@ export function startPlayerAutoClock(
     if (timer !== undefined) clearTimeout(timer);
     voice?.removeEventListener("ended", ended);
     voice?.removeEventListener("error", failed);
+    if (voice) {
+      const subscribers = voiceFailures.get(voice);
+      subscribers?.delete(failed);
+      if (subscribers?.size === 0) voiceFailures.delete(voice);
+    }
   };
 }

@@ -82,3 +82,5 @@ evidence/web-cache-management/*.worldsave -text
 evidence/web-story-arrival-and-night/*.html -text
 evidence/web-story-arrival-and-night/*.worldsave -text
 evidence/web-story-arrival-and-night/*.worldreview -text
+evidence/web-auto-voice-continuity/*.html -text
+evidence/web-auto-voice-continuity/*.worldsave -text

@@ -1,5 +1,7 @@
 # 《雨停之前》演出素材
 
+2026-10-17 当前 HTML／网站运行文件在 [web-auto-voice-continuity](../../evidence/web-auto-voice-continuity)，Auto 与语音失败／重试修复见 [#385](../../docs/385-web-auto-voice-continuity.md)。仍为 1.10.0；源工程、23 条待人工记录、全部 26 媒体与来源台账沿 #384 不变，无新素材或许可结论。下方为历史批次。
+
 2026-10-17 当前内容候选为 **1.10.0**：[工程／双格式游戏／23 条待人工复核记录](../../evidence/web-story-arrival-and-night)，范围见 [#384](../../docs/384-web-story-arrival-and-night.md)。复用现有夜间工作室并调整人物出场、照片含义和分支表达，全部 26 媒体及来源台账逐字节保持，无新图／配音或许可确认。精确改动见 [editorial-review-v1.10.md](editorial-review-v1.10.md)。以下为历史批次。
 
 项目制作样例素材，2026-10-13。
