@@ -1,0 +1,161 @@
+{
+  "passed": true,
+  "engine": "chromium",
+  "browser": "151.0.7922.34",
+  "baseline": true,
+  "artifactSha256": "62cef5a100e83767bd2d05f4a6a84702335f6cda05d52176480bf51546c775ce",
+  "checks": [
+    {
+      "name": "reproduced-held-confirmation-selects-first-branch",
+      "key": "Enter",
+      "atChoice": {
+        "hash": "c6f71bba9c036ffc96d3930159c76e0d88161baeb4219b8e72415b74b80cfb8e",
+        "cursor": "54",
+        "status": "waiting-choice",
+        "choices": [
+          {
+            "text": "1今晚留下，把回信写完",
+            "selected": "true",
+            "focused": true
+          },
+          {
+            "text": "2今晚出发，在路上继续",
+            "selected": "false",
+            "focused": false
+          }
+        ]
+      },
+      "repeated": {
+        "hash": "5be883b556d628748cabba01296359121697a89fdc12e3e0a4d08b0dd85f60fa",
+        "cursor": "57",
+        "status": "presenting",
+        "choices": [],
+        "text": "林远没有走向检票口。他先给联系人说明自己会搭明天早上的列车，问试合作的安排是否需要调整。消息发送之后，他才把行李箱的拉杆收起。小夏没有替这个决定鼓掌；她只是接过他暂时拿不开手的书，等他把需要说明的事情做完。"
+      },
+      "released": {
+        "hash": "5be883b556d628748cabba01296359121697a89fdc12e3e0a4d08b0dd85f60fa",
+        "cursor": "57",
+        "status": "presenting",
+        "choices": [],
+        "text": "林远没有走向检票口。他先给联系人说明自己会搭明天早上的列车，问试合作的安排是否需要调整。消息发送之后，他才把行李箱的拉杆收起。小夏没有替这个决定鼓掌；她只是接过他暂时拿不开手的书，等他把需要说明的事情做完。"
+      },
+      "afterFreshConfirmation": null
+    },
+    {
+      "name": "reproduced-held-confirmation-selects-first-branch",
+      "key": "Space",
+      "atChoice": {
+        "hash": "c6f71bba9c036ffc96d3930159c76e0d88161baeb4219b8e72415b74b80cfb8e",
+        "cursor": "54",
+        "status": "waiting-choice",
+        "choices": [
+          {
+            "text": "1今晚留下，把回信写完",
+            "selected": "true",
+            "focused": true
+          },
+          {
+            "text": "2今晚出发，在路上继续",
+            "selected": "false",
+            "focused": false
+          }
+        ]
+      },
+      "repeated": {
+        "hash": "c6f71bba9c036ffc96d3930159c76e0d88161baeb4219b8e72415b74b80cfb8e",
+        "cursor": "54",
+        "status": "waiting-choice",
+        "choices": [
+          {
+            "text": "1今晚留下，把回信写完",
+            "selected": "true",
+            "focused": true
+          },
+          {
+            "text": "2今晚出发，在路上继续",
+            "selected": "false",
+            "focused": false
+          }
+        ]
+      },
+      "released": {
+        "hash": "5be883b556d628748cabba01296359121697a89fdc12e3e0a4d08b0dd85f60fa",
+        "cursor": "57",
+        "status": "presenting",
+        "choices": [],
+        "text": "林远没有走向检票口。他先给联系人说明自己会搭明天早上的列车，问试合作的安排是否需要调整。消息发送之后，他才把行李箱的拉杆收起。小夏没有替这个决定鼓掌；她只是接过他暂时拿不开手的书，等他把需要说明的事情做完。"
+      },
+      "afterFreshConfirmation": null
+    },
+    {
+      "name": "reproduced-focused-choice-ignores-arrow-and-number-keys",
+      "before": {
+        "hash": "c6f71bba9c036ffc96d3930159c76e0d88161baeb4219b8e72415b74b80cfb8e",
+        "cursor": "54",
+        "status": "waiting-choice",
+        "choices": [
+          {
+            "text": "1今晚留下，把回信写完",
+            "selected": "true",
+            "focused": true
+          },
+          {
+            "text": "2今晚出发，在路上继续",
+            "selected": "false",
+            "focused": false
+          }
+        ]
+      },
+      "down": {
+        "hash": "c6f71bba9c036ffc96d3930159c76e0d88161baeb4219b8e72415b74b80cfb8e",
+        "cursor": "54",
+        "status": "waiting-choice",
+        "choices": [
+          {
+            "text": "1今晚留下，把回信写完",
+            "selected": "true",
+            "focused": true
+          },
+          {
+            "text": "2今晚出发，在路上继续",
+            "selected": "false",
+            "focused": false
+          }
+        ]
+      },
+      "number": {
+        "hash": "c6f71bba9c036ffc96d3930159c76e0d88161baeb4219b8e72415b74b80cfb8e",
+        "cursor": "54",
+        "status": "waiting-choice",
+        "choices": [
+          {
+            "text": "1今晚留下，把回信写完",
+            "selected": "true",
+            "focused": true
+          },
+          {
+            "text": "2今晚出发，在路上继续",
+            "selected": "false",
+            "focused": false
+          }
+        ]
+      }
+    },
+    {
+      "name": "reproduced-white-prompt-on-paper",
+      "paint": {
+        "foreground": "rgb(255, 255, 255)",
+        "background": "rgba(0, 0, 0, 0)",
+        "backgroundAlpha": 0,
+        "contrast": 1.2678332580548826
+      }
+    },
+    {
+      "name": "actual-original-choice-backup",
+      "sha256": "f4385478dd0f2184cff36f28522eabca6ee357f3ed2d9151ae64a53d249df8e4",
+      "choiceHash": "c6f71bba9c036ffc96d3930159c76e0d88161baeb4219b8e72415b74b80cfb8e"
+    }
+  ],
+  "errors": [],
+  "scope": "Actual complete work and native keyboard down/repeat/up, arrows, numbers and explicit original backup import. Silent reading; phone-sized desktop engines, not physical phone, natural timing/listening, rights or public deployment."
+}

@@ -98,3 +98,6 @@ evidence/web-story-plans-and-farewell/*.worldreview -text
 evidence/web-story-plans-and-farewell/*.worldsave -text
 evidence/web-reading-press/*.html -text
 evidence/web-reading-press/**/*.worldsave -text
+evidence/web-choice-keyboard/*.html -text
+evidence/web-choice-keyboard/*.worldsave -text
+evidence/web-choice-keyboard/**/*.worldsave -text

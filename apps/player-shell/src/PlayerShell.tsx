@@ -1540,19 +1540,26 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
       }
       if (event.key === 'Escape' && snapshot.sceneReplay.active) { event.preventDefault(); exitSceneReplay(); return; }
       if (!event.repeat && !event.altKey && !event.ctrlKey && !event.metaKey && event.key.toLowerCase() === 'h' && canViewArtwork && !(event.target instanceof HTMLElement && event.target.closest('input,select,textarea,summary,[contenteditable]'))) { event.preventDefault(); showArtwork(); return; }
+      const control = event.target instanceof HTMLElement ? event.target.closest('button,input,select,textarea,summary,[contenteditable],a[href],audio,video') : null;
+      // Choice buttons receive real browser focus. Handle their keys before the
+      // generic button guard, including native activation by a held Enter/Space.
+      if (content.kind === 'choice' && (!control || choiceButtons.current.includes(control as HTMLButtonElement)) && !event.altKey && !event.ctrlKey && !event.metaKey) {
+        if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+          event.preventDefault();
+          if (content.options.length > 0) setSelectedChoiceIndex(current => (current + (event.key === 'ArrowUp' ? -1 : 1) + content.options.length) % content.options.length);
+          return;
+        }
+        if (event.key === 'Enter' || event.key === ' ' || /^[1-9]$/u.test(event.key)) {
+          event.preventDefault();
+          // Hold-to-advance is for normal text, never an unseen branch decision.
+          if (event.repeat) return;
+          const option = content.options[/^[1-9]$/u.test(event.key) ? Number(event.key) - 1 : selectedChoiceIndex];
+          if (option) applyIntent({ kind: 'select-choice', optionId: option.optionId }, 'keyboard');
+          return;
+        }
+      }
       if (event.target instanceof HTMLElement && event.target.closest('input,select,textarea,summary,[contenteditable],button:not(.player-dialogue)')) return;
       if (event.repeat && !settingsApplication.advance.allowHold || event.altKey || event.ctrlKey || event.metaKey) return;
-      if (content.kind === "choice" && (event.key === "ArrowUp" || event.key === "ArrowDown")) {
-        event.preventDefault();
-        const delta = event.key === "ArrowUp" ? -1 : 1;
-        setSelectedChoiceIndex((current) => (current + delta + content.options.length) % content.options.length);
-        return;
-      }
-      if (content.kind === "choice" && /^[1-9]$/u.test(event.key)) {
-        const option = content.options[Number(event.key) - 1];
-        if (option !== undefined) applyIntent({ kind: "select-choice", optionId: option.optionId }, "keyboard");
-        return;
-      }
       if (event.key === "Escape") {
         event.preventDefault();
         if (snapshot.sceneReplay.active) {
@@ -1689,6 +1696,21 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
   };
   const inlineLayoutComponents = <PlayerLayoutComponents rows={componentLayout?.components} inline media={mediaAssets} disabled={layoutDisabled} onAction={layoutAction} actionEnabled={layoutActionEnabled} />;
   const endingActionBlocked = hostActivity !== "active" || saveOperation === "busy" || preferencesOpen || savePanelOpen || additionalContentOpen || historyPanelOpen || readingMenuOpen;
+  const mediaError = (stage.missingAssetIds.length > 0 || visibleMediaErrors.length > 0) && (
+    <div className="player-media-error" role="alert">
+      {(stage.missingAssetIds.length > 0 || visualMediaErrors.length > 0) && <span>媒体未能安全呈现：{[...new Set([...stage.missingAssetIds, ...visualMediaErrors])].join("、")}</span>}
+      {failedAudio.map(track => <span key={track.bus}>声音“{track.displayName}”：{playerAudioFailureHint(Number(audioElements.current.get(track.bus)?.dataset.audioFailureCode))}</span>)}
+      <button type="button" disabled={hostActivity !== 'active'} onClick={() => {
+        if (stage.missingAssetIds.length === 0 && visualMediaErrors.length === 0) {
+          setMediaErrors(current => current.filter(id => !failedAudio.some(track => track.assetId === id)));
+          setAudioAttempts(current => Object.fromEntries(appliedAudio.map(track => [track.bus, (current[track.bus] ?? 0) + (failedAudio.some(failed => failed.bus === track.bus) ? 1 : 0)])));
+          onRetryMedia?.();
+        } else { setMediaErrors([]); setMediaGeneration(current => current + 1); onRetryMedia?.(); }
+        queueMicrotask(() => reading.element.current?.focus({ preventScroll: true }));
+      }}>重试媒体</button>
+      {failedAudio.length > 0 && <button type="button" disabled={hostActivity !== 'active'} onClick={chooseSilentReading}>本次先无声阅读</button>}
+    </div>
+  );
   const panelAction = (surface: PlayerLayoutPanel, action: WebLayoutAction, trigger: HTMLButtonElement, source: "pointer" | "touch" | "keyboard") => {
     if (hostActivity !== "active" || saveOperation === "busy" || !panelLayouts[surface].layout || !webLayoutActions(surface).includes(action) || !layoutActionEnabled(action)) return;
     if (surface === "ending" && endingActionBlocked) return;
@@ -2446,21 +2468,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
           </aside>
         )}
 
-        {(stage.missingAssetIds.length > 0 || visibleMediaErrors.length > 0) && (
-          <div className="player-media-error" role="alert">
-            {(stage.missingAssetIds.length > 0 || visualMediaErrors.length > 0) && <span>媒体未能安全呈现：{[...new Set([...stage.missingAssetIds, ...visualMediaErrors])].join("、")}</span>}
-            {failedAudio.map(track => <span key={track.bus}>声音“{track.displayName}”：{playerAudioFailureHint(Number(audioElements.current.get(track.bus)?.dataset.audioFailureCode))}</span>)}
-            <button type="button" disabled={hostActivity !== 'active'} onClick={() => {
-              if (stage.missingAssetIds.length === 0 && visualMediaErrors.length === 0) {
-                setMediaErrors(current => current.filter(id => !failedAudio.some(track => track.assetId === id)));
-                setAudioAttempts(current => Object.fromEntries(appliedAudio.map(track => [track.bus, (current[track.bus] ?? 0) + (failedAudio.some(failed => failed.bus === track.bus) ? 1 : 0)])));
-                onRetryMedia?.();
-              } else { setMediaErrors([]); setMediaGeneration(current => current + 1); onRetryMedia?.(); }
-              queueMicrotask(() => reading.element.current?.focus({ preventScroll: true }));
-            }}>重试媒体</button>
-            {failedAudio.length > 0 && <button type="button" disabled={hostActivity !== 'active'} onClick={chooseSilentReading}>本次先无声阅读</button>}
-          </div>
-        )}
+        {content.kind !== 'choice' && mediaError}
 
         {content.kind === "title" && (
           <div className="player-title-screen">
@@ -2565,6 +2573,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
         {compactReading && (content.kind === 'dialogue' || content.kind === 'narration') && !readingMenuOpen && !preferencesOpen && <p className="player-reading-caption">{!textReady ? autoEnabled ? '自动显示中，点文字切回手动' : '点击文字显示全文' : reading.unread ? autoEnabled ? '自动等待：下滑或点文字读完本段' : '下滑或点文字，读本段下一屏' : autoEnabled ? '自动阅读中，点文字切回手动' : '点击文字继续故事'}</p>}
 
         {content.kind === "choice" && (
+          <div className="player-choice-surface">
           <div className="player-choice" data-choice-layout={skin?.reading.choiceLayout && skin.reading.choiceLayout !== "inherit" ? skin.reading.choiceLayout === "columns" ? "responsive-grid" : "vertical" : settingsApplication.choice.layout} role="group" aria-labelledby="player-choice-prompt">
             <p id="player-choice-prompt" className="player-typography-text" lang={typography.locale} data-cjk-line-break={typography.cjk ? "strict" : "standard"}><PlayerRichText text={content.prompt} locale={typography.locale} /></p>
             {content.options.map((option, index) => (
@@ -2581,6 +2590,8 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
                 {settingsApplication.choice.showOptionNumbers && <span data-choice-number aria-hidden="true">{index + 1}</span>}<span className="player-typography-text" lang={typography.locale} data-cjk-line-break={typography.cjk ? "strict" : "standard"}><PlayerRichText text={option.label} locale={typography.locale} /></span>
               </button>
             ))}
+          </div>
+          {mediaError}
           </div>
         )}
 

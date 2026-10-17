@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { copyFile, readFile, unlink } from 'node:fs/promises';
+import { copyFile, readFile, unlink, lstat, realpath } from 'node:fs/promises';
 import { constants } from 'node:fs';
 import path from 'node:path';
 import { sha } from './audit-rain-story-refinement.mjs';
@@ -7,10 +7,13 @@ import { sha } from './audit-rain-story-refinement.mjs';
 /** Promote only the exact, already tested pair; never replace another candidate.
  * Preflight BOTH destinations before copying either. The caller publishes its
  * passed manifest only after promotion and retention verification succeed. */
-export async function promoteVerifiedGameDelivery(directory, artifacts) {
+export async function promoteVerifiedGameDelivery(directory, artifacts, workingDirectory = path.join(directory, 'work')) {
+  assert.equal(path.dirname(path.resolve(workingDirectory)), path.resolve(directory), 'Working game directory must be a direct child of the delivery directory');
+  assert.equal((await lstat(workingDirectory)).isSymbolicLink(), false, 'Working game directory must not be a link or junction');
+  assert.equal(path.dirname(await realpath(workingDirectory)), await realpath(directory), 'Resolved working game directory must stay inside the delivery directory');
   const files = [['before-rain-stops.html', 'html'], ['before-rain-stops-website.zip', 'website']];
   for (const [name, kind] of files) {
-    const expected = artifacts[kind], bytes = await readFile(path.join(directory, 'work', name));
+    const expected = artifacts[kind], bytes = await readFile(path.join(workingDirectory, name));
     assert.equal(bytes.length, expected.bytes, `Untested ${kind} byte length`);
     assert.equal(sha(bytes), expected.sha256, `Untested ${kind} digest`);
     try {
@@ -20,7 +23,7 @@ export async function promoteVerifiedGameDelivery(directory, artifacts) {
     } catch (error) { if (error.code !== 'ENOENT') throw error; }
   }
   for (const [name, kind] of files) {
-    const source = path.join(directory, 'work', name), target = path.join(directory, name);
+    const source = path.join(workingDirectory, name), target = path.join(directory, name);
     try { await copyFile(source, target, constants.COPYFILE_EXCL); }
     catch (error) { if (error.code !== 'EEXIST') throw error; }
     const bytes = await readFile(target);
@@ -28,5 +31,5 @@ export async function promoteVerifiedGameDelivery(directory, artifacts) {
     assert.equal(sha(bytes), artifacts[kind].sha256, `Promoted ${kind} digest mismatch`);
   }
   // Never remove the verified working pair until BOTH public files match.
-  for (const [name] of files) await unlink(path.join(directory, 'work', name));
+  for (const [name] of files) await unlink(path.join(workingDirectory, name));
 }

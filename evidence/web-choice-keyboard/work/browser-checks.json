@@ -1,0 +1,134 @@
+{
+  "passed": true,
+  "browser": "151.0.7922.34",
+  "version": "1.11.0",
+  "pendingNotes": 25,
+  "retained": [
+    {
+      "name": "before-rain-stops-project.zip",
+      "sha256": "43ef6e1673ed3dffbf705b4f178b2122fc960971eaf47286b33742fa285f0576"
+    },
+    {
+      "name": "before-rain-stops.worldreview",
+      "sha256": "747534249345da6ce337054b4e7f47a1516556beda7079ef7b6d093e590bce8f"
+    },
+    {
+      "name": "before-rain-stops.html",
+      "sha256": "6e5dfb4dfb88b5e210354fbcaeb8ccc4e79d50aa935a1d449f750bde8fc822fa"
+    },
+    {
+      "name": "before-rain-stops-website.zip",
+      "sha256": "25ef0ab90a396f01dcfb09e60f754fb31a82f59aedb8da869b4a199a59e8f19e"
+    }
+  ],
+  "checks": [
+    {
+      "name": "actual-production-editor-unchanged-source-and-pending-notes-save-reopen-dual-export",
+      "detail": {
+        "sourceSha256": "43ef6e1673ed3dffbf705b4f178b2122fc960971eaf47286b33742fa285f0576",
+        "pendingNotes": 25
+      }
+    },
+    {
+      "name": "unchanged-content-media-and-public-files",
+      "detail": {
+        "passed": true,
+        "unchangedPayloadAndAll26Media": true,
+        "sameContentVersion": "1.11.0",
+        "unchangedNotesPending": 25,
+        "sourceAndNotes": "evidence/web-story-plans-and-farewell",
+        "retained": [
+          {
+            "name": "before-rain-stops-project.zip",
+            "sha256": "43ef6e1673ed3dffbf705b4f178b2122fc960971eaf47286b33742fa285f0576"
+          },
+          {
+            "name": "before-rain-stops.worldreview",
+            "sha256": "747534249345da6ce337054b4e7f47a1516556beda7079ef7b6d093e590bce8f"
+          },
+          {
+            "name": "before-rain-stops.html",
+            "sha256": "6e5dfb4dfb88b5e210354fbcaeb8ccc4e79d50aa935a1d449f750bde8fc822fa"
+          },
+          {
+            "name": "before-rain-stops-website.zip",
+            "sha256": "25ef0ab90a396f01dcfb09e60f754fb31a82f59aedb8da869b4a199a59e8f19e"
+          }
+        ],
+        "websiteFiles": 37,
+        "artifacts": {
+          "html": {
+            "bytes": 46785905,
+            "sha256": "087b1b27c16b6e37a6a131e73c66035c5ae911e0770244d2142a09d164fe8efe"
+          },
+          "website": {
+            "bytes": 35372354,
+            "sha256": "23746c2b7f696a451ecd192c91a7680182f4cfc908a7cb1ee66adfdfa546a048"
+          }
+        }
+      }
+    },
+    {
+      "name": "promise-rejection",
+      "detail": {
+        "text": "进去读吧。我想先把今天的话说完。",
+        "deadline": 1940,
+        "before": "92734b15d85213f16dff5be1b0d4d3b76b4346e94133891f5168b790534a78d8",
+        "after": "c04d22711f179366e27943f8f4a0619af369c7416adeec2a0e30b059f06274c3",
+        "auto": "waiting",
+        "retry": false,
+        "injectedPlayRejection": true,
+        "invalidVoiceUrlForNativeDecodeError": false,
+        "nativeErrorEventInjected": false
+      }
+    },
+    {
+      "name": "retry-owner",
+      "detail": {
+        "text": "进去读吧。我想先把今天的话说完。",
+        "deadline": 1940,
+        "before": "92734b15d85213f16dff5be1b0d4d3b76b4346e94133891f5168b790534a78d8",
+        "after": "92734b15d85213f16dff5be1b0d4d3b76b4346e94133891f5168b790534a78d8",
+        "auto": "waiting-voice",
+        "retry": true,
+        "injectedPlayRejection": false,
+        "invalidVoiceUrlForNativeDecodeError": true,
+        "nativeErrorEventInjected": false,
+        "nativeCompletionThenAdvanced": true
+      }
+    },
+    {
+      "name": "full-desktop-html-route-auto-history-save-reopen",
+      "detail": {
+        "texts": 66,
+        "voices": 6,
+        "ending": "故事告一段落\n同行的约定\n\n已达成 1 / 2 个结局\n\n已读、画廊、音乐与结局记录会保留。可以查看收藏，或读取存档探索其他选择。\n\n查看收藏与结局\n读取存档探索其他路线\n回到标题",
+        "naturallyEndedAudioMuted": true,
+        "historyTarget": "stmt_ui_137",
+        "autoStopsAfterLoad": true
+      }
+    },
+    {
+      "name": "full-offline-phone-website-route-auto-history-save-reopen",
+      "detail": {
+        "texts": 66,
+        "voices": 6,
+        "ending": "故事告一段落\n远行的约定\n\n已达成 1 / 2 个结局\n\n已读、画廊、音乐与结局记录会保留。可以查看收藏，或读取存档探索其他选择。\n\n查看收藏与结局\n读取存档探索其他路线\n回到标题",
+        "naturallyEndedAudioMuted": true,
+        "historyTarget": "stmt_ui_219",
+        "autoStopsAfterLoad": true
+      }
+    },
+    {
+      "name": "actual-original-same-content-backup-explicit-import-and-load",
+      "detail": {
+        "version": "1.11.0",
+        "before": "92734b15d85213f16dff5be1b0d4d3b76b4346e94133891f5168b790534a78d8",
+        "after": "92734b15d85213f16dff5be1b0d4d3b76b4346e94133891f5168b790534a78d8",
+        "backupSha256": "22763be9e4ccbcaa00c971e542a2bb0f1580aab4df8edd703b99294ee3014c22"
+      }
+    }
+  ],
+  "errors": [],
+  "scope": "Actual production editor, unchanged source and pending notes, save/reopen/dual export. Content 1.11.0; desktop HTML route 0 and offline phone-sized website route 1, 66 texts and six voice lines each, Auto/history/save/reopen, original same-content backup import/load. Separate Chromium playback-boundary fault injection, native retry completion, no synthetic native error/ended events. Not a full format/route matrix, human listening, physical phone/Safari, public HTTPS, upgrade or long-soak acceptance."
+}
