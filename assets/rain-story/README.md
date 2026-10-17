@@ -1,5 +1,7 @@
 # 《雨停之前》演出素材
 
+2026-10-18 接续 [#397 素材试听的等待、停止与重试](../../docs/397-web-audio-preview-recovery.md)。作者核对增加显式试听、限时／取消和失败恢复，未替换或生成素材；26 项文件及九句配音关联保持，发行条件全部 pending。WebKit Blob 解码仍未通过，不把重试操作当作听感或许可验收。正式源／人工记录沿 #394，双游戏沿 #395，内容 1.11.0／技术 S0.41 不变。以下为历史。
+
 2026-10-18 当前接续为 [#396 同窗素材预览与正文上下文](../../docs/396-web-source-preview-and-context.md)。来源核对可按需看完整图片／试听当前音频，并对照已提交演出和相邻原文；26 项原文件与当前工程／玩家媒体逐项对齐，九句配音包含 `voice-04-v1.7.wav`，不是音频转写或许可通过。26 项发行条件仍待确认，WebKit Blob 试听未通过。内容 1.11.0，源／25 条人工记录沿 [#394](../../evidence/web-story-plans-and-farewell)，当前 HTML／网站仍沿 [#395](../../evidence/web-reading-press)，素材没有变化。以下为历史。
 
 2026-10-18 当前 HTML／网站更新至 [web-voice-reading-continuity](../../evidence/web-voice-reading-continuity)，语音中断和段内连读见 [#390](../../docs/390-web-voice-reading-continuity.md)。内容仍 1.10.0，源／23 条待人工记录沿 #384，全部 26 媒体和来源台账保持，无新素材或许可结论。以下为历史。

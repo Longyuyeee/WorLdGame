@@ -5,7 +5,7 @@ import { createRequire } from 'node:module';
 import { homedir, tmpdir } from 'node:os';
 import { unzipSync } from 'fflate';
 import { sha, json, readGamePayload } from './audit-rain-story-refinement.mjs';
-const root = path.resolve(import.meta.dirname, '..'), output = path.join(root, 'evidence/web-source-preview');
+const root = path.resolve(import.meta.dirname, '..'), output = path.resolve(root, process.env.SOURCE_PREVIEW_OUTPUT ?? 'evidence/web-source-preview');
 const baseline = process.argv.includes('--baseline'), engine = process.argv.find(arg => arg.startsWith('--engine='))?.slice(9) ?? 'chromium';
 assert.ok(['chromium', 'firefox', 'webkit'].includes(engine));
 await mkdir(output, { recursive: true }); const label = baseline ? 'baseline' : engine;
@@ -17,7 +17,11 @@ const require = createRequire(import.meta.url); let engines;
 try { engines = require('playwright'); } catch { engines = require(path.join(homedir(), '.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright')); }
 const browser = await engines[engine].launch({ headless: true }), page = await browser.newPage({ viewport: { width: 1440, height: 1000 }, reducedMotion: 'reduce' });
 const temporary = await mkdtemp(path.join(tmpdir(), 'world-source-preview-'));
-await page.addInitScript(() => { const revoke = URL.revokeObjectURL; window.previewRevoked = []; URL.revokeObjectURL = function(url) { window.previewRevoked.push(url); return revoke.call(this, url); }; });
+await page.addInitScript(() => {
+  const revoke = URL.revokeObjectURL, create = URL.createObjectURL; window.previewRevoked = []; window.previewCreated = [];
+  URL.createObjectURL = function(blob) { const url = create.call(this, blob); window.previewCreated.push({ url, type: blob.type }); return url; };
+  URL.revokeObjectURL = function(url) { window.previewRevoked.push(url); return revoke.call(this, url); };
+});
 const checks = [], errors = []; page.on('pageerror', e => errors.push(String(e))); page.setDefaultTimeout(30000);
 const button = name => page.getByRole('button', { name, exact: true });
 const dialog = () => page.getByRole('dialog', { name: '素材来源与发行准备', exact: true });
@@ -53,7 +57,7 @@ try {
   await page.getByRole('navigation', { name: '主要功能' }).getByRole('button', { name: '发布', exact: true }).click(); await button('核对素材来源').click(); await choose('voice_04');
   if (baseline) { assert.equal(await dialog().locator('audio,img').count(), 0); assert.equal(await dialog().getByRole('button', { name: '试听当前音频', exact: true }).count(), 0); checks.push({ name: 'actual-source-review-has-no-current-audio-or-image-preview', selected: await dialog().getByRole('heading', { level: 3 }).innerText() }); }
   else {
-    const marker = 'PRIVATE_SOURCE_PREVIEW_396'; await dialog().getByLabel('确认依据', { exact: true }).fill(marker);
+    const marker = process.env.SOURCE_PREVIEW_MARKER ?? 'PRIVATE_SOURCE_PREVIEW_396'; await dialog().getByLabel('确认依据', { exact: true }).fill(marker);
     assert.equal(await dialog().locator('audio,img').count(), 0);
     const audio = await preview('audio'), sourceUrl = await audio.getAttribute('src'), handle = await audio.elementHandle();
     assert.equal(await audio.getAttribute('preload'), 'none'); assert.equal(await audio.getAttribute('autoplay'), null);
@@ -78,10 +82,11 @@ try {
     await choose('voice_04'); assert.equal(await dialog().getByLabel('确认依据', { exact: true }).inputValue(), marker); assert.equal(await dialog().locator('audio').count(), 0); await preview('audio');
     const audioLayouts = [];
     for (const viewport of [{ width: 320, height: 740 }, { width: 390, height: 844 }, { width: 844, height: 390 }]) { await page.setViewportSize(viewport); await fit('重新准备试听'); audioLayouts.push({ viewport, media: await fitMedia(dialog().locator('audio'), 'audio') }); }
-    await page.setViewportSize({ width: 390, height: 844 }); const secondUrl = await dialog().locator('audio').getAttribute('src');
+    await page.setViewportSize({ width: 390, height: 844 }); const secondUrl = await page.evaluate(() => window.previewCreated.filter(row => row.type.startsWith('audio/')).at(-1).url);
     await button('选择其他素材（26）').click(); await page.waitForFunction(url => window.previewRevoked.includes(url), secondUrl); await button('查看当前素材详情').click(); assert.equal(await dialog().locator('audio').count(), 0);
-    await preview('audio'); const bad = dialog().locator('audio'); await bad.evaluate(el => { el.src = 'data:audio/wav;base64,AA=='; el.load(); }); await dialog().getByText(/音频无法播放/).waitFor(); await button('重新准备试听').click();
-    await page.waitForFunction(url => { const a = document.querySelector('.web-source-preview audio'); return a?.src.startsWith('blob:') && a.src !== url; }, secondUrl); assert.equal(await dialog().getByLabel('确认依据', { exact: true }).inputValue(), marker);
+    await preview('audio'); const bad = dialog().locator('audio'); await bad.evaluate(el => { el.src = 'data:audio/wav;base64,AA=='; el.load(); }); await dialog().getByText(/音频无法播放/).waitFor();
+    const retryUrl = await page.evaluate(() => window.previewCreated.filter(row => row.type.startsWith('audio/')).at(-1).url); await button('重新准备试听').click();
+    await page.waitForFunction(url => window.previewCreated.filter(row => row.type.startsWith('audio/')).at(-1)?.url !== url && document.querySelector('.web-source-preview audio'), retryUrl); assert.equal(await dialog().getByLabel('确认依据', { exact: true }).inputValue(), marker);
     checks.push({ name: 'mobile-list-stops-preview-no-auto-resume-native-decode-error-retry-and-draft-preserved', audioLayouts, injectedFault: 'invalid native audio source only; indexed file and narrative unchanged' });
     await button('应用来源台账').click(); await ready(); await page.locator('.local-save-button').click(); await page.locator('.local-save-button--saved').waitFor(); await projectMenu('所有项目'); await page.reload(); await button('打开项目：雨停之前').click(); await ready(); await nav('发布'); await button('核对素材来源').click(); await choose('voice_04'); assert.equal(await dialog().getByLabel('确认依据', { exact: true }).inputValue(), marker); assert.equal(await dialog().getByLabel('发行条件状态', { exact: true }).inputValue(), 'pending'); await button('取消').click();
     checks.push({ name: 'explicit-source-apply-save-reopen-keeps-only-pending-private-draft', pending: 26, approved: 0 });
