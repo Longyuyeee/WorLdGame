@@ -5,12 +5,12 @@ import { homedir } from 'node:os';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { sha } from './audit-rain-story-refinement.mjs';
-const root = path.resolve(import.meta.dirname, '..'), output = path.join(root, 'evidence/web-choice-keyboard');
+const root = path.resolve(import.meta.dirname, '..'), output = path.resolve(root, process.env.STUDIO_CHOICE_KEYBOARD_OUTPUT_DIRECTORY ?? 'evidence/web-choice-keyboard');
 const baseline = process.argv.includes('--baseline'), engine = process.argv.find(arg => arg.startsWith('--engine='))?.slice(9) ?? 'chromium';
 assert.ok(['chromium', 'firefox', 'webkit'].includes(engine));
-let source = path.join(output, 'before-rain-stops.html');
+let source = path.resolve(root, process.env.STUDIO_CHOICE_KEYBOARD_SOURCE_HTML ?? path.join(output, 'before-rain-stops.html'));
 if (baseline) source = path.resolve(root, 'evidence/web-reading-press/before-rain-stops.html');
-else { try { await access(source); } catch (error) { if (error.code !== 'ENOENT') throw error; source = path.join(output, 'final-work/before-rain-stops.html'); } }
+else { try { await access(source); } catch (error) { if (error.code !== 'ENOENT' || process.env.STUDIO_CHOICE_KEYBOARD_SOURCE_HTML) throw error; source = path.join(output, 'final-work/before-rain-stops.html'); } }
 const bytes = await readFile(source);
 const require = createRequire(import.meta.url); let engines; try { engines = require('playwright'); } catch { engines = require(path.join(homedir(), '.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright')); }
 await mkdir(output, { recursive: true }); const label = baseline ? `baseline-${engine}` : engine, checks = [], errors = [];
@@ -32,7 +32,7 @@ async function beforeChoice(p) {
 }
 async function importChoiceBackup(p) {
   await button(p, '读取存档').click(); const slots = p.getByRole('dialog', { name: '存读档槽位', exact: true }); await slots.getByRole('button', { name: '备份', exact: true }).click();
-  await slots.getByLabel('选择存档备份文件', { exact: true }).setInputFiles(path.join(output, 'original-choice-1.11.0.worldsave')); await slots.getByRole('button', { name: '导入到所选槽位', exact: true }).click(); await slots.getByRole('button', { name: '读取导入的存档', exact: true }).click();
+  await slots.getByLabel('选择存档备份文件', { exact: true }).setInputFiles(path.resolve(root, process.env.STUDIO_CHOICE_KEYBOARD_BACKUP ?? 'evidence/web-choice-keyboard/original-choice-1.11.0.worldsave')); await slots.getByRole('button', { name: '导入到所选槽位', exact: true }).click(); await slots.getByRole('button', { name: '读取导入的存档', exact: true }).click();
   if (await p.locator('.player-load-confirm').isVisible()) await button(p, '确认读取').click(); await p.locator('.player-choice').waitFor();
 }
 const paint = p => p.locator('#player-choice-prompt').evaluate(el => {

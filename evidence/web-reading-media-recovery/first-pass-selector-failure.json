@@ -1,0 +1,171 @@
+{
+  "passed": false,
+  "artifactSha256": "111e9cf4db68f03dbe9b0b90d6491b578fa10f70addec9d3cce4ffdfa67f809d",
+  "checks": [
+    {
+      "name": "error-does-not-cover-reading-and-menu-actions-remain-reachable",
+      "layouts": [
+        {
+          "viewport": {
+            "width": 568,
+            "height": 320
+          },
+          "entrance": {
+            "x": 423.9375,
+            "y": 12,
+            "width": 66,
+            "height": 44,
+            "inViewport": true
+          },
+          "menuButton": {
+            "x": 497.9375,
+            "y": 12,
+            "width": 56.0625,
+            "height": 44,
+            "inViewport": true
+          },
+          "recovery": {
+            "x": 46,
+            "y": 227.796875,
+            "width": 78,
+            "height": 44,
+            "inViewport": true
+          }
+        },
+        {
+          "viewport": {
+            "width": 320,
+            "height": 740
+          },
+          "entrance": {
+            "x": 167.9375,
+            "y": 12,
+            "width": 70,
+            "height": 44,
+            "inViewport": true
+          },
+          "menuButton": {
+            "x": 245.9375,
+            "y": 12,
+            "width": 60.0625,
+            "height": 44,
+            "inViewport": true
+          },
+          "recovery": {
+            "x": 46,
+            "y": 261.796875,
+            "width": 78,
+            "height": 44,
+            "inViewport": true
+          }
+        },
+        {
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "entrance": {
+            "x": 245.9375,
+            "y": 12,
+            "width": 66,
+            "height": 44,
+            "inViewport": true
+          },
+          "menuButton": {
+            "x": 319.9375,
+            "y": 12,
+            "width": 56.0625,
+            "height": 44,
+            "inViewport": true
+          },
+          "recovery": {
+            "x": 46,
+            "y": 244.796875,
+            "width": 78,
+            "height": 44,
+            "inViewport": true
+          }
+        },
+        {
+          "viewport": {
+            "width": 844,
+            "height": 390
+          },
+          "entrance": {
+            "x": 699.9375,
+            "y": 12,
+            "width": 66,
+            "height": 44,
+            "inViewport": true
+          },
+          "menuButton": {
+            "x": 773.9375,
+            "y": 12,
+            "width": 56.0625,
+            "height": 44,
+            "inViewport": true
+          },
+          "recovery": {
+            "x": 46,
+            "y": 227.796875,
+            "width": 78,
+            "height": 44,
+            "inViewport": true
+          }
+        },
+        {
+          "viewport": {
+            "width": 1280,
+            "height": 900
+          },
+          "entrance": {
+            "x": 898.25,
+            "y": 139.125,
+            "width": 94,
+            "height": 44,
+            "inViewport": true
+          },
+          "menuButton": {
+            "x": 1124.25,
+            "y": 139.125,
+            "width": 80.75,
+            "height": 44,
+            "inViewport": true
+          },
+          "recovery": {
+            "x": 300,
+            "y": 251.796875,
+            "width": 78,
+            "height": 44,
+            "inViewport": true
+          }
+        }
+      ],
+      "original": {
+        "hash": "82e2acf507042ca294db18181ea77af0e7eed1889ee86690bac318ce59634412",
+        "cursor": "4",
+        "audio": "enabled",
+        "auto": "off",
+        "text": "售票员把窗口里的灯关掉时，雨正沿着站台的屋檐连成一条线。站台上的钟比手机慢了三分钟。林远核对了两次，没有走去询问值班员。他看见玻璃上自己的倒影，才发现他已经穿着这件外套站了很久。行李箱旁挂着新公司的地址，手机里存着一份还没签字的合同；这些东西都能说明他要去哪里，却没有一样能替他解释为什么迟迟不肯往前走。"
+      }
+    },
+    {
+      "name": "native-tap-pages-with-error-and-menu-return-preserves-current-reading-offset",
+      "beforeTop": 0,
+      "pagedTop": 139,
+      "afterMenu": 139
+    },
+    {
+      "name": "explicit-retry-returns-to-same-paragraph-offset-and-native-transport",
+      "retried": {
+        "currentTime": 0.016628,
+        "error": null,
+        "src": "data:audio/wav;base64,UklGRqSIFQBXQVZFZm"
+      },
+      "sameOffset": true
+    }
+  ],
+  "errors": [],
+  "error": "TimeoutError: locator.getAttribute: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('img[data-asset-id]').first()\u001b[22m\n",
+  "stack": "locator.getAttribute: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('img[data-asset-id]').first()\u001b[22m\n\n    at E:\\ProjectSave\\GeminiProject\\WorLdGame\\tools\\run-web-reading-media-recovery.mjs:72:91"
+}

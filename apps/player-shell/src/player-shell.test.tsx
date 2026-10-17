@@ -303,6 +303,7 @@ describe("N50-E1 shared Player Shell", () => {
     expect(auto).toHaveAttribute("aria-pressed","true");
     fail(Error("source mismatch"));
     await waitFor(()=>expect(auto).toHaveAttribute("aria-pressed","false"));
+    fireEvent.click(screen.getByRole("button", { name: "查看媒体问题" }));
     expect(screen.getByRole("button",{name:"重试画面资源"})).toBeInTheDocument();
   });
 
@@ -340,6 +341,7 @@ describe("N50-E1 shared Player Shell", () => {
       expect(screen.getByText("Every cue must remain ordered.")).toBeInTheDocument();
     }
     await act(async () => { await vi.advanceTimersByTimeAsync(IMAGE_LOAD_TIMEOUT_MS); });
+    fireEvent.click(screen.getByRole("button", { name: "查看媒体问题" }));
     expect(screen.getByRole("alert")).toHaveTextContent("加载超时");
     expect(view.container.querySelector("main")).toHaveAttribute("data-skip-active", "false");
     expect(screen.getByRole("button", { name: "自动播放" })).toHaveAttribute("aria-pressed", "false");
@@ -1607,6 +1609,7 @@ describe("N51-E5 Player settings application", () => {
     await act(async () => { await Promise.resolve(); });
     expect(pause).not.toHaveBeenCalled();
     fireEvent.error(old);
+    fireEvent.click(screen.getByRole("button", { name: "查看媒体问题" }));
     fireEvent.click(screen.getByRole("button", { name: "重试媒体" }));
     await act(async () => { await Promise.resolve(); });
     expect(old.isConnected).toBe(false);

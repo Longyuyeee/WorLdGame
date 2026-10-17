@@ -80,7 +80,7 @@ it('still waits for actual voice completion and invalidates an already computed 
   const f = await setup(true), voice = f.container.querySelector<HTMLAudioElement>('audio[data-audio-bus="voice"]')!;
   fireEvent.play(voice); await f.auto(); await tick(100); expect(pending.jobs).toHaveLength(0);
   fireEvent.ended(voice); await tick(0); expect(pending.jobs).toHaveLength(1); const job = pending.jobs[0]!;
-  fireEvent.error(voice); fireEvent.click(f.getByRole('button', { name: '重试媒体' })); await act(async () => {});
+  fireEvent.error(voice); fireEvent.click(f.getByRole('button', { name: '查看媒体问题' })); fireEvent.click(f.getByRole('button', { name: '重试媒体' })); await act(async () => {});
   expect(job.signal.aborted).toBe(true); await act(async () => job.finish()); expect(f.hash()).toBe(f.before);
   const replacement = f.container.querySelector<HTMLAudioElement>('audio[data-audio-bus="voice"]')!; expect(replacement).not.toBe(voice);
   fireEvent.play(replacement); await tick(100); expect(pending.jobs).toHaveLength(1);

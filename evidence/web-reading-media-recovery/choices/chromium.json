@@ -1,0 +1,274 @@
+{
+  "passed": true,
+  "engine": "chromium",
+  "browser": "151.0.7922.34",
+  "baseline": false,
+  "artifactSha256": "00feefe7cdd763bdea8924b5dbdd664dc6f7be03f565025746bd4d3725343f74",
+  "checks": [
+    {
+      "name": "held-confirmation-stops-at-choice-until-a-fresh-confirmation",
+      "key": "Enter",
+      "atChoice": {
+        "hash": "c6f71bba9c036ffc96d3930159c76e0d88161baeb4219b8e72415b74b80cfb8e",
+        "cursor": "54",
+        "status": "waiting-choice",
+        "choices": [
+          {
+            "text": "1今晚留下，把回信写完",
+            "selected": "true",
+            "focused": true
+          },
+          {
+            "text": "2今晚出发，在路上继续",
+            "selected": "false",
+            "focused": false
+          }
+        ]
+      },
+      "repeated": {
+        "hash": "c6f71bba9c036ffc96d3930159c76e0d88161baeb4219b8e72415b74b80cfb8e",
+        "cursor": "54",
+        "status": "waiting-choice",
+        "choices": [
+          {
+            "text": "1今晚留下，把回信写完",
+            "selected": "true",
+            "focused": true
+          },
+          {
+            "text": "2今晚出发，在路上继续",
+            "selected": "false",
+            "focused": false
+          }
+        ]
+      },
+      "released": {
+        "hash": "c6f71bba9c036ffc96d3930159c76e0d88161baeb4219b8e72415b74b80cfb8e",
+        "cursor": "54",
+        "status": "waiting-choice",
+        "choices": [
+          {
+            "text": "1今晚留下，把回信写完",
+            "selected": "true",
+            "focused": true
+          },
+          {
+            "text": "2今晚出发，在路上继续",
+            "selected": "false",
+            "focused": false
+          }
+        ]
+      },
+      "afterFreshConfirmation": {
+        "hash": "5be883b556d628748cabba01296359121697a89fdc12e3e0a4d08b0dd85f60fa",
+        "cursor": "57",
+        "status": "presenting",
+        "choices": [],
+        "text": "林远没有走向检票口。他先给联系人说明自己会搭明天早上的列车，问试合作的安排是否需要调整。消息发送之后，他才把行李箱的拉杆收起。小夏没有替这个决定鼓掌；她只是接过他暂时拿不开手的书，等他把需要说明的事情做完。"
+      }
+    },
+    {
+      "name": "held-confirmation-stops-at-choice-until-a-fresh-confirmation",
+      "key": "Space",
+      "atChoice": {
+        "hash": "c6f71bba9c036ffc96d3930159c76e0d88161baeb4219b8e72415b74b80cfb8e",
+        "cursor": "54",
+        "status": "waiting-choice",
+        "choices": [
+          {
+            "text": "1今晚留下，把回信写完",
+            "selected": "true",
+            "focused": true
+          },
+          {
+            "text": "2今晚出发，在路上继续",
+            "selected": "false",
+            "focused": false
+          }
+        ]
+      },
+      "repeated": {
+        "hash": "c6f71bba9c036ffc96d3930159c76e0d88161baeb4219b8e72415b74b80cfb8e",
+        "cursor": "54",
+        "status": "waiting-choice",
+        "choices": [
+          {
+            "text": "1今晚留下，把回信写完",
+            "selected": "true",
+            "focused": true
+          },
+          {
+            "text": "2今晚出发，在路上继续",
+            "selected": "false",
+            "focused": false
+          }
+        ]
+      },
+      "released": {
+        "hash": "c6f71bba9c036ffc96d3930159c76e0d88161baeb4219b8e72415b74b80cfb8e",
+        "cursor": "54",
+        "status": "waiting-choice",
+        "choices": [
+          {
+            "text": "1今晚留下，把回信写完",
+            "selected": "true",
+            "focused": true
+          },
+          {
+            "text": "2今晚出发，在路上继续",
+            "selected": "false",
+            "focused": false
+          }
+        ]
+      },
+      "afterFreshConfirmation": {
+        "hash": "5be883b556d628748cabba01296359121697a89fdc12e3e0a4d08b0dd85f60fa",
+        "cursor": "57",
+        "status": "presenting",
+        "choices": [],
+        "text": "林远没有走向检票口。他先给联系人说明自己会搭明天早上的列车，问试合作的安排是否需要调整。消息发送之后，他才把行李箱的拉杆收起。小夏没有替这个决定鼓掌；她只是接过他暂时拿不开手的书，等他把需要说明的事情做完。"
+      }
+    },
+    {
+      "name": "focused-arrows-wrap-and-number-two-selects-the-right-branch",
+      "before": {
+        "hash": "c6f71bba9c036ffc96d3930159c76e0d88161baeb4219b8e72415b74b80cfb8e",
+        "cursor": "54",
+        "status": "waiting-choice",
+        "choices": [
+          {
+            "text": "1今晚留下，把回信写完",
+            "selected": "true",
+            "focused": true
+          },
+          {
+            "text": "2今晚出发，在路上继续",
+            "selected": "false",
+            "focused": false
+          }
+        ]
+      },
+      "down": {
+        "hash": "c6f71bba9c036ffc96d3930159c76e0d88161baeb4219b8e72415b74b80cfb8e",
+        "cursor": "54",
+        "status": "waiting-choice",
+        "choices": [
+          {
+            "text": "1今晚留下，把回信写完",
+            "selected": "false",
+            "focused": false
+          },
+          {
+            "text": "2今晚出发，在路上继续",
+            "selected": "true",
+            "focused": true
+          }
+        ]
+      },
+      "selected": {
+        "hash": "78f653d5a012c269fe3d8f22664a74707dc2b6b1cc562d2da3934dfeda9485c9",
+        "cursor": "57",
+        "status": "presenting",
+        "choices": [],
+        "text": "林远拉起行李箱，朝检票口走了两步，又转身回来。他不是想把决定收回，只是刚才遗漏了一件事。他把日历上圈起的日期给小夏看，说会提前一周确认行程。小夏点头，伸手把他外套口袋里快滑出的信封推稳。"
+      }
+    },
+    {
+      "name": "old-current-candidate-choice-backup-load-navigation-and-explicit-confirmation",
+      "loaded": {
+        "hash": "c6f71bba9c036ffc96d3930159c76e0d88161baeb4219b8e72415b74b80cfb8e",
+        "cursor": "54",
+        "status": "waiting-choice",
+        "choices": [
+          {
+            "text": "1今晚留下，把回信写完",
+            "selected": "true",
+            "focused": true
+          },
+          {
+            "text": "2今晚出发，在路上继续",
+            "selected": "false",
+            "focused": false
+          }
+        ]
+      },
+      "selected": {
+        "hash": "78f653d5a012c269fe3d8f22664a74707dc2b6b1cc562d2da3934dfeda9485c9",
+        "cursor": "57",
+        "status": "presenting",
+        "choices": [],
+        "text": "林远拉起行李箱，朝检票口走了两步，又转身回来。他不是想把决定收回，只是刚才遗漏了一件事。他把日历上圈起的日期给小夏看，说会提前一周确认行程。小夏点头，伸手把他外套口袋里快滑出的信封推稳。"
+      },
+      "layouts": [
+        {
+          "viewport": {
+            "width": 320,
+            "height": 740
+          },
+          "geometry": {
+            "visible": true,
+            "height": 56,
+            "focused": true,
+            "errorDoesNotOverlapChoices": true
+          },
+          "promptPaint": {
+            "foreground": "rgb(48, 43, 49)",
+            "background": "rgb(255, 248, 237)",
+            "backgroundAlpha": 1,
+            "contrast": 13.13153355939437
+          }
+        },
+        {
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "geometry": {
+            "visible": true,
+            "height": 56,
+            "focused": true,
+            "errorDoesNotOverlapChoices": true
+          },
+          "promptPaint": {
+            "foreground": "rgb(48, 43, 49)",
+            "background": "rgb(255, 248, 237)",
+            "backgroundAlpha": 1,
+            "contrast": 13.13153355939437
+          }
+        },
+        {
+          "viewport": {
+            "width": 844,
+            "height": 390
+          },
+          "geometry": {
+            "visible": true,
+            "height": 58,
+            "focused": true,
+            "errorDoesNotOverlapChoices": true
+          },
+          "promptPaint": {
+            "foreground": "rgb(48, 43, 49)",
+            "background": "rgb(255, 248, 237)",
+            "backgroundAlpha": 1,
+            "contrast": 13.13153355939437
+          }
+        }
+      ],
+      "highContrast": {
+        "foreground": "rgb(255, 255, 255)",
+        "background": "rgb(0, 0, 0)",
+        "backgroundAlpha": 1,
+        "contrast": 21
+      },
+      "recoveryGeometry": {
+        "visible": true,
+        "height": 44
+      },
+      "fault": "invalid native BGM source, no fabricated error or narrative events",
+      "silentReadingRetainedChoice": true
+    }
+  ],
+  "errors": [],
+  "scope": "Actual complete work and native keyboard down/repeat/up, arrows, numbers and explicit original backup import. Silent reading; phone-sized desktop engines, not physical phone, natural timing/listening, rights or public deployment."
+}

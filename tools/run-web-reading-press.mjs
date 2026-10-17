@@ -9,6 +9,7 @@ import { sha } from './audit-rain-story-refinement.mjs';
 const root = path.resolve(import.meta.dirname, '..');
 const output = path.resolve(root, process.env.STUDIO_READING_PRESS_OUTPUT_DIRECTORY ?? 'evidence/web-reading-press');
 const baseline = process.argv.includes('--baseline');
+const realTime = process.argv.includes('--real-time');
 const engine = process.argv.find(arg => arg.startsWith('--engine='))?.slice(9) ?? 'chromium';
 assert.ok(['chromium', 'firefox', 'webkit'].includes(engine));
 const source = path.resolve(root, baseline ? 'evidence/web-story-plans-and-farewell/before-rain-stops.html' : process.env.STUDIO_READING_PRESS_SOURCE_HTML ?? 'evidence/web-reading-press/before-rain-stops.html');
@@ -21,6 +22,7 @@ try { engines = require('playwright'); } catch { engines = require(path.join(hom
 const browser = await engines[engine].launch({ headless: true, ...(engine === 'chromium' ? { args: ['--mute-audio'] } : {}) });
 const page = await browser.newPage({ viewport: { width: 1280, height: 900 }, hasTouch: true, reducedMotion: 'reduce' });
 const checks = [], errors = []; page.on('pageerror', error => errors.push(String(error))); page.setDefaultTimeout(30000);
+const advance = milliseconds => realTime ? page.waitForTimeout(milliseconds) : page.clock.runFor(milliseconds);
 const button = name => page.getByRole('button', { name, exact: true });
 const state = () => page.locator('main.player-shell').evaluate(el => ({ hash: el.dataset.runtimeStateHash, cursor: el.dataset.historyCursor, auto: el.dataset.autoPlayback, text: el.querySelector('.player-dialogue__text')?.textContent }));
 async function press() { const box = await button('继续下一句').boundingBox(); assert.ok(box); await page.mouse.move(box.x + box.width - 12, box.y + box.height - 12); await page.mouse.down(); }
@@ -29,13 +31,13 @@ try {
   await button('打开玩家设置').click(); await page.getByLabel('文字显示', { exact: true }).selectOption('instant'); await page.getByLabel('静音全部声音', { exact: true }).check(); await button('返回故事').click(); await button('开始故事').click();
   await page.waitForFunction(() => document.querySelector('main')?.dataset.stageImagesPending === 'false');
   const epoch = new Date('2026-10-18T04:00:00Z');
-  await page.clock.install({ time: epoch }); await page.clock.pauseAt(new Date(epoch.getTime() + 1000));
+  if (!realTime) { await page.clock.install({ time: epoch }); await page.clock.pauseAt(new Date(epoch.getTime() + 1000)); }
   await button('打开阅读菜单').click(); await button('自动播放').click(); await button('返回故事').click();
   const before = await state(); await press(); let changed;
-  for (let i = 0; i < 90; i++) { await page.clock.runFor(1000); changed = await state(); if (changed.cursor !== before.cursor) break; }
+  for (let i = 0; i < 90; i++) { await advance(1000); changed = await state(); if (changed.cursor !== before.cursor) break; }
   assert.notEqual(changed.cursor, before.cursor, 'The real Auto clock must commit the next paragraph while the native pointer remains held');
   await page.screenshot({ path: path.join(output, `${label}-before-release.png`), animations: 'disabled' });
-  await page.mouse.up(); await page.clock.runFor(250); const released = await state();
+  await page.mouse.up(); await advance(250); const released = await state();
   checks.push({ name: 'press-observation', before, changed, released });
   if (baseline) { assert.notEqual(released.cursor, changed.cursor); assert.equal(released.auto, 'off'); }
   else { assert.equal(released.cursor, changed.cursor); assert.equal(released.hash, changed.hash); assert.notEqual(released.auto, 'off'); }
@@ -43,8 +45,8 @@ try {
   await page.screenshot({ path: path.join(output, `${label}-after-release.png`), animations: 'disabled' });
   if (!baseline) {
     // A fresh click on the new paragraph is still an intentional manual takeover.
-    await press(); await page.mouse.up(); await page.clock.runFor(250); const takeover = await state();
-    assert.notEqual(takeover.cursor, released.cursor); assert.equal(takeover.auto, 'off'); await page.clock.resume();
+    await press(); await page.mouse.up(); await advance(250); const takeover = await state();
+    assert.notEqual(takeover.cursor, released.cursor); assert.equal(takeover.auto, 'off'); if (!realTime) await page.clock.resume();
     checks.push({ name: 'fresh-native-click-still-advances-and-stops-auto', released, takeover });
     await button('打开阅读菜单').click(); await button('本次先无声阅读').click();
     // Hide and restore the surface through the public shortcut while a native
@@ -74,7 +76,7 @@ try {
     checks.push({ name: 'phone-rotation-and-native-menu-taps-preserve-current-paragraph', state: menuState });
   }
   assert.deepEqual(errors, []);
-  await writeFile(report, JSON.stringify({ passed: true, browser: browser.version(), artifactSha256: sha(bytes), checks, errors, scope: baseline ? 'Original #394 HTML, native mouse down/up and production Auto under controlled time reproduce a release on the wrong paragraph. Not a candidate acceptance run.' : 'Actual game HTML, native mouse down/up/drag, keyboard shortcuts and native touch taps in phone-sized windows. Production Auto clock under controlled time; no fabricated pointer/click, DOM geometry or narrative states. Not natural reading timing, physical touch/phone/Safari, background-lock cycle or audio acceptance.' }, null, 2));
+  await writeFile(report, JSON.stringify({ passed: true, browser: browser.version(), artifactSha256: sha(bytes), clockMode: realTime ? 'real' : 'controlled', checks, errors, scope: baseline ? 'Original #394 HTML, native mouse down/up and production Auto reproduce a release on the wrong paragraph. Not a candidate acceptance run.' : `Actual game HTML, native mouse down/up/drag, keyboard shortcuts and native touch taps in phone-sized windows. Production Auto clock under ${realTime ? 'unmodified real' : 'controlled'} time; no fabricated pointer/click, DOM geometry or narrative states. Not natural reading timing, physical touch/phone/Safari, background-lock cycle or audio acceptance.` }, null, 2));
   console.log(`PASS ${label} paragraph press ownership`);
 } catch (error) { await page.screenshot({ path: path.join(output, `${label}-failure.png`), animations: 'disabled' }); await writeFile(report, JSON.stringify({ passed: false, artifactSha256: sha(bytes), error: String(error), stack: error.stack, checks, errors, lastState: await state(), geometry: await button('继续下一句').evaluate(el => ({ top: el.scrollTop, height: el.clientHeight, scrollHeight: el.scrollHeight })).catch(() => null) }, null, 2)); throw error; }
 finally { await browser.close(); }

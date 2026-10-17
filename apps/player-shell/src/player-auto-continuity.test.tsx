@@ -23,6 +23,7 @@ async function setup() {
 }
 const auto = () => fireEvent.click(screen.getByRole('button', { name: '自动播放' }));
 const tick = async (ms: number) => act(async () => { await vi.advanceTimersByTimeAsync(ms); });
+const openProblem = () => fireEvent.click(screen.getByRole('button', { name: '查看媒体问题' }));
 
 it('settles an owned play rejection without a native error event and keeps the remaining reading deadline', async () => {
   const f = await setup(), audio = f.voice(), before = f.hash();
@@ -38,6 +39,7 @@ it('settles an owned play rejection without a native error event and keeps the r
 it('cancels the failed voice clock when retry replaces the owner, waiting for the new actual completion', async () => {
   const f = await setup(), old = f.voice(), before = f.hash();
   fireEvent.play(old); auto(); await tick(10); fireEvent.error(old);
+  openProblem();
   fireEvent.click(screen.getByRole('button', { name: '重试媒体' })); await act(async () => {});
   const replacement = f.voice(); expect(replacement).not.toBe(old); fireEvent.play(replacement);
   fireEvent.ended(old); await tick(100); expect(f.hash()).toBe(before);
@@ -47,6 +49,7 @@ it('cancels the failed voice clock when retry replaces the owner, waiting for th
 
 it('waits for newly restored sound if the reader enabled Auto during session-only silent reading', async () => {
   const f = await setup(), before = f.hash(); fireEvent.error(f.voice());
+  openProblem();
   fireEvent.click(screen.getByRole('button', { name: '本次先无声阅读' })); auto(); await tick(10);
   fireEvent.click(screen.getByRole('button', { name: '恢复当前声音' })); fireEvent.play(f.voice());
   await tick(100); expect(f.hash()).toBe(before);
@@ -66,6 +69,7 @@ it('does not apply late rejected playback from a detached voice to the replaceme
   let reject!: (error: unknown) => void;
   old.play = vi.fn(() => new Promise<void>((_, failed) => { reject = failed; }));
   fireEvent.canPlay(old); auto(); fireEvent.error(old);
+  openProblem();
   fireEvent.click(screen.getByRole('button', { name: '重试媒体' })); await act(async () => {});
   fireEvent.play(f.voice()); await act(async () => { reject(new DOMException('old failure', 'NotSupportedError')); });
   await tick(100); expect(f.hash()).toBe(before); expect(screen.queryByRole('alert')).toBeNull();
@@ -82,11 +86,12 @@ it('keeps menu and background ceilings over a failed clock and starts a fresh wa
   await tick(39); expect(f.hash()).toBe(before); await tick(1); expect(f.hash()).not.toBe(before);
 });
 
-it('does not restart the reading clock when only failed music is retried', async () => {
+it('retains the healthy voice while music retry returns from the menu with a fresh reading wait', async () => {
   const f = await setup(), before = f.hash(), voice = f.voice(); fireEvent.ended(voice); auto(); await tick(30);
   fireEvent.error(f.view.container.querySelector('audio[data-audio-bus="bgm"]')!);
+  openProblem(); await tick(100); expect(f.hash()).toBe(before);
   fireEvent.click(screen.getByRole('button', { name: '重试媒体' })); await act(async () => {});
-  expect(f.voice()).toBe(voice); await tick(9); expect(f.hash()).toBe(before); await tick(1); expect(f.hash()).not.toBe(before);
+  expect(f.voice()).toBe(voice); await tick(39); expect(f.hash()).toBe(before); await tick(1); expect(f.hash()).not.toBe(before);
 });
 
 it('can stop Auto after a rejected request, without its remaining clock flipping the paragraph', async () => {

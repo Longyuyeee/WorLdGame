@@ -1696,19 +1696,30 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
   };
   const inlineLayoutComponents = <PlayerLayoutComponents rows={componentLayout?.components} inline media={mediaAssets} disabled={layoutDisabled} onAction={layoutAction} actionEnabled={layoutActionEnabled} />;
   const endingActionBlocked = hostActivity !== "active" || saveOperation === "busy" || preferencesOpen || savePanelOpen || additionalContentOpen || historyPanelOpen || readingMenuOpen;
-  const mediaError = (stage.missingAssetIds.length > 0 || visibleMediaErrors.length > 0) && (
+  const readingMediaSurface = content.kind === 'dialogue' || content.kind === 'narration';
+  const hasMediaProblem = stage.missingAssetIds.length > 0 || visibleMediaErrors.length > 0 || readingMediaSurface && stageImageError;
+  const returnFromMediaRecovery = () => {
+    if (readingMediaSurface && readingMenuOpen) setReadingMenuOpen(false);
+    queueMicrotask(() => reading.element.current?.focus({ preventScroll: true }));
+  };
+  const imageResourceRecovery = stageImageError && <>
+    <span>{stageImageStates.includes("budget") ? "画面资源超过安全预算或仍在释放，已停止自动推进。可稍后重试当前画面或手动继续。" : <>{stageImageStates.includes("timeout") ? "画面加载超时，已停止自动推进。" : "画面资源未能加载，已停止自动推进。"}可以重试当前画面或手动继续；若仍失败，请重新下载完整游戏。</>}</span>
+    <button type="button" disabled={hostActivity !== 'active'} style={{minHeight:44}} onClick={event => { event.stopPropagation(); setImageAttempt(value => value + 1); returnFromMediaRecovery(); }}>重试画面资源</button>
+  </>;
+  const mediaError = hasMediaProblem && (
     <div className="player-media-error" role="alert">
+      {readingMediaSurface && imageResourceRecovery}
       {(stage.missingAssetIds.length > 0 || visualMediaErrors.length > 0) && <span>媒体未能安全呈现：{[...new Set([...stage.missingAssetIds, ...visualMediaErrors])].join("、")}</span>}
       {failedAudio.map(track => <span key={track.bus}>声音“{track.displayName}”：{playerAudioFailureHint(Number(audioElements.current.get(track.bus)?.dataset.audioFailureCode))}</span>)}
-      <button type="button" disabled={hostActivity !== 'active'} onClick={() => {
+      {(stage.missingAssetIds.length > 0 || visibleMediaErrors.length > 0) && <button type="button" disabled={hostActivity !== 'active'} onClick={() => {
         if (stage.missingAssetIds.length === 0 && visualMediaErrors.length === 0) {
           setMediaErrors(current => current.filter(id => !failedAudio.some(track => track.assetId === id)));
           setAudioAttempts(current => Object.fromEntries(appliedAudio.map(track => [track.bus, (current[track.bus] ?? 0) + (failedAudio.some(failed => failed.bus === track.bus) ? 1 : 0)])));
           onRetryMedia?.();
         } else { setMediaErrors([]); setMediaGeneration(current => current + 1); onRetryMedia?.(); }
-        queueMicrotask(() => reading.element.current?.focus({ preventScroll: true }));
-      }}>重试媒体</button>
-      {failedAudio.length > 0 && <button type="button" disabled={hostActivity !== 'active'} onClick={chooseSilentReading}>本次先无声阅读</button>}
+        returnFromMediaRecovery();
+      }}>重试媒体</button>}
+      {failedAudio.length > 0 && <button type="button" disabled={hostActivity !== 'active'} onClick={() => { chooseSilentReading(); returnFromMediaRecovery(); }}>本次先无声阅读</button>}
     </div>
   );
   const panelAction = (surface: PlayerLayoutPanel, action: WebLayoutAction, trigger: HTMLButtonElement, source: "pointer" | "touch" | "keyboard") => {
@@ -1873,9 +1884,8 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
         {componentLayout && <div className="player-layout-components" style={{ display: "contents" }} inert={layoutDisabled}><PlayerLayoutComponents rows={componentLayout.components} media={mediaAssets} disabled={layoutDisabled} onAction={layoutAction} actionEnabled={layoutActionEnabled} /></div>}
         {editorPreview && componentLayout?.fallback && <p className="player-layout-audit" role="status">布局保护：重叠的主组件使用安全布局；冲突按钮并入操作区。</p>}
         {content.kind === "title" && cover && failedCover !== cover.url && skin?.title.coverMode === "stage" && <img className="player-title-backdrop" src={cover.url} alt="" onError={() => setFailedCover(cover.url)} />}
-        {stageImageError && <div role="alert" style={{position:"absolute",zIndex:20,inset:"30% 10% auto",padding:16,background:"#181827",color:"white"}}>
-          {stageImageStates.includes("budget") ? "画面资源超过安全预算或仍在释放，已停止自动推进。可稍后重试当前画面或手动继续。" : <>{stageImageStates.includes("timeout") ? "画面加载超时，已停止自动推进。" : "画面资源未能加载，已停止自动推进。"}可以重试当前画面或手动继续；若仍失败，请重新下载完整游戏。</>}
-          <button type="button" style={{minHeight:44}} onClick={event => { event.stopPropagation(); setImageAttempt(value => value + 1); }}>重试画面资源</button>
+        {stageImageError && !readingMediaSurface && <div role="alert" style={{position:"absolute",zIndex:20,inset:"30% 10% auto",padding:16,background:"#181827",color:"white"}}>
+          {imageResourceRecovery}
         </div>}
         <div className="player-stage-world" data-skip-media={skipActive ? "accelerated" : "normal"} style={{ transform: stage.cameraTransform }} aria-label="正式媒体舞台">
           {stage.background !== null && (
@@ -2086,11 +2096,15 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
             <button ref={replayExitButton} type="button" aria-label="退出回想，返回原剧情" onClick={exitSceneReplay}>退出回想</button>
           </aside>
         )}
-        {content.kind !== 'title' && <div className="player-compact-toolbar" inert={artworkView} style={componentLayout && layoutSurface === "reading" ? componentLayout.secondary : undefined}>
+        {content.kind !== 'title' && <div className="player-compact-toolbar" data-media-problem={readingMediaSurface && hasMediaProblem ? 'true' : undefined} inert={artworkView} style={componentLayout && layoutSurface === "reading" ? componentLayout.secondary : undefined}>
           {layoutSurface === "reading" && inlineLayoutComponents}
+          {readingMediaSurface && hasMediaProblem && <>
+            {!readingMenuOpen && <span className="player-sound-status" role="alert">媒体问题：部分声音或画面未能呈现，可打开媒体问题查看详情并重试；声音失败时也可先无声阅读。正文进度不变。</span>}
+            <button type="button" className="player-media-problem-trigger" aria-label="查看媒体问题" aria-controls="player-reading-menu" aria-expanded={readingMenuOpen} disabled={hostActivity !== 'active' || preferencesOpen || historyPanelOpen || savePanelOpen || additionalContentOpen} onClick={event => { readingMenuReturnTrigger.current = event.currentTarget; stopSkip(); setReadingMenuOpen(true); }}>媒体问题</button>
+          </>}
           {canViewArtwork && <button type="button" className="player-artwork-trigger" aria-label="欣赏画面" title="隐藏对白并停止自动推进（H）" disabled={hostActivity !== 'active' || preferencesOpen || historyPanelOpen || savePanelOpen || additionalContentOpen || readingMenuOpen} onClick={showArtwork}><svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.7"><rect x="3" y="3" width="18" height="18" rx="3" /><circle cx="8" cy="8" r="1.5" /><path d="m3 17 5-5 4 4 4-7 5 8" /></svg> {silentReading ? '画面' : '欣赏画面'}</button>}
-          {silentReading && <><span className="player-sound-status" role="status">本次无声阅读。进度和个人音量未改变；恢复时会重新播放当前声音。</span><button type="button" aria-label="恢复当前声音" title="本次无声阅读；点击重新播放当前声音，不改变剧情进度或个人音量" disabled={hostActivity !== 'active' || preferencesOpen || historyPanelOpen || savePanelOpen || additionalContentOpen || readingMenuOpen} onClick={() => { setSilentReading(false); setMediaErrors(current => current.filter(id => !audibleTracks.some(track => track.assetId === id))); queueMicrotask(() => reading.element.current?.focus({ preventScroll: true })); }}>无声 · 恢复</button></>}
-          {autoEnabled && <button type="button" aria-label="停止自动阅读" onClick={() => { playbackAdvance.cancel(); setAutoEnabled(false); setAutoPlayback('off'); }}>自动中 · 停止</button>}
+          {silentReading && <><span className="player-sound-status" role="status">本次无声阅读。进度和个人音量未改变；恢复时会重新播放当前声音。</span><button type="button" aria-label="恢复当前声音" title="本次无声阅读；点击重新播放当前声音，不改变剧情进度或个人音量" disabled={hostActivity !== 'active' || preferencesOpen || historyPanelOpen || savePanelOpen || additionalContentOpen || readingMenuOpen} onClick={() => { setSilentReading(false); setMediaErrors(current => current.filter(id => !audibleTracks.some(track => track.assetId === id))); queueMicrotask(() => reading.element.current?.focus({ preventScroll: true })); }}>{readingMediaSurface && hasMediaProblem ? '恢复声音' : '无声 · 恢复'}</button></>}
+          {autoEnabled && <button type="button" aria-label="停止自动阅读" onClick={() => { playbackAdvance.cancel(); setAutoEnabled(false); setAutoPlayback('off'); }}>{readingMediaSurface && hasMediaProblem ? '停止自动' : '自动中 · 停止'}</button>}
           <button ref={readingMenuTrigger} type="button" aria-label={readingMenuOpen ? '关闭阅读菜单' : '打开阅读菜单'} aria-expanded={readingMenuOpen} aria-controls="player-reading-menu" disabled={hostActivity !== 'active' || preferencesOpen || historyPanelOpen || savePanelOpen || additionalContentOpen} onClick={event => { if (readingMenuOpen) closeReadingMenu(); else { readingMenuReturnTrigger.current = event.currentTarget; stopSkip(); setReadingMenuOpen(true); } }}>{readingMenuOpen ? '返回故事 ×' : '菜单 ☰'}</button>
         </div>}
         {compactReading && content.kind !== 'title' && !silentReading && !autoEnabled && <p className="player-portrait-hint">横屏更适合观看演出</p>}
@@ -2100,6 +2114,8 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
         </PlayerPanelRegion>
         <PlayerPanelRegion enabled={menuLayout.enabled} rect={menuLayout.layout?.primary} kind="primary">
         {readingMenuOpen && panelComponents("menu", true)}
+        {readingMediaSurface && readingMenuOpen && mediaError}
+        {compactReading && readingMediaSurface && hasMediaProblem && canViewArtwork && <button className="player-menu-only player-reading-menu-artwork" type="button" disabled={hostActivity !== 'active'} onClick={() => { setReadingMenuOpen(false); showArtwork(); }}>欣赏画面</button>}
         <nav hidden={content.kind === 'title'} className="player-history-controls" aria-label="剧情历史控制">
           <h3 className="player-menu-only player-menu-section-title">回看与内容</h3>
           <button className="player-menu-only" ref={preferencesTrigger} type="button" aria-label="打开玩家设置" disabled={hostActivity !== 'active' || preferencesOpen || historyPanelOpen || savePanelOpen || additionalContentOpen} onClick={event => { infoTrigger.current = event.currentTarget; stopSkip(); setReadingMenuOpen(false); setInfoView('preferences'); setPreferencesOpen(true); }}>设置</button>
@@ -2352,7 +2368,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
             voice.dataset.voiceCompleted = 'false'; setVoicePlaying(!voice.paused); requestAudio(voice);
             queueMicrotask(() => reading.element.current?.focus({ preventScroll: true }));
           }}>重听当前语音</button>}
-          {readingMenuOpen && !silentReading && appliedAudio.length > 0 && <button className="player-menu-only" type="button" disabled={hostActivity !== 'active' || saveOperation === 'busy'} onClick={() => { setReadingMenuOpen(false); chooseSilentReading(); }}>本次先无声阅读</button>}
+          {readingMenuOpen && !silentReading && appliedAudio.length > 0 && !(readingMediaSurface && failedAudio.length > 0) && <button className="player-menu-only" type="button" disabled={hostActivity !== 'active' || saveOperation === 'busy'} onClick={() => { setReadingMenuOpen(false); chooseSilentReading(); }}>本次先无声阅读</button>}
           <button
             type="button"
             aria-label="快进已读"
@@ -2468,7 +2484,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
           </aside>
         )}
 
-        {content.kind !== 'choice' && mediaError}
+        {!readingMediaSurface && content.kind !== 'choice' && mediaError}
 
         {content.kind === "title" && (
           <div className="player-title-screen">

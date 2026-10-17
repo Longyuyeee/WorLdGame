@@ -62,7 +62,7 @@ async function faultRoute(url, retry, baseline) {
   if (retry) await p.locator('audio[data-audio-bus="voice"]').evaluate(v => { v.src = 'data:audio/wav;base64,AA=='; v.load(); });
   else await p.evaluate(() => window.voiceTestReject());
   await p.getByRole('alert').filter({ hasText: '声音' }).waitFor();
-  if (retry) { await p.evaluate(() => { window.voiceTestMode = 'slow'; }); await button(p, '重试媒体').click(); await p.waitForFunction(() => { const v = document.querySelector('audio[data-audio-bus="voice"]'); return v && !v.paused && v.currentTime > 0 && v.playbackRate === .1; }); }
+  if (retry) { await p.evaluate(() => { window.voiceTestMode = 'slow'; }); if (await button(p, '查看媒体问题').count()) await button(p, '查看媒体问题').click(); await button(p, '重试媒体').click(); await p.waitForFunction(() => { const v = document.querySelector('audio[data-audio-bus="voice"]'); return v && !v.paused && v.currentTime > 0 && v.playbackRate === .1; }); }
   await wait(p, deadline + 500);
   const after = await hash(p), state = await p.locator('main').getAttribute('data-auto-playback');
   const detail = { text, deadline, before, after, auto: state, retry, injectedPlayRejection: !retry, invalidVoiceUrlForNativeDecodeError: retry, nativeErrorEventInjected: false };

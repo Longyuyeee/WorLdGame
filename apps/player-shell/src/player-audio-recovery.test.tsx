@@ -22,7 +22,8 @@ function setup(stopAtEnd = false) {
   const hash = () => view.container.querySelector('main')!.dataset.runtimeStateHash;
   return { view, demo, project, voice, bgm, hash };
 }
-function fail(element: HTMLAudioElement, code = 4) { Object.defineProperty(element, 'error', { configurable: true, value: { code } }); fireEvent.error(element); }
+function openProblem() { if (!screen.queryByRole('dialog', { name: '阅读菜单' })) fireEvent.click(screen.getByRole('button', { name: '查看媒体问题' })); }
+function fail(element: HTMLAudioElement, code = 4) { Object.defineProperty(element, 'error', { configurable: true, value: { code } }); fireEvent.error(element); openProblem(); }
 it('explains a failed sound by display name and retries only failed tracks without restarting healthy music or story', async () => {
   const { voice, bgm, hash } = setup(); const oldVoice = voice(), oldBgm = bgm(), before = hash(); fail(oldVoice);
   expect(screen.getByRole('alert')).toHaveTextContent('浏览器'); expect(screen.getByRole('alert')).toHaveTextContent(oldVoice.getAttribute('aria-label')!.split(' · ')[0]!);
@@ -47,7 +48,7 @@ it('stops Auto when choosing silent reading and does not complete or skip a para
 });
 it('does not hide an unrelated image failure when the user turns sound off', () => {
   const { view, voice } = setup(); const image = view.container.querySelector<HTMLImageElement>('img[data-asset-id]')!; fireEvent.error(image); fail(voice());
-  fireEvent.click(screen.getByRole('button', { name: '本次先无声阅读' })); expect(screen.getByRole('alert')).toHaveTextContent(image.dataset.assetId!); expect(screen.getByRole('button', { name: '重试媒体' })).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: '本次先无声阅读' })); openProblem(); expect(screen.getByRole('alert')).toHaveTextContent(image.dataset.assetId!); expect(screen.getByRole('button', { name: '重试媒体' })).toBeInTheDocument();
 });
 it('keeps suspended hosts from resuming or changing the silent-reading decision', () => {
   const { view, voice, project, demo, hash } = setup(); fail(voice()); const before = hash();
@@ -62,6 +63,7 @@ it('does not turn a genuine permission denial into a broken-file report', async 
 it('reports a play rejection without requiring a separate native error event', async () => {
   const { voice, hash } = setup(); const before = hash(); voice().play = vi.fn().mockRejectedValue(new DOMException('unavailable', 'NotSupportedError'));
   fireEvent.canPlay(voice()); await act(async () => {});
+  openProblem();
   expect(screen.getByRole('alert')).toHaveTextContent('当前浏览器无法打开'); expect(screen.getByRole('button', { name: '本次先无声阅读' })).toBeInTheDocument(); expect(hash()).toBe(before);
 });
 it('releases detached sources and ignores their late failures without treating healthy sound as failed', async () => {
