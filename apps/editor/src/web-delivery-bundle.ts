@@ -7,6 +7,7 @@ import { readPlaytestProgress, writePlaytestProgress, type PlaytestCompletion } 
 import type { FormalWebArtifact } from "./formal-web-export";
 import { zip } from "fflate";
 import { createWebReleasePreparation, formatWebReleasePreparation } from './web-release-preparation';
+import { checkProjectImportEntries, checkProjectImportText } from './project-import-guidance';
 
 const encode = (value: string) => new TextEncoder().encode(value);
 const decode = (value: Uint8Array) => new TextDecoder("utf-8", { fatal: true }).decode(value);
@@ -55,7 +56,9 @@ export async function createWebDeliveryBundle(project: CanonicalProject, index: 
 
 /** No writes: validate the full delivery before restoring its author source. */
 export function importStudioProjectArchive(archive: Uint8Array) {
+  checkProjectImportText(archive);
   const files = importProjectBinaryZip(archive, LIMITS);
+  checkProjectImportEntries(files);
   if (Object.hasOwn(files, "world.project.json") || !Object.hasOwn(files, "delivery.json")) return { ...importPortableProjectFiles(files), reviewNotes: null, playtestProgress: null };
   if (files["delivery.json"]!.length > 2 * 1024 * 1024) throw Error("制作交付清单超过大小限制。");
   const raw: unknown = JSON.parse(decode(files["delivery.json"]!));

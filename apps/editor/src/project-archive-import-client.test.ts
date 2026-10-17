@@ -3,6 +3,7 @@ import { createProjectTemplate, exportProjectZip, saveProject } from '@world-stu
 import { importStudioProjectArchive } from './web-delivery-bundle';
 import { importProjectArchiveInWorker } from './project-archive-import-client';
 import { MAX_PROJECT_ARCHIVE_BYTES } from './project-archive-import-protocol';
+import { ProjectImportSelectionError } from './project-import-guidance';
 
 const archive = exportProjectZip(saveProject(createProjectTemplate('Worker Import', 'worker-import-test')));
 const file = () => ({ size: archive.length, arrayBuffer: async () => archive.slice().buffer }) as Blob;
@@ -81,4 +82,18 @@ it('translates archive rejection into recovery guidance without hiding technical
     const rejected = expect(pending).rejects.toThrow(expected);
     worker.emit('message', { id: worker.request!.id, ok: false, error: 'original diagnostic', code }); await rejected;
   }
+});
+it('restores typed selection guidance from the worker without trusting its diagnostic text', async () => {
+  vi.stubGlobal('Worker', FakeWorker);
+  const pending = importProjectArchiveInWorker(file()), worker = FakeWorker.instances.at(-1)!;
+  const rejected = expect(pending).rejects.toBeInstanceOf(ProjectImportSelectionError);
+  worker.emit('message', { id: worker.request!.id, ok: false, error: '<script>untrusted</script>', code: 'WEB_GAME_ARCHIVE' });
+  await rejected; expect(worker.terminated).toBe(true);
+  worker.emit('message', { id: worker.request!.id, ok: true, result: importStudioProjectArchive(archive) });
+});
+it('preserves selection guidance in the small fallback and never starts a write phase', async () => {
+  vi.stubGlobal('Worker', undefined); const bytes = new TextEncoder().encode('<!doctype html><html>game</html>'), progress = vi.fn();
+  const source = { size: bytes.length, arrayBuffer: async () => bytes.buffer } as Blob;
+  await expect(importProjectArchiveInWorker(source, { onProgress: progress })).rejects.toMatchObject({ name: 'ProjectImportSelectionError', code: 'GAME_HTML' });
+  expect(progress.mock.calls.flat()).toEqual(['reading', 'checking']);
 });

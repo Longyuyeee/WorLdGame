@@ -249,6 +249,19 @@
 .home-operation-status button { min-height: 44px; padding: 8px 16px; border: 1px solid var(--wg-color-border-subtle); border-radius: 8px; background: var(--wg-color-bg-surface-1); color: var(--wg-color-text-primary); }
 .home-operation-status small { flex-basis: 100%; }
 .home-operation-status.is-error { max-width: min(560px, calc(100vw - 32px)); overflow-wrap: anywhere; white-space: pre-line; }
+.home-import-help { margin: -16px 0 32px; color: var(--wg-color-text-muted); font-size: 13px; line-height: 1.8; }
+.home-import-help summary { cursor: pointer; padding-block: 10px; min-height: 44px; box-sizing: border-box; color: var(--wg-color-text-primary); }
+.home-import-help ul { padding-left: 22px; }
+.home-import-help li + li { margin-top: 8px; }
+.home-import-recovery { margin: -8px 0 32px; padding: 22px; border: 1px solid var(--wg-color-border-subtle); border-left: 4px solid var(--studio-accent); border-radius: 12px; background: var(--wg-color-bg-surface-1); font-size: 13px; line-height: 1.8; overflow-wrap: anywhere; }
+.home-import-recovery h2 { font-size: 18px; margin: 0 0 10px; scroll-margin-block: 20px; }
+.home-import-recovery h2:focus-visible { outline: 2px solid var(--studio-accent); outline-offset: 4px; }
+.home-import-recovery p { margin: 10px 0; }
+.home-import-recovery ol { padding-left: 22px; }
+.home-import-recovery li + li { margin-top: 8px; }
+.home-import-filename { color: var(--wg-color-text-muted); }
+.project-home .home-import-recovery button { min-height: 44px; max-width: 100%; padding: 10px 16px; white-space: normal; }
+@media (max-width: 639px) { .home-import-recovery { padding: 16px; } .home-import-recovery h2 { font-size: 16px; } .home-import-help { font-size: 12px; } }
 .web-save-compatibility { padding: 16px; margin-top: 8px; border: 1px solid var(--wg-color-border-subtle); border-radius: 12px; background: var(--wg-color-bg-surface-2); }
 .web-save-compatibility summary { cursor: pointer; font-weight: 600; color: var(--wg-color-semantic-choice); }
 .web-save-compatibility p { font-size: 13px; line-height: 1.8; color: var(--wg-color-text-secondary); }

@@ -1,10 +1,12 @@
 import { importStudioProjectArchive } from './web-delivery-bundle';
 import { MAX_PROJECT_ARCHIVE_BYTES, type ProjectArchiveImportOptions, type ImportedStudioArchive } from './project-archive-import-protocol';
+import { isProjectImportGuidanceCode, ProjectImportSelectionError } from './project-import-guidance';
 const SMALL_FALLBACK_BYTES = 2 * 1024 * 1024;
 let serial = 0;
 const cancelled = () => new DOMException('已取消工程导入，尚未开始写入。', 'AbortError');
 const unavailable = (detail: string) => new Error(`工程后台校验无法完成：${detail}。原项目未更改，请刷新后重试。`);
 function invalidArchive(detail: string, code?: string): Error {
+  if (isProjectImportGuidanceCode(code)) return new ProjectImportSelectionError(code);
   const recovery = code === 'UNSAFE_PATH' ? '工程包包含不安全的文件路径，已停止导入。请从可信来源重新导出。'
     : code === 'SIZE_LIMIT' ? '工程文件数量或展开后大小超过导入上限，请拆分后重试。'
     : code === 'UNSUPPORTED_COMPRESSION' ? '这个 ZIP 使用了暂不支持的压缩方式，请选择编辑器导出的工程 ZIP 或制作交付包。'

@@ -8,6 +8,7 @@ import { EditorThemeControl } from "./editor-theme";
 import { StudioIcon } from "./studio-icon";
 import { usePageLeaveGuard } from './use-page-leave-guard';
 import type { ProjectArchiveImportOptions, ProjectImportPhase } from './project-archive-import-protocol';
+import { PROJECT_IMPORT_GUIDANCE, ProjectImportSelectionError, type ProjectImportGuidanceCode } from './project-import-guidance';
 
 export interface ProjectArchiveDownload {
   readonly href: string;
@@ -64,6 +65,11 @@ export function ProjectHome({ recent, actions, onEnter, resumeDescription }: {
   const importController = useRef<AbortController | null>(null);
   const [importPhase, setImportPhase] = useState<ProjectImportPhase | null>(null);
   const [importNotice, setImportNotice] = useState('');
+  const [importIssue, setImportIssue] = useState<{ filename: string; code: ProjectImportGuidanceCode } | null>(null);
+  const importIssueHeading = useRef<HTMLHeadingElement>(null);
+  useEffect(() => {
+    if (!busy && importIssue) importIssueHeading.current?.focus();
+  }, [busy, importIssue]);
   usePageLeaveGuard(importPhase !== null);
   useEffect(() => () => { importController.current?.abort(); importController.current = null; }, []);
   const [error, setError] = useState<string | null>(null);
@@ -100,6 +106,7 @@ export function ProjectHome({ recent, actions, onEnter, resumeDescription }: {
     setError(null);
     setDownload(null);
     setImportNotice('');
+    setImportIssue(null);
     try {
       const opened = await action();
       if (opened.access === "editable" && opened.project !== null) onEnter(opened);
@@ -111,8 +118,9 @@ export function ProjectHome({ recent, actions, onEnter, resumeDescription }: {
   const importArchive = async (file: File) => {
     if (busy || importController.current) return;
     const controller = new AbortController(); importController.current = controller;
-    setBusy(true); setError(null); setDownload(null); setImportNotice(''); setImportPhase('reading');
+    setBusy(true); setError(null); setImportIssue(null); setDownload(null); setImportNotice(''); setImportPhase('reading');
     let restoreFocus = false;
+    let showGuidance = false;
     try {
       const opened = await actions.importArchive(file, { signal: controller.signal, onProgress: phase => { if (importController.current === controller) setImportPhase(phase); } });
       if (!controller.signal.aborted && importController.current === controller) {
@@ -123,15 +131,17 @@ export function ProjectHome({ recent, actions, onEnter, resumeDescription }: {
       restoreFocus = true;
       if (importController.current === controller) {
         if (controller.signal.aborted || reason instanceof DOMException && reason.name === 'AbortError') setImportNotice('已取消导入；现有项目未更改，可以重新选择文件。');
+        else if (reason instanceof ProjectImportSelectionError) { showGuidance = true; setImportIssue({ filename: file.name, code: reason.code }); }
         else setError(reason instanceof Error ? reason.message : String(reason));
       }
     } finally {
-      if (importController.current === controller) { importController.current = null; setImportPhase(null); setBusy(false); if (restoreFocus) globalThis.requestAnimationFrame?.(() => importTrigger.current?.focus()); }
+      if (importController.current === controller) { importController.current = null; setImportPhase(null); setBusy(false); if (restoreFocus && !showGuidance) globalThis.requestAnimationFrame?.(() => { if (!importController.current && !importIssueHeading.current) importTrigger.current?.focus(); }); }
     }
   };
   const prepareExport = async (action: () => Promise<ProjectArchiveDownload>) => {
     setBusy(true);
     setError(null);
+    setImportIssue(null);
     try { setDownload(await action()); }
     catch (reason) { setError(reason instanceof Error ? reason.message : String(reason)); }
     finally { setBusy(false); }
@@ -140,6 +150,7 @@ export function ProjectHome({ recent, actions, onEnter, resumeDescription }: {
     if (busy || lazyPending || actions.openRouteOverview === undefined) return;
     setBusy(true);
     setError(null);
+    setImportIssue(null);
     setDownload(null);
     try { setRouteOverview({ item, overview: await actions.openRouteOverview(item, offset) }); setLazyScene(null); setLazySceneView("script"); setRouteStale(false); }
     catch (reason) { setError(reason instanceof Error ? reason.message : String(reason)); }
@@ -178,7 +189,7 @@ export function ProjectHome({ recent, actions, onEnter, resumeDescription }: {
     </div>
     <header className="project-home__hero">
       <div><p className="eyebrow"><span />你的故事工作室</p><h1>{recent.length ? "继续，把故事写下去。" : "每个世界，都始于一个故事。"}</h1><p>选择项目即可开始写作。你的作品保存在本机。</p></div>
-      <button className="project-home__primary home-create-button" disabled={busy} onClick={() => { setTitle(""); setCreateOpen(true); }}><StudioIcon name="plus" />新建项目</button>
+      <button className="project-home__primary home-create-button" disabled={busy} onClick={() => { setTitle(""); setError(null); setImportIssue(null); setCreateOpen(true); }}><StudioIcon name="plus" />新建项目</button>
     </header>
     <section className="home-quick-start" aria-label="开始创作">
       <button className="home-start-card" data-color="violet" aria-label="打开工程目录" disabled={busy} onClick={() => void run(actions.openDirectory)}><span className="home-start-icon"><StudioIcon name="folder" /></span><span><strong>本地目录</strong><small>打开文件夹里的故事项目</small></span><StudioIcon name="arrow" /></button>
@@ -186,6 +197,23 @@ export function ProjectHome({ recent, actions, onEnter, resumeDescription }: {
       <button className="home-start-card" data-color="coral" aria-label="打开示例工程" disabled={busy} onClick={() => void run(actions.openExample)}><span className="home-start-icon"><StudioIcon name="sparkles" /></span><span><strong>探索示例</strong><small>打开一个故事，边看边学</small></span><StudioIcon name="arrow" /></button>
       <input className="home-file-input" ref={importInput} aria-label="导入工程 ZIP" type="file" accept=".zip,application/zip" disabled={busy} onChange={event => { const file = event.target.files?.[0]; event.target.value = ""; if (file) void importArchive(file); }} />
     </section>
+    {importIssue ? <section className="home-import-recovery" role="alert" aria-labelledby="import-recovery-title">
+      <h2 id="import-recovery-title" ref={importIssueHeading} tabIndex={-1}>{PROJECT_IMPORT_GUIDANCE[importIssue.code].title}</h2>
+      <p className="home-import-filename">所选文件：{importIssue.filename}</p>
+      <ol>{PROJECT_IMPORT_GUIDANCE[importIssue.code].steps.map(step => <li key={step}>{step}</li>)}</ol>
+      <p>本次未写入任何工程或素材，已有项目保持不变。</p>
+      <button type="button" disabled={busy} onClick={() => importInput.current?.click()}>重新选择工程或制作交付包</button>
+    </section> : null}
+    <details className="home-import-help">
+      <summary>换电脑或恢复备份，应该选哪个文件？</summary>
+      <p>项目保存在当前浏览器和本机，不会自动同步到其他电脑。离开原电脑前，请先保存并下载备份。</p>
+      <ul>
+        <li><strong>继续创作：</strong>原电脑左上角项目菜单 → 导出工程 ZIP；新电脑在这里导入原 ZIP。完整制作交付包也可直接导入，并保留明确附带的校订／试玩资料供选择合并。</li>
+        <li><strong>试玩或上线：</strong>HTML、网页目录 ZIP、网站上传 ZIP 是玩家游戏，不能替代工程备份。制作交付包是作者资料，不要整包上传到网站。</li>
+        <li><strong>继续玩游戏：</strong>在游戏“存读档”→“备份”中导入 .worldsave；校订记录和试玩进度则在对应工程的“检查”页导入。</li>
+      </ul>
+      <p>建议保留编辑器原样导出的 ZIP 和原电脑上的工程，确认新电脑能打开、编辑、保存及读回素材后，再处理旧备份。</p>
+    </details>
     <section className="home-projects" aria-labelledby="recent-title">
       <div className="home-section-heading"><div><h2 id="recent-title">我的项目 <span>{recent.length}</span></h2><p>点击卡片，直接进入创作。</p></div><label className="home-project-search"><StudioIcon name="search" /><input aria-label="搜索项目" placeholder="搜索项目…" value={query} onChange={event => setQuery(event.target.value)} /></label></div>
       {recent.length === 0 ? <div className="home-empty"><span className="home-empty-icon"><StudioIcon name="story" /></span><h3>下一段故事，等你开启</h3><p>新建一个项目，或者打开示例寻找灵感。</p></div>

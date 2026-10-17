@@ -1,0 +1,12 @@
+{
+  "passed": false,
+  "checks": [
+    {
+      "name": "actual-original-1.7.14-website-local-html-and-production-generated-source-65-entries-unchanged",
+      "detail": {}
+    }
+  ],
+  "errors": [],
+  "error": "Error: Cannot set buffer larger than 50Mb, please write it to a file and pass its path instead.",
+  "stack": "Error: Cannot set buffer larger than 50Mb, please write it to a file and pass its path instead.\n    at convertInputFiles (C:\\Users\\Administrator\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\node_modules\\playwright-core\\lib\\coreBundle.js:60373:11)\n    at _Frame.setInputFiles (C:\\Users\\Administrator\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\node_modules\\playwright-core\\lib\\coreBundle.js:60197:33)\n    at _Locator.setInputFiles (C:\\Users\\Administrator\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\node_modules\\playwright-core\\lib\\coreBundle.js:58207:34)\n    at file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-project-recovery.mjs:113:22"
+}

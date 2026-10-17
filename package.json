@@ -8,6 +8,7 @@
     "packages/*"
   ],
   "scripts": {
+    "audit:web-project-recovery:browser": "npm run build --workspace @world-studio/editor && node tools/run-web-project-recovery.mjs",
     "audit:web-website-export:browser": "npm run build --workspace @world-studio/editor && node tools/run-web-website-export.mjs",
     "audit:web-source-review:browser": "npm run build --workspace @world-studio/editor && node tools/run-web-source-review.mjs",
     "audit:web-history-transport:profile": "node tools/run-web-history-transport.mjs --profile",
