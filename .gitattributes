@@ -93,3 +93,6 @@ evidence/web-load-wait/**/*.worldsave -text
 evidence/web-history-reading/**/*.worldsave -text
 evidence/web-reading-delivery/*.html -text
 evidence/web-reading-delivery/**/*.worldsave -text
+evidence/web-story-plans-and-farewell/*.html -text
+evidence/web-story-plans-and-farewell/*.worldreview -text
+evidence/web-story-plans-and-farewell/*.worldsave -text

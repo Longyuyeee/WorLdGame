@@ -1,0 +1,234 @@
+{
+  "passed": true,
+  "baseline": true,
+  "browser": "151.0.7922.34",
+  "checks": [
+    {
+      "name": "actual-1.10-route-lacks-own-fallback-plan-and-keeps-platform-rain-after-farewell",
+      "detail": {
+        "texts": 66,
+        "voices": 6,
+        "saves": [],
+        "observations": [
+          {
+            "id": "stmt_ui_217",
+            "background": "morning_studio",
+            "portraits": [],
+            "ambient": null,
+            "text": "约定见面的日期越来越近。小夏说车票买好了，问他是不是还记得雨天的第二个计划。林远把附近的店和去海边的路线都查了一遍，没有把晴天当成这一次值得见面的前提。他更想给她看那些在工作和生活里一点点增加的东西。"
+          },
+          {
+            "id": "stmt_ui_219",
+            "background": "night_studio",
+            "portraits": [],
+            "ambient": null,
+            "text": "见面前夜，他把房间整理到能够招待客人的程度，没有把未完成的画藏起来。桌边留出一个可以放书的位置，窗户也擦了。他知道小夏会看见他的新生活并没有处处整齐，但这正是他想邀请她来的地方，不是一张经过删改的展示照片。"
+          },
+          {
+            "id": "stmt_ui_234",
+            "background": "station_day",
+            "portraits": [
+              "xia_smile"
+            ],
+            "ambient": 0.1,
+            "text": "吃完早餐，他们先回房间放下行李。午后再到车站时，雨比早晨密了，去海边的列车仍照常开着。风把屋檐边的雨丝吹到脚边，他们看了一会儿，决定按第二个计划回店里坐下。林远没有把改计划当成辜负准备，小夏也没有说去哪里都一样；他们承认想看海，又认真选择今天更舒服的安排。"
+          },
+          {
+            "id": "stmt_ui_242",
+            "background": "sample_station",
+            "portraits": [
+              "xia_thoughtful"
+            ],
+            "ambient": 0.1,
+            "text": "那天晚上，小夏要回去，林远送她到站台。离别仍然会让人难过，理解了怎样联系也不会让车门关上的声音变轻。他们允许自己站一会儿，认真说不舍；但这一次，不舍不需要伪装成生气，出发也不需要伪装成毫不在意。"
+          },
+          {
+            "id": "stmt_ui_244",
+            "background": "sample_station",
+            "portraits": [
+              "xia_thoughtful"
+            ],
+            "ambient": 0.1,
+            "text": "小夏上车前，把那本修好的书留给林远。他给她一张新的明信片，地址已经写好，正文空着。她说知道该写什么，他说也可以晚一点想。空白不再像一封被遗忘的信，而像一个真正留给下一次说话的位置。"
+          },
+          {
+            "id": "stmt_ui_246",
+            "background": "sample_station",
+            "portraits": [],
+            "ambient": 0.1,
+            "text": "列车走后，林远收到她的第一条消息：已经坐好，窗外有灯。他回，正在回家，雨比刚才小了。消息很普通，却把两个人的路线重新连在一起。之后仍然会有很多这样普通的晚上，故事正是在它们里面继续，而不是只停在最郑重的一次决定上。"
+          },
+          {
+            "id": "stmt_ui_248",
+            "background": "night_studio",
+            "portraits": [],
+            "ambient": null,
+            "text": "回到房间，他把画放到窗边，把信收在抽屉最上层。海边的计划还有机会，工作和课程也各自继续。林远没有因为远行失去原来的故事，而是学会了给它新的地址：到了就说，变化就说，想念也可以说。雨停之前没有完成的话，终于有了之后一封又一封的回信。"
+          }
+        ]
+      }
+    }
+  ],
+  "errors": [],
+  "editorRoutes": [],
+  "playerRoutes": [
+    {
+      "branch": 1,
+      "ids": [
+        "stmt_ui_5",
+        "stmt_ui_7",
+        "stmt_ui_9",
+        "stmt_ui_11",
+        "stmt_ui_13",
+        "stmt_ui_15",
+        "stmt_ui_17",
+        "stmt_ui_19",
+        "stmt_ui_21",
+        "stmt_ui_25",
+        "stmt_ui_23",
+        "stmt_ui_31",
+        "stmt_ui_33",
+        "stmt_ui_35",
+        "stmt_ui_37",
+        "stmt_ui_39",
+        "stmt_ui_41",
+        "stmt_ui_43",
+        "stmt_ui_45",
+        "stmt_ui_51",
+        "stmt_ui_47",
+        "stmt_ui_49",
+        "stmt_ui_61",
+        "stmt_ui_63",
+        "stmt_ui_65",
+        "stmt_ui_67",
+        "stmt_ui_69",
+        "stmt_ui_71",
+        "stmt_ui_73",
+        "stmt_ui_75",
+        "stmt_ui_77",
+        "stmt_ui_79",
+        "stmt_ui_81",
+        "stmt_ui_174",
+        "stmt_ui_176",
+        "stmt_ui_196",
+        "stmt_ui_178",
+        "stmt_ui_180",
+        "stmt_ui_182",
+        "stmt_ui_184",
+        "stmt_ui_186",
+        "stmt_ui_188",
+        "stmt_ui_190",
+        "stmt_ui_192",
+        "stmt_ui_203",
+        "stmt_ui_205",
+        "stmt_ui_207",
+        "stmt_ui_209",
+        "stmt_ui_211",
+        "stmt_ui_223",
+        "stmt_ui_213",
+        "stmt_ui_215",
+        "stmt_ui_217",
+        "stmt_ui_219",
+        "stmt_ui_221",
+        "stmt_ui_230",
+        "stmt_ui_232",
+        "stmt_ui_234",
+        "stmt_ui_236",
+        "stmt_ui_250",
+        "stmt_ui_238",
+        "stmt_ui_240",
+        "stmt_ui_242",
+        "stmt_ui_244",
+        "stmt_ui_246",
+        "stmt_ui_248"
+      ],
+      "voices": [
+        "stmt_ui_25",
+        "stmt_ui_51",
+        "stmt_ui_81",
+        "stmt_ui_196",
+        "stmt_ui_223",
+        "stmt_ui_250"
+      ],
+      "ending": "故事告一段落\n远行的约定\n\n已达成 1 / 2 个结局\n\n已读、画廊、音乐与结局记录会保留。可以查看收藏，或读取存档探索其他选择。\n\n查看收藏与结局\n读取存档探索其他路线\n回到标题",
+      "observations": [
+        {
+          "id": "stmt_ui_217",
+          "background": "morning_studio",
+          "portraits": [],
+          "ambient": null,
+          "text": "约定见面的日期越来越近。小夏说车票买好了，问他是不是还记得雨天的第二个计划。林远把附近的店和去海边的路线都查了一遍，没有把晴天当成这一次值得见面的前提。他更想给她看那些在工作和生活里一点点增加的东西。"
+        },
+        {
+          "id": "stmt_ui_219",
+          "background": "night_studio",
+          "portraits": [],
+          "ambient": null,
+          "text": "见面前夜，他把房间整理到能够招待客人的程度，没有把未完成的画藏起来。桌边留出一个可以放书的位置，窗户也擦了。他知道小夏会看见他的新生活并没有处处整齐，但这正是他想邀请她来的地方，不是一张经过删改的展示照片。"
+        },
+        {
+          "id": "stmt_ui_234",
+          "background": "station_day",
+          "portraits": [
+            "xia_smile"
+          ],
+          "ambient": 0.1,
+          "text": "吃完早餐，他们先回房间放下行李。午后再到车站时，雨比早晨密了，去海边的列车仍照常开着。风把屋檐边的雨丝吹到脚边，他们看了一会儿，决定按第二个计划回店里坐下。林远没有把改计划当成辜负准备，小夏也没有说去哪里都一样；他们承认想看海，又认真选择今天更舒服的安排。"
+        },
+        {
+          "id": "stmt_ui_242",
+          "background": "sample_station",
+          "portraits": [
+            "xia_thoughtful"
+          ],
+          "ambient": 0.1,
+          "text": "那天晚上，小夏要回去，林远送她到站台。离别仍然会让人难过，理解了怎样联系也不会让车门关上的声音变轻。他们允许自己站一会儿，认真说不舍；但这一次，不舍不需要伪装成生气，出发也不需要伪装成毫不在意。"
+        },
+        {
+          "id": "stmt_ui_244",
+          "background": "sample_station",
+          "portraits": [
+            "xia_thoughtful"
+          ],
+          "ambient": 0.1,
+          "text": "小夏上车前，把那本修好的书留给林远。他给她一张新的明信片，地址已经写好，正文空着。她说知道该写什么，他说也可以晚一点想。空白不再像一封被遗忘的信，而像一个真正留给下一次说话的位置。"
+        },
+        {
+          "id": "stmt_ui_246",
+          "background": "sample_station",
+          "portraits": [],
+          "ambient": 0.1,
+          "text": "列车走后，林远收到她的第一条消息：已经坐好，窗外有灯。他回，正在回家，雨比刚才小了。消息很普通，却把两个人的路线重新连在一起。之后仍然会有很多这样普通的晚上，故事正是在它们里面继续，而不是只停在最郑重的一次决定上。"
+        },
+        {
+          "id": "stmt_ui_248",
+          "background": "night_studio",
+          "portraits": [],
+          "ambient": null,
+          "text": "回到房间，他把画放到窗边，把信收在抽屉最上层。海边的计划还有机会，工作和课程也各自继续。林远没有因为远行失去原来的故事，而是学会了给它新的地址：到了就说，变化就说，想念也可以说。雨停之前没有完成的话，终于有了之后一封又一封的回信。"
+        }
+      ],
+      "saves": []
+    }
+  ],
+  "productions": [],
+  "retained": [
+    {
+      "file": "evidence/web-reading-delivery/before-rain-stops.html",
+      "sha256": "e342827d80a0bd18944cc84655437ded37f25f901d81b4bf4229fd9d97080510"
+    },
+    {
+      "file": "evidence/web-reading-delivery/before-rain-stops-website.zip",
+      "sha256": "6c54de35ed7dd3ba2a507c83204faeb479cfdc56c2b11921ad785c271a138676"
+    },
+    {
+      "file": "evidence/web-story-arrival-and-night/before-rain-stops-project.zip",
+      "sha256": "331a1b404ee39b89680a6a7a2c0d22dd7279b3b87ab9b60d4b5fe1a253baf5e8"
+    },
+    {
+      "file": "evidence/web-story-arrival-and-night/before-rain-stops.worldreview",
+      "sha256": "e773a566c2095f72b45d25c858f0028f20162480443978039c218d1e52c5bdc5"
+    }
+  ],
+  "scope": "Unchanged original #393 1.10.0 HTML, full phone-sized travel route, native muted audio, actual missing own-branch fallback-plan context and 10% return rain. No authoring or new-candidate acceptance."
+}

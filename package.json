@@ -8,6 +8,8 @@
     "packages/*"
   ],
   "scripts": {
+    "audit:web-story-plans": "node --test tools/audit-rain-story-plans-and-farewell.test.mjs && node tools/audit-rain-story-plans-and-farewell.mjs",
+    "audit:web-story-plans:browser": "npm run build --workspace @world-studio/editor && node tools/run-web-story-plans-and-farewell.mjs",
     "audit:web-reading-delivery": "node tools/run-web-reading-delivery-tests.mjs",
     "audit:web-reading-delivery:browser": "npm run build --workspace @world-studio/editor && node tools/run-web-reading-delivery-batch.mjs",
     "audit:web-history-reading": "node tools/run-web-history-reading-tests.mjs",
