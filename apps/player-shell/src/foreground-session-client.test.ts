@@ -69,6 +69,16 @@ it.each(['cursor','state-hash','artifact-type','playback'] as const)('rejects a 
 });
 it("serializes foreground work, cancels queued generations and can resume after effect replay",async()=>{const t=task("save"),test=setup(),runner=new ForegroundSessionRunner(),first=runner.run(t),second=runner.run(t);const rejected1=expect(first).rejects.toMatchObject({name:"AbortError"}),rejected2=expect(second).rejects.toMatchObject({name:"AbortError"});await Promise.resolve();expect(factory).toHaveBeenCalledOnce();runner.cancelPending();await Promise.all([rejected1,rejected2]);expect(factory).toHaveBeenCalledOnce();await expect(runner.run(t)).rejects.toMatchObject({name:"AbortError"});runner.resume();const third=runner.run(t);await Promise.resolve();test.reply(executeForegroundSessionTask(t));await third;expect(factory).toHaveBeenCalledTimes(2);runner.cancelPending();});
 it("does not retain the last large successful session in the idle queue tail",async()=>{const t=task("save"),test=setup(),runner=new ForegroundSessionRunner(),pending=runner.run(t);await Promise.resolve();test.reply(executeForegroundSessionTask(t));await pending;expect(await(runner as unknown as {tail:Promise<unknown>}).tail).toBeUndefined();runner.cancelPending();});
+it('cancels only a queued load without posting it or aborting a preceding save', async () => {
+  const saved = task('save'), test = setup(), runner = new ForegroundSessionRunner(), controller = new AbortController();
+  const first = runner.run(saved); await Promise.resolve();
+  const read = runner.run(task('load'), controller.signal), rejected = expect(read).rejects.toMatchObject({ name: 'AbortError' });
+  controller.abort(); expect(test.worker.terminate).not.toHaveBeenCalled();
+  test.reply(executeForegroundSessionTask(saved)); await first; await rejected;
+  expect(test.worker.postMessage).toHaveBeenCalledOnce();
+  const next = runner.run(saved); await Promise.resolve(); test.reply(executeForegroundSessionTask(saved)); await next;
+  expect(test.worker.postMessage).toHaveBeenCalledTimes(2); runner.cancelPending();
+});
 
 it('executes a complete ordinary advance on the owned worker and transports only execution fields back', async () => {
   const { state } = fixture(), t = { kind: 'advance' as const, state }, test = setup();

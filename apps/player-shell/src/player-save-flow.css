@@ -24,6 +24,9 @@
 .player-load-confirm button:last-child { border-color: var(--player-accent, #b9a1ff); font-weight: 700; }
 .player-recent-save { display: grid; gap: 6px; margin-bottom: 14px; }.player-recent-save p { margin: 0; font-size: 12px; line-height: 1.7; color: var(--player-muted, #c1bed2); }
 .player-recent-save .player-primary { width: 100%; }
+.player-load-wait { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px; margin-block: 10px; border: 1px solid var(--player-accent, #b9a1ff); border-radius: 12px; line-height: 1.7; }
+.player-load-wait span { flex: 1 1 200px; min-width: 0; overflow-wrap: anywhere; }
+.player-load-wait button { flex: 0 0 auto; min-height: 44px; padding: 8px 14px; border: 1px solid currentColor; border-radius: 8px; color: inherit; background: var(--player-panel, #111425); cursor: pointer; }
 .player-shell[data-settings-high-contrast="true"] :is(.player-save-intro, .player-save-card__details time, .player-save-card__details small, .player-load-confirm__target time, .player-recent-save p) { color: #fff; }
 @media (max-width: 560px) { .player-save-grid { grid-template-columns: minmax(0, 1fr); }.player-save-card__preview { aspect-ratio: 2.5; }.player-load-confirm { padding: 12px; } }
 @media (max-height: 480px) {

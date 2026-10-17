@@ -6,6 +6,7 @@ import { RecoverySessionError, RecoverySessionRunner } from "./recovery-session-
 import { useStoryAdvance } from './use-story-advance';
 import { usePlaybackAdvance } from './use-playback-advance';
 import { useReadingResume } from './use-reading-resume';
+import { useSessionRead } from './use-session-read';
 import { notifyPlayerAutoVoiceFailure, startPlayerAutoClock } from "./auto-playback-clock";
 import { readPlayerReadingPace, storePlayerReadingPace, readingMillisecondsPerUnit, type PlayerReadingPace } from './player-reading';
 import { useCompactReadingLayout, useReadingMediaQuery, useReadingSurface } from './use-reading-surface';
@@ -384,6 +385,8 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
   // after a real executable change, including during effect replay in dev.
   const initializedProjectHash = useRef(executableProjectHash);
   const sessionRunner=useMemo(()=>new ForegroundSessionRunner(),[executableProjectHash,saveStore,recoveryStore,previewCapture]);
+  const sessionRead = useSessionRead(sessionRunner, hostActivity === 'active');
+  const sessionReadTrigger = useRef<HTMLElement | null>(null);
   const recoverySessionRunner=useMemo(()=>new RecoverySessionRunner(),[executableProjectHash,recoveryStore]);
   useEffect(()=>{sessionRunner.resume();setSaveOperation("idle");setSaveMessage("请选择槽位");setBackgroundSaveFailure(null);setPendingRead(null);return()=>sessionRunner.cancelPending();},[sessionRunner]);
   useEffect(()=>()=>recoverySessionRunner.releaseIdle(),[recoverySessionRunner]);
@@ -413,7 +416,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
   const panelLayouts = { menu: menuLayout, save: saveLayout, history: historyLayout, preferences: preferencesLayout, credits: creditsLayout, ending: endingLayout, additional: overviewLayout, gallery: galleryLayout, music: musicLayout, replay: replayLayout, endings: endingsLayout };
   const additionalLayout = panelLayouts[additionalSurface];
   const saveBoundaryAllowed = worldPlayerAutoSaveAllowedV1(snapshot.status, snapshot.presentation.kind);
-  const storyAdvance = useStoryAdvance(state, setState, sessionRunner, !editorPreview && hostActivity === 'active' && !artworkView && !preferencesOpen && !readingMenuOpen && !historyPanelOpen && !savePanelOpen && !additionalContentOpen && !autoEnabled && skipMode === null && memoryPressureStatus !== 'protecting' && (memoryPressureRequest === undefined || memoryPressureRequest.serial === handledMemorySerial));
+  const storyAdvance = useStoryAdvance(state, setState, sessionRunner, !sessionRead.pending && !editorPreview && hostActivity === 'active' && !artworkView && !preferencesOpen && !readingMenuOpen && !historyPanelOpen && !savePanelOpen && !additionalContentOpen && !autoEnabled && skipMode === null && memoryPressureStatus !== 'protecting' && (memoryPressureRequest === undefined || memoryPressureRequest.serial === handledMemorySerial));
   const quickSlot = saveSlots.find((slot) => slot.slotId === "quick-1");
   const latestSlot = saveSlots.slice().sort((a, b) => b.savedAtEpochMilliseconds - a.savedAtEpochMilliseconds || a.slotId.localeCompare(b.slotId))[0];
   const mediaSignature = useMemo(() => mediaAssets.map((asset) => `${asset.assetId}\0${asset.mimeType}\0${asset.url}`).join("\x01"), [mediaAssets]);
@@ -541,7 +544,18 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
     if (!saveStore || !saveCoordinator || saveOperation === 'busy' || hostActivity !== 'active') return false;
     stopSkip(); setAutoEnabled(false); setAutoPlayback('off'); setSaveView('backup'); openSavePanel('load'); return true;
   };
-  const cancelRead = useCallback(() => { setPendingRead(null); queueMicrotask(() => readIntentTrigger.current?.focus()); }, []);
+  const cancelActiveRead = useCallback((suspended = false) => {
+    const kind = sessionRead.cancel();
+    if (!kind) return;
+    const message = suspended ? '切到后台，已取消本次读取。当前进度和原记录保持不变，返回后可重新读取。' : '已取消读取，当前进度和原记录保持不变，可以重新读取。';
+    setSaveOperation('idle'); setSaveMessage(message); setSaveFeedback(message);
+    if (kind === 'recovery') { setRecoveryOperation('available'); setRecoveryMessage(message); setRecoveryErrorAction(null); }
+    queueMicrotask(() => {
+      if (!suspended) (savePanelOpen ? readIntentTrigger.current : sessionReadTrigger.current)?.focus();
+    });
+  }, [sessionRead.cancel, savePanelOpen]);
+  const cancelRead = useCallback(() => { cancelActiveRead(); setPendingRead(null); queueMicrotask(() => readIntentTrigger.current?.focus()); }, [cancelActiveRead]);
+  useEffect(() => { if (hostActivity !== 'active') cancelActiveRead(true); }, [hostActivity, cancelActiveRead]);
   useEffect(() => {
     if (!savePanelOpen || !saveDialog.current) return;
     const dialog = saveDialog.current;
@@ -559,7 +573,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
   const skipActive = skipMode !== null;
   const playbackOwnership = useMemo(() => ({}), [autoEnabled, skipMode, skipActivation, skipSpeed, canonicalPlaybackPolicy, buildStopInstructionIds, readingPace, autoVoiceIdentity, mediaGeneration]);
   const playbackAdvance = usePlaybackAdvance(state, setState, sessionRunner,
-    (autoEnabled || skipActive) && hostActivity === 'active' && !artworkView && !preferencesOpen && !readingMenuOpen && !historyPanelOpen && !savePanelOpen && !additionalContentOpen && !stageImagesPending &&
+    !sessionRead.pending && (autoEnabled || skipActive) && hostActivity === 'active' && !artworkView && !preferencesOpen && !readingMenuOpen && !historyPanelOpen && !savePanelOpen && !additionalContentOpen && !stageImagesPending &&
     (!autoEnabled || textReady && !reading.unread) && memoryPressureStatus !== 'protecting' && (memoryPressureRequest === undefined || memoryPressureRequest.serial === handledMemorySerial), playbackOwnership, !editorPreview);
 
   useEffect(() => {
@@ -788,16 +802,19 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
   const loadFromSlot = useCallback(async (slotId: string, expectedArtifactHash?: string) => {
     storyAdvance.cancel();
     if (saveStore === undefined) return;
+    const request = sessionRead.begin('slot'); if (!request) return;
+    sessionReadTrigger.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     setSaveOperation("busy");
-    setSaveMessage("正在校验…");
+    setSaveFeedback(null); setSaveMessage('正在读取本机存档… 可随时取消，当前进度不变。');
     const projectId = project.manifest.projectId;
     try {
       const slot = await saveStore.read(projectId, slotId);
-      if (!sessionRunner.active || saveContext.current.projectId !== projectId || saveContext.current.store !== saveStore) return;
+      if (!sessionRead.isCurrent(request) || !sessionRunner.active || saveContext.current.projectId !== projectId || saveContext.current.store !== saveStore) return;
       if (slot === null) throw new Error("WORLD_PLAYER_SAVE_MISSING");
       if (expectedArtifactHash !== undefined && slot.sessionArtifactHash !== expectedArtifactHash) throw new Error("WORLD_PLAYER_SAVE_CHANGED");
-      const {result:loaded}=await sessionRunner.run({kind:"load",state,serialized:slot.serializedSessionSave});
-      if(!sessionRunner.active||saveContext.current.projectId!==projectId||saveContext.current.store!==saveStore)return;
+      sessionRead.validating(request); setSaveMessage('正在完整校验并准备故事… 长篇存档可能需要更久，可随时取消。');
+      const {result:loaded}=await sessionRunner.run({kind:"load",state,serialized:slot.serializedSessionSave}, request.controller.signal);
+      if(!sessionRead.isCurrent(request)||!sessionRunner.active||saveContext.current.projectId!==projectId||saveContext.current.store!==saveStore)return;
       if (!loaded.ok && loaded.diagnostics[0]?.code === "RUNTIME_SAVE_BUILD_MISMATCH") throw new Error("WORLD_PLAYER_SAVE_VERSION_UNVERIFIED");
       if (!loaded.ok || loaded.artifactHash !== slot.sessionArtifactHash) throw new Error("WORLD_PLAYER_SAVE_REJECTED");
       const loadedSnapshot = createPlayerCoreSnapshotV1(loaded.state);
@@ -825,9 +842,9 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
       setSavePanelOpen(false);
       setSaveFeedback(loaded.compatibility === "verified-previous" ? '已读取核对过的旧版存档，可以继续故事' : '存档已读取，继续当前故事');
     } catch (error) {
-      if (!sessionRunner.active || saveContext.current.projectId !== projectId || saveContext.current.store !== saveStore) return;
+      if (!sessionRead.isCurrent(request) || !sessionRunner.active || saveContext.current.projectId !== projectId || saveContext.current.store !== saveStore) return;
       try { await refreshSaveSlots(); } catch { /* Keep the load error and the current story. */ }
-      if (saveContext.current.projectId !== projectId || saveContext.current.store !== saveStore) return;
+      if (!sessionRead.isCurrent(request) || saveContext.current.projectId !== projectId || saveContext.current.store !== saveStore) return;
       setSaveOperation("error");
       setSaveMessage(error instanceof Error && error.message === "WORLD_PLAYER_SAVE_VERSION_UNVERIFIED"
         ? "这个存档来自尚未核对的游戏版本。当前进度和原存档保持不变，请使用原版继续或联系作品作者。"
@@ -836,8 +853,8 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
           : error instanceof ForegroundSessionError ? "后台存档校验未完成，请重试读取。当前进度和原存档保持不变。" : "存档损坏或与当前构建不兼容");
       if (slotId.startsWith("quick-")) setSaveView("quick");
       openSavePanel("load");
-    }
-  }, [project.manifest.projectId, recoveryStore, saveStore, state, openSavePanel, stopSkip, refreshSaveSlots,sessionRunner, readingResume.prepare, restartVoice]);
+    } finally { sessionRead.finish(request); }
+  }, [project.manifest.projectId, recoveryStore, saveStore, state, openSavePanel, stopSkip, refreshSaveSlots,sessionRunner, readingResume.prepare, restartVoice, sessionRead.begin, sessionRead.isCurrent, sessionRead.validating, sessionRead.finish]);
 
   const requestLoadFromSlot = useCallback((slotId: string, expectedArtifactHash?: string) => {
     const slot = saveSlots.find(candidate => candidate.slotId === slotId), expected = expectedArtifactHash ?? slot?.sessionArtifactHash;
@@ -850,12 +867,15 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
   const restoreRecovery = useCallback(async () => {
     storyAdvance.cancel();
     if (recoveryCandidate === null || recoveryStore === undefined) return;
+    const request = sessionRead.begin('recovery'); if (!request) return;
+    sessionReadTrigger.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    setSaveOperation('busy'); setSaveFeedback(null);
     setRecoveryOperation("scanning");
-    setRecoveryMessage("正在校验恢复记录…");
+    setRecoveryMessage('正在完整校验并准备故事… 长篇恢复记录可能需要更久，可随时取消。');
     const generation=++recoveryGeneration.current;
     try {
-      const {result:loaded}=await sessionRunner.run({kind:"load",state,serialized:recoveryCandidate.serializedSessionSave});
-      if(!sessionRunner.active||generation!==recoveryGeneration.current)return;
+      const {result:loaded}=await sessionRunner.run({kind:"load",state,serialized:recoveryCandidate.serializedSessionSave}, request.controller.signal);
+      if(!sessionRead.isCurrent(request)||!sessionRunner.active||generation!==recoveryGeneration.current)return;
       if (!loaded.ok || loaded.artifactHash !== recoveryCandidate.sessionArtifactHash) throw new Error("WORLD_PLAYER_RECOVERY_REJECTED");
       const loadedSnapshot = createPlayerCoreSnapshotV1(loaded.state);
       if (recoveryCandidate.projectId !== project.manifest.projectId || recoveryCandidate.buildId !== loaded.savedBuildId ||
@@ -874,13 +894,15 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
       setRecoveryOperation("loaded");
       setRecoveryMessage(loaded.compatibility === "verified-previous" ? "已恢复核对过的旧版进度" : "已恢复上次安全进度");
       setRecoveryErrorAction(null);
+      setSaveOperation('idle');
     } catch(error) {
-      if(!sessionRunner.active||generation!==recoveryGeneration.current)return;
+      if(!sessionRead.isCurrent(request)||!sessionRunner.active||generation!==recoveryGeneration.current)return;
+      setSaveOperation('idle');
       setRecoveryOperation("error");
       setRecoveryMessage(error instanceof ForegroundSessionError?"后台恢复校验未完成，可以重试；原恢复点和正式存档保持不变。":"恢复记录损坏或与当前构建不兼容，正式存档未受影响");
       setRecoveryErrorAction(error instanceof ForegroundSessionError?"load":"clear");
-    }
-  }, [project.manifest.projectId, recoveryCandidate, recoveryStore, state,sessionRunner, stopSkip, readingResume.prepare, restartVoice]);
+    } finally { sessionRead.finish(request); }
+  }, [project.manifest.projectId, recoveryCandidate, recoveryStore, state,sessionRunner, stopSkip, readingResume.prepare, restartVoice, sessionRead.begin, sessionRead.isCurrent, sessionRead.finish]);
 
   const clearRecovery = useCallback(async () => {
     if (recoveryCoordinator === undefined || recoveryStore === undefined) return false;
@@ -912,7 +934,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
     // Pointer callbacks and already queued media completions must honor the same
     // host ceiling as keyboard/Auto, including the final event before pagehide.
     if (audioActivity.current.hostActivity !== 'active') return;
-    if (content.kind === 'title' && saveOperation === 'busy') return;
+    if (sessionRead.isPending() || content.kind === 'title' && saveOperation === 'busy') return;
     if (source === 'system' && intent.kind === 'primary' && (artworkView || preferencesOpen || readingMenuOpen || historyPanelOpen || savePanelOpen || additionalContentOpen)) {
       deferredMenuCompletion.current = { stateHash: snapshot.runtimeStateHash, hostHash: snapshot.runtimeHostSnapshotHash };
       return;
@@ -969,7 +991,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
       setState(next); return;
     }
     setState((current) => dispatchPlayerCoreIntentV1(current, project, intent));
-  }, [artworkView, content.kind, project, recoveryCandidate, recoveryOperation, recoveryStore, saveOperation, settingsApplication, stopSkip, textReady, voicePlaying, preferencesOpen, readingMenuOpen, historyPanelOpen, savePanelOpen, additionalContentOpen, snapshot.runtimeStateHash, snapshot.runtimeHostSnapshotHash, reading, playbackAdvance.busy, playbackAdvance.cancel, restartVoice]);
+  }, [sessionRead.isPending, artworkView, content.kind, project, recoveryCandidate, recoveryOperation, recoveryStore, saveOperation, settingsApplication, stopSkip, textReady, voicePlaying, preferencesOpen, readingMenuOpen, historyPanelOpen, savePanelOpen, additionalContentOpen, snapshot.runtimeStateHash, snapshot.runtimeHostSnapshotHash, reading, playbackAdvance.busy, playbackAdvance.cancel, restartVoice]);
   useEffect(() => {
     if (hostActivity !== 'active' || artworkView || preferencesOpen || readingMenuOpen || historyPanelOpen || savePanelOpen || additionalContentOpen || !deferredMenuCompletion.current) return;
     const completion = deferredMenuCompletion.current;
@@ -1262,7 +1284,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
       setAutoPlayback("stopped");
       return;
     }
-    if (hostActivity !== "active" || artworkView || preferencesOpen || historyPanelOpen || savePanelOpen || additionalContentOpen || readingMenuOpen) {
+    if (sessionRead.pending || hostActivity !== "active" || artworkView || preferencesOpen || historyPanelOpen || savePanelOpen || additionalContentOpen || readingMenuOpen) {
       setAutoPlayback("suspended");
       return;
     }
@@ -1307,7 +1329,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
       setAutoPlayback("advancing");
       if (!playbackAdvance.tryStart(policy)) setState((current) => schedulePlayerCorePlaybackV1(current, policy));
     });
-  }, [artworkView, autoEnabled, autoVoiceIdentity, preferencesOpen, historyPanelOpen, savePanelOpen, additionalContentOpen, stageImagesPending, buildStopInstructionIds, canonicalPlaybackPolicy, content, hostActivity, snapshot.playback.stopReason, snapshot.status, stage.video, stage.audio, textReady, mediaGeneration, localizedMedia.voice?.assetId, readingMenuOpen, reading.unread, readingPace, playbackAdvance.tryStart]);
+  }, [sessionRead.pending, artworkView, autoEnabled, autoVoiceIdentity, preferencesOpen, historyPanelOpen, savePanelOpen, additionalContentOpen, stageImagesPending, buildStopInstructionIds, canonicalPlaybackPolicy, content, hostActivity, snapshot.playback.stopReason, snapshot.status, stage.video, stage.audio, textReady, mediaGeneration, localizedMedia.voice?.assetId, readingMenuOpen, reading.unread, readingPace, playbackAdvance.tryStart]);
 
   useEffect(() => {
     if (!autoEnabled) return;
@@ -1321,7 +1343,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
   useEffect(() => {
     if (!skipActive || skipMode === null) return;
     // Do not cancel an awaited video or dispatch a batch while the player is away.
-    if (hostActivity !== "active" || artworkView || preferencesOpen || historyPanelOpen || savePanelOpen || additionalContentOpen || readingMenuOpen) {
+    if (sessionRead.pending || hostActivity !== "active" || artworkView || preferencesOpen || historyPanelOpen || savePanelOpen || additionalContentOpen || readingMenuOpen) {
       stopSkip();
       return;
     }
@@ -1365,7 +1387,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
       if (!playbackAdvance.tryStart(policy)) setState((current) => schedulePlayerCorePlaybackV1(current, policy));
     }, 0);
     return () => window.clearTimeout(timer);
-  }, [artworkView, preferencesOpen, historyPanelOpen, savePanelOpen, additionalContentOpen, stageImagesPending, buildStopInstructionIds, canonicalPlaybackPolicy.skip, hostActivity, project, skipActivation, skipActive, skipMode, skipSpeed, snapshot.history?.cursor, snapshot.playback.accumulatedInstructions, snapshot.playback.executedInstructions, snapshot.playback.mode, snapshot.playback.stopReason, snapshot.status, stage.video, stopSkip, readingMenuOpen, playbackAdvance.tryStart, state, playbackOwnership]);
+  }, [sessionRead.pending, artworkView, preferencesOpen, historyPanelOpen, savePanelOpen, additionalContentOpen, stageImagesPending, buildStopInstructionIds, canonicalPlaybackPolicy.skip, hostActivity, project, skipActivation, skipActive, skipMode, skipSpeed, snapshot.history?.cursor, snapshot.playback.accumulatedInstructions, snapshot.playback.executedInstructions, snapshot.playback.mode, snapshot.playback.stopReason, snapshot.status, stage.video, stopSkip, readingMenuOpen, playbackAdvance.tryStart, state, playbackOwnership]);
 
   useEffect(() => {
     if (!skipActive) return;
@@ -1458,6 +1480,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
     if (hostActivity !== "active") return;
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.defaultPrevented || event.isComposing || event.keyCode === 229) return;
+      if (sessionRead.isPending() && event.key === 'Escape') { event.preventDefault(); cancelRead(); return; }
       if (artworkView) {
         if (!event.repeat && !event.altKey && !event.ctrlKey && !event.metaKey && ['h', 'H', 'Escape', 'Enter', ' '].includes(event.key)) { event.preventDefault(); restoreReading(); }
         return;
@@ -1544,11 +1567,12 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [pendingRead, cancelRead, saveOperation, artworkView, canViewArtwork, restoreReading, showArtwork, preferencesOpen, closePreferences, historyPanelOpen, savePanelOpen, closeSavePanel, additionalContentOpen, additionalContentView, applyIntent, closeAdditionalContent, content, exitSceneReplay, hostActivity, selectedChoiceIndex, selectedGalleryAssetId, settingsApplication.advance.allowHold, snapshot.sceneReplay.active, readingMenuOpen, closeReadingMenu, closeHistoryPanel]);
+  }, [sessionRead.isPending, pendingRead, cancelRead, saveOperation, artworkView, canViewArtwork, restoreReading, showArtwork, preferencesOpen, closePreferences, historyPanelOpen, savePanelOpen, closeSavePanel, additionalContentOpen, additionalContentView, applyIntent, closeAdditionalContent, content, exitSceneReplay, hostActivity, selectedChoiceIndex, selectedGalleryAssetId, settingsApplication.advance.allowHold, snapshot.sceneReplay.active, readingMenuOpen, closeReadingMenu, closeHistoryPanel]);
 
   const gamepadAction = useRef<(action: PlayerGamepadActionV1) => void>(() => {});
   // Keep the polling session's edge history while dispatching against the latest story.
   gamepadAction.current = (action) => {
+    if (sessionRead.isPending()) { if (action === 'cancel') cancelRead(); return; }
     if (artworkView) { if (action === 'cancel' || action === 'primary') restoreReading(); return; }
     if (savePanelOpen) { if (action === 'cancel' && saveOperation !== 'busy') { if (pendingRead) cancelRead(); else closeSavePanel(); } return; }
     if (historyPanelOpen) { if (action === 'cancel') closeHistoryPanel(); return; }
@@ -1735,6 +1759,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
       data-save-store={saveStore?.backend ?? "unavailable"}
       data-save-store-version={saveStore?.version ?? "none"}
       data-save-operation={saveOperation}
+      data-session-read={sessionRead.pending?.phase ?? 'idle'}
       data-recovery-store={recoveryStore?.backend ?? "unavailable"}
       data-recovery-store-version={recoveryStore?.version ?? "none"}
       data-recovery-operation={recoveryOperation}
@@ -2345,17 +2370,18 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
               }}
             >存读档</button>
             {savePanelOpen && (
-              <dialog {...panelProps('save')} ref={saveDialog} id="player-save-panel" className="player-save__panel" aria-label="存读档槽位" aria-modal="true" onCancel={event => { event.preventDefault(); if (saveOperation !== "busy") { if (pendingRead) cancelRead(); else closeSavePanel(); } }}>
+              <dialog {...panelProps('save')} ref={saveDialog} id="player-save-panel" className="player-save__panel" aria-label="存读档槽位" aria-modal="true" onCancel={event => { event.preventDefault(); if (sessionRead.isPending() || pendingRead && saveOperation !== 'busy') cancelRead(); else if (saveOperation !== 'busy') closeSavePanel(); }}>
                 <PlayerPanelRegion enabled={saveLayout.enabled} rect={saveLayout.layout?.secondary} kind="secondary">
                 <header><strong>{saveView === "backup" ? "存档备份与恢复" : saveIntent === "save" ? "保存进度" : "读取进度"}</strong><button type="button" aria-label="关闭存读档" autoFocus disabled={saveOperation === "busy"} onClick={closeSavePanel}>返回故事 ×</button><span data-save-message role={saveOperation === "error" ? "alert" : "status"}>{saveMessage}{saveOperation === "error" && saveMessage === "存档损坏或与当前构建不兼容" && <small>读取失败不会修改当前剧情或原存档，可返回故事或尝试其他存档。</small>}</span></header>
                 </PlayerPanelRegion>
                 <PlayerPanelRegion enabled={saveLayout.enabled} rect={saveLayout.layout?.primary} kind="primary">
                 {panelComponents("save", true)}
-                {pendingRead ? <section className="player-load-confirm" role="region" aria-label="确认读取存档">
+                {sessionRead.pending && <div className="player-load-wait" role="status" aria-live="polite"><span>{sessionRead.pending.phase === 'reading' ? '正在读取本机存档…' : '正在完整校验并准备故事…'} 长篇记录可能需要更久，取消不会改变当前进度或原记录。</span><button type="button" onClick={cancelRead}>取消读取</button></div>}
+                {pendingRead ? <section className="player-load-confirm" role="region" aria-label="确认读取存档" aria-busy={sessionRead.pending !== null}>
                   <h3>读取{playerSaveLabel(pendingRead.slotId)}？</h3><p>当前未保存的进度会被所选存档替换。取消可回到槽位列表。</p>
                   <p>当前：{project.scenes.find(scene => scene.id === state.runtimeState?.cursor.sceneId)?.title ?? '当前故事'}</p>
                   <div className="player-load-confirm__target"><strong>将读取的进度</strong><div><PlayerSaveDetails slot={pendingRead.slot} /></div></div>
-                  <footer><button type="button" autoFocus disabled={saveOperation === 'busy'} onClick={cancelRead}>取消读取</button><button type="button" disabled={hostActivity !== 'active' || saveOperation === 'busy'} onClick={() => void loadFromSlot(pendingRead.slotId, pendingRead.expectedArtifactHash)}>确认读取</button></footer>
+                  <footer>{!sessionRead.pending && <button type="button" autoFocus onClick={cancelRead}>取消读取</button>}<button type="button" disabled={hostActivity !== 'active' || saveOperation === 'busy'} onClick={() => void loadFromSlot(pendingRead.slotId, pendingRead.expectedArtifactHash)}>确认读取</button></footer>
                 </section> : <>
                 <nav className="player-save-intent" aria-label="存读档操作"><button type="button" disabled={saveOperation === 'busy' || !saveBoundaryAllowed || snapshot.sceneReplay.active} aria-pressed={saveIntent === 'save'} onClick={() => { setSaveIntent('save'); setPendingOverwriteSlotId(null); if (saveView !== 'manual' && saveView !== 'quick') setSaveView('manual'); }}>保存进度</button><button ref={readIntentTrigger} type="button" disabled={saveOperation === 'busy'} aria-pressed={saveIntent === 'load'} onClick={() => { setSaveIntent('load'); setPendingOverwriteSlotId(null); }}>读取进度</button></nav>
                 <p className="player-save-intro">{saveIntent === 'save' ? '选择一个手动或快速槽位保存当前故事。已有存档需要确认覆盖。' : '选择一个已有存档继续阅读。空槽位没有可读取的进度。'}</p>
@@ -2398,6 +2424,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
           <span>{playbackAdvance.error ?? (autoEnabled ? '正在自动继续，当前句保持不变…' : '正在快进，当前句保持不变…')}</span>
           <button type="button" onClick={() => { playbackAdvance.cancel(); stopSkip(); setAutoEnabled(false); setAutoPlayback('off'); reading.element.current?.focus({ preventScroll: true }); }}>{playbackAdvance.error ? '切回手动阅读' : '停止并留在当前句'}</button>
         </aside>}
+        {content.kind !== 'title' && sessionRead.pending && !savePanelOpen && <aside className="player-story-progress" role="status"><span>正在完整校验并准备故事… 当前进度保持不变。</span><button type="button" onClick={() => cancelActiveRead()}>取消读取</button></aside>}
         {content.kind !== "title" && recoveryStore !== undefined && !snapshot.sceneReplay.active && (recoveryCandidate !== null || recoveryOperation === "error") && (
           <aside className="player-recovery" role={recoveryOperation === "error" ? "alert" : "status"} aria-live="polite">
             <div>
@@ -2405,8 +2432,8 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
               <span>{recoveryMessage}</span>
               {recoveryCandidate !== null && <small>{recoveryCandidate.sceneId} · {new Date(recoveryCandidate.savedAtEpochMilliseconds).toLocaleString("zh-CN", { hour12: false })} · 本地时间</small>}
             </div>
-            {recoveryCandidate !== null && <button type="button" disabled={hostActivity !== "active" || !recoveryBuildCompatible} onClick={() => void restoreRecovery()}>恢复上次进度</button>}
-            <button type="button" disabled={recoveryErrorAction === "retry" && recoveryWritePending.current?.coordinator === recoveryCoordinator} onClick={() => {
+            {recoveryCandidate !== null && <button type="button" disabled={hostActivity !== "active" || saveOperation === 'busy' || !recoveryBuildCompatible} onClick={() => void restoreRecovery()}>恢复上次进度</button>}
+            <button type="button" disabled={saveOperation === 'busy' || recoveryErrorAction === "retry" && recoveryWritePending.current?.coordinator === recoveryCoordinator} onClick={() => {
               if(recoveryErrorAction === "load"){void restoreRecovery();return;}
               if (recoveryErrorAction === "retry") {
                 setRecoveryOperation("idle");
@@ -2443,7 +2470,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
             <PlayerLayoutBox rect={componentLayout?.secondary} kind="actions">
             {layoutSurface === "title" && inlineLayoutComponents}
             {latestSlot && saveStore && recoveryOperation !== 'scanning' && (recoveryCandidate === null || !recoveryBuildCompatible) && <section className="player-recent-save" aria-label="最近存档"><button className="player-primary" type="button" disabled={hostActivity !== 'active' || saveOperation === 'busy'} onClick={() => requestLoadFromSlot(latestSlot.slotId, latestSlot.sessionArtifactHash)}>继续最近存档 <span aria-hidden="true">→</span></button><p>{playerSaveLabel(latestSlot.slotId)} · {latestSlot.sceneTitle} · {new Date(latestSlot.savedAtEpochMilliseconds).toLocaleString('zh-CN', { hour12: false })} · 本地时间</p></section>}
-            {saveOperation === 'busy' && !savePanelOpen && <p className="player-title-load-status" role="status">正在校验存档，完成后回到故事…</p>}
+            {sessionRead.pending && !savePanelOpen && <div className="player-load-wait" role="status" aria-live="polite"><span>{sessionRead.pending.phase === 'reading' ? '正在读取本机存档…' : '正在完整校验并准备故事…'} 长篇记录可能需要更久，取消不会改变原记录。</span><button type="button" onClick={() => cancelActiveRead()}>取消读取</button></div>}
             <button className={latestSlot || recoveryCandidate !== null && recoveryBuildCompatible ? 'player-secondary' : 'player-primary'} type="button" disabled={hostActivity !== "active" || saveOperation === 'busy' || recoveryOperation === "scanning"} onPointerDown={(event) => { pointerInput.current = event.pointerType === "touch" ? "touch" : "pointer"; }} onClick={() => applyIntent({ kind: "primary" }, pointerInput.current)}>
               {skin?.title.startLabel ?? "开始故事"}
               <span aria-hidden="true">→</span>
@@ -2478,9 +2505,9 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
                   }}>确认开始新故事</button>
                   <button type="button" disabled={recoveryOperation === "scanning"} onClick={() => setNewStoryConfirmation(false)}>保留原进度</button>
                 </> : <>
-                  {recoveryOperation === "error" && <button type="button" onClick={() => {if(recoveryErrorAction==='load')void restoreRecovery();else setRecoveryScanAttempt(attempt=>attempt+1);}}>{recoveryErrorAction==='load'?'重试读取恢复记录':'重新检查恢复记录'}</button>}
+                  {recoveryOperation === "error" && <button type="button" disabled={saveOperation === 'busy'} onClick={() => {if(recoveryErrorAction==='load')void restoreRecovery();else setRecoveryScanAttempt(attempt=>attempt+1);}}>{recoveryErrorAction==='load'?'重试读取恢复记录':'重新检查恢复记录'}</button>}
                   {recoveryCandidate !== null && <button className="player-primary" type="button" disabled={hostActivity !== "active" || recoveryOperation === "scanning" || !recoveryBuildCompatible} onClick={() => void restoreRecovery()}>恢复上次进度</button>}
-                  {(recoveryCandidate !== null || recoveryOperation === "error") && <button type="button" disabled={hostActivity !== "active" || recoveryOperation === "scanning"} onClick={() => void clearRecovery()}>放弃并清除</button>}
+                  {(recoveryCandidate !== null || recoveryOperation === "error") && <button type="button" disabled={hostActivity !== "active" || saveOperation === 'busy' || recoveryOperation === "scanning"} onClick={() => void clearRecovery()}>放弃并清除</button>}
                 </>}
               </div>
             </div>}

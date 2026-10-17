@@ -15,10 +15,11 @@ const output = path.resolve(root, process.env.STUDIO_COST_OUTPUT_DIRECTORY ?? 'e
 const baseline = process.argv.includes('--baseline'), label = baseline ? 'baseline' : 'current';
 const baselineCommit = process.env.STUDIO_COST_BASELINE_COMMIT ?? '8207650d4836017e368db0422edc2fabbf51a63d';
 const snapshotFile = path.join(output, 'baseline-sources.json');
+const loadPhases = process.env.STUDIO_COST_LOAD_PHASES === '1';
 await mkdir(output, { recursive: true });
 if (!process.argv.includes('--audit-only')) await writeFile(path.join(output, `${label}.json`), JSON.stringify({ passed: false, status: 'running' }));
 if (process.argv.includes('--freeze')) {
-  const paths = execFileSync('git', ['ls-tree', '-r', '--name-only', baselineCommit, 'packages/runtime/src', 'apps/player-shell/src'], { cwd: root, encoding: 'utf8', windowsHide: true }).trim().split('\n').filter(p => /\.(?:tsx?|css)$/.test(p) && !/\.test\.tsx?$/.test(p));
+  const paths = execFileSync('git', ['ls-tree', '-r', '--name-only', baselineCommit, 'packages/runtime/src', 'apps/player-shell/src', ...(loadPhases ? ['packages/player-core/src', 'packages/runtime-host/src'] : [])], { cwd: root, encoding: 'utf8', windowsHide: true }).trim().split('\n').filter(p => /\.(?:tsx?|css)$/.test(p) && !/\.test\.tsx?$/.test(p));
   const sources = Object.fromEntries(paths.map(p => [p, execFileSync('git', ['show', `${baselineCommit}:${p}`], { cwd: root, encoding: 'utf8', windowsHide: true })]));
   await writeFile(snapshotFile, JSON.stringify({ baselineCommit, sources }, null, 2));
 }
@@ -27,12 +28,39 @@ assert.equal(frozen.baselineCommit, baselineCommit);
 const overrides = new Map(Object.entries(baseline ? frozen.sources : {}).map(([p, text]) => [path.resolve(root, p).replaceAll('\\', '/'), text]));
 const mixed = process.env.STUDIO_COST_MIXED === '1';
 const fixture = mixed ? 'tools/fixtures/reading-mixed-player.ts' : 'tools/fixtures/reading-advance-player.ts';
-const bundles = await build({ configFile: false, logLevel: 'error', plugins: [{ name: 'session-cost-baseline', load(id) { return overrides.get(id.replaceAll('\\', '/')); } }], define: { 'process.env.NODE_ENV': JSON.stringify('production') }, build: { write: false, minify: true, sourcemap: 'hidden', lib: { entry: path.join(root, fixture), name: 'SessionCost', formats: ['iife'] } } });
+const bundles = await build({ configFile: false, logLevel: 'error', plugins: [{ name: 'session-cost-baseline', async load(id) {
+    const file = id.replaceAll('\\', '/');
+    let source = overrides.get(file);
+    if (!loadPhases || !file.endsWith('/packages/runtime/src/session-save.ts') && !file.endsWith('/apps/player-shell/src/recovery-session.worker.ts') && !file.endsWith('/apps/player-shell/src/history-result-transport.ts')) return source;
+    source ??= await readFile(file, 'utf8');
+    if (file.endsWith('/apps/player-shell/src/history-result-transport.ts')) {
+      assert.equal(source.split('export function decodeHistoryResult(').length, 2);
+      return source.replace('export function decodeHistoryResult(', 'function measuredDecodeHistoryResult(') + `\nexport function decodeHistoryResult(input: unknown): unknown { const started = performance.now(); try { return measuredDecodeHistoryResult(input); } finally { (globalThis as unknown as { __worldHistoryDecode?: (ms: number) => void }).__worldHistoryDecode?.(performance.now() - started); } }`;
+    }
+    if (file.endsWith('/packages/runtime/src/session-save.ts')) {
+      assert.equal(source.split('export function loadRuntimeSessionSaveV1(').length, 2);
+      return source.replace('export function loadRuntimeSessionSaveV1(', 'function measuredLoadRuntimeSessionSaveV1(') + `\nexport function loadRuntimeSessionSaveV1(program: RuntimeProgramV1, serialized: string, options: LoadRuntimeSessionSaveOptionsV1): LoadRuntimeSessionSaveResultV1 { const started = performance.now(); try { return measuredLoadRuntimeSessionSaveV1(program, serialized, options); } finally { (globalThis as unknown as { __worldLoadRuntimeMs?: number[] }).__worldLoadRuntimeMs?.push(performance.now() - started); } }`;
+    }
+    if (file.endsWith('/apps/player-shell/src/recovery-session.worker.ts')) {
+      const original = 'scope.postMessage({ id: data.id, result: data.task?encodeHistoryResult(executeForegroundSessionWorkerTask(decodeForegroundSessionInput(data.task))):createRecoverySession(decodeSessionInput(data.source)) });';
+      assert.equal(source.split(original).length, 2);
+      return source.replace(original, `if (data.task?.kind !== 'load') { ${original} } else {
+        const probe = globalThis as unknown as { __worldLoadRuntimeMs: number[] }; probe.__worldLoadRuntimeMs = [];
+        const started = performance.now(), task = decodeForegroundSessionInput(data.task), decoded = performance.now();
+        const result = executeForegroundSessionWorkerTask(task), executed = performance.now(), packed = encodeHistoryResult(result), encoded = performance.now();
+        scope.postMessage({ id: data.id, result: packed }); const posted = performance.now();
+        scope.postMessage({ __worldLoadProbe: { id: data.id, inputDecodeMs: decoded - started, runtimeLoadCallsMs: probe.__worldLoadRuntimeMs, corePrepareMs: executed - decoded, resultEncodeMs: encoded - executed, synchronousPostMs: posted - encoded } });
+        delete (probe as { __worldLoadRuntimeMs?: number[] }).__worldLoadRuntimeMs;
+      }`);
+    }
+    return source;
+  }
+}], define: { 'process.env.NODE_ENV': JSON.stringify('production') }, build: { write: false, minify: true, sourcemap: 'hidden', lib: { entry: path.join(root, fixture), name: 'SessionCost', formats: ['iife'] } } });
 const outputs = (Array.isArray(bundles) ? bundles : [bundles]).flatMap(item => item.output);
 const chunk = outputs.find(item => item.type === 'chunk');
 const code = chunk.code, css = outputs.filter(item => item.type === 'asset' && item.fileName.endsWith('.css')).map(item => String(item.source)).join('\n');
 const fixtureSourceHash = sha((await readFile(path.join(root, fixture), 'utf8')).replaceAll('\r\n', '\n'));
-const identity = { baselineCommit, label, bundleHash: sha(code), cssHash: sha(css), fixtureSourceHash, frozenSourcesHash: sha(JSON.stringify(frozen)), head: execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8', windowsHide: true }).trim() };
+const identity = { baselineCommit, label, ...(loadPhases ? { loadPhases: true } : {}), bundleHash: sha(code), cssHash: sha(css), fixtureSourceHash, frozenSourcesHash: sha(JSON.stringify(frozen)), head: execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8', windowsHide: true }).trim() };
 function assertCopyAfterFrame(report) {
   for (const operation of report.operations.filter(item => item.name === 'advance')) {
     const advanced = report.rows.find(row => row.count === operation.count && row.round === operation.round).advanced;
@@ -62,7 +90,7 @@ const browser = await chromium.launch({ headless: true, args: ['--mute-audio'] }
 const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, reducedMotion: 'reduce' });
 const page = await context.newPage(), errors = [], operations = [], rows = [];
 page.setDefaultTimeout(30000); page.on('pageerror', error => errors.push(String(error)));
-await page.addInitScript(() => {
+await page.addInitScript(({ loadPhases }) => {
   window.sessionCost = { tasks: [], heartbeats: [], posts: [], frames: [], media: { playing: 0, ended: 0, errors: [] }, workers: { created: 0, live: 0, peak: 0 } };
   new MutationObserver(records => {
     for (const record of records) if (record.target.matches?.('main.player-shell')) {
@@ -79,11 +107,22 @@ await page.addInitScript(() => {
   let previous = performance.now();
   setInterval(() => { const now = performance.now(); sessionCost.heartbeats.push({ at: now, gap: now - previous }); previous = now; }, 16);
   const NativeWorker = Worker;
+  const nativeMessage = Object.getOwnPropertyDescriptor(NativeWorker.prototype, 'onmessage');
   window.Worker = class extends NativeWorker {
+    get onmessage() { return nativeMessage.get.call(this); }
+    set onmessage(value) { nativeMessage.set.call(this, !value || !loadPhases ? value : event => {
+      const start = performance.now(), post = sessionCost.posts.find(item => item.worker === this.workerNumber && item.id === event.data?.id);
+      globalThis.__worldHistoryDecode = ms => { if (post) post.receiveDecodeMs = ms; };
+      try { return value.call(this, event); }
+      finally { delete globalThis.__worldHistoryDecode; if (post) post.receiveCallbackMs = performance.now() - start; }
+    }); }
     constructor(url, options) {
       super(url, options); this.counted = String(options?.name ?? '').startsWith('world-player-'); this.released = false;
       if (this.counted) { sessionCost.workers.created++; sessionCost.workers.live++; sessionCost.workers.peak = Math.max(sessionCost.workers.peak, sessionCost.workers.live); }
-      this.addEventListener('message', event => { const post = sessionCost.posts.find(item => item.worker === this.workerNumber && item.id === event.data?.id && item.arrived === null); if (post) { post.arrived = performance.now(); post.replyEncoding = event.data?.result?.encoding ?? 'plain'; post.packedCheckpoints = event.data?.result?.checkpoints?.length ?? 0; } });
+      this.addEventListener('message', event => {
+        if (event.data?.__worldLoadProbe) { const post = sessionCost.posts.find(item => item.worker === this.workerNumber && item.id === event.data.__worldLoadProbe.id); if (post) post.workerLoad = event.data.__worldLoadProbe; return; }
+        const post = sessionCost.posts.find(item => item.worker === this.workerNumber && item.id === event.data?.id && item.arrived === null); if (post) { post.arrived = performance.now(); post.replyEncoding = event.data?.result?.encoding ?? 'plain'; post.packedCheckpoints = event.data?.result?.checkpoints?.length ?? 0; }
+      });
       this.workerNumber = sessionCost.workers.created;
     }
     postMessage(data, ...args) {
@@ -93,7 +132,7 @@ await page.addInitScript(() => {
     }
     terminate() { if (this.counted && !this.released) { this.released = true; sessionCost.workers.live--; } return super.terminate(); }
   };
-});
+}, { loadPhases });
 const main = page.locator('main.player-shell');
 const state = async () => ({ hash: await main.getAttribute('data-runtime-state-hash'), cursor: Number(await main.getAttribute('data-history-cursor')), length: Number(await main.getAttribute('data-history-length')), text: await page.locator('.player-dialogue__text').innerText() });
 async function advanceReading(previous) {
@@ -133,6 +172,12 @@ async function measure(count, round, name, action) {
     posts: sessionCost.posts.filter(item => item.start >= start && item.start < end),
     frames: sessionCost.frames.filter(item => item.changed >= start && item.changed < end)
   }), { start, end });
+  if (loadPhases && name === 'quick-load') {
+    const post = telemetry.posts.find(item => item.kind === 'load');
+    assert.ok(post?.workerLoad?.runtimeLoadCallsMs.length > 0, 'Actual runtime validation must be measured inside the worker');
+    assert.ok(Number.isFinite(post.receiveDecodeMs) && post.receiveDecodeMs >= 0);
+    assert.ok(post.receiveCallbackMs >= post.receiveDecodeMs);
+  }
   operations.push({ count, round, name, start, end, wallMs: end - start, cpu, ...telemetry });
 }
 async function openMenu() {

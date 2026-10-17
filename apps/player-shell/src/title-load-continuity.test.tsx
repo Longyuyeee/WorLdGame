@@ -22,7 +22,8 @@ function fixture() {
 it.each(['success', 'failure'] as const)('keeps the title and keyboard stable while a recent save is pending: %s', async outcome => {
   const data = fixture(), view = render(<PlayerShell project={data.project} saveStore={data.store} />);
   fireEvent.click(await screen.findByRole('button', { name: /继续最近存档/ }));
-  expect(screen.getByRole('status', { name: '' })).toHaveTextContent('正在校验存档');
+  expect(screen.getByRole('status', { name: '' })).toHaveTextContent('正在读取本机存档');
+  expect(screen.getByRole('button', { name: '取消读取' })).toBeEnabled();
   expect(screen.getByRole('button', { name: /开始故事/ })).toBeDisabled();
   expect(screen.getByRole('button', { name: '打开附加内容' })).toBeDisabled();
   expect(screen.getByRole('button', { name: '读取存档' })).toBeDisabled();

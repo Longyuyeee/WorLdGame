@@ -56,10 +56,10 @@ it('keeps a corrupt read from replacing the current story or writing a slot', as
   click('存读档'); click('读取进度'); await act(async () => {}); fireEvent.click(within(card('manual-1')).getByRole('button', { name: '读取' })); click('确认读取');
   expect(await screen.findByRole('alert')).toHaveTextContent('存档损坏'); expect(hash()).toBe(before); expect(saves.rows.get('manual-1')).toEqual(broken);
 });
-it('keeps the confirmation modal open while the store read is busy', async () => {
-  const { saves } = await setup(), target = saves.rows.get('manual-1')!; let resolve: (row: WorldPlayerSaveSlotV3) => void = () => {};
+it('cancels a busy store read with Escape and ignores its late completion', async () => {
+  const { saves, hash } = await setup(), target = saves.rows.get('manual-1')!, before = hash(); let resolve: (row: WorldPlayerSaveSlotV3) => void = () => {};
   saves.read = async () => new Promise<WorldPlayerSaveSlotV3>(done => { resolve = done; });
   click('存读档'); click('读取进度'); fireEvent.click(within(card('manual-1')).getByRole('button', { name: '读取' })); click('确认读取'); fireEvent.keyDown(window, { key: 'Escape' });
-  expect(screen.getByRole('region', { name: '确认读取存档' })).toBeVisible(); expect(screen.getByRole('button', { name: '取消读取' })).toBeDisabled();
-  await act(async () => resolve(target)); await waitFor(() => expect(screen.queryByRole('dialog', { name: '存读档槽位' })).toBeNull()); expect(document.querySelector('.player-dialogue__text')).toHaveTextContent('第一段。');
+  expect(screen.queryByRole('region', { name: '确认读取存档' })).toBeNull(); expect(dialog()).toBeVisible(); expect(screen.getByText(/已取消读取/)).toBeVisible();
+  await act(async () => resolve(target)); expect(hash()).toBe(before); expect(saves.rows.get('manual-1')).toBe(target); expect(document.querySelector('.player-dialogue__text')).toHaveTextContent('第二段。');
 });
