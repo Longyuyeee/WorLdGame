@@ -1,0 +1,222 @@
+{
+  "passed": true,
+  "label": "interaction-firefox",
+  "browser": "153.0",
+  "identity": {
+    "baselineCommit": "0ae9cfe0fabeeb535acc587cc1806b659bb8f8d5",
+    "bundleHash": "4e5f073a665687193ced33abab18ccb5d983bdf58497cb17ce4f7df1fde03799",
+    "cssHash": "6d26d35ba789994b63aa6cf67db4eee5c334f2290ac73e27c0430dc1204697f3",
+    "fixtureHash": "9681155629618e6b5ed052ff2d1f56290251304568648b8cd82027cc0525716c",
+    "frozenSourcesHash": null
+  },
+  "rows": [],
+  "checks": [
+    {
+      "viewport": {
+        "width": 320,
+        "height": 740
+      },
+      "stopBounds": {
+        "x": 25.799999237060547,
+        "y": 118,
+        "width": 154.00000381469727,
+        "height": 44
+      },
+      "saveToastHidden": true
+    },
+    {
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "stopBounds": {
+        "x": 573.933349609375,
+        "y": 89,
+        "width": 154,
+        "height": 44
+      },
+      "saveToastHidden": true
+    },
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "stopBounds": {
+        "x": 1014.8833618164062,
+        "y": 208.11666870117188,
+        "width": 153.99993896484375,
+        "height": 44
+      },
+      "saveToastHidden": true
+    },
+    {
+      "paragraphTakeoverStopsFirst": true
+    },
+    {
+      "heldSkipReleaseDiscardsLate": true
+    },
+    {
+      "mode": "auto",
+      "menuCancelsAndSavesOriginal": true
+    },
+    {
+      "mode": "skipRead",
+      "menuCancelsAndSavesOriginal": true
+    },
+    {
+      "mode": "skipAll",
+      "menuCancelsAndSavesOriginal": true
+    },
+    {
+      "errorStopBounds": {
+        "x": 25.799999237060547,
+        "y": 160,
+        "width": 122.00000381469727,
+        "height": 44
+      }
+    },
+    {
+      "backgroundDiscardsLate": true,
+      "corruptInputRejected": true,
+      "explicitRestartSucceeds": true,
+      "quickSlotUnchanged": true
+    },
+    {
+      "mode": "skipRead",
+      "committed": {
+        "hash": "76d1eb6955ed3a28a54b8be9c6f6921d38bb74b843d8d0a6eb2f9d01cc973256",
+        "cursor": "482",
+        "length": "482",
+        "text": "长篇第 471 句：保存与恢复不能丢失历史。"
+      }
+    },
+    {
+      "mode": "skipAll",
+      "committed": {
+        "hash": "9bf79f86924828232afac526c64b1229856dfb74368dfb098512f860752b9d35",
+        "cursor": "500",
+        "length": "500",
+        "text": "长篇第 484 句：保存与恢复不能丢失历史。"
+      }
+    }
+  ],
+  "packets": [
+    {
+      "id": 3,
+      "mode": "auto",
+      "at": 46664,
+      "encoding": "world-player.session-input.1",
+      "checkpoints": 481,
+      "sendMs": 2,
+      "replyAt": 46794,
+      "resultEncoding": "world-player.history-lists.1"
+    },
+    {
+      "id": 4,
+      "mode": "auto",
+      "at": 48436,
+      "encoding": "world-player.session-input.1",
+      "checkpoints": 481,
+      "sendMs": 2,
+      "replyAt": 48580,
+      "resultEncoding": "world-player.history-lists.1"
+    },
+    {
+      "id": 5,
+      "mode": "skipAll",
+      "at": 48767,
+      "encoding": "world-player.session-input.1",
+      "checkpoints": 481,
+      "sendMs": 3,
+      "replyAt": 48924,
+      "resultEncoding": "world-player.history-lists.1"
+    },
+    {
+      "id": 6,
+      "mode": "auto",
+      "at": 50434,
+      "encoding": "world-player.session-input.1",
+      "checkpoints": 481,
+      "sendMs": 2,
+      "replyAt": 50612,
+      "resultEncoding": "world-player.history-lists.1"
+    },
+    {
+      "id": 8,
+      "mode": "skipRead",
+      "at": 51225,
+      "encoding": "world-player.session-input.1",
+      "checkpoints": 481,
+      "sendMs": 2,
+      "replyAt": 51359,
+      "resultEncoding": "world-player.history-lists.1"
+    },
+    {
+      "id": 10,
+      "mode": "skipAll",
+      "at": 51937,
+      "encoding": "world-player.session-input.1",
+      "checkpoints": 481,
+      "sendMs": 2,
+      "replyAt": 52087,
+      "resultEncoding": "world-player.history-lists.1"
+    },
+    {
+      "id": 12,
+      "mode": "auto",
+      "at": 53911,
+      "encoding": "world-player.session-input.1",
+      "checkpoints": 481,
+      "sendMs": 2,
+      "replyAt": 54044,
+      "resultEncoding": "world-player.history-lists.1"
+    },
+    {
+      "id": 13,
+      "mode": "auto",
+      "at": 55237,
+      "encoding": "world-player.session-input.1",
+      "checkpoints": 481,
+      "sendMs": 2,
+      "replyAt": 55255,
+      "resultEncoding": "plain"
+    },
+    {
+      "id": 14,
+      "mode": "auto",
+      "at": 57079,
+      "encoding": "world-player.session-input.1",
+      "checkpoints": 481,
+      "sendMs": 2,
+      "replyAt": 57210,
+      "resultEncoding": "world-player.history-lists.1"
+    },
+    {
+      "id": 16,
+      "mode": "skipRead",
+      "at": 57889,
+      "encoding": "world-player.session-input.1",
+      "checkpoints": 481,
+      "sendMs": 3,
+      "replyAt": 58036,
+      "resultEncoding": "world-player.history-lists.1"
+    },
+    {
+      "id": 18,
+      "mode": "skipAll",
+      "at": 58707,
+      "encoding": "world-player.session-input.1",
+      "checkpoints": 481,
+      "sendMs": 3,
+      "replyAt": 58859,
+      "resultEncoding": "world-player.history-lists.1"
+    }
+  ],
+  "workers": {
+    "live": 0,
+    "peak": 2
+  },
+  "errors": [],
+  "scope": "480 naturally read mixed entries. Native Worker computes real replies; delivery is held only for cancellation tests. One actual input hash corruption. Not performance evidence, complete story or physical devices."
+}

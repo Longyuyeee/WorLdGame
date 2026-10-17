@@ -1,6 +1,7 @@
 import { oneShotSessionWorker, SessionWorkerPool, type SessionWorkerConnection } from "./session-worker-pool";
 import { executeForegroundSessionTask, foregroundSessionWorkerTask, applyForegroundSessionWorkerResult, type ForegroundSessionTask, type ForegroundSessionResult, type ForegroundSessionWorkerResult } from "./foreground-session-task";
 import { validStoryAdvanceReply } from './story-advance-task';
+import { validPlaybackAdvanceReply } from './playback-advance-task';
 import { decodeHistoryResult } from './history-result-transport';
 import { encodeForegroundSessionInput } from './session-input-transport';
 
@@ -23,6 +24,7 @@ function validReply(task:ForegroundSessionTask,value:unknown):value is Foregroun
   }
   if(!reply.result.ok)return Array.isArray(reply.result.diagnostics)&&reply.result.diagnostics.length>0&&reply.result.diagnostics.every(item=>typeof item.code==="string");
   if (task.kind === 'advance' && reply.kind === 'advance') return validStoryAdvanceReply(task.state, reply.result);
+  if (task.kind === 'playback' && reply.kind === 'playback') return validPlaybackAdvanceReply(task.state, task.policy, reply.result);
   if (task.kind !== 'load' || reply.kind !== 'load') return false;
   const patch = reply.result.patch, history = patch?.historySession, runtime = patch?.runtimeState;
   return task.state.artifacts !== null && !task.state.replaySession && runtime?.projectId === task.state.projectId &&

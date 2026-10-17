@@ -1,4 +1,4 @@
-import { MAX_META_PROGRESS_IDS_PER_DOMAIN, MAX_RUNTIME_HISTORY_ENTRIES, type RuntimeHistoryCheckpointV1, type RuntimeHistorySessionV1, type RuntimeStateV1 } from '@world-studio/runtime';
+import { MAX_META_PROGRESS_IDS_PER_DOMAIN, MAX_RUNTIME_HISTORY_ENTRIES, type RuntimeHistoryCheckpointV1, type RuntimeHistorySessionV1, type RuntimeStateV1, type RuntimeSchedulerSessionV1 } from '@world-studio/runtime';
 
 const maximumExpandedCells = 8_000_000;
 export const plainHistoryTransport = Symbol('plain history transport');
@@ -41,7 +41,14 @@ export function createHistoryListEncoder() {
     const current = history.checkpoints[history.cursor];
     return current?.state === runtime ? indices.get(current)! : runtime;
   };
-  return { checkpoints, packHistory, packRuntime };
+  const packScheduler = (scheduler: RuntimeSchedulerSessionV1 | null, history: RuntimeHistorySessionV1) => {
+    if (scheduler === null) return null;
+    // Null is a packet-local reference to the root history, never a claim that
+    // two merely equal histories share scheduler ownership.
+    const packedHistory = scheduler.history === history ? null : packHistory(scheduler.history);
+    return { ...scheduler, history: packedHistory, workingState: packRuntime(scheduler.workingState, scheduler.history) };
+  };
+  return { checkpoints, packHistory, packRuntime, packScheduler };
 }
 
 export function historyTransportRecord(value: unknown): value is Record<string, unknown> { return value !== null && typeof value === 'object' && !Array.isArray(value); }
@@ -85,5 +92,10 @@ export function createHistoryListDecoder(packed: unknown) {
     if (typeof runtime === 'number') { require(integer(runtime) && runtime < table.length); return table[runtime]!.state; }
     return runtime as RuntimeStateV1 | null;
   };
-  return { unpackHistory, unpackRuntime };
+  const unpackScheduler = (input: unknown, history: RuntimeHistorySessionV1): RuntimeSchedulerSessionV1 | null => {
+    if (input === null) return null;
+    require(record(input));
+    return { ...input, history: input.history === null ? history : unpackHistory(input.history), workingState: unpackRuntime(input.workingState) } as RuntimeSchedulerSessionV1;
+  };
+  return { unpackHistory, unpackRuntime, unpackScheduler };
 }

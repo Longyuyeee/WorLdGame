@@ -4,6 +4,7 @@ import { storyMotionStyle } from "./story-motion-style";
 import "./story-motion.css";
 import { RecoverySessionError, RecoverySessionRunner } from "./recovery-session-client";
 import { useStoryAdvance } from './use-story-advance';
+import { usePlaybackAdvance } from './use-playback-advance';
 import { notifyPlayerAutoVoiceFailure, startPlayerAutoClock } from "./auto-playback-clock";
 import { readPlayerReadingPace, storePlayerReadingPace, readingMillisecondsPerUnit, type PlayerReadingPace } from './player-reading';
 import { useCompactReadingLayout, useReadingMediaQuery, useReadingSurface } from './use-reading-surface';
@@ -42,6 +43,7 @@ import {
   configurePlayerCoreHistoryPolicyV1,
   dispatchPlayerCoreIntentV1,
   schedulePlayerCorePlaybackV1,
+  type PlayerCorePlaybackPolicyV1,
   type PlayerCoreIntentV1
 } from "@world-studio/player-core";
 import { derivePlayerStagePresentationV1, type PlayerMediaAssetSourceV1 } from "./player-presentation-adapter";
@@ -536,15 +538,25 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
   useEffect(() => { if (preferencesOpen) preferencesPanel.current?.querySelector<HTMLButtonElement>('button:not(:disabled)')?.focus(); }, [preferencesOpen]);
   const canonicalPlaybackPolicy = validateWorldPlayerPlaybackPolicyV1(playbackPolicy) ? playbackPolicy : DEFAULT_WORLD_PLAYER_PLAYBACK_POLICY_V1;
   const skipActive = skipMode !== null;
+  const playbackOwnership = useMemo(() => ({}), [autoEnabled, skipMode, skipActivation, skipSpeed, canonicalPlaybackPolicy, buildStopInstructionIds, readingPace, autoVoiceIdentity, mediaGeneration]);
+  const playbackAdvance = usePlaybackAdvance(state, setState, sessionRunner,
+    (autoEnabled || skipActive) && hostActivity === 'active' && !artworkView && !preferencesOpen && !readingMenuOpen && !historyPanelOpen && !savePanelOpen && !additionalContentOpen && !stageImagesPending &&
+    (!autoEnabled || textReady && !reading.unread) && memoryPressureStatus !== 'protecting' && (memoryPressureRequest === undefined || memoryPressureRequest.serial === handledMemorySerial), playbackOwnership, !editorPreview);
 
   useEffect(() => {
     setVoicePlaying(false);
   }, [localizedMedia.voice?.assetId]);
 
   const stopSkip = useCallback(() => {
+    playbackAdvance.cancel();
     skipModeCurrent.current = null;
     setSkipMode(null);
-  }, []);
+  }, [playbackAdvance.cancel]);
+  useEffect(() => {
+    if (!playbackAdvance.error) return;
+    skipModeCurrent.current = null; setSkipMode(null); setAutoEnabled(false); setAutoPlayback('stopped');
+  }, [playbackAdvance.error]);
+  useEffect(() => { if (storyAdvance.busy || storyAdvance.error || playbackAdvance.busy || playbackAdvance.error) setSaveFeedback(null); }, [storyAdvance.busy, storyAdvance.error, playbackAdvance.busy, playbackAdvance.error]);
   const startSkip = useCallback((mode: "skipRead" | "skipAll") => {
     setReadingMenuOpen(false);
     skipAwaitingDispatch.current = true;
@@ -894,6 +906,11 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
       setLastInputAccepted(false);
       return;
     }
+    if (intent.kind === 'primary' && playbackAdvance.busy && source !== 'system' && source !== 'lifecycle') {
+      // A key/gamepad takeover stops the uncommitted batch first, just like
+      // the visible stop button. Do not synchronously repeat a long advance.
+      playbackAdvance.cancel(); stopSkip(); setAutoEnabled(false); setAutoPlayback('off'); setLastInputAccepted(false); return;
+    }
     // Reading another screen is not a request to leave Auto or change story.
     // Check input permission first; an ignored input must not change its mode.
     if (intent.kind === 'primary' && (content.kind === 'dialogue' || content.kind === 'narration') && textReady && reading.nextPage()) {
@@ -916,7 +933,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
     setLastInputAccepted(true);
     if (intent.kind === 'primary' && source !== 'system' && source !== 'lifecycle' && storyAdvance.tryStart()) return;
     setState((current) => dispatchPlayerCoreIntentV1(current, project, intent));
-  }, [artworkView, content.kind, project, recoveryCandidate, recoveryOperation, recoveryStore, saveOperation, settingsApplication, stopSkip, textReady, voicePlaying, preferencesOpen, readingMenuOpen, historyPanelOpen, savePanelOpen, additionalContentOpen, snapshot.runtimeStateHash, snapshot.runtimeHostSnapshotHash, reading]);
+  }, [artworkView, content.kind, project, recoveryCandidate, recoveryOperation, recoveryStore, saveOperation, settingsApplication, stopSkip, textReady, voicePlaying, preferencesOpen, readingMenuOpen, historyPanelOpen, savePanelOpen, additionalContentOpen, snapshot.runtimeStateHash, snapshot.runtimeHostSnapshotHash, reading, playbackAdvance.busy, playbackAdvance.cancel]);
   useEffect(() => {
     if (hostActivity !== 'active' || artworkView || preferencesOpen || readingMenuOpen || historyPanelOpen || savePanelOpen || additionalContentOpen || !deferredMenuCompletion.current) return;
     const completion = deferredMenuCompletion.current;
@@ -1249,9 +1266,9 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
     setAutoPlayback(voice?.dataset.shouldPlay === "true" && !voice.ended && !voice.error && voice.dataset.voiceCompleted !== "true" && voice.dataset.voiceFailed !== "true" ? "waiting-voice" : "waiting");
     return startPlayerAutoClock(voice, delay, canonicalPlaybackPolicy.auto.voiceTailMilliseconds, () => {
       setAutoPlayback("advancing");
-      setState((current) => schedulePlayerCorePlaybackV1(current, policy));
+      if (!playbackAdvance.tryStart(policy)) setState((current) => schedulePlayerCorePlaybackV1(current, policy));
     });
-  }, [artworkView, autoEnabled, autoVoiceIdentity, preferencesOpen, historyPanelOpen, savePanelOpen, additionalContentOpen, stageImagesPending, buildStopInstructionIds, canonicalPlaybackPolicy, content, hostActivity, snapshot.playback.stopReason, snapshot.status, stage.video, stage.audio, textReady, mediaGeneration, localizedMedia.voice?.assetId, readingMenuOpen, reading.unread, readingPace]);
+  }, [artworkView, autoEnabled, autoVoiceIdentity, preferencesOpen, historyPanelOpen, savePanelOpen, additionalContentOpen, stageImagesPending, buildStopInstructionIds, canonicalPlaybackPolicy, content, hostActivity, snapshot.playback.stopReason, snapshot.status, stage.video, stage.audio, textReady, mediaGeneration, localizedMedia.voice?.assetId, readingMenuOpen, reading.unread, readingPace, playbackAdvance.tryStart]);
 
   useEffect(() => {
     if (!autoEnabled) return;
@@ -1290,7 +1307,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
     const timer = window.setTimeout(() => {
       if (skipModeCurrent.current !== skipMode) return;
       skipAwaitingDispatch.current = false;
-      setState((current) => schedulePlayerCorePlaybackV1(current, {
+      const policy: PlayerCorePlaybackPolicyV1 = {
         schemaVersion: 1,
         mode: skipMode,
         skipActivation,
@@ -1305,10 +1322,11 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
           voiceDurationMilliseconds: 0,
           voiceTailMilliseconds: 0
         }
-      }));
+      };
+      if (!playbackAdvance.tryStart(policy)) setState((current) => schedulePlayerCorePlaybackV1(current, policy));
     }, 0);
     return () => window.clearTimeout(timer);
-  }, [artworkView, preferencesOpen, historyPanelOpen, savePanelOpen, additionalContentOpen, stageImagesPending, buildStopInstructionIds, canonicalPlaybackPolicy.skip, hostActivity, project, skipActivation, skipActive, skipMode, skipSpeed, snapshot.history?.cursor, snapshot.playback.accumulatedInstructions, snapshot.playback.executedInstructions, snapshot.playback.mode, snapshot.playback.stopReason, snapshot.status, stage.video, stopSkip, readingMenuOpen]);
+  }, [artworkView, preferencesOpen, historyPanelOpen, savePanelOpen, additionalContentOpen, stageImagesPending, buildStopInstructionIds, canonicalPlaybackPolicy.skip, hostActivity, project, skipActivation, skipActive, skipMode, skipSpeed, snapshot.history?.cursor, snapshot.playback.accumulatedInstructions, snapshot.playback.executedInstructions, snapshot.playback.mode, snapshot.playback.stopReason, snapshot.status, stage.video, stopSkip, readingMenuOpen, playbackAdvance.tryStart, state, playbackOwnership]);
 
   useEffect(() => {
     if (!skipActive) return;
@@ -1638,6 +1656,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
       className="player-shell"
       data-player-status={snapshot.status}
       data-story-operation={storyAdvance.busy ? 'busy' : storyAdvance.error ? 'error' : 'idle'}
+      data-playback-operation={playbackAdvance.busy ? 'busy' : playbackAdvance.error ? 'error' : 'idle'}
       data-layout-title={!!componentLayout && layoutSurface === "title"}
       data-layout-reading={!!componentLayout && layoutSurface === "reading"}
       data-layout-fallback={componentLayout?.fallback ?? false}
@@ -1977,7 +1996,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
           {layoutSurface === "reading" && inlineLayoutComponents}
           {canViewArtwork && <button type="button" className="player-artwork-trigger" aria-label="欣赏画面" title="隐藏对白并停止自动推进（H）" disabled={hostActivity !== 'active' || preferencesOpen || historyPanelOpen || savePanelOpen || additionalContentOpen || readingMenuOpen} onClick={showArtwork}><svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.7"><rect x="3" y="3" width="18" height="18" rx="3" /><circle cx="8" cy="8" r="1.5" /><path d="m3 17 5-5 4 4 4-7 5 8" /></svg> {silentReading ? '画面' : '欣赏画面'}</button>}
           {silentReading && <><span className="player-sound-status" role="status">本次无声阅读。进度和个人音量未改变；恢复时会重新播放当前声音。</span><button type="button" aria-label="恢复当前声音" title="本次无声阅读；点击重新播放当前声音，不改变剧情进度或个人音量" disabled={hostActivity !== 'active' || preferencesOpen || historyPanelOpen || savePanelOpen || additionalContentOpen || readingMenuOpen} onClick={() => { setSilentReading(false); setMediaErrors(current => current.filter(id => !audibleTracks.some(track => track.assetId === id))); queueMicrotask(() => reading.element.current?.focus({ preventScroll: true })); }}>无声 · 恢复</button></>}
-          {autoEnabled && <button type="button" aria-label="停止自动阅读" onClick={() => { setAutoEnabled(false); setAutoPlayback('off'); }}>自动中 · 停止</button>}
+          {autoEnabled && <button type="button" aria-label="停止自动阅读" onClick={() => { playbackAdvance.cancel(); setAutoEnabled(false); setAutoPlayback('off'); }}>自动中 · 停止</button>}
           <button ref={readingMenuTrigger} type="button" aria-label={readingMenuOpen ? '关闭阅读菜单' : '打开阅读菜单'} aria-expanded={readingMenuOpen} aria-controls="player-reading-menu" disabled={hostActivity !== 'active' || preferencesOpen || historyPanelOpen || savePanelOpen || additionalContentOpen} onClick={event => { if (readingMenuOpen) closeReadingMenu(); else { readingMenuReturnTrigger.current = event.currentTarget; stopSkip(); setReadingMenuOpen(true); } }}>{readingMenuOpen ? '返回故事 ×' : '菜单 ☰'}</button>
         </div>}
         {compactReading && content.kind !== 'title' && !silentReading && !autoEnabled && <p className="player-portrait-hint">横屏更适合观看演出</p>}
@@ -2318,10 +2337,14 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
         </PlayerPanelRegion>
         {readingMenuOpen && <>{panelComponents("menu")}{panelAudit("menu")}</>}
         </div>
-        {saveFeedback && !savePanelOpen && <p className="player-save-feedback" role="status" aria-live="polite">{saveFeedback}</p>}
+        {saveFeedback && !savePanelOpen && !storyAdvance.busy && !storyAdvance.error && !playbackAdvance.busy && !playbackAdvance.error && <p className="player-save-feedback" role="status" aria-live="polite">{saveFeedback}</p>}
         {backgroundSaveFailure && content.kind !== "title" && !savePanelOpen && !readingMenuOpen && !preferencesOpen && !historyPanelOpen && !additionalContentOpen && !artworkView && !snapshot.sceneReplay.active && <aside className="player-background-save-notice" role="alert" aria-label="后台保存提醒">
           <div><strong>{backgroundSaveFailure.kind === "auto" ? "自动保存未完成" : "检查点未保存"}</strong><p>{backgroundSaveFailure.message}</p></div>
           <div className="player-background-save-notice__actions"><button type="button" disabled={!saveBoundaryAllowed || hostActivity !== "active"} onClick={() => { setSaveIntent("save"); setSaveView("manual"); setPendingOverwriteSlotId(null); openSavePanel(); }}>保存当前进度</button><button type="button" aria-label="关闭保存提醒" onClick={() => setBackgroundSaveFailure(null)}>知道了</button></div>
+        </aside>}
+        {(playbackAdvance.busy || playbackAdvance.error) && !readingMenuOpen && !preferencesOpen && !historyPanelOpen && !savePanelOpen && !additionalContentOpen && !artworkView && <aside className="player-story-progress" role={playbackAdvance.error ? 'alert' : 'status'}>
+          <span>{playbackAdvance.error ?? (autoEnabled ? '正在自动继续，当前句保持不变…' : '正在快进，当前句保持不变…')}</span>
+          <button type="button" onClick={() => { playbackAdvance.cancel(); stopSkip(); setAutoEnabled(false); setAutoPlayback('off'); reading.element.current?.focus({ preventScroll: true }); }}>{playbackAdvance.error ? '切回手动阅读' : '停止并留在当前句'}</button>
         </aside>}
         {content.kind !== "title" && recoveryStore !== undefined && !snapshot.sceneReplay.active && (recoveryCandidate !== null || recoveryOperation === "error") && (
           <aside className="player-recovery" role={recoveryOperation === "error" ? "alert" : "status"} aria-live="polite">
@@ -2427,7 +2450,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
             ref={readingRef}
             type="button"
             disabled={storyAdvance.busy}
-            aria-busy={storyAdvance.busy}
+            aria-busy={storyAdvance.busy || playbackAdvance.busy}
             data-text-ready={textReady}
             data-text-reveal-duration={textRevealDuration}
             onScroll={reading.measure}

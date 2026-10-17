@@ -16,7 +16,9 @@ export function encodeSessionInput<T extends RecoverySessionSource>(source: T): 
     const historySession = codec.packHistory(source.historySession);
     const candidates = (source as Partial<PlayerCoreState>).deferredCheckpointSaveCandidates;
     const deferred = candidates === undefined ? {} : { deferredCheckpointSaveCandidates: candidates.map(candidate => ({ ...candidate, historySession: codec.packHistory(candidate.historySession) })) };
-    return { encoding, value: { ...source, historySession, runtimeState: codec.packRuntime(source.runtimeState, source.historySession), ...deferred }, checkpoints: codec.checkpoints };
+    const scheduler = (source as Partial<PlayerCoreState>).schedulerSession;
+    return { encoding, value: { ...source, historySession, runtimeState: codec.packRuntime(source.runtimeState, source.historySession), ...deferred,
+      ...(scheduler === undefined ? {} : { schedulerSession: codec.packScheduler(scheduler, source.historySession) }) }, checkpoints: codec.checkpoints };
   } catch (error) { if (error === plainHistoryTransport) return source; throw error; }
 }
 
@@ -33,18 +35,21 @@ export function decodeSessionInput<T extends RecoverySessionSource>(input: Sessi
       require(record(candidate)); return { ...candidate, historySession: codec.unpackHistory(candidate.historySession) };
     }) };
   }
-  return { ...source, historySession: codec.unpackHistory(source.historySession), runtimeState: codec.unpackRuntime(source.runtimeState), ...deferred } as unknown as T;
+  const historySession = codec.unpackHistory(source.historySession);
+  return { ...source, historySession, runtimeState: codec.unpackRuntime(source.runtimeState), ...deferred,
+    ...(Object.hasOwn(source, 'schedulerSession') ? { schedulerSession: codec.unpackScheduler(source.schedulerSession, historySession) } : {}) } as unknown as T;
 }
 
-export type ForegroundSessionWireTask = Exclude<ForegroundSessionWorkerTask, { kind: 'advance' | 'save' }> |
-  { readonly kind: 'advance'; readonly state: SessionInputWire<PlayerCoreState> } | { readonly kind: 'save'; readonly source: SessionInputWire<RecoverySessionSource> };
+export type ForegroundSessionWireTask = Exclude<ForegroundSessionWorkerTask, { kind: 'advance' | 'save' | 'playback' }> |
+  { readonly kind: 'advance'; readonly state: SessionInputWire<PlayerCoreState> } | { readonly kind: 'save'; readonly source: SessionInputWire<RecoverySessionSource> } |
+  (Omit<Extract<ForegroundSessionWorkerTask, { kind: 'playback' }>, 'state'> & { readonly state: SessionInputWire<PlayerCoreState> });
 export function encodeForegroundSessionInput(task: ForegroundSessionWorkerTask): ForegroundSessionWireTask {
-  if (task.kind === 'advance') return { ...task, state: encodeSessionInput(task.state) };
+  if (task.kind === 'advance' || task.kind === 'playback') return { ...task, state: encodeSessionInput(task.state) };
   if (task.kind === 'save') return { ...task, source: encodeSessionInput(task.source) };
   return task;
 }
 export function decodeForegroundSessionInput(task: ForegroundSessionWireTask): ForegroundSessionWorkerTask {
-  if (task.kind === 'advance') return { ...task, state: decodeSessionInput(task.state) };
+  if (task.kind === 'advance' || task.kind === 'playback') return { ...task, state: decodeSessionInput(task.state) };
   if (task.kind === 'save') return { ...task, source: decodeSessionInput(task.source) };
   return task;
 }

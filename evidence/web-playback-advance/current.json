@@ -1,0 +1,940 @@
+{
+  "passed": true,
+  "label": "current",
+  "browser": "151.0.7922.34",
+  "identity": {
+    "baselineCommit": "0ae9cfe0fabeeb535acc587cc1806b659bb8f8d5",
+    "bundleHash": "4e5f073a665687193ced33abab18ccb5d983bdf58497cb17ce4f7df1fde03799",
+    "cssHash": "6d26d35ba789994b63aa6cf67db4eee5c334f2290ac73e27c0430dc1204697f3",
+    "fixtureHash": "9681155629618e6b5ed052ff2d1f56290251304568648b8cd82027cc0525716c",
+    "frozenSourcesHash": "4f637aa7beabf7a15c51f41aa4444fc4d1d3e7facf165e1db109b4bcfa82b6b5"
+  },
+  "rows": [
+    {
+      "count": 480,
+      "mode": "auto",
+      "round": 0,
+      "state": {
+        "hash": "742c5192d82767fa1cb0ea9eba325bf7985c6a86f34158ca64e35b8b36ef153f",
+        "cursor": "481",
+        "length": "481",
+        "text": "长篇第 480 句：保存与恢复不能丢失历史。",
+        "stopReason": "storyBoundary"
+      },
+      "wallMs": 1446.5,
+      "tasks": [],
+      "packets": [
+        {
+          "id": 4,
+          "mode": "auto",
+          "at": 28879.30000001192,
+          "encoding": "world-player.session-input.1",
+          "checkpoints": 481,
+          "sendMs": 2,
+          "replyAt": 28949.5,
+          "resultEncoding": "world-player.history-lists.1"
+        }
+      ],
+      "frames": [
+        {
+          "changed": 28953.70000000298,
+          "frame": 28967.30000001192
+        }
+      ],
+      "commitMs": 1365.7000000029802,
+      "saved": {
+        "bytes": 1949763,
+        "sha256": "891f447acd35d103fd16622086c8d3671ceb8414f130259ba4c25cc679bdc372",
+        "sessionArtifactHash": "94bdfd6895e9bdda64ae35796382d1103f2388e12854d1a98395536368787cb1",
+        "runtimeStateHash": "6c032d7727f8ebcb27cee07d4107104345d2c3b633910a97964a7b937308fa9c"
+      }
+    },
+    {
+      "count": 480,
+      "mode": "auto",
+      "round": 1,
+      "state": {
+        "hash": "742c5192d82767fa1cb0ea9eba325bf7985c6a86f34158ca64e35b8b36ef153f",
+        "cursor": "481",
+        "length": "481",
+        "text": "长篇第 480 句：保存与恢复不能丢失历史。",
+        "stopReason": "storyBoundary"
+      },
+      "wallMs": 1429.2999999970198,
+      "tasks": [],
+      "packets": [
+        {
+          "id": 6,
+          "mode": "auto",
+          "at": 30617.20000000298,
+          "encoding": "world-player.session-input.1",
+          "checkpoints": 481,
+          "sendMs": 1.9000000059604645,
+          "replyAt": 30687.40000000596,
+          "resultEncoding": "world-player.history-lists.1"
+        }
+      ],
+      "frames": [
+        {
+          "changed": 30690.10000000894,
+          "frame": 30701
+        }
+      ],
+      "commitMs": 1351.4000000059605,
+      "saved": {
+        "bytes": 1949763,
+        "sha256": "891f447acd35d103fd16622086c8d3671ceb8414f130259ba4c25cc679bdc372",
+        "sessionArtifactHash": "94bdfd6895e9bdda64ae35796382d1103f2388e12854d1a98395536368787cb1",
+        "runtimeStateHash": "6c032d7727f8ebcb27cee07d4107104345d2c3b633910a97964a7b937308fa9c"
+      }
+    },
+    {
+      "count": 480,
+      "mode": "auto",
+      "round": 2,
+      "state": {
+        "hash": "742c5192d82767fa1cb0ea9eba325bf7985c6a86f34158ca64e35b8b36ef153f",
+        "cursor": "481",
+        "length": "481",
+        "text": "长篇第 480 句：保存与恢复不能丢失历史。",
+        "stopReason": "storyBoundary"
+      },
+      "wallMs": 1428.2000000029802,
+      "tasks": [],
+      "packets": [
+        {
+          "id": 8,
+          "mode": "auto",
+          "at": 32384.30000001192,
+          "encoding": "world-player.session-input.1",
+          "checkpoints": 481,
+          "sendMs": 2.3999999910593033,
+          "replyAt": 32449.40000000596,
+          "resultEncoding": "world-player.history-lists.1"
+        }
+      ],
+      "frames": [
+        {
+          "changed": 32452.20000000298,
+          "frame": 32457.30000001192
+        }
+      ],
+      "commitMs": 1363,
+      "saved": {
+        "bytes": 1949763,
+        "sha256": "891f447acd35d103fd16622086c8d3671ceb8414f130259ba4c25cc679bdc372",
+        "sessionArtifactHash": "94bdfd6895e9bdda64ae35796382d1103f2388e12854d1a98395536368787cb1",
+        "runtimeStateHash": "6c032d7727f8ebcb27cee07d4107104345d2c3b633910a97964a7b937308fa9c"
+      }
+    },
+    {
+      "count": 480,
+      "mode": "skipRead",
+      "round": 0,
+      "state": {
+        "hash": "d934251aeb41c3a5c61f20d82ba2edec4848b0dc96f6a456880a219340fc0f63",
+        "cursor": "482",
+        "length": "482",
+        "text": "长篇第 481 句：保存与恢复不能丢失历史。",
+        "stopReason": "unreadBoundary"
+      },
+      "wallMs": 194.20000000298023,
+      "tasks": [],
+      "packets": [
+        {
+          "id": 10,
+          "mode": "skipRead",
+          "at": 32885.70000000298,
+          "encoding": "world-player.session-input.1",
+          "checkpoints": 481,
+          "sendMs": 2.1000000089406967,
+          "replyAt": 32961.30000001192,
+          "resultEncoding": "world-player.history-lists.1"
+        }
+      ],
+      "frames": [
+        {
+          "changed": 32964.70000000298,
+          "frame": 32969.30000001192
+        }
+      ],
+      "commitMs": 158,
+      "saved": {
+        "bytes": 1949763,
+        "sha256": "891f447acd35d103fd16622086c8d3671ceb8414f130259ba4c25cc679bdc372",
+        "sessionArtifactHash": "94bdfd6895e9bdda64ae35796382d1103f2388e12854d1a98395536368787cb1",
+        "runtimeStateHash": "6c032d7727f8ebcb27cee07d4107104345d2c3b633910a97964a7b937308fa9c"
+      }
+    },
+    {
+      "count": 480,
+      "mode": "skipRead",
+      "round": 1,
+      "state": {
+        "hash": "291fc48db218743b3c8a861417ce77513ff9898ff072521e1471af997121e026",
+        "cursor": "483",
+        "length": "483",
+        "text": "长篇第 482 句：保存与恢复不能丢失历史。",
+        "stopReason": "unreadBoundary"
+      },
+      "wallMs": 207.79999999701977,
+      "tasks": [],
+      "packets": [
+        {
+          "id": 12,
+          "mode": "skipRead",
+          "at": 33368.40000000596,
+          "encoding": "world-player.session-input.1",
+          "checkpoints": 481,
+          "sendMs": 3.2000000029802322,
+          "replyAt": 33451.20000000298,
+          "resultEncoding": "world-player.history-lists.1"
+        }
+      ],
+      "frames": [
+        {
+          "changed": 33455.80000001192,
+          "frame": 33467.10000000894
+        }
+      ],
+      "commitMs": 162.6000000089407,
+      "saved": {
+        "bytes": 1949763,
+        "sha256": "891f447acd35d103fd16622086c8d3671ceb8414f130259ba4c25cc679bdc372",
+        "sessionArtifactHash": "94bdfd6895e9bdda64ae35796382d1103f2388e12854d1a98395536368787cb1",
+        "runtimeStateHash": "6c032d7727f8ebcb27cee07d4107104345d2c3b633910a97964a7b937308fa9c"
+      }
+    },
+    {
+      "count": 480,
+      "mode": "skipRead",
+      "round": 2,
+      "state": {
+        "hash": "4be07feca821907e1d8770689d4639637d43f109b2c6932b5e0277bb9bcd7aaf",
+        "cursor": "484",
+        "length": "484",
+        "text": "长篇第 483 句：保存与恢复不能丢失历史。",
+        "stopReason": "unreadBoundary"
+      },
+      "wallMs": 213.90000000596046,
+      "tasks": [],
+      "packets": [
+        {
+          "id": 14,
+          "mode": "skipRead",
+          "at": 33868.5,
+          "encoding": "world-player.session-input.1",
+          "checkpoints": 481,
+          "sendMs": 3.9000000059604645,
+          "replyAt": 33958.90000000596,
+          "resultEncoding": "world-player.history-lists.1"
+        }
+      ],
+      "frames": [
+        {
+          "changed": 33963.60000000894,
+          "frame": 33968
+        }
+      ],
+      "commitMs": 175.6000000089407,
+      "saved": {
+        "bytes": 1949763,
+        "sha256": "891f447acd35d103fd16622086c8d3671ceb8414f130259ba4c25cc679bdc372",
+        "sessionArtifactHash": "94bdfd6895e9bdda64ae35796382d1103f2388e12854d1a98395536368787cb1",
+        "runtimeStateHash": "6c032d7727f8ebcb27cee07d4107104345d2c3b633910a97964a7b937308fa9c"
+      }
+    },
+    {
+      "count": 480,
+      "mode": "skipAll",
+      "round": 0,
+      "state": {
+        "hash": "48091e59af3e7bc9b4ab8b4f905c74fc712361883710a2187786c348f96101da",
+        "cursor": "500",
+        "length": "500",
+        "text": "长篇第 499 句：保存与恢复不能丢失历史。",
+        "stopReason": "budget"
+      },
+      "wallMs": 213.69999998807907,
+      "tasks": [],
+      "packets": [
+        {
+          "id": 16,
+          "mode": "skipAll",
+          "at": 34385.90000000596,
+          "encoding": "world-player.session-input.1",
+          "checkpoints": 481,
+          "sendMs": 3.2000000029802322,
+          "replyAt": 34480.20000000298,
+          "resultEncoding": "world-player.history-lists.1"
+        }
+      ],
+      "frames": [
+        {
+          "changed": 34483.20000000298,
+          "frame": 34488.20000000298
+        }
+      ],
+      "commitMs": 178.3999999910593,
+      "saved": {
+        "bytes": 1949763,
+        "sha256": "891f447acd35d103fd16622086c8d3671ceb8414f130259ba4c25cc679bdc372",
+        "sessionArtifactHash": "94bdfd6895e9bdda64ae35796382d1103f2388e12854d1a98395536368787cb1",
+        "runtimeStateHash": "6c032d7727f8ebcb27cee07d4107104345d2c3b633910a97964a7b937308fa9c"
+      }
+    },
+    {
+      "count": 480,
+      "mode": "skipAll",
+      "round": 1,
+      "state": {
+        "hash": "48091e59af3e7bc9b4ab8b4f905c74fc712361883710a2187786c348f96101da",
+        "cursor": "500",
+        "length": "500",
+        "text": "长篇第 499 句：保存与恢复不能丢失历史。",
+        "stopReason": "budget"
+      },
+      "wallMs": 213.59999999403954,
+      "tasks": [],
+      "packets": [
+        {
+          "id": 18,
+          "mode": "skipAll",
+          "at": 34918.10000000894,
+          "encoding": "world-player.session-input.1",
+          "checkpoints": 481,
+          "sendMs": 3,
+          "replyAt": 35009.5,
+          "resultEncoding": "world-player.history-lists.1"
+        }
+      ],
+      "frames": [
+        {
+          "changed": 35013.70000000298,
+          "frame": 35019.10000000894
+        }
+      ],
+      "commitMs": 176.09999999403954,
+      "saved": {
+        "bytes": 1949763,
+        "sha256": "891f447acd35d103fd16622086c8d3671ceb8414f130259ba4c25cc679bdc372",
+        "sessionArtifactHash": "94bdfd6895e9bdda64ae35796382d1103f2388e12854d1a98395536368787cb1",
+        "runtimeStateHash": "6c032d7727f8ebcb27cee07d4107104345d2c3b633910a97964a7b937308fa9c"
+      }
+    },
+    {
+      "count": 480,
+      "mode": "skipAll",
+      "round": 2,
+      "state": {
+        "hash": "48091e59af3e7bc9b4ab8b4f905c74fc712361883710a2187786c348f96101da",
+        "cursor": "500",
+        "length": "500",
+        "text": "长篇第 499 句：保存与恢复不能丢失历史。",
+        "stopReason": "budget"
+      },
+      "wallMs": 231.79999999701977,
+      "tasks": [],
+      "packets": [
+        {
+          "id": 20,
+          "mode": "skipAll",
+          "at": 35418.5,
+          "encoding": "world-player.session-input.1",
+          "checkpoints": 481,
+          "sendMs": 2.4000000059604645,
+          "replyAt": 35522.70000000298,
+          "resultEncoding": "world-player.history-lists.1"
+        }
+      ],
+      "frames": [
+        {
+          "changed": 35525.80000001192,
+          "frame": 35534.80000001192
+        }
+      ],
+      "commitMs": 189.70000000298023,
+      "saved": {
+        "bytes": 1949763,
+        "sha256": "891f447acd35d103fd16622086c8d3671ceb8414f130259ba4c25cc679bdc372",
+        "sessionArtifactHash": "94bdfd6895e9bdda64ae35796382d1103f2388e12854d1a98395536368787cb1",
+        "runtimeStateHash": "6c032d7727f8ebcb27cee07d4107104345d2c3b633910a97964a7b937308fa9c"
+      }
+    },
+    {
+      "count": 960,
+      "mode": "auto",
+      "round": 0,
+      "state": {
+        "hash": "b63fb31b196eb0191de7bda01a05e55dd97417d8a9083ad5a8a5c0cb1870ccd5",
+        "cursor": "961",
+        "length": "961",
+        "text": "长篇第 960 句：保存与恢复不能丢失历史。",
+        "stopReason": "storyBoundary"
+      },
+      "wallMs": 1548.300000011921,
+      "tasks": [
+        {
+          "start": 110586.80000001192,
+          "duration": 92
+        }
+      ],
+      "packets": [
+        {
+          "id": 504,
+          "mode": "auto",
+          "at": 111531.70000000298,
+          "encoding": "world-player.session-input.1",
+          "checkpoints": 961,
+          "sendMs": 3.7000000029802322,
+          "replyAt": 111741.10000000894,
+          "resultEncoding": "world-player.history-lists.1"
+        }
+      ],
+      "frames": [
+        {
+          "changed": 111748.60000000894,
+          "frame": 111750.80000001192
+        }
+      ],
+      "commitMs": 1482.1000000089407,
+      "saved": {
+        "bytes": 6430233,
+        "sha256": "2bb8210b142ad92cf8c968eec95c637954518397d51419c834cff78a118d7382",
+        "sessionArtifactHash": "15674712006f7700292dc338c1f7967210a160ae60d63c953fa0eb14a6bf7ae2",
+        "runtimeStateHash": "739bcd3640e4a88a7d036cfc3acf352d961cf18f946ce1aef0b9b31ddcf85cfe"
+      }
+    },
+    {
+      "count": 960,
+      "mode": "auto",
+      "round": 1,
+      "state": {
+        "hash": "b63fb31b196eb0191de7bda01a05e55dd97417d8a9083ad5a8a5c0cb1870ccd5",
+        "cursor": "961",
+        "length": "961",
+        "text": "长篇第 960 句：保存与恢复不能丢失历史。",
+        "stopReason": "storyBoundary"
+      },
+      "wallMs": 1548.0999999940395,
+      "tasks": [
+        {
+          "start": 112850.20000000298,
+          "duration": 96
+        }
+      ],
+      "packets": [
+        {
+          "id": 506,
+          "mode": "auto",
+          "at": 113782,
+          "encoding": "world-player.session-input.1",
+          "checkpoints": 961,
+          "sendMs": 3.4000000059604645,
+          "replyAt": 113966.30000001192,
+          "resultEncoding": "world-player.history-lists.1"
+        }
+      ],
+      "frames": [
+        {
+          "changed": 113973.30000001192,
+          "frame": 113981
+        }
+      ],
+      "commitMs": 1472.7000000029802,
+      "saved": {
+        "bytes": 6430233,
+        "sha256": "2bb8210b142ad92cf8c968eec95c637954518397d51419c834cff78a118d7382",
+        "sessionArtifactHash": "15674712006f7700292dc338c1f7967210a160ae60d63c953fa0eb14a6bf7ae2",
+        "runtimeStateHash": "739bcd3640e4a88a7d036cfc3acf352d961cf18f946ce1aef0b9b31ddcf85cfe"
+      }
+    },
+    {
+      "count": 960,
+      "mode": "auto",
+      "round": 2,
+      "state": {
+        "hash": "b63fb31b196eb0191de7bda01a05e55dd97417d8a9083ad5a8a5c0cb1870ccd5",
+        "cursor": "961",
+        "length": "961",
+        "text": "长篇第 960 句：保存与恢复不能丢失历史。",
+        "stopReason": "storyBoundary"
+      },
+      "wallMs": 1580.6000000089407,
+      "tasks": [
+        {
+          "start": 115036.5,
+          "duration": 97
+        }
+      ],
+      "packets": [
+        {
+          "id": 508,
+          "mode": "auto",
+          "at": 115983,
+          "encoding": "world-player.session-input.1",
+          "checkpoints": 961,
+          "sendMs": 3.5,
+          "replyAt": 116205.70000000298,
+          "resultEncoding": "world-player.history-lists.1"
+        }
+      ],
+      "frames": [
+        {
+          "changed": 116218.70000000298,
+          "frame": 116232.90000000596
+        }
+      ],
+      "commitMs": 1501.2000000029802,
+      "saved": {
+        "bytes": 6430233,
+        "sha256": "2bb8210b142ad92cf8c968eec95c637954518397d51419c834cff78a118d7382",
+        "sessionArtifactHash": "15674712006f7700292dc338c1f7967210a160ae60d63c953fa0eb14a6bf7ae2",
+        "runtimeStateHash": "739bcd3640e4a88a7d036cfc3acf352d961cf18f946ce1aef0b9b31ddcf85cfe"
+      }
+    },
+    {
+      "count": 960,
+      "mode": "skipRead",
+      "round": 0,
+      "state": {
+        "hash": "2f783c4e32a6ec71ba32bfce508365645947da6065fab5b93b97d36818c07032",
+        "cursor": "962",
+        "length": "962",
+        "text": "长篇第 961 句：保存与恢复不能丢失历史。",
+        "stopReason": "unreadBoundary"
+      },
+      "wallMs": 329.09999999403954,
+      "tasks": [],
+      "packets": [
+        {
+          "id": 510,
+          "mode": "skipRead",
+          "at": 117467.20000000298,
+          "encoding": "world-player.session-input.1",
+          "checkpoints": 961,
+          "sendMs": 4.700000002980232,
+          "replyAt": 117676.70000000298,
+          "resultEncoding": "world-player.history-lists.1"
+        }
+      ],
+      "frames": [
+        {
+          "changed": 117680.10000000894,
+          "frame": 117683.20000000298
+        }
+      ],
+      "commitMs": 294.29999999701977,
+      "saved": {
+        "bytes": 6430233,
+        "sha256": "2bb8210b142ad92cf8c968eec95c637954518397d51419c834cff78a118d7382",
+        "sessionArtifactHash": "15674712006f7700292dc338c1f7967210a160ae60d63c953fa0eb14a6bf7ae2",
+        "runtimeStateHash": "739bcd3640e4a88a7d036cfc3acf352d961cf18f946ce1aef0b9b31ddcf85cfe"
+      }
+    },
+    {
+      "count": 960,
+      "mode": "skipRead",
+      "round": 1,
+      "state": {
+        "hash": "e240fe3c2deaf166e7ec56c15a20ddcc674205ee551985e7f82efe3117830295",
+        "cursor": "963",
+        "length": "963",
+        "text": "长篇第 962 句：保存与恢复不能丢失历史。",
+        "stopReason": "unreadBoundary"
+      },
+      "wallMs": 452.20000000298023,
+      "tasks": [
+        {
+          "start": 118859.90000000596,
+          "duration": 103
+        }
+      ],
+      "packets": [
+        {
+          "id": 512,
+          "mode": "skipRead",
+          "at": 118599.80000001192,
+          "encoding": "world-player.session-input.1",
+          "checkpoints": 961,
+          "sendMs": 4.299999997019768,
+          "replyAt": 118821.70000000298,
+          "resultEncoding": "world-player.history-lists.1"
+        }
+      ],
+      "frames": [
+        {
+          "changed": 118826.70000000298,
+          "frame": 118830.90000000596
+        }
+      ],
+      "commitMs": 310,
+      "saved": {
+        "bytes": 6430233,
+        "sha256": "2bb8210b142ad92cf8c968eec95c637954518397d51419c834cff78a118d7382",
+        "sessionArtifactHash": "15674712006f7700292dc338c1f7967210a160ae60d63c953fa0eb14a6bf7ae2",
+        "runtimeStateHash": "739bcd3640e4a88a7d036cfc3acf352d961cf18f946ce1aef0b9b31ddcf85cfe"
+      }
+    },
+    {
+      "count": 960,
+      "mode": "skipRead",
+      "round": 2,
+      "state": {
+        "hash": "f48ce86a288cdcf05fa27efb3ed6c3b260f7024dbd10aef4cd3fb02b11de1445",
+        "cursor": "964",
+        "length": "964",
+        "text": "长篇第 963 句：保存与恢复不能丢失历史。",
+        "stopReason": "unreadBoundary"
+      },
+      "wallMs": 459.1000000089407,
+      "tasks": [
+        {
+          "start": 120093.80000001192,
+          "duration": 100
+        }
+      ],
+      "packets": [
+        {
+          "id": 514,
+          "mode": "skipRead",
+          "at": 119816.80000001192,
+          "encoding": "world-player.session-input.1",
+          "checkpoints": 961,
+          "sendMs": 3.2999999970197678,
+          "replyAt": 120048.80000001192,
+          "resultEncoding": "world-player.history-lists.1"
+        }
+      ],
+      "frames": [
+        {
+          "changed": 120052.80000001192,
+          "frame": 120064.80000001192
+        }
+      ],
+      "commitMs": 317.1000000089407,
+      "saved": {
+        "bytes": 6430233,
+        "sha256": "2bb8210b142ad92cf8c968eec95c637954518397d51419c834cff78a118d7382",
+        "sessionArtifactHash": "15674712006f7700292dc338c1f7967210a160ae60d63c953fa0eb14a6bf7ae2",
+        "runtimeStateHash": "739bcd3640e4a88a7d036cfc3acf352d961cf18f946ce1aef0b9b31ddcf85cfe"
+      }
+    },
+    {
+      "count": 960,
+      "mode": "skipAll",
+      "round": 0,
+      "state": {
+        "hash": "edf2bfef92c4b918965a75f45d77ac67ece951c2de3ff4221e8461b2cb9ceff2",
+        "cursor": "973",
+        "length": "973",
+        "text": "",
+        "stopReason": "terminal"
+      },
+      "wallMs": 378.29999999701977,
+      "tasks": [],
+      "packets": [
+        {
+          "id": 516,
+          "mode": "skipAll",
+          "at": 121035.40000000596,
+          "encoding": "world-player.session-input.1",
+          "checkpoints": 961,
+          "sendMs": 4.4000000059604645,
+          "replyAt": 121278.80000001192,
+          "resultEncoding": "world-player.history-lists.1"
+        }
+      ],
+      "frames": [
+        {
+          "changed": 121284.70000000298,
+          "frame": 121296.70000000298
+        }
+      ],
+      "commitMs": 332.09999999403954,
+      "saved": {
+        "bytes": 6430233,
+        "sha256": "2bb8210b142ad92cf8c968eec95c637954518397d51419c834cff78a118d7382",
+        "sessionArtifactHash": "15674712006f7700292dc338c1f7967210a160ae60d63c953fa0eb14a6bf7ae2",
+        "runtimeStateHash": "739bcd3640e4a88a7d036cfc3acf352d961cf18f946ce1aef0b9b31ddcf85cfe"
+      }
+    },
+    {
+      "count": 960,
+      "mode": "skipAll",
+      "round": 1,
+      "state": {
+        "hash": "edf2bfef92c4b918965a75f45d77ac67ece951c2de3ff4221e8461b2cb9ceff2",
+        "cursor": "973",
+        "length": "973",
+        "text": "",
+        "stopReason": "terminal"
+      },
+      "wallMs": 487.5,
+      "tasks": [
+        {
+          "start": 122537.80000001192,
+          "duration": 99
+        }
+      ],
+      "packets": [
+        {
+          "id": 518,
+          "mode": "skipAll",
+          "at": 122234,
+          "encoding": "world-player.session-input.1",
+          "checkpoints": 961,
+          "sendMs": 4.800000011920929,
+          "replyAt": 122498.10000000894,
+          "resultEncoding": "world-player.history-lists.1"
+        }
+      ],
+      "frames": [
+        {
+          "changed": 122504,
+          "frame": 122513.5
+        }
+      ],
+      "commitMs": 353.09999999403954,
+      "saved": {
+        "bytes": 6430233,
+        "sha256": "2bb8210b142ad92cf8c968eec95c637954518397d51419c834cff78a118d7382",
+        "sessionArtifactHash": "15674712006f7700292dc338c1f7967210a160ae60d63c953fa0eb14a6bf7ae2",
+        "runtimeStateHash": "739bcd3640e4a88a7d036cfc3acf352d961cf18f946ce1aef0b9b31ddcf85cfe"
+      }
+    },
+    {
+      "count": 960,
+      "mode": "skipAll",
+      "round": 2,
+      "state": {
+        "hash": "edf2bfef92c4b918965a75f45d77ac67ece951c2de3ff4221e8461b2cb9ceff2",
+        "cursor": "973",
+        "length": "973",
+        "text": "",
+        "stopReason": "terminal"
+      },
+      "wallMs": 466.5,
+      "tasks": [
+        {
+          "start": 123694.80000001192,
+          "duration": 100
+        }
+      ],
+      "packets": [
+        {
+          "id": 520,
+          "mode": "skipAll",
+          "at": 123416.20000000298,
+          "encoding": "world-player.session-input.1",
+          "checkpoints": 961,
+          "sendMs": 3.5,
+          "replyAt": 123656.60000000894,
+          "resultEncoding": "world-player.history-lists.1"
+        }
+      ],
+      "frames": [
+        {
+          "changed": 123666.20000000298,
+          "frame": 123669.60000000894
+        }
+      ],
+      "commitMs": 332.09999999403954,
+      "saved": {
+        "bytes": 6430233,
+        "sha256": "2bb8210b142ad92cf8c968eec95c637954518397d51419c834cff78a118d7382",
+        "sessionArtifactHash": "15674712006f7700292dc338c1f7967210a160ae60d63c953fa0eb14a6bf7ae2",
+        "runtimeStateHash": "739bcd3640e4a88a7d036cfc3acf352d961cf18f946ce1aef0b9b31ddcf85cfe"
+      }
+    }
+  ],
+  "checks": [],
+  "packets": [
+    {
+      "id": 4,
+      "mode": "auto",
+      "at": 28879.30000001192,
+      "encoding": "world-player.session-input.1",
+      "checkpoints": 481,
+      "sendMs": 2,
+      "replyAt": 28949.5,
+      "resultEncoding": "world-player.history-lists.1"
+    },
+    {
+      "id": 6,
+      "mode": "auto",
+      "at": 30617.20000000298,
+      "encoding": "world-player.session-input.1",
+      "checkpoints": 481,
+      "sendMs": 1.9000000059604645,
+      "replyAt": 30687.40000000596,
+      "resultEncoding": "world-player.history-lists.1"
+    },
+    {
+      "id": 8,
+      "mode": "auto",
+      "at": 32384.30000001192,
+      "encoding": "world-player.session-input.1",
+      "checkpoints": 481,
+      "sendMs": 2.3999999910593033,
+      "replyAt": 32449.40000000596,
+      "resultEncoding": "world-player.history-lists.1"
+    },
+    {
+      "id": 10,
+      "mode": "skipRead",
+      "at": 32885.70000000298,
+      "encoding": "world-player.session-input.1",
+      "checkpoints": 481,
+      "sendMs": 2.1000000089406967,
+      "replyAt": 32961.30000001192,
+      "resultEncoding": "world-player.history-lists.1"
+    },
+    {
+      "id": 12,
+      "mode": "skipRead",
+      "at": 33368.40000000596,
+      "encoding": "world-player.session-input.1",
+      "checkpoints": 481,
+      "sendMs": 3.2000000029802322,
+      "replyAt": 33451.20000000298,
+      "resultEncoding": "world-player.history-lists.1"
+    },
+    {
+      "id": 14,
+      "mode": "skipRead",
+      "at": 33868.5,
+      "encoding": "world-player.session-input.1",
+      "checkpoints": 481,
+      "sendMs": 3.9000000059604645,
+      "replyAt": 33958.90000000596,
+      "resultEncoding": "world-player.history-lists.1"
+    },
+    {
+      "id": 16,
+      "mode": "skipAll",
+      "at": 34385.90000000596,
+      "encoding": "world-player.session-input.1",
+      "checkpoints": 481,
+      "sendMs": 3.2000000029802322,
+      "replyAt": 34480.20000000298,
+      "resultEncoding": "world-player.history-lists.1"
+    },
+    {
+      "id": 18,
+      "mode": "skipAll",
+      "at": 34918.10000000894,
+      "encoding": "world-player.session-input.1",
+      "checkpoints": 481,
+      "sendMs": 3,
+      "replyAt": 35009.5,
+      "resultEncoding": "world-player.history-lists.1"
+    },
+    {
+      "id": 20,
+      "mode": "skipAll",
+      "at": 35418.5,
+      "encoding": "world-player.session-input.1",
+      "checkpoints": 481,
+      "sendMs": 2.4000000059604645,
+      "replyAt": 35522.70000000298,
+      "resultEncoding": "world-player.history-lists.1"
+    },
+    {
+      "id": 504,
+      "mode": "auto",
+      "at": 111531.70000000298,
+      "encoding": "world-player.session-input.1",
+      "checkpoints": 961,
+      "sendMs": 3.7000000029802322,
+      "replyAt": 111741.10000000894,
+      "resultEncoding": "world-player.history-lists.1"
+    },
+    {
+      "id": 506,
+      "mode": "auto",
+      "at": 113782,
+      "encoding": "world-player.session-input.1",
+      "checkpoints": 961,
+      "sendMs": 3.4000000059604645,
+      "replyAt": 113966.30000001192,
+      "resultEncoding": "world-player.history-lists.1"
+    },
+    {
+      "id": 508,
+      "mode": "auto",
+      "at": 115983,
+      "encoding": "world-player.session-input.1",
+      "checkpoints": 961,
+      "sendMs": 3.5,
+      "replyAt": 116205.70000000298,
+      "resultEncoding": "world-player.history-lists.1"
+    },
+    {
+      "id": 510,
+      "mode": "skipRead",
+      "at": 117467.20000000298,
+      "encoding": "world-player.session-input.1",
+      "checkpoints": 961,
+      "sendMs": 4.700000002980232,
+      "replyAt": 117676.70000000298,
+      "resultEncoding": "world-player.history-lists.1"
+    },
+    {
+      "id": 512,
+      "mode": "skipRead",
+      "at": 118599.80000001192,
+      "encoding": "world-player.session-input.1",
+      "checkpoints": 961,
+      "sendMs": 4.299999997019768,
+      "replyAt": 118821.70000000298,
+      "resultEncoding": "world-player.history-lists.1"
+    },
+    {
+      "id": 514,
+      "mode": "skipRead",
+      "at": 119816.80000001192,
+      "encoding": "world-player.session-input.1",
+      "checkpoints": 961,
+      "sendMs": 3.2999999970197678,
+      "replyAt": 120048.80000001192,
+      "resultEncoding": "world-player.history-lists.1"
+    },
+    {
+      "id": 516,
+      "mode": "skipAll",
+      "at": 121035.40000000596,
+      "encoding": "world-player.session-input.1",
+      "checkpoints": 961,
+      "sendMs": 4.4000000059604645,
+      "replyAt": 121278.80000001192,
+      "resultEncoding": "world-player.history-lists.1"
+    },
+    {
+      "id": 518,
+      "mode": "skipAll",
+      "at": 122234,
+      "encoding": "world-player.session-input.1",
+      "checkpoints": 961,
+      "sendMs": 4.800000011920929,
+      "replyAt": 122498.10000000894,
+      "resultEncoding": "world-player.history-lists.1"
+    },
+    {
+      "id": 520,
+      "mode": "skipAll",
+      "at": 123416.20000000298,
+      "encoding": "world-player.session-input.1",
+      "checkpoints": 961,
+      "sendMs": 3.5,
+      "replyAt": 123656.60000000894,
+      "resultEncoding": "world-player.history-lists.1"
+    }
+  ],
+  "workers": {
+    "live": 0,
+    "peak": 2
+  },
+  "errors": [],
+  "scope": "Serial desktop Chromium, fixed old-then-current, 3 batches per mode and history size. Accelerated 40ms host reading clock, not natural reading or physical phone acceptance. Mutation observer opens the real menu at first committed change; wallMs and commitMs include UI automation (and wallMs includes frames), not pure computation."
+}

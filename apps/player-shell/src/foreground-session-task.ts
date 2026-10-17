@@ -2,13 +2,16 @@ import { loadPlayerCoreSessionSaveV1, playerCoreSessionLoadSourceV1, preparePlay
 import { createRecoverySession, recoverySessionSource, type RecoverySessionSource } from "./recovery-session-task";
 import { prepareHistoryProtection } from './history-protection-task';
 import { executeStoryAdvance, storyAdvanceSource, type StoryAdvanceResult } from './story-advance-task';
+import { executePlaybackAdvance } from './playback-advance-task';
+import type { PlayerCorePlaybackPolicyV1 } from '@world-studio/player-core';
 
-export type ForegroundSessionTask = { readonly kind:"save";readonly source:RecoverySessionSource } | {readonly kind:"load";readonly state:PlayerCoreState;readonly serialized:string} | {readonly kind:'protect';readonly state:PlayerCoreState;readonly retainedBackSteps:number} | { readonly kind: 'advance'; readonly state: PlayerCoreState };
-export type ForegroundSessionResult = {readonly kind:"save";readonly result:ReturnType<typeof createRecoverySession>} | {readonly kind:"load";readonly result:ReturnType<typeof loadPlayerCoreSessionSaveV1>} | {readonly kind:'protect';readonly result:ReturnType<typeof prepareHistoryProtection>} | { readonly kind: 'advance'; readonly result: StoryAdvanceResult };
+export type ForegroundSessionTask = { readonly kind:"save";readonly source:RecoverySessionSource } | {readonly kind:"load";readonly state:PlayerCoreState;readonly serialized:string} | {readonly kind:'protect';readonly state:PlayerCoreState;readonly retainedBackSteps:number} | { readonly kind: 'advance'; readonly state: PlayerCoreState } | { readonly kind: 'playback'; readonly state: PlayerCoreState; readonly policy: PlayerCorePlaybackPolicyV1 };
+export type ForegroundSessionResult = {readonly kind:"save";readonly result:ReturnType<typeof createRecoverySession>} | {readonly kind:"load";readonly result:ReturnType<typeof loadPlayerCoreSessionSaveV1>} | {readonly kind:'protect';readonly result:ReturnType<typeof prepareHistoryProtection>} | { readonly kind: 'advance'; readonly result: StoryAdvanceResult } | { readonly kind: 'playback'; readonly result: StoryAdvanceResult };
 export type ForegroundSessionWorkerTask = Exclude<ForegroundSessionTask, { kind: 'load' }> | { readonly kind: 'load'; readonly source: PlayerCoreSessionLoadSourceV1; readonly serialized: string };
 export type ForegroundSessionWorkerResult = Exclude<ForegroundSessionResult, { kind: 'load' }> | { readonly kind: 'load'; readonly result: ReturnType<typeof preparePlayerCoreSessionLoadV1> };
 
 export function foregroundSessionWorkerTask(task: ForegroundSessionTask): ForegroundSessionWorkerTask {
+  if (task.kind === 'playback') return { ...task, state: storyAdvanceSource(task.state) };
   if (task.kind === 'advance') return { kind: 'advance', state: storyAdvanceSource(task.state) };
   if (task.kind === 'load') return { kind: 'load', source: playerCoreSessionLoadSourceV1(task.state), serialized: task.serialized };
   if (task.kind === 'save') return { kind: 'save', source: recoverySessionSource(task.source) };
@@ -16,6 +19,7 @@ export function foregroundSessionWorkerTask(task: ForegroundSessionTask): Foregr
 }
 
 export function executeForegroundSessionWorkerTask(task: ForegroundSessionWorkerTask): ForegroundSessionWorkerResult {
+  if (task.kind === 'playback') return { kind: 'playback', result: executePlaybackAdvance(task.state, task.policy) };
   if (task.kind === 'advance') return { kind: 'advance', result: executeStoryAdvance(task.state) };
   if (task.kind === 'load') return { kind: 'load', result: preparePlayerCoreSessionLoadV1(task.source, task.serialized) };
   if (task.kind === 'protect') return { kind: 'protect', result: prepareHistoryProtection(task.state, task.retainedBackSteps) };
@@ -38,6 +42,7 @@ export function applyForegroundSessionWorkerResult(task: ForegroundSessionTask, 
 }
 /** The same public validators, including history chains, identities and monotonic Meta Progress. */
 export function executeForegroundSessionTask(task:ForegroundSessionTask):ForegroundSessionResult {
+  if (task.kind === 'playback') return { kind: 'playback', result: executePlaybackAdvance(task.state, task.policy) };
   if (task.kind === 'advance') return { kind: 'advance', result: executeStoryAdvance(task.state) };
   if (task.kind === 'protect') return { kind: 'protect', result: prepareHistoryProtection(task.state, task.retainedBackSteps) };
   return task.kind==="save"?{kind:"save",result:createRecoverySession(task.source)}:{kind:"load",result:loadPlayerCoreSessionSaveV1(task.state,task.serialized)};

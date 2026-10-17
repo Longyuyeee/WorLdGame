@@ -4,9 +4,10 @@ export type StoryAdvancePatch = Pick<PlayerCoreState, 'status' | 'runtimeState' 
 export type StoryAdvanceResult = { readonly ok: true; readonly sourceHash: string; readonly replayEntriesUnchanged: boolean; readonly patch: StoryAdvancePatch } | { readonly ok: false; readonly diagnostics: PlayerCoreState['diagnostics'] };
 const patchKeys = ['status', 'runtimeState', 'historySession', 'schedulerSession', 'playback', 'hostState', 'currentEvent', 'checkpointSaveCandidates', 'deferredCheckpointSaveCandidates', 'diagnostics', 'replayEntries'];
 
-/** Only user-driven live-end reading. Start, recorded future, replay, Auto/Skip
- * and pending media inputs retain their current paths. 480 is a measured scope,
- * not a claim that shorter stories or all physical devices are inexpensive.
+/** Shared structural eligibility for live-end computation. The ordinary and
+ * Auto/Skip hooks separately enforce their clocks and ownership. Start,
+ * recorded future, replay and pending media retain their current paths.
+ * 480 is a measured scope, not a physical-device capacity claim.
  */
 export function canOffloadStoryAdvance(state: PlayerCoreState): boolean {
   return typeof Worker === 'function' && state.status === 'presenting' && state.replaySession === null && state.artifacts !== null &&
