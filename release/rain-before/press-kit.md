@@ -1,4 +1,19 @@
-# 《雨停之前》1.8.0 Web 候选展示资料
+# 《雨停之前》1.9.0 Web 候选展示资料
+
+2026-10-17，当前为分支记忆与离店送别演出候选，未公开上线或完成发行确认。九场景、90 段旁白、九句角色对白、两结局，9,751 字符、85 演出、26 项媒体。修正远行路线串用另一分支经历，新增夜雨公交站与进出候车室的雨声变化；原分支、ID、九句合成配音和旧 25 媒体／来源记录保持。简介仍为“一场雨，两条路。读完旧信，把下一次见面写进日历。”
+
+| 当前资料 | 路径 |
+| --- | --- |
+| 可编辑工程与内部来源台账 | [工程 ZIP](../../evidence/web-story-branch-context/before-rain-stops-project.zip) |
+| 单文件游戏 | [HTML](../../evidence/web-story-branch-context/before-rain-stops.html) |
+| 纯公开网站文件 | [网站上传 ZIP](../../evidence/web-story-branch-context/before-rain-stops-website.zip) |
+| 十九条待人工复核记录 | [校订记录](../../evidence/web-story-branch-context/before-rain-stops.worldreview) |
+| 当前改动与验证 | [更新说明](release-notes-1.9.0.md)、[#380](../../docs/380-web-story-branch-context.md) |
+| 新背景制作来源 | [完整提示词／摘要／待确认条件](../../assets/rain-story/source-manifest-v1.9.json) |
+
+1.9.0 不兼容 1.8.0 或更早剧情存档。旧玩家保留 [1.8.0 原游戏](../../evidence/web-reading-position/before-rain-stops.html)和备份继续，新候选从头开始。生成网站不等于已上线，工程／来源／校订资料不可整包上传。26 项素材发行条件、人工定稿与自然听感、物理手机／Safari、真实阅读计时及获准公网站点仍待验；不虚构发行身份、发布日期、分级或统一版权承诺。下面各“当前”均为对应历史版本当时状态。
+
+## 1.8.0 历史候选展示资料
 
 2026-10-17，当前为道具去向与地点演出校订候选，尚未公开上线或完成发行确认。9 场景、90 段旁白和九句角色对白、两结局，9,729 字符、81 步演出、25 项原素材。五段旁白及七步演出更新，原分支、稳定 ID、九句合成配音和素材来源事实保持；简介仍为“一场雨，两条路。读完旧信，把下一次见面写进日历。”
 
