@@ -8,6 +8,8 @@
     "packages/*"
   ],
   "scripts": {
+    "audit:web-voice-reading": "node tools/run-web-voice-reading-tests.mjs",
+    "audit:web-voice-reading:browser": "npm run build --workspace @world-studio/editor && node tools/run-web-voice-reading-batch.mjs",
     "audit:web-reading-resume": "node tools/run-web-reading-resume-tests.mjs",
     "audit:web-reading-resume:browser": "npm run build --workspace @world-studio/editor && node tools/run-web-reading-resume-batch.mjs",
     "audit:web-playback-advance": "node tools/run-web-playback-tests.mjs",

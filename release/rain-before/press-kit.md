@@ -1,10 +1,6 @@
 # 《雨停之前》1.10.0 Web 候选展示资料
 
-最新技术接续见 [#389](../../docs/389-web-reading-resume.md)，补完整作品刷新／明确读档后的可选本机段内续读与横屏提示位置；不改剧情、素材或备份格式。下面可下载双游戏仍沿 #386，不代表本批实现已经替换原下载，发行与人工／真机条件保持。
-
-最新技术接续见 [#388](../../docs/388-web-long-playback-advance.md)，处理长篇 Auto／Skip 调度、停止与等待反馈，不改变本篇内容或发行状态；下面可下载双游戏仍沿 #386，并非本批测试临时导出。
-
-长篇输入的后续技术检查见 [#387](../../docs/387-web-session-input-transport.md)，不改变本篇剧情、素材或发行状态；本批不重发内容，下面双游戏仍沿 #386。
+2026-10-18 当前运行候选见 [#390](../../docs/390-web-voice-reading-continuity.md)，重新导出下方 HTML／网站，补同句读档语音、暂停后的迟到播放保护、重听与主动无声选择；同时包含 #387–#389 的完整传输、可取消调度和本机段内续读。剧情、素材、备份格式及发行状态不变。Windows WebKit 在线 HTTP 网站与内嵌 HTML 无声回退分开检查，内嵌音频仍未通过；不作为 Safari／离线或真机验收。
 
 2026-10-17，当前为人物出场、昼夜与分支表达校订候选，未公开上线或完成发行确认。九场景、90 段旁白、九句角色对白、两结局，9,753 字符、86 演出、26 项媒体。人物到来前不再提前出现，夜间段落改用已有夜工作室，结尾明确照片记录修好的书，两个选项讲清留下写信与出发继续的区别；原 ID／分支目标／配音、全部媒体与来源台账保持。当前 Player 在 #386 接通 Auto 本段翻屏、手机保存反馈和截图不兼容时的进度保护，沿用 #385 语音失败／恢复修复；不改变内容版本，实际验证与仍待完成条件见对应记录。
 
@@ -15,10 +11,10 @@
 | 当前资料 | 路径 |
 | --- | --- |
 | 可编辑工程与内部来源台账 | [工程 ZIP](../../evidence/web-story-arrival-and-night/before-rain-stops-project.zip) |
-| 单文件游戏 | [HTML](../../evidence/web-auto-reading-pages/before-rain-stops.html) |
-| 纯公开网站文件 | [网站上传 ZIP](../../evidence/web-auto-reading-pages/before-rain-stops-website.zip) |
+| 单文件游戏 | [HTML](../../evidence/web-voice-reading-continuity/before-rain-stops.html) |
+| 纯公开网站文件 | [网站上传 ZIP](../../evidence/web-voice-reading-continuity/before-rain-stops-website.zip) |
 | 二十三条待人工复核记录 | [校订记录](../../evidence/web-story-arrival-and-night/before-rain-stops.worldreview) |
-| 改动、实际验证与下一批 | [更新说明](release-notes-1.10.0.md)、[内容 #384](../../docs/384-web-story-arrival-and-night.md)、[阅读／存档 #386](../../docs/386-web-auto-reading-pages.md) |
+| 改动、实际验证与下一批 | [更新说明](release-notes-1.10.0.md)、[内容 #384](../../docs/384-web-story-arrival-and-night.md)、[续读／语音 #390](../../docs/390-web-voice-reading-continuity.md) |
 | 素材来源与未确认条件 | [26 项来源台账](../../assets/rain-story/source-manifest-v1.9.json)，与本批源工程核对不变 |
 
 1.10.0 不兼容 1.9.0 或更早剧情存档，旧玩家保留原游戏与备份继续，新候选从头开始。网站包生成不代表已上线，工程／来源／校订资料不可整包上传。23 条人工复核、自然听感／阅读计时、26 项素材发行条件、物理手机／Safari、长期运行与获准公网仍待验；不虚构发行身份、发布日期、分级或版权承诺。以下按版本保留历史资料，各“当前”仅指当时状态。

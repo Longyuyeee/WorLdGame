@@ -8,10 +8,10 @@ import { pathToFileURL } from 'node:url';
 import { listenBrowserLoopback } from './listen-browser-loopback.mjs';
 import { sha } from './audit-rain-story-refinement.mjs';
 
-const root = path.resolve(import.meta.dirname, '..'), output = path.join(root, 'evidence/web-reading-resume');
+const root = path.resolve(import.meta.dirname, '..'), output = path.resolve(root, process.env.STUDIO_READING_RESUME_OUTPUT_DIRECTORY ?? 'evidence/web-reading-resume');
 const baseline = process.argv.includes('--baseline'), fileMode = process.argv.includes('--file');
 const engine = process.argv.find(x => x.startsWith('--engine='))?.slice(9) ?? 'chromium'; assert.ok(['chromium', 'firefox', 'webkit'].includes(engine));
-const source = path.join(root, baseline ? 'evidence/web-auto-reading-pages/before-rain-stops.html' : 'evidence/web-reading-resume/work/before-rain-stops.html');
+const source = path.resolve(root, baseline ? 'evidence/web-auto-reading-pages/before-rain-stops.html' : process.env.STUDIO_READING_RESUME_SOURCE_HTML ?? 'evidence/web-reading-resume/work/before-rain-stops.html');
 const html = await readFile(source), label = baseline ? 'baseline' : `${engine}${fileMode ? '-file' : ''}`;
 await mkdir(output, { recursive: true }); const reportPath = path.join(output, `${label}.json`);
 await writeFile(reportPath, JSON.stringify({ passed: false, status: 'running' }));

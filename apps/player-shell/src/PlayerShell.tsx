@@ -260,6 +260,10 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
   const [lastInputSource, setLastInputSource] = useState<PlayerInputSource>("lifecycle");
   const [lastInputAccepted, setLastInputAccepted] = useState(true);
   const [voicePlaying, setVoicePlaying] = useState(false);
+  const restartVoice = useCallback(() => {
+    setVoicePlaying(false);
+    setAudioAttempts(current => ({ ...current, voice: (current.voice ?? 0) + 1 }));
+  }, []);
   const [textReady, setTextReady] = useState(true);
   const compactReading = useCompactReadingLayout();
   const reducedReadingMotion = useReadingMediaQuery('(prefers-reduced-motion: reduce)');
@@ -340,7 +344,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
   }, []);
   const requestAudio = useCallback((element: HTMLAudioElement, reason: "resuming" | "resuming-after-skip" = "resuming") => {
     const isCurrent = () => element.isConnected && audioElements.current.get(element.dataset.audioBus ?? "") === element
-      && audioActivity.current.hostActivity === "active" && !audioActivity.current.skipActive;
+      && audioActivity.current.hostActivity === "active" && !audioActivity.current.skipActive && element.dataset.shouldPlay === 'true';
     if (!isCurrent()) return;
     requestPlayerAudioPlayback(element, isCurrent, () => refreshAudioTransport(revision => revision + 1), reason, error => audioFailed(element, error));
   }, [audioFailed]);
@@ -454,10 +458,18 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
   const visibleMediaErrors = mediaErrors.filter(id => currentMediaIds.has(id));
   const visualMediaErrors = visibleMediaErrors.filter(id => !appliedAudio.some(track => track.assetId === id));
   const audioPlaybackSignature = appliedAudio.map(track => `${mediaGeneration}:${audioAttempts[track.bus] ?? 0}:${track.bus}:${track.assetId}:${track.status}`).join("|");
+  const interruptedAudio = appliedAudio.some(track => {
+    const element = audioElements.current.get(track.bus);
+    return element?.isConnected && element.dataset.assetId === track.assetId && element.dataset.shouldPlay === 'true' && !element.ended && !element.error && ['blocked', 'interrupted', 'paused-by-policy'].includes(element.dataset.playerPlayback ?? '');
+  });
+  const interruptedVideo = stage.video !== null && videoElement.current?.isConnected && !videoElement.current.ended && !videoElement.current.error && ['blocked', 'interrupted', 'paused-by-policy'].includes(videoElement.current.dataset.playerPlayback ?? '');
   const autoVoice = appliedAudio.find(track => track.bus === 'voice');
   // A retry or restored sound is a new owner even with the same narrative asset.
   // Do not restart reading time for unrelated music gain or transport renders.
   const autoVoiceIdentity = autoVoice ? `${mediaGeneration}:${audioAttempts.voice ?? 0}:${autoVoice.assetId}:${autoVoice.status}` : null;
+  // A detached voice's late pause must not clear a replacement, but its old
+  // ducking/manual-wait flag must not survive a change of owner either.
+  useEffect(() => setVoicePlaying(false), [autoVoiceIdentity]);
   useEffect(() => {
     for (const element of audioElements.current.values()) {
       const shouldPlay = element.dataset.shouldPlay;
@@ -563,7 +575,12 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
     if (!playbackAdvance.error) return;
     skipModeCurrent.current = null; setSkipMode(null); setAutoEnabled(false); setAutoPlayback('stopped');
   }, [playbackAdvance.error]);
-  useEffect(() => { if (storyAdvance.busy || storyAdvance.error || playbackAdvance.busy || playbackAdvance.error || readingResume.restored) setSaveFeedback(null); }, [storyAdvance.busy, storyAdvance.error, playbackAdvance.busy, playbackAdvance.error, readingResume.restored]);
+  useEffect(() => { if (storyAdvance.busy || storyAdvance.error || playbackAdvance.busy || playbackAdvance.error || readingResume.restored || interruptedAudio || interruptedVideo) setSaveFeedback(null); }, [storyAdvance.busy, storyAdvance.error, playbackAdvance.busy, playbackAdvance.error, readingResume.restored, interruptedAudio, interruptedVideo]);
+  const chooseSilentReading = () => {
+    setAutoEnabled(false); setAutoPlayback('off'); stopSkip(); setVoicePlaying(false); setSilentReading(true);
+    setMediaErrors(current => current.filter(id => !appliedAudio.some(track => track.assetId === id)));
+    queueMicrotask(() => reading.element.current?.focus({ preventScroll: true }));
+  };
   const startSkip = useCallback((mode: "skipRead" | "skipAll") => {
     setReadingMenuOpen(false);
     skipAwaitingDispatch.current = true;
@@ -609,6 +626,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
     const next = dispatchPlayerCoreIntentV1(state, project, { kind: "enter-scene-replay", replayId });
     setState(next);
     if (next.replaySession === null) return;
+    restartVoice();
     replayPlaybackReturn.current = additionalContentPlaybackReturn.current ?? { autoEnabled, autoPlayback, skipMode, skipActivation, skipSpeed };
     additionalContentPlaybackReturn.current = null;
     setAutoEnabled(false);
@@ -619,10 +637,11 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
     setAdditionalContentOpen(false);
     setSaveFeedback(null);
     setMediaErrors([]);
-  }, [autoEnabled, autoPlayback, project, skipActivation, skipMode, skipSpeed, state, stopSkip]);
+  }, [autoEnabled, autoPlayback, project, skipActivation, skipMode, skipSpeed, state, stopSkip, restartVoice]);
 
   const exitSceneReplay = useCallback(() => {
     if (state.replaySession === null) return;
+    restartVoice();
     setState((current) => dispatchPlayerCoreIntentV1(current, project, { kind: "exit-scene-replay" }));
     const playback = replayPlaybackReturn.current;
     replayPlaybackReturn.current = null;
@@ -631,7 +650,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
     }
     setMediaErrors([]);
     setTimeout(() => (titleAdditionalContentTrigger.current ?? readingMenuTrigger.current ?? additionalContentTrigger.current)?.focus(), 0);
-  }, [project, restorePlaybackControls, state.replaySession]);
+  }, [project, restorePlaybackControls, state.replaySession, restartVoice]);
 
   const refreshSaveSlots = useCallback(async (reportFailure = true) => {
     if (saveStore === undefined) return;
@@ -799,6 +818,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
       setNewStoryConfirmation(false);
       setAutoEnabled(false); setAutoPlayback("off"); stopSkip(); setArtworkView(false); deferredMenuCompletion.current = null; setPendingRead(null);
       readingResume.prepare(loaded.state, slot.buildId, loaded.savedRuntimeStateHash);
+      restartVoice();
       setState(loaded.state);
       setSaveOperation("loaded");
       setSaveMessage(`${playerSaveLabel(slotId)}已读取`);
@@ -817,7 +837,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
       if (slotId.startsWith("quick-")) setSaveView("quick");
       openSavePanel("load");
     }
-  }, [project.manifest.projectId, recoveryStore, saveStore, state, openSavePanel, stopSkip, refreshSaveSlots,sessionRunner, readingResume.prepare]);
+  }, [project.manifest.projectId, recoveryStore, saveStore, state, openSavePanel, stopSkip, refreshSaveSlots,sessionRunner, readingResume.prepare, restartVoice]);
 
   const requestLoadFromSlot = useCallback((slotId: string, expectedArtifactHash?: string) => {
     const slot = saveSlots.find(candidate => candidate.slotId === slotId), expected = expectedArtifactHash ?? slot?.sessionArtifactHash;
@@ -848,6 +868,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
       if (loadedSnapshot.identities.buildId !== null) autoSavedSceneIdentities.current.add(worldPlayerSaveSceneIdentityV1(loadedSnapshot.identities.buildId, recoveryCandidate.sceneId));
       setAutoEnabled(false); setAutoPlayback('off'); stopSkip();
       readingResume.prepare(loaded.state, recoveryCandidate.buildId, loaded.savedRuntimeStateHash);
+      restartVoice();
       setState(loaded.state);
       setRecoveryCandidate(null);
       setRecoveryOperation("loaded");
@@ -859,7 +880,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
       setRecoveryMessage(error instanceof ForegroundSessionError?"后台恢复校验未完成，可以重试；原恢复点和正式存档保持不变。":"恢复记录损坏或与当前构建不兼容，正式存档未受影响");
       setRecoveryErrorAction(error instanceof ForegroundSessionError?"load":"clear");
     }
-  }, [project.manifest.projectId, recoveryCandidate, recoveryStore, state,sessionRunner, stopSkip, readingResume.prepare]);
+  }, [project.manifest.projectId, recoveryCandidate, recoveryStore, state,sessionRunner, stopSkip, readingResume.prepare, restartVoice]);
 
   const clearRecovery = useCallback(async () => {
     if (recoveryCoordinator === undefined || recoveryStore === undefined) return false;
@@ -942,8 +963,13 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
     }
     setLastInputAccepted(true);
     if (intent.kind === 'primary' && source !== 'system' && source !== 'lifecycle' && storyAdvance.tryStart()) return;
+    if (intent.kind === 'back' || intent.kind === 'forward' || intent.kind === 'history-back-to') {
+      const current = liveState.current, next = dispatchPlayerCoreIntentV1(current, project, intent);
+      if (next.historySession?.cursor !== current.historySession?.cursor) restartVoice();
+      setState(next); return;
+    }
     setState((current) => dispatchPlayerCoreIntentV1(current, project, intent));
-  }, [artworkView, content.kind, project, recoveryCandidate, recoveryOperation, recoveryStore, saveOperation, settingsApplication, stopSkip, textReady, voicePlaying, preferencesOpen, readingMenuOpen, historyPanelOpen, savePanelOpen, additionalContentOpen, snapshot.runtimeStateHash, snapshot.runtimeHostSnapshotHash, reading, playbackAdvance.busy, playbackAdvance.cancel]);
+  }, [artworkView, content.kind, project, recoveryCandidate, recoveryOperation, recoveryStore, saveOperation, settingsApplication, stopSkip, textReady, voicePlaying, preferencesOpen, readingMenuOpen, historyPanelOpen, savePanelOpen, additionalContentOpen, snapshot.runtimeStateHash, snapshot.runtimeHostSnapshotHash, reading, playbackAdvance.busy, playbackAdvance.cancel, restartVoice]);
   useEffect(() => {
     if (hostActivity !== 'active' || artworkView || preferencesOpen || readingMenuOpen || historyPanelOpen || savePanelOpen || additionalContentOpen || !deferredMenuCompletion.current) return;
     const completion = deferredMenuCompletion.current;
@@ -1560,6 +1586,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
     const previous = previousHostActivity.current;
     previousHostActivity.current = hostActivity;
     if (previous === hostActivity) return;
+    if (hostActivity === 'suspended') setVoicePlaying(false);
     for (const element of audioElements.current.values()) {
       if (hostActivity === "suspended") {
         cancelPlayerAudioRequest(element);
@@ -1611,6 +1638,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
   }, []);
 
   const layoutDisabled = hostActivity !== "active" || saveOperation === "busy" || preferencesOpen || historyPanelOpen || savePanelOpen || additionalContentOpen || readingMenuOpen || artworkView;
+  const showPlaybackRecovery = !layoutDisabled && !skipActive && !storyAdvance.busy && !storyAdvance.error && !playbackAdvance.busy && !playbackAdvance.error && visibleMediaErrors.length === 0 && stage.missingAssetIds.length === 0 && (interruptedAudio || interruptedVideo);
   const layoutActionEnabled = (action: WebLayoutAction) => {
     if (action === "start") return content.kind === "title" && recoveryOperation !== "scanning";
     if (action === "load") return saveStore !== undefined;
@@ -1937,7 +1965,14 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
               if (element.paused && !element.ended && element.dataset.shouldPlay === "true" && !["blocked", "paused-by-policy", "interrupted"].includes(element.dataset.playerPlayback ?? "")) requestAudio(element);
             }}
             onPlay={(event) => {
-              event.currentTarget.dataset.playerPlayback = "playing";
+              const element = event.currentTarget;
+              if (!element.isConnected || audioElements.current.get(track.bus) !== element) return;
+              if (audioActivity.current.hostActivity !== 'active' || audioActivity.current.skipActive || element.dataset.shouldPlay !== 'true') {
+                cancelPlayerAudioRequest(element);
+                element.dataset.playerPlayback = audioActivity.current.hostActivity !== 'active' ? 'suspended' : audioActivity.current.skipActive ? 'skipped' : 'paused-by-policy';
+                element.pause(); return;
+              }
+              element.dataset.playerPlayback = "playing";
               refreshAudioTransport(revision => revision + 1);
               if (track.bus === "voice") {
                 event.currentTarget.dataset.voiceCompleted = "false";
@@ -1947,6 +1982,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
             }}
             onPause={(event) => {
               const element = event.currentTarget;
+              if (!element.isConnected || audioElements.current.get(track.bus) !== element) return;
               if (audioActivity.current.hostActivity === "active" && !audioActivity.current.skipActive && !element.ended && element.dataset.shouldPlay === "true" && element.dataset.playerPlayback === "playing") {
                 element.dataset.playerPlayback = "interrupted";
                 refreshAudioTransport(revision => revision + 1);
@@ -1954,6 +1990,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
               if (track.bus === "voice") setVoicePlaying(false);
             }}
             onEnded={(event) => {
+              if (!event.currentTarget.isConnected || audioElements.current.get(track.bus) !== event.currentTarget) return;
               event.currentTarget.dataset.playerPlayback = "ended";
               refreshAudioTransport(revision => revision + 1);
               if (track.bus === "voice") {
@@ -1964,23 +2001,16 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
             onError={(event) => audioFailed(event.currentTarget)}
           />
         ))}
-        {hostActivity === "active" && !skipActive && appliedAudio.some(track => {
-          const element = audioElements.current.get(track.bus);
-          return element?.isConnected && element.dataset.assetId === track.assetId && element.dataset.shouldPlay === "true" && !element.ended && !element.error && ["blocked", "interrupted", "paused-by-policy"].includes(element.dataset.playerPlayback ?? "");
-        }) && (
-          <aside className="player-audio-recovery" role="status" aria-live="polite">
-            <span>声音尚未播放或已中断。点击恢复声音；也可关闭自动播放，手动阅读。</span>
-            <button type="button" onClick={() => {
+        {showPlaybackRecovery && (
+          <aside className="player-story-progress player-audio-recovery player-reading-notice" role="status" aria-live="polite">
+            <span>{interruptedVideo ? '视频已中断。可恢复视频，继续观看当前内容。' : '声音已中断。可恢复或先无声阅读。'}</span>
+            {interruptedAudio && <button type="button" onClick={() => {
               for (const element of audioElements.current.values()) {
                 if (element.paused && element.dataset.shouldPlay === "true" && !element.ended && !element.error && element.dataset.voiceCompleted !== "true" && element.dataset.voiceFailed !== "true") requestAudio(element);
               }
-            }}>恢复声音</button>
-          </aside>
-        )}
-        {hostActivity === "active" && !skipActive && stage.video !== null && videoElement.current?.isConnected && !videoElement.current.ended && !videoElement.current.error && ["blocked", "interrupted", "paused-by-policy"].includes(videoElement.current.dataset.playerPlayback ?? "") && (
-          <aside className="player-audio-recovery" role="status" aria-live="polite">
-            <span>视频尚未播放或已中断。点击恢复视频，继续观看当前内容。</span>
-            <button type="button" onClick={() => { if (videoElement.current !== null) requestVideo(videoElement.current); }}>恢复视频</button>
+            }}>恢复声音</button>}
+            {interruptedAudio && <button type="button" onClick={chooseSilentReading}>本次先无声阅读</button>}
+            {interruptedVideo && <button type="button" onClick={() => { if (videoElement.current !== null) requestVideo(videoElement.current); }}>恢复视频</button>}
           </aside>
         )}
         {memoryPressureMessage !== "" && !readingMenuOpen && !historyPanelOpen && !savePanelOpen && !preferencesOpen && !additionalContentOpen && !artworkView && <aside className="player-memory-pressure" role="status" aria-live="polite"><span>{memoryPressureMessage}</span>
@@ -2265,6 +2295,14 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
               });
             }}
           >自动</button>
+          {autoVoice && !silentReading && (content.kind === 'dialogue' || content.kind === 'narration') && <button className="player-menu-only" type="button" disabled={hostActivity !== 'active' || saveOperation === 'busy' || !!audioElements.current.get('voice')?.error || audioElements.current.get('voice')?.dataset.voiceFailed === 'true'} title="从头重听当前语音，不改变剧情、阅读位置或个人音量" onClick={() => {
+            const voice = audioElements.current.get('voice'); if (!voice) return;
+            stopSkip(); setAutoEnabled(false); setAutoPlayback('off'); setReadingMenuOpen(false);
+            try { voice.currentTime = 0; } catch { /* Metadata may still be loading; play starts at zero. */ }
+            voice.dataset.voiceCompleted = 'false'; setVoicePlaying(!voice.paused); requestAudio(voice);
+            queueMicrotask(() => reading.element.current?.focus({ preventScroll: true }));
+          }}>重听当前语音</button>}
+          {readingMenuOpen && !silentReading && appliedAudio.length > 0 && <button className="player-menu-only" type="button" disabled={hostActivity !== 'active' || saveOperation === 'busy'} onClick={() => { setReadingMenuOpen(false); chooseSilentReading(); }}>本次先无声阅读</button>}
           <button
             type="button"
             aria-label="快进已读"
@@ -2351,7 +2389,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
         </PlayerPanelRegion>
         {readingMenuOpen && <>{panelComponents("menu")}{panelAudit("menu")}</>}
         </div>
-        {saveFeedback && !readingResume.restored && !savePanelOpen && !storyAdvance.busy && !storyAdvance.error && !playbackAdvance.busy && !playbackAdvance.error && <p className="player-save-feedback" role="status" aria-live="polite">{saveFeedback}</p>}
+        {saveFeedback && !readingResume.restored && !interruptedAudio && !interruptedVideo && !savePanelOpen && !storyAdvance.busy && !storyAdvance.error && !playbackAdvance.busy && !playbackAdvance.error && <p className="player-save-feedback" role="status" aria-live="polite">{saveFeedback}</p>}
         {backgroundSaveFailure && content.kind !== "title" && !savePanelOpen && !readingMenuOpen && !preferencesOpen && !historyPanelOpen && !additionalContentOpen && !artworkView && !snapshot.sceneReplay.active && <aside className="player-background-save-notice" role="alert" aria-label="后台保存提醒">
           <div><strong>{backgroundSaveFailure.kind === "auto" ? "自动保存未完成" : "检查点未保存"}</strong><p>{backgroundSaveFailure.message}</p></div>
           <div className="player-background-save-notice__actions"><button type="button" disabled={!saveBoundaryAllowed || hostActivity !== "active"} onClick={() => { setSaveIntent("save"); setSaveView("manual"); setPendingOverwriteSlotId(null); openSavePanel(); }}>保存当前进度</button><button type="button" aria-label="关闭保存提醒" onClick={() => setBackgroundSaveFailure(null)}>知道了</button></div>
@@ -2390,7 +2428,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
               } else { setMediaErrors([]); setMediaGeneration(current => current + 1); onRetryMedia?.(); }
               queueMicrotask(() => reading.element.current?.focus({ preventScroll: true }));
             }}>重试媒体</button>
-            {failedAudio.length > 0 && <button type="button" disabled={hostActivity !== 'active'} onClick={() => { setAutoEnabled(false); setAutoPlayback('off'); stopSkip(); setVoicePlaying(false); setSilentReading(true); setMediaErrors(current => current.filter(id => !appliedAudio.some(track => track.assetId === id))); queueMicrotask(() => reading.element.current?.focus({ preventScroll: true })); }}>本次先无声阅读</button>}
+            {failedAudio.length > 0 && <button type="button" disabled={hostActivity !== 'active'} onClick={chooseSilentReading}>本次先无声阅读</button>}
           </div>
         )}
 
@@ -2450,7 +2488,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
           </div>
         )}
 
-        {readingResume.restored && !autoEnabled && !skipActive && !storyAdvance.busy && !storyAdvance.error && !playbackAdvance.busy && !playbackAdvance.error && !artworkView && !readingMenuOpen && !preferencesOpen && !historyPanelOpen && !savePanelOpen && !additionalContentOpen && visibleMediaErrors.length === 0 && <aside className="player-story-progress player-reading-resume" role="status" aria-live="polite">
+        {readingResume.restored && !showPlaybackRecovery && !autoEnabled && !skipActive && !storyAdvance.busy && !storyAdvance.error && !playbackAdvance.busy && !playbackAdvance.error && !artworkView && !readingMenuOpen && !preferencesOpen && !historyPanelOpen && !savePanelOpen && !additionalContentOpen && visibleMediaErrors.length === 0 && <aside className="player-story-progress player-reading-resume player-reading-notice" role="status" aria-live="polite">
           <span>已回到本机记录的阅读位置</span>
           <button type="button" onClick={() => { readingResume.restartParagraph(); reading.element.current?.focus({ preventScroll: true }); }}>从段首重读</button>
           <button type="button" onClick={readingResume.dismiss}>知道了</button>

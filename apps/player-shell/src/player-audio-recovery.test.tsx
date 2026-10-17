@@ -56,7 +56,8 @@ it('keeps suspended hosts from resuming or changing the silent-reading decision'
 });
 it('does not turn a genuine permission denial into a broken-file report', async () => {
   const { voice } = setup(); voice().play = vi.fn().mockRejectedValue(new DOMException('gesture', 'NotAllowedError')); fireEvent.canPlay(voice()); await act(async () => {});
-  expect(screen.getByRole('button', { name: '恢复声音' })).toBeInTheDocument(); expect(screen.queryByRole('button', { name: '本次先无声阅读' })).toBeNull();
+  expect(screen.getByRole('button', { name: '恢复声音' })).toBeInTheDocument(); expect(screen.queryByRole('alert')).toBeNull();
+  expect(screen.getByRole('button', { name: '本次先无声阅读' })).toBeInTheDocument();
 });
 it('reports a play rejection without requiring a separate native error event', async () => {
   const { voice, hash } = setup(); const before = hash(); voice().play = vi.fn().mockRejectedValue(new DOMException('unavailable', 'NotSupportedError'));
