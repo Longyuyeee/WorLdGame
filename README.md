@@ -1,5 +1,7 @@
 # WorLd Studio（工作名）产品与开发设计文档
 
+> 当前接续（2026-10-17）：[#386 长段落自动阅读与手机存档反馈](docs/386-web-auto-reading-pages.md)。本段翻屏保留 Auto，实际手动推进仍可接管；修复保存提示遮挡和 320px 工具栏换行，补截图存储不兼容时的完整进度保护。测试、实际浏览器证据和边界见 #386。当前 HTML／网站在 evidence/web-auto-reading-pages，1.10.0 源、23 条待人工记录及 26 媒体仍沿 #384 不变。下一批按 #353／#373 核对长篇其他推进路径与成本，不扩装饰或原生；S0.41、人工／真机／发行／公网条件保持。以下为历史。
+
 > 当前接续（2026-10-17）：[#385 自动阅读与语音恢复接续](docs/385-web-auto-voice-continuity.md)。修复 play 请求直接拒绝时 Auto 卡住、重试／恢复声音后沿旧时钟提前翻句；当前音轨失败通知、旧结果清理及新语音等待接通，不改 Core／存档协议。179 项相关回归、18 项工具测试、类型／双构建／架构及七组 Chromium 实际任务通过，范围见 #385。当前 HTML／网站在 evidence/web-auto-voice-continuity，1.10.0 源与 23 条人工记录沿 #384，剧情和全部 26 媒体保持；原 1.10.0 备份已实际恢复。下一批继续长段落／旋转和跨浏览器连读，不扩装饰；S0.41、人工／真机／发行／公网及原生搁置保持。以下为历史。
 
 > 当前接续（2026-10-17）：[#384 人物出场、昼夜与分支表达校订](docs/384-web-story-arrival-and-night.md)。回到完整作品实际内容，修正人物提前出现、夜间背景、修复作业照片含义和选项表达；真实编辑器制作 1.10.0，全部 26 媒体、原 ID／分支／九句配音保持。81 项相关回归、25 项工具测试及作者两路线／独立双格式／旧版保留实际任务通过，范围见 #384。当前工程、双游戏与 23 条待人工复核记录集中在 evidence/web-story-arrival-and-night；不兼容 1.9.0 或更早剧情存档，原版保留。技术 S0.41、人工／真机／发行／公网及原生搁置保持；下一批按真实连读、Auto／历史／中断续读复核，不扩版本管理。以下为历史。
@@ -52,7 +54,7 @@
 
 > 开发进度与后续方向（2026-10-17）：[#358 剧情动效预设与作者复用](docs/358-web-story-motion-presets.md)。人物/文字动效已接通静音试看、应用、保存重开、跨场景预设和配置往返；样章 0.4.0 保持原正文、路线、外观和七份素材。下一批按 #357 顺序推进带素材皮肤包，再做存档缩略图/创作连续性和自由布局。
 
-> 完整作品接续：《雨停之前》1.10.0 的可编辑工程与 23 条校订记录在 [web-story-arrival-and-night](evidence/web-story-arrival-and-night)，当前 HTML／网站上传包在 [web-auto-voice-continuity](evidence/web-auto-voice-continuity)，范围见 [#385](docs/385-web-auto-voice-continuity.md)。不兼容 1.9.0 或更早剧情存档；原 1.9.0 源工程／记录在 [web-story-branch-context](evidence/web-story-branch-context)、HTML 在 [web-version-retention](evidence/web-version-retention)、网站在 [web-cache-management](evidence/web-cache-management)，全部保留。长篇剩余成本见 [#373](docs/373-web-history-result-transport.md)，外观样章 0.9.0 与历史产物不改写。
+> 完整作品接续：《雨停之前》1.10.0 的可编辑工程与 23 条校订记录在 [web-story-arrival-and-night](evidence/web-story-arrival-and-night)，当前 HTML／网站上传包在 [web-auto-reading-pages](evidence/web-auto-reading-pages)，范围见 [#386](docs/386-web-auto-reading-pages.md)。不兼容 1.9.0 或更早剧情存档；原 1.9.0 源工程／记录在 [web-story-branch-context](evidence/web-story-branch-context)、HTML 在 [web-version-retention](evidence/web-version-retention)、网站在 [web-cache-management](evidence/web-cache-management)，全部保留。长篇剩余成本见 [#373](docs/373-web-history-result-transport.md)，外观样章 0.9.0 与历史产物不改写。
 
 > #358 历史判断：基础创作、主要页面模板和首批剧情动效作者流程可用。199 项相关测试、根类型、双构建、便携架构审计及六组实际静音任务通过；当时 HTML file:// 桌面一路和目录 HTTP 手机一路合计独立 Player 两结局，编辑器整部仍 0/2。未计全格式×路线组合、真机/Safari、人工/许可/公网或长篇性能收尾，范围见 #358；不替代顶部当前验证结果。
 
@@ -60,7 +62,7 @@
 > 文档基线：2026-10-17
 > 当前交付目标：[Web 完整 Gal 作品 #304](docs/304-web-complete-gal-delivery.md)。先完成 Web 编辑器与玩家的完整制作、导出和部署上线流程，Windows／Android 原生版本先搁置；当前验收以一部完整作品的实际创作和上线为主线。
 > 当前进展：1.10.0 内容候选为 9 场景/两结局、9,753 字符/86 演出/26 项素材与来源台账；不兼容 1.9.0 或更早剧情存档，原版入口及工程保留。编辑器技术版本与作品版本分别记录，不宣布 Stable。
-> 最新开发记录：[当前状态 #99](docs/99-current-development-status-audit.md)与 [#385 自动阅读与语音恢复接续](docs/385-web-auto-voice-continuity.md)。内容与源工程保持 #384 的 1.10.0，26 媒体／来源沿 #380，#354–#367 保留创作与外观交付，#373 的长篇剩余成本保持；不把旧阶段的下一步当作当前接续。
+> 最新开发记录：[当前状态 #99](docs/99-current-development-status-audit.md)与 [#386 长段落自动阅读与手机存档反馈](docs/386-web-auto-reading-pages.md)。内容与源工程保持 #384 的 1.10.0，26 媒体／来源沿 #380，#354–#367 保留创作与外观交付，#373 的长篇剩余成本保持；不把旧阶段的下一步当作当前接续。
 > 当前开发入口：[用户任务优先路线 #289](docs/289-user-centered-delivery-route.md)。N62-E1–E5 已实现，当前优先贯通正式 Web 游戏导出，玩家路线图后置；下方旧阶段记录保留为历史背景。以真实创作和交付任务推进，只做必要验证，真人测试等功能与整体 UI 就绪。
 > 当前重心：《雨停之前》1.10.0 的完整内容／演出复核与 Web 交付，23 条记录待人工复核；《给明天的回信》0.9.0 保留为外观功能样章。自然阅读／听感、真机／Safari、26 项素材发行条件与实际公网仍待验，不反复扩展无关装饰或导出选项。
 > 当前交付边界：优先交付 Web 完整作品能力。原三端 M1 保留为后续整体范围，Windows／Android 未完成项不阻断本轮 Web 交付；M2 以后保留为愿景池。

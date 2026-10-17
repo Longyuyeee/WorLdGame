@@ -634,6 +634,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
   const previewControllers = useRef(new Set<AbortController>());
   useEffect(() => () => { for (const controller of previewControllers.current) controller.abort(); }, [sessionRunner]);
   const captureSavePreview = useCallback(async (projectId: string, sceneId: string, runtimeStateHash: string | null): Promise<{ readonly metadata: WorldPlayerSavePreviewV2; readonly blob?: Blob }> => {
+    if (saveStore?.previewStorage === 'unavailable') return { metadata: { status: 'unavailable', reason: 'capture-unavailable' } };
     if (previewCapture === undefined && platform !== "web" || runtimeStateHash === null || fullscreen.element.current?.dataset.runtimeStateHash !== runtimeStateHash || previewPending.current >= 2) return { metadata: { status: "unavailable", reason: "capture-unavailable" } };
     previewPending.current++;
     const controller = new AbortController();
@@ -663,7 +664,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
     } catch {
       return { metadata: { status: "unavailable", reason: "capture-failed" } };
     } finally { clearTimeout(timer); controller.abort(); previewControllers.current.delete(controller); previewPending.current--; }
-  }, [previewCapture, platform, fullscreen.element, skinFonts.captureFonts]);
+  }, [previewCapture, platform, fullscreen.element, skinFonts.captureFonts, saveStore]);
 
   const captureCurrentSlot = useCallback(async (kind: "manual" | "auto" | "quick", slotId: string, capturedState = state, capturedSnapshot = snapshot, prepared = { preview: captureSavePreview(project.manifest.projectId, capturedState.runtimeState?.cursor.sceneId ?? "", capturedSnapshot.runtimeStateHash), savedAt: now() }) => {
     if (capturedSnapshot.identities.buildId === null || capturedSnapshot.runtimeStateHash === null || capturedState.runtimeState === null) throw new Error("WORLD_PLAYER_SAVE_NOT_READY");
@@ -706,7 +707,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
     const captured = await captureCurrentSlot(kind, slotId, capturedState, capturedSnapshot, prepared);
     if(!sessionRunner.active||saveContext.current.projectId!==captured.slot.projectId||saveContext.current.store!==saveStore)throw new DOMException("Save scope changed","AbortError");
     await saveStore.write(captured.slot, captured.preview);
-    return captured.slot.preview.status;
+    return saveStore.previewStorage === 'unavailable' ? 'unavailable' : captured.slot.preview.status;
   }, [captureCurrentSlot, saveStore, snapshot, state,sessionRunner]);
 
   const saveToSlot = useCallback(async (kind: "manual" | "quick", slotId: string) => {
@@ -725,7 +726,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
       setPendingOverwriteSlotId(null);
       setSaveOperation("saved");
       setSaveMessage(`${playerSaveLabel(slotId)}已保存${previewStatus === "available" ? "（含截图）" : "（预览不可用）"}`);
-      setSaveFeedback(kind === 'quick' ? '快速存档已保存' : '手动存档已保存');
+      setSaveFeedback((kind === 'quick' ? '快速存档已保存' : '手动存档已保存') + (saveStore?.previewStorage === 'unavailable' ? '（截图不可用）' : ''));
       setBackgroundSaveFailure(null);
     } catch {
       if(!sessionRunner.active||saveContext.current.projectId!==projectId||saveContext.current.store!==saveStore)return;
@@ -886,11 +887,6 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
         return;
       }
     }
-    if (source !== "system") {
-      setAutoEnabled(false);
-      setAutoPlayback("off");
-      stopSkip();
-    }
     setLastInputSource(source);
     if ((intent.kind === "primary" || intent.kind === "select-choice")
       && source !== "lifecycle" && source !== "system"
@@ -898,13 +894,20 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
       setLastInputAccepted(false);
       return;
     }
+    // Reading another screen is not a request to leave Auto or change story.
+    // Check input permission first; an ignored input must not change its mode.
+    if (intent.kind === 'primary' && (content.kind === 'dialogue' || content.kind === 'narration') && textReady && reading.nextPage()) {
+      stopSkip(); setLastInputAccepted(false); return;
+    }
+    if (source !== "system") {
+      setAutoEnabled(false);
+      setAutoPlayback("off");
+      stopSkip();
+    }
     if (intent.kind === "primary" && (content.kind === "dialogue" || content.kind === "narration") && !textReady) {
       setTextReady(true);
       setLastInputAccepted(false);
       return;
-    }
-    if (intent.kind === "primary" && (content.kind === "dialogue" || content.kind === "narration") && reading.nextPage()) {
-      setLastInputAccepted(false); return;
     }
     if (intent.kind === "primary" && settingsApplication.advance.waitForVoice && voicePlaying) {
       setLastInputAccepted(false);
@@ -1977,7 +1980,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
           {autoEnabled && <button type="button" aria-label="停止自动阅读" onClick={() => { setAutoEnabled(false); setAutoPlayback('off'); }}>自动中 · 停止</button>}
           <button ref={readingMenuTrigger} type="button" aria-label={readingMenuOpen ? '关闭阅读菜单' : '打开阅读菜单'} aria-expanded={readingMenuOpen} aria-controls="player-reading-menu" disabled={hostActivity !== 'active' || preferencesOpen || historyPanelOpen || savePanelOpen || additionalContentOpen} onClick={event => { if (readingMenuOpen) closeReadingMenu(); else { readingMenuReturnTrigger.current = event.currentTarget; stopSkip(); setReadingMenuOpen(true); } }}>{readingMenuOpen ? '返回故事 ×' : '菜单 ☰'}</button>
         </div>}
-        {compactReading && content.kind !== 'title' && !silentReading && <p className="player-portrait-hint">横屏更适合观看演出</p>}
+        {compactReading && content.kind !== 'title' && !silentReading && !autoEnabled && <p className="player-portrait-hint">横屏更适合观看演出</p>}
         <div {...(readingMenuOpen ? panelProps('menu') : {})} id="player-reading-menu" ref={readingMenu} className="player-control-layer" data-open={readingMenuOpen} inert={artworkView} role={readingMenuOpen ? 'dialog' : undefined} aria-modal={readingMenuOpen ? true : undefined} aria-label={readingMenuOpen ? '阅读菜单' : undefined}>
         <PlayerPanelRegion enabled={menuLayout.enabled} rect={menuLayout.layout?.secondary} kind="secondary">
           {readingMenuOpen && <header className="player-reading-menu-heading"><strong>阅读菜单</strong><span>剧情暂停推进，设置后返回当前段落。</span><button type="button" onClick={closeReadingMenu}>返回故事</button></header>}
@@ -2444,10 +2447,10 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
               aria-live="polite"
               style={{ "--gal-text-reveal-duration": `${textRevealDuration}ms` } as React.CSSProperties}
             ><span className="player-story-text-motion" data-story-motion={stage.textMotion?.kind} style={storyMotionStyle(stage.textMotion)}><PlayerRichText text={content.text} locale={typography.locale} /></span></span>
-            <i aria-hidden="true">{reading.unread ? '向下阅读 ⌄' : !textReady ? '点击显示全文' : '点击继续 →'}</i>
+            <i aria-hidden="true">{!textReady ? autoEnabled ? '显示全文并切回手动' : '点击显示全文' : reading.unread ? autoEnabled ? '读完本段后自动继续 ⌄' : '向下阅读 ⌄' : autoEnabled ? '自动阅读中 · 点按切回手动' : '点击继续 →'}</i>
           </button>
         )}
-        {compactReading && (content.kind === 'dialogue' || content.kind === 'narration') && !readingMenuOpen && !preferencesOpen && <p className="player-reading-caption">{reading.unread ? '下滑或点文字，读本段下一屏' : !textReady ? '点击文字显示全文' : '点击文字继续故事'}</p>}
+        {compactReading && (content.kind === 'dialogue' || content.kind === 'narration') && !readingMenuOpen && !preferencesOpen && <p className="player-reading-caption">{!textReady ? autoEnabled ? '自动显示中，点文字切回手动' : '点击文字显示全文' : reading.unread ? autoEnabled ? '自动等待：下滑或点文字读完本段' : '下滑或点文字，读本段下一屏' : autoEnabled ? '自动阅读中，点文字切回手动' : '点击文字继续故事'}</p>}
 
         {content.kind === "choice" && (
           <div className="player-choice" data-choice-layout={skin?.reading.choiceLayout && skin.reading.choiceLayout !== "inherit" ? skin.reading.choiceLayout === "columns" ? "responsive-grid" : "vertical" : settingsApplication.choice.layout} role="group" aria-labelledby="player-choice-prompt">

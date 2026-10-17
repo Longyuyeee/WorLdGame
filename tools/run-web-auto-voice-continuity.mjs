@@ -7,8 +7,9 @@ import { pathToFileURL } from 'node:url';
 import { createServer } from 'node:http';
 import { unzipSync } from 'fflate';
 import { json, sha, readGamePayload } from './audit-rain-story-refinement.mjs';
+import { listenBrowserLoopback } from './listen-browser-loopback.mjs';
 
-const root = path.resolve(import.meta.dirname, '..'), output = path.join(root, 'evidence/web-auto-voice-continuity'), prior = path.join(root, 'evidence/web-story-arrival-and-night');
+const root = path.resolve(import.meta.dirname, '..'), output = path.resolve(root, process.env.STUDIO_AUTO_CONTINUITY_OUTPUT_DIRECTORY ?? 'evidence/web-auto-voice-continuity'), prior = path.join(root, 'evidence/web-story-arrival-and-night');
 const ui = process.env.STUDIO_UI_URL ?? 'http://127.0.0.1:5195/', baselineOnly = process.argv.includes('--baseline-only');
 const require = createRequire(import.meta.url); let chromium;
 try { ({ chromium } = require('playwright')); } catch { ({ chromium } = require(path.join(homedir(), '.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright'))); }
@@ -152,7 +153,7 @@ try {
   if (baselineOnly) { const url = pathToFileURL(path.join(prior, 'before-rain-stops.html')).href; await faultRoute(url, false, true); await faultRoute(url, true, true); }
   else {
     if (!process.argv.includes('--play-only')) await author(); const website = await audit();
-    server = createServer((req, res) => { const name = decodeURIComponent(new URL(req.url, 'http://local').pathname).replace(/^\/gal\//u, '') || 'index.html', bytes = website[name], type = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml', '.webmanifest': 'application/manifest+json', '.json': 'application/json', '.png': 'image/png', '.wav': 'audio/wav' }[path.extname(name)] ?? 'application/octet-stream', range = /^bytes=(\d+)-(\d*)$/u.exec(req.headers.range ?? ''); const headers = { 'Content-Type': type, 'Cache-Control': 'no-cache' }; if (bytes && range) { const start = +range[1], end = Math.min(range[2] ? +range[2] : bytes.length - 1, bytes.length - 1); return res.writeHead(206, { ...headers, 'Content-Range': `bytes ${start}-${end}/${bytes.length}`, 'Content-Length': end - start + 1 }).end(bytes.subarray(start, end + 1)); } res.writeHead(bytes ? 200 : 404, headers).end(bytes ?? 'Missing'); }); await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+    server = createServer((req, res) => { const name = decodeURIComponent(new URL(req.url, 'http://local').pathname).replace(/^\/gal\//u, '') || 'index.html', bytes = website[name], type = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml', '.webmanifest': 'application/manifest+json', '.json': 'application/json', '.png': 'image/png', '.wav': 'audio/wav' }[path.extname(name)] ?? 'application/octet-stream', range = /^bytes=(\d+)-(\d*)$/u.exec(req.headers.range ?? ''); const headers = { 'Content-Type': type, 'Cache-Control': 'no-cache' }; if (bytes && range) { const start = +range[1], end = Math.min(range[2] ? +range[2] : bytes.length - 1, bytes.length - 1); return res.writeHead(206, { ...headers, 'Content-Range': `bytes ${start}-${end}/${bytes.length}`, 'Content-Length': end - start + 1 }).end(bytes.subarray(start, end + 1)); } res.writeHead(bytes ? 200 : 404, headers).end(bytes ?? 'Missing'); }); await listenBrowserLoopback(server);
     const url = `http://127.0.0.1:${server.address().port}/gal/`; await faultRoute(url, false, false); await faultRoute(url, true, false);
     await completeRoute(pathToFileURL(path.join(output, 'before-rain-stops.html')).href, 0); await completeRoute(url, 1); await originalSave(url);
   }

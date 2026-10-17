@@ -74,7 +74,7 @@ export function PlayerSaveBackupPanel({ state, store, coordinator, slots, curren
     if (!written) { await onImported(target); throw Error("目标槽位已经变化，未导入。请重新核对目标后再次确认。"); }
     setIncoming(null); setImportedSlot({ id: target, artifactHash: destination.sessionArtifactHash });
     await onImported(target);
-    setMessage(`备份已导入${playerSaveLabel(target)}，当前故事未改变。点击读取继续。`);
+    setMessage(`备份已导入${playerSaveLabel(target)}，当前故事未改变。点击读取继续。${store.previewStorage === 'unavailable' ? '此浏览器未保存截图，剧情进度和历史已保留。' : ''}`);
   });
   const requestImport = () => {
     const occupied = slots.find(slot => slot.slotId === target);

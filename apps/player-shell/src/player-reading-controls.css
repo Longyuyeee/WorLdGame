@@ -73,11 +73,22 @@
   .player-shell[data-player-status="title"] .player-control-layer { display: contents; }
 }
 @media (max-width: 640px), (max-height: 480px) {
+  /* Keep temporary save feedback away from the reading instructions/footer.
+     Portrait uses the artwork below the toolbar, not the scrollable text. */
+  .player-shell:not([data-layout-reading="true"]) .player-save-feedback { top: calc(max(12px, env(safe-area-inset-top)) + 56px + var(--player-viewport-offset, 0px)); bottom: auto; left: max(14px, env(safe-area-inset-left)); max-width: calc(100vw - 28px); padding: 4px 8px; font-size: 12px; line-height: 1.3; }
   .player-compact-toolbar { max-width: calc(100% - 28px); }
   .player-compact-toolbar .player-artwork-trigger { padding: 8px 10px; font-size: 12px; }
   .player-control-layer[data-open="true"] { inset: calc(max(12px, env(safe-area-inset-top)) + var(--player-viewport-offset, 0px)) max(14px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left)); padding: 16px; gap: 16px; }
   .player-shell[data-compact-reading="true"] .player-portrait-hint { max-width: calc(100vw - 240px); }
   .player-artwork-return { padding: 14px; }
+}
+@media (max-height: 480px) and (orientation: landscape) {
+  /* Short viewports have no spare row above the dialogue; use the free left
+     side of the toolbar instead, leaving its action buttons on the right. */
+  .player-shell:not([data-layout-reading="true"]) .player-save-feedback { top: calc(max(12px, env(safe-area-inset-top)) + var(--player-viewport-offset, 0px)); max-width: calc(100vw - 360px); }
+}
+@media (max-width: 360px) {
+  .player-shell:not([data-layout-reading="true"]) .player-compact-toolbar button { padding: 8px 10px; font-size: 12px; white-space: nowrap; }
 }
 @media (max-width: 640px) and (orientation: portrait) {
   .player-shell[data-artwork-view="true"] .player-stage-world { top: calc(50% - 100vw / var(--gal-stage-ratio, 1.7778) / 2); }

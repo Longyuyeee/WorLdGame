@@ -92,6 +92,8 @@ export function worldPlayerSaveSummaryV3(slot: WorldPlayerSaveSlotV3): WorldPlay
 export interface WorldPlayerSaveStoreV3 {
   readonly version: typeof WORLD_PLAYER_SAVE_STORE_VERSION;
   readonly backend: string;
+  /** Optional negative host capability; does not change the save-file format. */
+  readonly previewStorage?: 'unknown' | 'unavailable';
   list(projectId: string): Promise<readonly WorldPlayerSaveSlotV3[]>;
   listSummaries?(projectId: string): Promise<readonly WorldPlayerSaveSummaryV3[]>;
   read(projectId: string, slotId: string): Promise<WorldPlayerSaveSlotV3 | null>;
@@ -325,6 +327,9 @@ export class IndexedDbWorldPlayerSaveStoreV3 implements WorldPlayerSaveStoreV3 {
   private readonly database: Promise<IDBDatabase>;
   private readonly subtle: SubtleCrypto;
   private readonly writes = new PlayerStorageWriteQueue();
+  private previewBlobsUnsupported = false;
+  private previewBlobsSupported = false;
+  get previewStorage(): 'unknown' | 'unavailable' { return this.previewBlobsUnsupported ? 'unavailable' : 'unknown'; }
 
   constructor(factory: IDBFactory = indexedDB, subtle: SubtleCrypto = crypto.subtle) {
     this.database = openDatabase(factory);
@@ -409,27 +414,90 @@ export class IndexedDbWorldPlayerSaveStoreV3 implements WorldPlayerSaveStoreV3 {
       if (checked.preview.status === "available" && preview !== undefined && await worldPlayerSavePreviewSha256V1(preview, this.subtle) !== checked.preview.sha256) {
         throw new TypeError("WORLD_PLAYER_SAVE_PREVIEW_INVALID");
       }
-      const packed = await packPlayerStorageRecord(checked, this.subtle);
       const database = await this.database;
-      const transaction = database.transaction([WORLD_PLAYER_SAVE_STORE_NAME, WORLD_PLAYER_SAVE_PREVIEW_STORE_NAME], "readwrite", { durability: "strict" });
-      const done = transactionDone(transaction);
       const recordKey = key(checked.projectId, checked.slotId);
-      try {
-        if (expectation !== undefined) {
-          const record = await requestResult(transaction.objectStore(WORLD_PLAYER_SAVE_STORE_NAME).get(recordKey));
-          const actual = record === undefined ? null : normalizeSummary(record);
-          if (canonicalPlayerDataStringifyV1(actual) !== canonicalPlayerDataStringifyV1(expectation)) { await done; return false; }
+      const commit = async (value: WorldPlayerSaveSlotV3, image: Blob | undefined): Promise<boolean> => {
+        const packed = await packPlayerStorageRecord(value, this.subtle);
+        const transaction = database.transaction([WORLD_PLAYER_SAVE_STORE_NAME, WORLD_PLAYER_SAVE_PREVIEW_STORE_NAME], "readwrite", { durability: "strict" });
+        // Request errors bubble before rollback has finished. Only final
+        // completion/abort may release this transaction or start a retry.
+        const done = new Promise<void>((resolve, reject) => {
+          transaction.addEventListener('complete', () => resolve(), { once: true });
+          transaction.addEventListener('abort', () => reject(transaction.error ?? new Error('WORLD_PLAYER_SAVE_IO_FAILURE')), { once: true });
+        });
+        transaction.addEventListener('error', event => {
+          // Own rollback once, rather than race the failed request's implicit
+          // abort (some WebKit hosts otherwise never deliver the final event).
+          event.preventDefault();
+          try { transaction.abort(); } catch { /* Already aborting/inactive. */ }
+        });
+        let previewFailure: unknown;
+        try {
+          if (expectation !== undefined) {
+            const record = await requestResult(transaction.objectStore(WORLD_PLAYER_SAVE_STORE_NAME).get(recordKey));
+            const actual = record === undefined ? null : normalizeSummary(record);
+            if (canonicalPlayerDataStringifyV1(actual) !== canonicalPlayerDataStringifyV1(expectation)) { await done; return false; }
+          }
+          transaction.objectStore(WORLD_PLAYER_SAVE_STORE_NAME).put(packed, recordKey);
+          if (image === undefined) transaction.objectStore(WORLD_PLAYER_SAVE_PREVIEW_STORE_NAME).delete(recordKey);
+          else {
+            try {
+              const request = transaction.objectStore(WORLD_PLAYER_SAVE_PREVIEW_STORE_NAME).put(image, recordKey);
+              request.addEventListener('error', () => { previewFailure = request.error; }, { once: true });
+            } catch (error) { previewFailure = error; throw error; }
+          }
+          await done;
+          return true;
+        } catch (error) {
+          try { transaction.abort(); } catch { /* A request failure may have aborted it already. */ }
+          await done.catch(() => undefined);
+          if (image && isRecord(previewFailure) && ['UnknownError', 'DataCloneError'].includes(String(previewFailure.name))) throw new PreviewBlobStorageError();
+          throw error;
         }
-        transaction.objectStore(WORLD_PLAYER_SAVE_STORE_NAME).put(packed, recordKey);
-        if (preview === undefined) transaction.objectStore(WORLD_PLAYER_SAVE_PREVIEW_STORE_NAME).delete(recordKey);
-        else transaction.objectStore(WORLD_PLAYER_SAVE_PREVIEW_STORE_NAME).put(preview, recordKey);
-        await done;
-        return true;
-      } catch (error) {
-        try { transaction.abort(); } catch { /* A request failure may have aborted it already. */ }
-        await done.catch(() => undefined);
-        throw error;
+      };
+      const withoutPreview: WorldPlayerSaveSlotV3 = { ...checked, preview: { status: 'unavailable', reason: 'capture-unavailable' } };
+      if (this.previewBlobsUnsupported && preview) return commit(withoutPreview, undefined);
+      if (preview && !this.previewBlobsSupported) {
+        // Probe in one store, with no slot metadata at risk. Windows WebKit
+        // can fail Blob preparation without finishing a multi-store abort.
+        if (await probePreviewBlobStorage(database, preview)) this.previewBlobsSupported = true;
+        else {
+          const written = await commit(withoutPreview, undefined);
+          if (written) this.previewBlobsUnsupported = true;
+          return written;
+        }
+      }
+      try { return await commit(checked, preview); }
+      catch (error) {
+        if (!(error instanceof PreviewBlobStorageError)) throw error;
+        // The first transaction is fully aborted. Retry only optional Blob
+        // rejection, with the same CAS expectation checked again atomically.
+        const written = await commit(withoutPreview, undefined);
+        if (written) this.previewBlobsUnsupported = true;
+        return written;
       }
     });
   }
+}
+
+class PreviewBlobStorageError extends Error {}
+
+/** A reserved, non-slot key is always rolled back, even on supported hosts. */
+function probePreviewBlobStorage(database: IDBDatabase, preview: Blob): Promise<boolean> {
+  return new Promise((resolve, reject) => {
+    const transaction = database.transaction(WORLD_PLAYER_SAVE_PREVIEW_STORE_NAME, 'readwrite');
+    let supported = false, failure: unknown;
+    transaction.addEventListener('complete', () => reject(new Error('WORLD_PLAYER_SAVE_PREVIEW_PROBE_NOT_ABORTED')), { once: true });
+    transaction.addEventListener('abort', () => {
+      if (supported && failure === undefined) resolve(true);
+      else if (isRecord(failure) && ['UnknownError', 'DataCloneError'].includes(String(failure.name))) resolve(false);
+      else reject(failure ?? transaction.error ?? new Error('WORLD_PLAYER_SAVE_IO_FAILURE'));
+    }, { once: true });
+    try {
+      const request = transaction.objectStore(WORLD_PLAYER_SAVE_PREVIEW_STORE_NAME).put(preview, '\0preview-capability');
+      request.addEventListener('success', () => { supported = true; transaction.abort(); }, { once: true });
+      // Let a single-store request finish its natural abort before continuing.
+      request.addEventListener('error', () => { failure = request.error; }, { once: true });
+    } catch (error) { failure = error; transaction.abort(); }
+  });
 }

@@ -1,0 +1,548 @@
+{
+  "passed": true,
+  "baseline": false,
+  "checks": [
+    {
+      "engine": "chromium",
+      "browser": "151.0.7922.34",
+      "before": {
+        "top": 0,
+        "height": 475,
+        "total": 711,
+        "unread": true
+      },
+      "afterPage": {
+        "top": 236,
+        "height": 475,
+        "total": 711,
+        "unread": false
+      },
+      "autoAfterPage": "waiting",
+      "landscape": {
+        "top": 79,
+        "height": 182,
+        "total": 261,
+        "unread": false
+      },
+      "fontRoundtrip": [
+        {
+          "percent": "85",
+          "top": 0,
+          "height": 475,
+          "total": 475,
+          "unread": false
+        },
+        {
+          "percent": "140",
+          "top": 236,
+          "height": 475,
+          "total": 711,
+          "unread": false
+        }
+      ],
+      "notices": [
+        {
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "toast": {
+            "x": 14,
+            "y": 68,
+            "width": 102,
+            "height": 25.59375
+          },
+          "boxes": {
+            ".player-reading-caption": {
+              "x": 14,
+              "y": 802,
+              "width": 180,
+              "height": 18
+            },
+            ".player-dialogue": {
+              "x": 14,
+              "y": 295.375,
+              "width": 362,
+              "height": 476.625
+            },
+            ".player-compact-toolbar": {
+              "x": 65.015625,
+              "y": 12,
+              "width": 310.984375,
+              "height": 44
+            }
+          }
+        },
+        {
+          "viewport": {
+            "width": 844,
+            "height": 390
+          },
+          "toast": {
+            "x": 14,
+            "y": 12,
+            "width": 102,
+            "height": 25.59375
+          },
+          "boxes": {
+            ".player-reading-caption": {
+              "x": 14,
+              "y": 340,
+              "width": 168,
+              "height": 26
+            },
+            ".player-dialogue": {
+              "x": 103.046875,
+              "y": 134.21875,
+              "width": 637.890625,
+              "height": 183.765625
+            },
+            ".player-compact-toolbar": {
+              "x": 519.015625,
+              "y": 12,
+              "width": 310.984375,
+              "height": 44
+            }
+          }
+        },
+        {
+          "viewport": {
+            "width": 320,
+            "height": 740
+          },
+          "toast": {
+            "x": 14,
+            "y": 68,
+            "width": 102,
+            "height": 25.59375
+          },
+          "boxes": {
+            ".player-reading-caption": {
+              "x": 14,
+              "y": 698,
+              "width": 156,
+              "height": 18
+            },
+            ".player-dialogue": {
+              "x": 14,
+              "y": 256,
+              "width": 292,
+              "height": 412
+            },
+            ".player-compact-toolbar": {
+              "x": 46.75,
+              "y": 12,
+              "width": 259.25,
+              "height": 44
+            }
+          }
+        },
+        {
+          "viewport": {
+            "width": 740,
+            "height": 320
+          },
+          "toast": {
+            "x": 14,
+            "y": 12,
+            "width": 102,
+            "height": 25.59375
+          },
+          "boxes": {
+            ".player-reading-caption": {
+              "x": 14,
+              "y": 270,
+              "width": 168,
+              "height": 26
+            },
+            ".player-dialogue": {
+              "x": 108.3125,
+              "y": 72,
+              "width": 523.375,
+              "height": 175.984375
+            },
+            ".player-compact-toolbar": {
+              "x": 415.015625,
+              "y": 12,
+              "width": 310.984375,
+              "height": 44
+            }
+          }
+        }
+      ],
+      "captionBefore": "自动等待：下滑或点文字读完本段",
+      "pageInputSource": "touch",
+      "returnedHash": "8b272b2533428f6443f008791a46cad1d2958dbd6466f9ab1ee07b76b54c525d",
+      "keyboardPaging": true,
+      "menuPause": true,
+      "rotationAndHistory": true,
+      "explicitStop": true,
+      "audioFailures": [],
+      "virtualClock": true,
+      "physicalPhone": false,
+      "safari": false
+    },
+    {
+      "engine": "firefox",
+      "browser": "153.0",
+      "before": {
+        "top": 0,
+        "height": 475,
+        "total": 711,
+        "unread": true
+      },
+      "afterPage": {
+        "top": 236,
+        "height": 475,
+        "total": 711,
+        "unread": false
+      },
+      "autoAfterPage": "waiting",
+      "landscape": {
+        "top": 79,
+        "height": 182,
+        "total": 261,
+        "unread": false
+      },
+      "fontRoundtrip": [
+        {
+          "percent": "85",
+          "top": 0,
+          "height": 475,
+          "total": 475,
+          "unread": false
+        },
+        {
+          "percent": "140",
+          "top": 236,
+          "height": 475,
+          "total": 711,
+          "unread": false
+        }
+      ],
+      "notices": [
+        {
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "toast": {
+            "x": 14,
+            "y": 68,
+            "width": 102,
+            "height": 25.599998474121094
+          },
+          "boxes": {
+            ".player-reading-caption": {
+              "x": 14,
+              "y": 802,
+              "width": 180,
+              "height": 18
+            },
+            ".player-dialogue": {
+              "x": 14,
+              "y": 295.3666687011719,
+              "width": 362,
+              "height": 476.6333312988281
+            },
+            ".player-compact-toolbar": {
+              "x": 65.01667022705078,
+              "y": 12,
+              "width": 310.9833297729492,
+              "height": 44
+            }
+          }
+        },
+        {
+          "viewport": {
+            "width": 844,
+            "height": 390
+          },
+          "toast": {
+            "x": 14,
+            "y": 12,
+            "width": 102,
+            "height": 25.599998474121094
+          },
+          "boxes": {
+            ".player-reading-caption": {
+              "x": 14,
+              "y": 340,
+              "width": 168,
+              "height": 26
+            },
+            ".player-dialogue": {
+              "x": 103.06666564941406,
+              "y": 134.23333740234375,
+              "width": 637.8666229248047,
+              "height": 183.76666259765625
+            },
+            ".player-compact-toolbar": {
+              "x": 519.0166625976562,
+              "y": 12,
+              "width": 310.98333740234375,
+              "height": 44
+            }
+          }
+        },
+        {
+          "viewport": {
+            "width": 320,
+            "height": 740
+          },
+          "toast": {
+            "x": 14,
+            "y": 68,
+            "width": 102,
+            "height": 25.599998474121094
+          },
+          "boxes": {
+            ".player-reading-caption": {
+              "x": 14,
+              "y": 698,
+              "width": 156,
+              "height": 18
+            },
+            ".player-dialogue": {
+              "x": 14,
+              "y": 256,
+              "width": 292,
+              "height": 412
+            },
+            ".player-compact-toolbar": {
+              "x": 46.766666412353516,
+              "y": 12,
+              "width": 259.2333335876465,
+              "height": 44
+            }
+          }
+        },
+        {
+          "viewport": {
+            "width": 740,
+            "height": 320
+          },
+          "toast": {
+            "x": 14,
+            "y": 12,
+            "width": 102,
+            "height": 25.599998474121094
+          },
+          "boxes": {
+            ".player-reading-caption": {
+              "x": 14,
+              "y": 270,
+              "width": 168,
+              "height": 26
+            },
+            ".player-dialogue": {
+              "x": 108.30000305175781,
+              "y": 72,
+              "width": 523.3833465576172,
+              "height": 176
+            },
+            ".player-compact-toolbar": {
+              "x": 415.01666259765625,
+              "y": 12,
+              "width": 310.98333740234375,
+              "height": 44
+            }
+          }
+        }
+      ],
+      "captionBefore": "自动等待：下滑或点文字读完本段",
+      "pageInputSource": "pointer",
+      "returnedHash": "8b272b2533428f6443f008791a46cad1d2958dbd6466f9ab1ee07b76b54c525d",
+      "keyboardPaging": true,
+      "menuPause": true,
+      "rotationAndHistory": true,
+      "explicitStop": true,
+      "audioFailures": [],
+      "virtualClock": true,
+      "physicalPhone": false,
+      "safari": false
+    },
+    {
+      "engine": "webkit",
+      "browser": "26.5",
+      "before": {
+        "top": 0,
+        "height": 475,
+        "total": 710,
+        "unread": true
+      },
+      "afterPage": {
+        "top": 235,
+        "height": 475,
+        "total": 710,
+        "unread": false
+      },
+      "autoAfterPage": "waiting",
+      "landscape": {
+        "top": 79,
+        "height": 182,
+        "total": 261,
+        "unread": false
+      },
+      "fontRoundtrip": [
+        {
+          "percent": "85",
+          "top": 0,
+          "height": 475,
+          "total": 475,
+          "unread": false
+        },
+        {
+          "percent": "140",
+          "top": 235,
+          "height": 475,
+          "total": 710,
+          "unread": false
+        }
+      ],
+      "notices": [
+        {
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "toast": {
+            "x": 14,
+            "y": 68,
+            "width": 186,
+            "height": 25.59375
+          },
+          "boxes": {
+            ".player-reading-caption": {
+              "x": 14,
+              "y": 802,
+              "width": 180,
+              "height": 18
+            },
+            ".player-dialogue": {
+              "x": 14,
+              "y": 295.375,
+              "width": 362,
+              "height": 476.609375
+            },
+            ".player-compact-toolbar": {
+              "x": 65.015625,
+              "y": 12,
+              "width": 310.984375,
+              "height": 44
+            }
+          }
+        },
+        {
+          "viewport": {
+            "width": 844,
+            "height": 390
+          },
+          "toast": {
+            "x": 14,
+            "y": 12,
+            "width": 186,
+            "height": 25.59375
+          },
+          "boxes": {
+            ".player-reading-caption": {
+              "x": 14,
+              "y": 340,
+              "width": 168,
+              "height": 26
+            },
+            ".player-dialogue": {
+              "x": 103.046875,
+              "y": 134.21875,
+              "width": 637.890625,
+              "height": 183.765625
+            },
+            ".player-compact-toolbar": {
+              "x": 519.015625,
+              "y": 12,
+              "width": 310.984375,
+              "height": 44
+            }
+          }
+        },
+        {
+          "viewport": {
+            "width": 320,
+            "height": 740
+          },
+          "toast": {
+            "x": 14,
+            "y": 68,
+            "width": 186,
+            "height": 25.59375
+          },
+          "boxes": {
+            ".player-reading-caption": {
+              "x": 14,
+              "y": 698,
+              "width": 156,
+              "height": 18
+            },
+            ".player-dialogue": {
+              "x": 14,
+              "y": 256,
+              "width": 292,
+              "height": 412
+            },
+            ".player-compact-toolbar": {
+              "x": 46.75,
+              "y": 12,
+              "width": 259.25,
+              "height": 44
+            }
+          }
+        },
+        {
+          "viewport": {
+            "width": 740,
+            "height": 320
+          },
+          "toast": {
+            "x": 14,
+            "y": 12,
+            "width": 186,
+            "height": 25.59375
+          },
+          "boxes": {
+            ".player-reading-caption": {
+              "x": 14,
+              "y": 270,
+              "width": 168,
+              "height": 26
+            },
+            ".player-dialogue": {
+              "x": 108.3125,
+              "y": 72,
+              "width": 523.375,
+              "height": 175.984375
+            },
+            ".player-compact-toolbar": {
+              "x": 415.015625,
+              "y": 12,
+              "width": 310.984375,
+              "height": 44
+            }
+          }
+        }
+      ],
+      "captionBefore": "自动等待：下滑或点文字读完本段",
+      "pageInputSource": "pointer",
+      "returnedHash": "8b272b2533428f6443f008791a46cad1d2958dbd6466f9ab1ee07b76b54c525d",
+      "keyboardPaging": true,
+      "menuPause": true,
+      "rotationAndHistory": true,
+      "explicitStop": true,
+      "audioFailures": [],
+      "virtualClock": true,
+      "physicalPhone": false,
+      "safari": false
+    }
+  ],
+  "errors": [],
+  "scope": "Actual current complete-work paragraph at 140% font; Chromium touch-context tap and Firefox/WebKit pointer/keyboard, desktop viewport rotation and controlled-clock Auto. Text/input checks do not certify native sound, physical phones/Safari, natural reading time, public HTTPS or long-soak."
+}

@@ -84,3 +84,5 @@ evidence/web-story-arrival-and-night/*.worldsave -text
 evidence/web-story-arrival-and-night/*.worldreview -text
 evidence/web-auto-voice-continuity/*.html -text
 evidence/web-auto-voice-continuity/*.worldsave -text
+evidence/web-auto-reading-pages/*.html -text
+evidence/web-auto-reading-pages/*.worldsave -text

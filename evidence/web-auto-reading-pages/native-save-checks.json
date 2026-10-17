@@ -1,0 +1,420 @@
+{
+  "passed": true,
+  "baseline": false,
+  "checks": [
+    {
+      "engine": "chromium",
+      "nativeClock": true,
+      "saved": true,
+      "reloadedHash": "789868e76600d9a63c12034797655e9af454d7742a5c200cabece029cb9a74cd",
+      "historyCursor": "4",
+      "blobs": {
+        "memoryBlob": "ok",
+        "canvasBlob": "ok",
+        "copiedCanvasBlob": "ok",
+        "bytes": "ok"
+      },
+      "saveFeedback": "快速存档已保存",
+      "operationTrace": [
+        {
+          "transaction": "save-slots:readonly",
+          "event": "start"
+        },
+        {
+          "transaction": "recovery-sessions:readonly",
+          "event": "start"
+        },
+        {
+          "transaction": "save-slots:readonly",
+          "event": "complete",
+          "error": "null"
+        },
+        {
+          "transaction": "recovery-sessions:readonly",
+          "event": "complete",
+          "error": "null"
+        },
+        {
+          "transaction": "save-slots:readonly",
+          "event": "start"
+        },
+        {
+          "transaction": "save-slots:readonly",
+          "event": "complete",
+          "error": "null"
+        },
+        {
+          "transaction": "recovery-sessions:readwrite",
+          "event": "start"
+        },
+        {
+          "transaction": "recovery-sessions:readwrite",
+          "event": "complete",
+          "error": "null"
+        },
+        {
+          "transaction": "save-slots,save-previews:readwrite",
+          "event": "start"
+        },
+        {
+          "transaction": "save-slots,save-previews:readwrite",
+          "event": "complete",
+          "error": "null"
+        },
+        {
+          "transaction": "save-slots:readonly",
+          "event": "start"
+        },
+        {
+          "transaction": "save-slots:readonly",
+          "event": "complete",
+          "error": "null"
+        },
+        {
+          "transaction": "save-previews:readwrite",
+          "event": "start"
+        },
+        {
+          "source": "IDB.abort",
+          "result": "ok"
+        },
+        {
+          "transaction": "save-previews:readwrite",
+          "event": "abort",
+          "error": "null"
+        },
+        {
+          "transaction": "save-slots,save-previews:readwrite",
+          "event": "start"
+        },
+        {
+          "transaction": "save-slots,save-previews:readwrite",
+          "event": "complete",
+          "error": "null"
+        },
+        {
+          "transaction": "save-slots:readonly",
+          "event": "start"
+        },
+        {
+          "transaction": "save-slots:readonly",
+          "event": "complete",
+          "error": "null"
+        }
+      ],
+      "notices": {
+        "toast": {
+          "x": 14,
+          "y": 68,
+          "width": 102,
+          "height": 25.59375
+        },
+        "boxes": {
+          ".player-reading-caption": {
+            "x": 14,
+            "y": 802,
+            "width": 180,
+            "height": 18
+          },
+          ".player-dialogue": {
+            "x": 14,
+            "y": 295.375,
+            "width": 362,
+            "height": 476.625
+          },
+          ".player-compact-toolbar": {
+            "x": 65.015625,
+            "y": 12,
+            "width": 310.984375,
+            "height": 44
+          }
+        }
+      }
+    },
+    {
+      "engine": "firefox",
+      "nativeClock": true,
+      "saved": true,
+      "reloadedHash": "789868e76600d9a63c12034797655e9af454d7742a5c200cabece029cb9a74cd",
+      "historyCursor": "4",
+      "blobs": {
+        "memoryBlob": "ok",
+        "canvasBlob": "ok",
+        "copiedCanvasBlob": "ok",
+        "bytes": "ok"
+      },
+      "saveFeedback": "快速存档已保存",
+      "operationTrace": [
+        {
+          "transaction": "save-slots:readonly",
+          "event": "start"
+        },
+        {
+          "transaction": "save-slots:readonly",
+          "event": "complete",
+          "error": "null"
+        },
+        {
+          "transaction": "recovery-sessions:readonly",
+          "event": "start"
+        },
+        {
+          "transaction": "recovery-sessions:readonly",
+          "event": "complete",
+          "error": "null"
+        },
+        {
+          "transaction": "save-slots:readonly",
+          "event": "start"
+        },
+        {
+          "transaction": "save-slots:readonly",
+          "event": "complete",
+          "error": "null"
+        },
+        {
+          "transaction": "recovery-sessions:readwrite",
+          "event": "start"
+        },
+        {
+          "transaction": "save-slots,save-previews:readwrite",
+          "event": "start"
+        },
+        {
+          "transaction": "recovery-sessions:readwrite",
+          "event": "complete",
+          "error": "null"
+        },
+        {
+          "transaction": "save-slots,save-previews:readwrite",
+          "event": "complete",
+          "error": "null"
+        },
+        {
+          "transaction": "save-slots:readonly",
+          "event": "start"
+        },
+        {
+          "transaction": "save-slots:readonly",
+          "event": "complete",
+          "error": "null"
+        },
+        {
+          "transaction": "save-previews:readwrite",
+          "event": "start"
+        },
+        {
+          "source": "IDB.abort",
+          "result": "ok"
+        },
+        {
+          "transaction": "save-previews:readwrite",
+          "event": "abort",
+          "error": "null"
+        },
+        {
+          "transaction": "save-slots,save-previews:readwrite",
+          "event": "start"
+        },
+        {
+          "transaction": "save-slots,save-previews:readwrite",
+          "event": "complete",
+          "error": "null"
+        },
+        {
+          "transaction": "save-slots:readonly",
+          "event": "start"
+        },
+        {
+          "transaction": "save-slots:readonly",
+          "event": "complete",
+          "error": "null"
+        }
+      ],
+      "notices": {
+        "toast": {
+          "x": 14,
+          "y": 68,
+          "width": 102,
+          "height": 25.599998474121094
+        },
+        "boxes": {
+          ".player-reading-caption": {
+            "x": 14,
+            "y": 802,
+            "width": 180,
+            "height": 18
+          },
+          ".player-dialogue": {
+            "x": 14,
+            "y": 295.3666687011719,
+            "width": 362,
+            "height": 476.6333312988281
+          },
+          ".player-compact-toolbar": {
+            "x": 65.01667022705078,
+            "y": 12,
+            "width": 310.9833297729492,
+            "height": 44
+          }
+        }
+      }
+    },
+    {
+      "engine": "webkit",
+      "nativeClock": true,
+      "saved": true,
+      "reloadedHash": "789868e76600d9a63c12034797655e9af454d7742a5c200cabece029cb9a74cd",
+      "historyCursor": "4",
+      "blobs": {
+        "memoryBlob": "UnknownError: Error preparing Blob/File data to be stored in object store",
+        "canvasBlob": "UnknownError: Error preparing Blob/File data to be stored in object store",
+        "copiedCanvasBlob": "UnknownError: Error preparing Blob/File data to be stored in object store",
+        "bytes": "ok"
+      },
+      "saveFeedback": "快速存档已保存（截图不可用）",
+      "operationTrace": [
+        {
+          "transaction": "save-slots:readonly",
+          "event": "start"
+        },
+        {
+          "transaction": "recovery-sessions:readonly",
+          "event": "start"
+        },
+        {
+          "transaction": "save-slots:readonly",
+          "event": "complete",
+          "error": "null"
+        },
+        {
+          "transaction": "recovery-sessions:readonly",
+          "event": "complete",
+          "error": "null"
+        },
+        {
+          "transaction": "save-slots:readonly",
+          "event": "start"
+        },
+        {
+          "transaction": "save-slots:readonly",
+          "event": "complete",
+          "error": "null"
+        },
+        {
+          "transaction": "recovery-sessions:readwrite",
+          "event": "start"
+        },
+        {
+          "transaction": "recovery-sessions:readwrite",
+          "event": "complete",
+          "error": "null"
+        },
+        {
+          "transaction": "save-slots,save-previews:readwrite",
+          "event": "start"
+        },
+        {
+          "transaction": "save-slots,save-previews:readwrite",
+          "event": "complete",
+          "error": "null"
+        },
+        {
+          "transaction": "save-slots:readonly",
+          "event": "start"
+        },
+        {
+          "transaction": "save-slots:readonly",
+          "event": "complete",
+          "error": "null"
+        },
+        {
+          "source": "IDB.put",
+          "database": "reader-blob-capability-probe",
+          "store": "values",
+          "error": "UnknownError: Error preparing Blob/File data to be stored in object store"
+        },
+        {
+          "source": "IDB.put",
+          "database": "reader-blob-capability-probe",
+          "store": "values",
+          "error": "UnknownError: Error preparing Blob/File data to be stored in object store"
+        },
+        {
+          "source": "IDB.put",
+          "database": "reader-blob-capability-probe",
+          "store": "values",
+          "error": "UnknownError: Error preparing Blob/File data to be stored in object store"
+        },
+        {
+          "transaction": "save-previews:readwrite",
+          "event": "start"
+        },
+        {
+          "source": "IDB.put",
+          "database": "world-player-saves",
+          "store": "save-previews",
+          "error": "UnknownError: Error preparing Blob/File data to be stored in object store"
+        },
+        {
+          "transaction": "save-previews:readwrite",
+          "event": "error",
+          "error": "null"
+        },
+        {
+          "transaction": "save-previews:readwrite",
+          "event": "abort",
+          "error": "UnknownError: Error preparing Blob/File data to be stored in object store"
+        },
+        {
+          "transaction": "save-slots,save-previews:readwrite",
+          "event": "start"
+        },
+        {
+          "transaction": "save-slots,save-previews:readwrite",
+          "event": "complete",
+          "error": "null"
+        },
+        {
+          "transaction": "save-slots:readonly",
+          "event": "start"
+        },
+        {
+          "transaction": "save-slots:readonly",
+          "event": "complete",
+          "error": "null"
+        }
+      ],
+      "notices": {
+        "toast": {
+          "x": 14,
+          "y": 68,
+          "width": 186,
+          "height": 25.59375
+        },
+        "boxes": {
+          ".player-reading-caption": {
+            "x": 14,
+            "y": 802,
+            "width": 180,
+            "height": 18
+          },
+          ".player-dialogue": {
+            "x": 14,
+            "y": 295.375,
+            "width": 362,
+            "height": 476.609375
+          },
+          ".player-compact-toolbar": {
+            "x": 65.015625,
+            "y": 12,
+            "width": 310.984375,
+            "height": 44
+          }
+        }
+      }
+    }
+  ],
+  "errors": [],
+  "scope": "Native-clock quick saves only, no clock install or time jump; actual exported game in three desktop engines, not full-route, physical-device or public acceptance."
+}

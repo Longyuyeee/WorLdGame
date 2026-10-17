@@ -1,0 +1,71 @@
+{
+  "passed": true,
+  "baseline": true,
+  "checks": [
+    {
+      "engine": "chromium",
+      "browser": "151.0.7922.34",
+      "before": {
+        "top": 0,
+        "height": 475,
+        "total": 711,
+        "unread": true
+      },
+      "afterPage": {
+        "top": 236,
+        "height": 475,
+        "total": 711,
+        "unread": false
+      },
+      "autoAfterPage": "off",
+      "captionBefore": "下滑或点文字，读本段下一屏",
+      "audioFailures": [],
+      "virtualClock": true,
+      "physicalPhone": false
+    },
+    {
+      "engine": "firefox",
+      "browser": "153.0",
+      "before": {
+        "top": 0,
+        "height": 475,
+        "total": 711,
+        "unread": true
+      },
+      "afterPage": {
+        "top": 236,
+        "height": 475,
+        "total": 711,
+        "unread": false
+      },
+      "autoAfterPage": "off",
+      "captionBefore": "下滑或点文字，读本段下一屏",
+      "audioFailures": [],
+      "virtualClock": true,
+      "physicalPhone": false
+    },
+    {
+      "engine": "webkit",
+      "browser": "26.5",
+      "before": {
+        "top": 0,
+        "height": 475,
+        "total": 710,
+        "unread": true
+      },
+      "afterPage": {
+        "top": 235,
+        "height": 475,
+        "total": 710,
+        "unread": false
+      },
+      "autoAfterPage": "off",
+      "captionBefore": "下滑或点文字，读本段下一屏",
+      "audioFailures": [],
+      "virtualClock": true,
+      "physicalPhone": false
+    }
+  ],
+  "errors": [],
+  "scope": "Actual current complete-work paragraph at 140% font; Chromium touch-context tap and Firefox/WebKit pointer/keyboard, desktop viewport rotation and controlled-clock Auto. Text/input checks do not certify native sound, physical phones/Safari, natural reading time, public HTTPS or long-soak."
+}
