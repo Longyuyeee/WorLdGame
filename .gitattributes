@@ -72,3 +72,4 @@ evidence/web-story-continuity/*.html -text
 evidence/web-story-continuity/*.worldsave -text
 evidence/web-story-continuity/*.worldreview -text
 evidence/web-publication-reading/*.html -text
+evidence/web-reading-position/*.html -text

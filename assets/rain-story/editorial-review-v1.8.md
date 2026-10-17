@@ -1,6 +1,6 @@
 # 1.8.0 道具去向与地点演出校订
 
-2026-10-17，基于原 1.7.14，实际在编辑器录入、保存重开后生成独立候选。不是最终定稿或发行许可确认。当前工程、HTML、网站上传包和 16 条待人工复核记录位于 [evidence/web-story-continuity](../../evidence/web-story-continuity)，完整验证与后续范围见 [#377](../../docs/377-web-story-continuity-candidate.md)。
+2026-10-17，基于原 1.7.14，实际在编辑器录入、保存重开后生成独立候选。不是最终定稿或发行许可确认。工程、原游戏和 16 条待人工复核记录位于 [evidence/web-story-continuity](../../evidence/web-story-continuity)，内容验证见 [#377](../../docs/377-web-story-continuity-candidate.md)。当前 HTML／网站经 #378 信息收纳及 [#379 阅读位置保护](../../docs/379-web-reading-position.md)更新，位于 [web-reading-position](../../evidence/web-reading-position)，正文、演出及媒体仍为同一 1.8.0。
 
 五段文字的原文、修订稿和理由逐项保留在 [editorial-v1.8.mjs](editorial-v1.8.mjs)：旧海边照片由小夏后来独自去海边拍摄；两封信归各自收信人，照片留在书中；留下路线的旅行和协商出发明确先后；远行重逢从早餐、放行李到午后车站，再回同一家店，雨比早晨更密而非突然出现。
 

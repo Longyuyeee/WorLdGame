@@ -1,4 +1,5 @@
 /* The stage keeps common actions; detailed controls share one reading menu. */
+.player-dialogue { overflow-anchor: none; }
 .player-publication-tools { min-width: 0; flex-shrink: 0; }
 .player-publication-tools:empty { display: none; }
 #world-publication-version { margin: 8px 0; color: var(--player-muted, #c1bed2); font: 12px/1.6 system-ui; overflow-wrap: anywhere; }

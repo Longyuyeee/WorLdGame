@@ -1,0 +1,2252 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "name": "actual-editor-roundtrip-and-two-exports-preserve-65-source-entries-story-and-25-media",
+      "detail": {}
+    },
+    {
+      "name": "chromium-voluntary-native-fullscreen-and-return-retain-text-anchor",
+      "detail": {
+        "physicalPhone": false
+      }
+    },
+    {
+      "name": "chromium-rotation-font-menu-later-scroll-end-next-paragraph-back-and-auto-unread",
+      "detail": {
+        "browser": "151.0.7922.34",
+        "beforeOffset": 55,
+        "returnedOffset": 55,
+        "clockAdvancedMilliseconds": 120000,
+        "naturalReadingTimed": false,
+        "physicalPhone": false,
+        "safari": false
+      }
+    },
+    {
+      "name": "firefox-rotation-font-menu-later-scroll-end-next-paragraph-back-and-auto-unread",
+      "detail": {
+        "browser": "153.0",
+        "beforeOffset": 55,
+        "returnedOffset": 55,
+        "clockAdvancedMilliseconds": 120000,
+        "naturalReadingTimed": false,
+        "physicalPhone": false,
+        "safari": false
+      }
+    },
+    {
+      "name": "webkit-rotation-font-menu-later-scroll-end-next-paragraph-back-and-auto-unread",
+      "detail": {
+        "browser": "26.5",
+        "beforeOffset": 44,
+        "returnedOffset": 44,
+        "clockAdvancedMilliseconds": 120000,
+        "naturalReadingTimed": false,
+        "physicalPhone": false,
+        "safari": false
+      }
+    },
+    {
+      "name": "chromium-html-desktop-140-percent-full-route-six-voice-lines-save-reload-and-ending",
+      "detail": {}
+    },
+    {
+      "name": "chromium-website-phone-140-percent-full-route-six-voice-lines-save-reload-and-ending",
+      "detail": {}
+    }
+  ],
+  "errors": [],
+  "snapshots": [
+    {
+      "name": "chromium-initial",
+      "first": 55,
+      "excerpt": "问值班员。他看见玻璃上自己的倒影，才发现他已经穿着这件外套站",
+      "scrollTop": 220,
+      "maxScroll": 236,
+      "client": [
+        360,
+        475
+      ],
+      "top": 296.375,
+      "bottom": 771.375,
+      "lines": [
+        {
+          "index": 0,
+          "top": 102.375,
+          "bottom": 137.375
+        },
+        {
+          "index": 11,
+          "top": 150.28125,
+          "bottom": 185.28125
+        },
+        {
+          "index": 22,
+          "top": 198.1875,
+          "bottom": 233.1875
+        },
+        {
+          "index": 33,
+          "top": 246.09375,
+          "bottom": 281.09375
+        },
+        {
+          "index": 44,
+          "top": 294,
+          "bottom": 329
+        },
+        {
+          "index": 55,
+          "top": 341.90625,
+          "bottom": 376.90625
+        },
+        {
+          "index": 66,
+          "top": 389.8125,
+          "bottom": 424.8125
+        },
+        {
+          "index": 77,
+          "top": 437.71875,
+          "bottom": 472.71875
+        },
+        {
+          "index": 87,
+          "top": 485.625,
+          "bottom": 520.625
+        },
+        {
+          "index": 98,
+          "top": 533.53125,
+          "bottom": 568.53125
+        },
+        {
+          "index": 109,
+          "top": 581.4375,
+          "bottom": 616.4375
+        },
+        {
+          "index": 120,
+          "top": 629.34375,
+          "bottom": 664.34375
+        },
+        {
+          "index": 131,
+          "top": 677.25,
+          "bottom": 712.25
+        },
+        {
+          "index": 142,
+          "top": 725.15625,
+          "bottom": 760.15625
+        }
+      ],
+      "hash": "60c5fea355f55f41765a3f22cf9d742dcc1f90ff64f963720209267e76a94867"
+    },
+    {
+      "name": "chromium-rotated-landscape",
+      "offset": 55,
+      "first": 26,
+      "excerpt": "线。站台上的钟比手机慢了三分钟。林远核对了两次，没有走去询问",
+      "scrollTop": 50,
+      "maxScroll": 79,
+      "client": [
+        636,
+        182
+      ],
+      "top": 135.21875,
+      "bottom": 317.21875,
+      "lines": [
+        {
+          "index": 0,
+          "top": 102.21875,
+          "bottom": 131.21875
+        },
+        {
+          "index": 26,
+          "top": 141.671875,
+          "bottom": 170.671875
+        },
+        {
+          "index": 52,
+          "top": 181.125,
+          "bottom": 210.125
+        },
+        {
+          "index": 78,
+          "top": 220.578125,
+          "bottom": 249.578125
+        },
+        {
+          "index": 104,
+          "top": 260.03125,
+          "bottom": 289.03125
+        },
+        {
+          "index": 129,
+          "top": 299.484375,
+          "bottom": 328.484375
+        }
+      ],
+      "hash": "60c5fea355f55f41765a3f22cf9d742dcc1f90ff64f963720209267e76a94867"
+    },
+    {
+      "name": "chromium-returned-portrait",
+      "offset": 55,
+      "first": 55,
+      "excerpt": "问值班员。他看见玻璃上自己的倒影，才发现他已经穿着这件外套站",
+      "scrollTop": 220,
+      "maxScroll": 236,
+      "client": [
+        360,
+        475
+      ],
+      "top": 296.375,
+      "bottom": 771.375,
+      "lines": [
+        {
+          "index": 0,
+          "top": 102.375,
+          "bottom": 137.375
+        },
+        {
+          "index": 11,
+          "top": 150.28125,
+          "bottom": 185.28125
+        },
+        {
+          "index": 22,
+          "top": 198.1875,
+          "bottom": 233.1875
+        },
+        {
+          "index": 33,
+          "top": 246.09375,
+          "bottom": 281.09375
+        },
+        {
+          "index": 44,
+          "top": 294,
+          "bottom": 329
+        },
+        {
+          "index": 55,
+          "top": 341.90625,
+          "bottom": 376.90625
+        },
+        {
+          "index": 66,
+          "top": 389.8125,
+          "bottom": 424.8125
+        },
+        {
+          "index": 77,
+          "top": 437.71875,
+          "bottom": 472.71875
+        },
+        {
+          "index": 87,
+          "top": 485.625,
+          "bottom": 520.625
+        },
+        {
+          "index": 98,
+          "top": 533.53125,
+          "bottom": 568.53125
+        },
+        {
+          "index": 109,
+          "top": 581.4375,
+          "bottom": 616.4375
+        },
+        {
+          "index": 120,
+          "top": 629.34375,
+          "bottom": 664.34375
+        },
+        {
+          "index": 131,
+          "top": 677.25,
+          "bottom": 712.25
+        },
+        {
+          "index": 142,
+          "top": 725.15625,
+          "bottom": 760.15625
+        }
+      ],
+      "hash": "60c5fea355f55f41765a3f22cf9d742dcc1f90ff64f963720209267e76a94867"
+    },
+    {
+      "name": "chromium-menu-return",
+      "offset": 55,
+      "first": 55,
+      "excerpt": "问值班员。他看见玻璃上自己的倒影，才发现他已经穿着这件外套站",
+      "scrollTop": 220,
+      "maxScroll": 236,
+      "client": [
+        360,
+        475
+      ],
+      "top": 296.375,
+      "bottom": 771.375,
+      "lines": [
+        {
+          "index": 0,
+          "top": 102.375,
+          "bottom": 137.375
+        },
+        {
+          "index": 11,
+          "top": 150.28125,
+          "bottom": 185.28125
+        },
+        {
+          "index": 22,
+          "top": 198.1875,
+          "bottom": 233.1875
+        },
+        {
+          "index": 33,
+          "top": 246.09375,
+          "bottom": 281.09375
+        },
+        {
+          "index": 44,
+          "top": 294,
+          "bottom": 329
+        },
+        {
+          "index": 55,
+          "top": 341.90625,
+          "bottom": 376.90625
+        },
+        {
+          "index": 66,
+          "top": 389.8125,
+          "bottom": 424.8125
+        },
+        {
+          "index": 77,
+          "top": 437.71875,
+          "bottom": 472.71875
+        },
+        {
+          "index": 87,
+          "top": 485.625,
+          "bottom": 520.625
+        },
+        {
+          "index": 98,
+          "top": 533.53125,
+          "bottom": 568.53125
+        },
+        {
+          "index": 109,
+          "top": 581.4375,
+          "bottom": 616.4375
+        },
+        {
+          "index": 120,
+          "top": 629.34375,
+          "bottom": 664.34375
+        },
+        {
+          "index": 131,
+          "top": 677.25,
+          "bottom": 712.25
+        },
+        {
+          "index": 142,
+          "top": 725.15625,
+          "bottom": 760.15625
+        }
+      ],
+      "hash": "60c5fea355f55f41765a3f22cf9d742dcc1f90ff64f963720209267e76a94867"
+    },
+    {
+      "name": "chromium-font-size-return",
+      "offset": 55,
+      "first": 55,
+      "excerpt": "问值班员。他看见玻璃上自己的倒影，才发现他已经穿着这件外套站",
+      "scrollTop": 220,
+      "maxScroll": 236,
+      "client": [
+        360,
+        475
+      ],
+      "top": 296.375,
+      "bottom": 771.375,
+      "lines": [
+        {
+          "index": 0,
+          "top": 102.375,
+          "bottom": 137.375
+        },
+        {
+          "index": 11,
+          "top": 150.28125,
+          "bottom": 185.28125
+        },
+        {
+          "index": 22,
+          "top": 198.1875,
+          "bottom": 233.1875
+        },
+        {
+          "index": 33,
+          "top": 246.09375,
+          "bottom": 281.09375
+        },
+        {
+          "index": 44,
+          "top": 294,
+          "bottom": 329
+        },
+        {
+          "index": 55,
+          "top": 341.90625,
+          "bottom": 376.90625
+        },
+        {
+          "index": 66,
+          "top": 389.8125,
+          "bottom": 424.8125
+        },
+        {
+          "index": 77,
+          "top": 437.71875,
+          "bottom": 472.71875
+        },
+        {
+          "index": 87,
+          "top": 485.625,
+          "bottom": 520.625
+        },
+        {
+          "index": 98,
+          "top": 533.53125,
+          "bottom": 568.53125
+        },
+        {
+          "index": 109,
+          "top": 581.4375,
+          "bottom": 616.4375
+        },
+        {
+          "index": 120,
+          "top": 629.34375,
+          "bottom": 664.34375
+        },
+        {
+          "index": 131,
+          "top": 677.25,
+          "bottom": 712.25
+        },
+        {
+          "index": 142,
+          "top": 725.15625,
+          "bottom": 760.15625
+        }
+      ],
+      "hash": "60c5fea355f55f41765a3f22cf9d742dcc1f90ff64f963720209267e76a94867"
+    },
+    {
+      "name": "chromium-fullscreen-reading",
+      "offset": 55,
+      "first": 55,
+      "excerpt": "问值班员。他看见玻璃上自己的倒影，才发现他已经穿着这件外套站",
+      "scrollTop": 220,
+      "maxScroll": 236,
+      "client": [
+        360,
+        475
+      ],
+      "top": 296.375,
+      "bottom": 771.375,
+      "lines": [
+        {
+          "index": 0,
+          "top": 102.375,
+          "bottom": 137.375
+        },
+        {
+          "index": 11,
+          "top": 150.28125,
+          "bottom": 185.28125
+        },
+        {
+          "index": 22,
+          "top": 198.1875,
+          "bottom": 233.1875
+        },
+        {
+          "index": 33,
+          "top": 246.09375,
+          "bottom": 281.09375
+        },
+        {
+          "index": 44,
+          "top": 294,
+          "bottom": 329
+        },
+        {
+          "index": 55,
+          "top": 341.90625,
+          "bottom": 376.90625
+        },
+        {
+          "index": 66,
+          "top": 389.8125,
+          "bottom": 424.8125
+        },
+        {
+          "index": 77,
+          "top": 437.71875,
+          "bottom": 472.71875
+        },
+        {
+          "index": 87,
+          "top": 485.625,
+          "bottom": 520.625
+        },
+        {
+          "index": 98,
+          "top": 533.53125,
+          "bottom": 568.53125
+        },
+        {
+          "index": 109,
+          "top": 581.4375,
+          "bottom": 616.4375
+        },
+        {
+          "index": 120,
+          "top": 629.34375,
+          "bottom": 664.34375
+        },
+        {
+          "index": 131,
+          "top": 677.25,
+          "bottom": 712.25
+        },
+        {
+          "index": 142,
+          "top": 725.15625,
+          "bottom": 760.15625
+        }
+      ],
+      "hash": "60c5fea355f55f41765a3f22cf9d742dcc1f90ff64f963720209267e76a94867"
+    },
+    {
+      "name": "chromium-exit-fullscreen-reading",
+      "offset": 55,
+      "first": 55,
+      "excerpt": "问值班员。他看见玻璃上自己的倒影，才发现他已经穿着这件外套站",
+      "scrollTop": 220,
+      "maxScroll": 236,
+      "client": [
+        360,
+        475
+      ],
+      "top": 296.375,
+      "bottom": 771.375,
+      "lines": [
+        {
+          "index": 0,
+          "top": 102.375,
+          "bottom": 137.375
+        },
+        {
+          "index": 11,
+          "top": 150.28125,
+          "bottom": 185.28125
+        },
+        {
+          "index": 22,
+          "top": 198.1875,
+          "bottom": 233.1875
+        },
+        {
+          "index": 33,
+          "top": 246.09375,
+          "bottom": 281.09375
+        },
+        {
+          "index": 44,
+          "top": 294,
+          "bottom": 329
+        },
+        {
+          "index": 55,
+          "top": 341.90625,
+          "bottom": 376.90625
+        },
+        {
+          "index": 66,
+          "top": 389.8125,
+          "bottom": 424.8125
+        },
+        {
+          "index": 77,
+          "top": 437.71875,
+          "bottom": 472.71875
+        },
+        {
+          "index": 87,
+          "top": 485.625,
+          "bottom": 520.625
+        },
+        {
+          "index": 98,
+          "top": 533.53125,
+          "bottom": 568.53125
+        },
+        {
+          "index": 109,
+          "top": 581.4375,
+          "bottom": 616.4375
+        },
+        {
+          "index": 120,
+          "top": 629.34375,
+          "bottom": 664.34375
+        },
+        {
+          "index": 131,
+          "top": 677.25,
+          "bottom": 712.25
+        },
+        {
+          "index": 142,
+          "top": 725.15625,
+          "bottom": 760.15625
+        }
+      ],
+      "hash": "60c5fea355f55f41765a3f22cf9d742dcc1f90ff64f963720209267e76a94867"
+    },
+    {
+      "name": "chromium-later-user-scroll",
+      "first": 22,
+      "excerpt": "连成一条线。站台上的钟比手机慢了三分钟。林远核对了两次，没有",
+      "scrollTop": 120,
+      "maxScroll": 236,
+      "client": [
+        360,
+        475
+      ],
+      "top": 296.375,
+      "bottom": 771.375,
+      "lines": [
+        {
+          "index": 0,
+          "top": 202.375,
+          "bottom": 237.375
+        },
+        {
+          "index": 11,
+          "top": 250.28125,
+          "bottom": 285.28125
+        },
+        {
+          "index": 22,
+          "top": 298.1875,
+          "bottom": 333.1875
+        },
+        {
+          "index": 33,
+          "top": 346.09375,
+          "bottom": 381.09375
+        },
+        {
+          "index": 44,
+          "top": 394,
+          "bottom": 429
+        },
+        {
+          "index": 55,
+          "top": 441.90625,
+          "bottom": 476.90625
+        },
+        {
+          "index": 66,
+          "top": 489.8125,
+          "bottom": 524.8125
+        },
+        {
+          "index": 77,
+          "top": 537.71875,
+          "bottom": 572.71875
+        },
+        {
+          "index": 87,
+          "top": 585.625,
+          "bottom": 620.625
+        },
+        {
+          "index": 98,
+          "top": 633.53125,
+          "bottom": 668.53125
+        },
+        {
+          "index": 109,
+          "top": 681.4375,
+          "bottom": 716.4375
+        },
+        {
+          "index": 120,
+          "top": 729.34375,
+          "bottom": 764.34375
+        },
+        {
+          "index": 131,
+          "top": 777.25,
+          "bottom": 812.25
+        },
+        {
+          "index": 142,
+          "top": 825.15625,
+          "bottom": 860.15625
+        }
+      ],
+      "hash": "60c5fea355f55f41765a3f22cf9d742dcc1f90ff64f963720209267e76a94867"
+    },
+    {
+      "name": "chromium-later-scroll-rotated",
+      "offset": 22,
+      "first": 0,
+      "excerpt": "售票员把窗口里的灯关掉时，雨正沿着站台的屋檐连成一条线。站台",
+      "scrollTop": 15,
+      "maxScroll": 79,
+      "client": [
+        636,
+        182
+      ],
+      "top": 135.21875,
+      "bottom": 317.21875,
+      "lines": [
+        {
+          "index": 0,
+          "top": 137.21875,
+          "bottom": 166.21875
+        },
+        {
+          "index": 26,
+          "top": 176.671875,
+          "bottom": 205.671875
+        },
+        {
+          "index": 52,
+          "top": 216.125,
+          "bottom": 245.125
+        },
+        {
+          "index": 78,
+          "top": 255.578125,
+          "bottom": 284.578125
+        },
+        {
+          "index": 104,
+          "top": 295.03125,
+          "bottom": 324.03125
+        },
+        {
+          "index": 129,
+          "top": 334.484375,
+          "bottom": 363.484375
+        }
+      ],
+      "hash": "60c5fea355f55f41765a3f22cf9d742dcc1f90ff64f963720209267e76a94867"
+    },
+    {
+      "name": "chromium-later-scroll-returned",
+      "offset": 22,
+      "first": 22,
+      "excerpt": "连成一条线。站台上的钟比手机慢了三分钟。林远核对了两次，没有",
+      "scrollTop": 120,
+      "maxScroll": 236,
+      "client": [
+        360,
+        475
+      ],
+      "top": 296.375,
+      "bottom": 771.375,
+      "lines": [
+        {
+          "index": 0,
+          "top": 202.375,
+          "bottom": 237.375
+        },
+        {
+          "index": 11,
+          "top": 250.28125,
+          "bottom": 285.28125
+        },
+        {
+          "index": 22,
+          "top": 298.1875,
+          "bottom": 333.1875
+        },
+        {
+          "index": 33,
+          "top": 346.09375,
+          "bottom": 381.09375
+        },
+        {
+          "index": 44,
+          "top": 394,
+          "bottom": 429
+        },
+        {
+          "index": 55,
+          "top": 441.90625,
+          "bottom": 476.90625
+        },
+        {
+          "index": 66,
+          "top": 489.8125,
+          "bottom": 524.8125
+        },
+        {
+          "index": 77,
+          "top": 537.71875,
+          "bottom": 572.71875
+        },
+        {
+          "index": 87,
+          "top": 585.625,
+          "bottom": 620.625
+        },
+        {
+          "index": 98,
+          "top": 633.53125,
+          "bottom": 668.53125
+        },
+        {
+          "index": 109,
+          "top": 681.4375,
+          "bottom": 716.4375
+        },
+        {
+          "index": 120,
+          "top": 729.34375,
+          "bottom": 764.34375
+        },
+        {
+          "index": 131,
+          "top": 777.25,
+          "bottom": 812.25
+        },
+        {
+          "index": 142,
+          "top": 825.15625,
+          "bottom": 860.15625
+        }
+      ],
+      "hash": "60c5fea355f55f41765a3f22cf9d742dcc1f90ff64f963720209267e76a94867"
+    },
+    {
+      "name": "firefox-initial",
+      "first": 55,
+      "excerpt": "问值班员。他看见玻璃上自己的倒影，才发现他已经穿着这件外套站",
+      "scrollTop": 220,
+      "maxScroll": 236,
+      "client": [
+        360,
+        475
+      ],
+      "top": 296.3666687011719,
+      "bottom": 771.3666687011719,
+      "lines": [
+        {
+          "index": 0,
+          "top": 102.81666564941406,
+          "bottom": 137.81666564941406
+        },
+        {
+          "index": 11,
+          "top": 150.71665954589844,
+          "bottom": 185.71665954589844
+        },
+        {
+          "index": 22,
+          "top": 198.61666870117188,
+          "bottom": 233.61666870117188
+        },
+        {
+          "index": 33,
+          "top": 246.51666259765625,
+          "bottom": 281.51666259765625
+        },
+        {
+          "index": 44,
+          "top": 294.41668701171875,
+          "bottom": 329.41668701171875
+        },
+        {
+          "index": 55,
+          "top": 342.316650390625,
+          "bottom": 377.316650390625
+        },
+        {
+          "index": 66,
+          "top": 390.2166748046875,
+          "bottom": 425.2166748046875
+        },
+        {
+          "index": 77,
+          "top": 438.1166687011719,
+          "bottom": 473.1166687011719
+        },
+        {
+          "index": 87,
+          "top": 486.01666259765625,
+          "bottom": 521.0166625976562
+        },
+        {
+          "index": 98,
+          "top": 533.9166870117188,
+          "bottom": 568.9166870117188
+        },
+        {
+          "index": 109,
+          "top": 581.816650390625,
+          "bottom": 616.816650390625
+        },
+        {
+          "index": 120,
+          "top": 629.7166748046875,
+          "bottom": 664.7166748046875
+        },
+        {
+          "index": 131,
+          "top": 677.61669921875,
+          "bottom": 712.61669921875
+        },
+        {
+          "index": 142,
+          "top": 725.5166625976562,
+          "bottom": 760.5166625976562
+        }
+      ],
+      "hash": "60c5fea355f55f41765a3f22cf9d742dcc1f90ff64f963720209267e76a94867"
+    },
+    {
+      "name": "firefox-rotated-landscape",
+      "offset": 55,
+      "first": 26,
+      "excerpt": "线。站台上的钟比手机慢了三分钟。林远核对了两次，没有走去询问",
+      "scrollTop": 50,
+      "maxScroll": 79,
+      "client": [
+        636,
+        182
+      ],
+      "top": 135.23333740234375,
+      "bottom": 317.23333740234375,
+      "lines": [
+        {
+          "index": 0,
+          "top": 102.44999694824219,
+          "bottom": 131.4499969482422
+        },
+        {
+          "index": 26,
+          "top": 141.89999389648438,
+          "bottom": 170.89999389648438
+        },
+        {
+          "index": 52,
+          "top": 181.35000610351562,
+          "bottom": 210.35000610351562
+        },
+        {
+          "index": 78,
+          "top": 220.8000030517578,
+          "bottom": 249.8000030517578
+        },
+        {
+          "index": 104,
+          "top": 260.25,
+          "bottom": 289.25
+        },
+        {
+          "index": 129,
+          "top": 299.70001220703125,
+          "bottom": 328.70001220703125
+        }
+      ],
+      "hash": "60c5fea355f55f41765a3f22cf9d742dcc1f90ff64f963720209267e76a94867"
+    },
+    {
+      "name": "firefox-returned-portrait",
+      "offset": 55,
+      "first": 55,
+      "excerpt": "问值班员。他看见玻璃上自己的倒影，才发现他已经穿着这件外套站",
+      "scrollTop": 220,
+      "maxScroll": 236,
+      "client": [
+        360,
+        475
+      ],
+      "top": 296.3666687011719,
+      "bottom": 771.3666687011719,
+      "lines": [
+        {
+          "index": 0,
+          "top": 102.81666564941406,
+          "bottom": 137.81666564941406
+        },
+        {
+          "index": 11,
+          "top": 150.71665954589844,
+          "bottom": 185.71665954589844
+        },
+        {
+          "index": 22,
+          "top": 198.61666870117188,
+          "bottom": 233.61666870117188
+        },
+        {
+          "index": 33,
+          "top": 246.51666259765625,
+          "bottom": 281.51666259765625
+        },
+        {
+          "index": 44,
+          "top": 294.41668701171875,
+          "bottom": 329.41668701171875
+        },
+        {
+          "index": 55,
+          "top": 342.316650390625,
+          "bottom": 377.316650390625
+        },
+        {
+          "index": 66,
+          "top": 390.2166748046875,
+          "bottom": 425.2166748046875
+        },
+        {
+          "index": 77,
+          "top": 438.1166687011719,
+          "bottom": 473.1166687011719
+        },
+        {
+          "index": 87,
+          "top": 486.01666259765625,
+          "bottom": 521.0166625976562
+        },
+        {
+          "index": 98,
+          "top": 533.9166870117188,
+          "bottom": 568.9166870117188
+        },
+        {
+          "index": 109,
+          "top": 581.816650390625,
+          "bottom": 616.816650390625
+        },
+        {
+          "index": 120,
+          "top": 629.7166748046875,
+          "bottom": 664.7166748046875
+        },
+        {
+          "index": 131,
+          "top": 677.61669921875,
+          "bottom": 712.61669921875
+        },
+        {
+          "index": 142,
+          "top": 725.5166625976562,
+          "bottom": 760.5166625976562
+        }
+      ],
+      "hash": "60c5fea355f55f41765a3f22cf9d742dcc1f90ff64f963720209267e76a94867"
+    },
+    {
+      "name": "firefox-menu-return",
+      "offset": 55,
+      "first": 55,
+      "excerpt": "问值班员。他看见玻璃上自己的倒影，才发现他已经穿着这件外套站",
+      "scrollTop": 220,
+      "maxScroll": 236,
+      "client": [
+        360,
+        475
+      ],
+      "top": 296.3666687011719,
+      "bottom": 771.3666687011719,
+      "lines": [
+        {
+          "index": 0,
+          "top": 102.81666564941406,
+          "bottom": 137.81666564941406
+        },
+        {
+          "index": 11,
+          "top": 150.71665954589844,
+          "bottom": 185.71665954589844
+        },
+        {
+          "index": 22,
+          "top": 198.61666870117188,
+          "bottom": 233.61666870117188
+        },
+        {
+          "index": 33,
+          "top": 246.51666259765625,
+          "bottom": 281.51666259765625
+        },
+        {
+          "index": 44,
+          "top": 294.41668701171875,
+          "bottom": 329.41668701171875
+        },
+        {
+          "index": 55,
+          "top": 342.316650390625,
+          "bottom": 377.316650390625
+        },
+        {
+          "index": 66,
+          "top": 390.2166748046875,
+          "bottom": 425.2166748046875
+        },
+        {
+          "index": 77,
+          "top": 438.1166687011719,
+          "bottom": 473.1166687011719
+        },
+        {
+          "index": 87,
+          "top": 486.01666259765625,
+          "bottom": 521.0166625976562
+        },
+        {
+          "index": 98,
+          "top": 533.9166870117188,
+          "bottom": 568.9166870117188
+        },
+        {
+          "index": 109,
+          "top": 581.816650390625,
+          "bottom": 616.816650390625
+        },
+        {
+          "index": 120,
+          "top": 629.7166748046875,
+          "bottom": 664.7166748046875
+        },
+        {
+          "index": 131,
+          "top": 677.61669921875,
+          "bottom": 712.61669921875
+        },
+        {
+          "index": 142,
+          "top": 725.5166625976562,
+          "bottom": 760.5166625976562
+        }
+      ],
+      "hash": "60c5fea355f55f41765a3f22cf9d742dcc1f90ff64f963720209267e76a94867"
+    },
+    {
+      "name": "firefox-font-size-return",
+      "offset": 55,
+      "first": 55,
+      "excerpt": "问值班员。他看见玻璃上自己的倒影，才发现他已经穿着这件外套站",
+      "scrollTop": 220,
+      "maxScroll": 236,
+      "client": [
+        360,
+        475
+      ],
+      "top": 296.3666687011719,
+      "bottom": 771.3666687011719,
+      "lines": [
+        {
+          "index": 0,
+          "top": 102.81666564941406,
+          "bottom": 137.81666564941406
+        },
+        {
+          "index": 11,
+          "top": 150.71665954589844,
+          "bottom": 185.71665954589844
+        },
+        {
+          "index": 22,
+          "top": 198.61666870117188,
+          "bottom": 233.61666870117188
+        },
+        {
+          "index": 33,
+          "top": 246.51666259765625,
+          "bottom": 281.51666259765625
+        },
+        {
+          "index": 44,
+          "top": 294.41668701171875,
+          "bottom": 329.41668701171875
+        },
+        {
+          "index": 55,
+          "top": 342.316650390625,
+          "bottom": 377.316650390625
+        },
+        {
+          "index": 66,
+          "top": 390.2166748046875,
+          "bottom": 425.2166748046875
+        },
+        {
+          "index": 77,
+          "top": 438.1166687011719,
+          "bottom": 473.1166687011719
+        },
+        {
+          "index": 87,
+          "top": 486.01666259765625,
+          "bottom": 521.0166625976562
+        },
+        {
+          "index": 98,
+          "top": 533.9166870117188,
+          "bottom": 568.9166870117188
+        },
+        {
+          "index": 109,
+          "top": 581.816650390625,
+          "bottom": 616.816650390625
+        },
+        {
+          "index": 120,
+          "top": 629.7166748046875,
+          "bottom": 664.7166748046875
+        },
+        {
+          "index": 131,
+          "top": 677.61669921875,
+          "bottom": 712.61669921875
+        },
+        {
+          "index": 142,
+          "top": 725.5166625976562,
+          "bottom": 760.5166625976562
+        }
+      ],
+      "hash": "60c5fea355f55f41765a3f22cf9d742dcc1f90ff64f963720209267e76a94867"
+    },
+    {
+      "name": "firefox-later-user-scroll",
+      "first": 22,
+      "excerpt": "连成一条线。站台上的钟比手机慢了三分钟。林远核对了两次，没有",
+      "scrollTop": 120,
+      "maxScroll": 236,
+      "client": [
+        360,
+        475
+      ],
+      "top": 296.3666687011719,
+      "bottom": 771.3666687011719,
+      "lines": [
+        {
+          "index": 0,
+          "top": 202.81666564941406,
+          "bottom": 237.81666564941406
+        },
+        {
+          "index": 11,
+          "top": 250.71665954589844,
+          "bottom": 285.71665954589844
+        },
+        {
+          "index": 22,
+          "top": 298.6166687011719,
+          "bottom": 333.6166687011719
+        },
+        {
+          "index": 33,
+          "top": 346.51666259765625,
+          "bottom": 381.51666259765625
+        },
+        {
+          "index": 44,
+          "top": 394.41668701171875,
+          "bottom": 429.41668701171875
+        },
+        {
+          "index": 55,
+          "top": 442.316650390625,
+          "bottom": 477.316650390625
+        },
+        {
+          "index": 66,
+          "top": 490.2166748046875,
+          "bottom": 525.2166748046875
+        },
+        {
+          "index": 77,
+          "top": 538.11669921875,
+          "bottom": 573.11669921875
+        },
+        {
+          "index": 87,
+          "top": 586.0166625976562,
+          "bottom": 621.0166625976562
+        },
+        {
+          "index": 98,
+          "top": 633.9166870117188,
+          "bottom": 668.9166870117188
+        },
+        {
+          "index": 109,
+          "top": 681.816650390625,
+          "bottom": 716.816650390625
+        },
+        {
+          "index": 120,
+          "top": 729.7166748046875,
+          "bottom": 764.7166748046875
+        },
+        {
+          "index": 131,
+          "top": 777.61669921875,
+          "bottom": 812.61669921875
+        },
+        {
+          "index": 142,
+          "top": 825.5166625976562,
+          "bottom": 860.5166625976562
+        }
+      ],
+      "hash": "60c5fea355f55f41765a3f22cf9d742dcc1f90ff64f963720209267e76a94867"
+    },
+    {
+      "name": "firefox-later-scroll-rotated",
+      "offset": 22,
+      "first": 0,
+      "excerpt": "售票员把窗口里的灯关掉时，雨正沿着站台的屋檐连成一条线。站台",
+      "scrollTop": 15,
+      "maxScroll": 79,
+      "client": [
+        636,
+        182
+      ],
+      "top": 135.23333740234375,
+      "bottom": 317.23333740234375,
+      "lines": [
+        {
+          "index": 0,
+          "top": 137.4499969482422,
+          "bottom": 166.4499969482422
+        },
+        {
+          "index": 26,
+          "top": 176.89999389648438,
+          "bottom": 205.89999389648438
+        },
+        {
+          "index": 52,
+          "top": 216.35000610351562,
+          "bottom": 245.35000610351562
+        },
+        {
+          "index": 78,
+          "top": 255.8000030517578,
+          "bottom": 284.8000030517578
+        },
+        {
+          "index": 104,
+          "top": 295.25,
+          "bottom": 324.25
+        },
+        {
+          "index": 129,
+          "top": 334.70001220703125,
+          "bottom": 363.70001220703125
+        }
+      ],
+      "hash": "60c5fea355f55f41765a3f22cf9d742dcc1f90ff64f963720209267e76a94867"
+    },
+    {
+      "name": "firefox-later-scroll-returned",
+      "offset": 22,
+      "first": 22,
+      "excerpt": "连成一条线。站台上的钟比手机慢了三分钟。林远核对了两次，没有",
+      "scrollTop": 120,
+      "maxScroll": 236,
+      "client": [
+        360,
+        475
+      ],
+      "top": 296.3666687011719,
+      "bottom": 771.3666687011719,
+      "lines": [
+        {
+          "index": 0,
+          "top": 202.81666564941406,
+          "bottom": 237.81666564941406
+        },
+        {
+          "index": 11,
+          "top": 250.71665954589844,
+          "bottom": 285.71665954589844
+        },
+        {
+          "index": 22,
+          "top": 298.6166687011719,
+          "bottom": 333.6166687011719
+        },
+        {
+          "index": 33,
+          "top": 346.51666259765625,
+          "bottom": 381.51666259765625
+        },
+        {
+          "index": 44,
+          "top": 394.41668701171875,
+          "bottom": 429.41668701171875
+        },
+        {
+          "index": 55,
+          "top": 442.316650390625,
+          "bottom": 477.316650390625
+        },
+        {
+          "index": 66,
+          "top": 490.2166748046875,
+          "bottom": 525.2166748046875
+        },
+        {
+          "index": 77,
+          "top": 538.11669921875,
+          "bottom": 573.11669921875
+        },
+        {
+          "index": 87,
+          "top": 586.0166625976562,
+          "bottom": 621.0166625976562
+        },
+        {
+          "index": 98,
+          "top": 633.9166870117188,
+          "bottom": 668.9166870117188
+        },
+        {
+          "index": 109,
+          "top": 681.816650390625,
+          "bottom": 716.816650390625
+        },
+        {
+          "index": 120,
+          "top": 729.7166748046875,
+          "bottom": 764.7166748046875
+        },
+        {
+          "index": 131,
+          "top": 777.61669921875,
+          "bottom": 812.61669921875
+        },
+        {
+          "index": 142,
+          "top": 825.5166625976562,
+          "bottom": 860.5166625976562
+        }
+      ],
+      "hash": "60c5fea355f55f41765a3f22cf9d742dcc1f90ff64f963720209267e76a94867"
+    },
+    {
+      "name": "webkit-initial",
+      "first": 44,
+      "excerpt": "核对了两次，没有走去询问值班员。他看见玻璃上自己的倒影，才发",
+      "scrollTop": 220,
+      "maxScroll": 235,
+      "client": [
+        360,
+        475
+      ],
+      "top": 296.375,
+      "bottom": 771.375,
+      "lines": [
+        {
+          "index": 0,
+          "top": 104.8125,
+          "bottom": 135.8125
+        },
+        {
+          "index": 11,
+          "top": 152.6875,
+          "bottom": 183.6875
+        },
+        {
+          "index": 22,
+          "top": 200.5625,
+          "bottom": 231.5625
+        },
+        {
+          "index": 33,
+          "top": 248.4375,
+          "bottom": 279.4375
+        },
+        {
+          "index": 44,
+          "top": 296.3125,
+          "bottom": 327.3125
+        },
+        {
+          "index": 55,
+          "top": 344.1875,
+          "bottom": 375.1875
+        },
+        {
+          "index": 66,
+          "top": 392.0625,
+          "bottom": 423.0625
+        },
+        {
+          "index": 77,
+          "top": 439.9375,
+          "bottom": 470.9375
+        },
+        {
+          "index": 89,
+          "top": 487.8125,
+          "bottom": 518.8125
+        },
+        {
+          "index": 100,
+          "top": 535.6875,
+          "bottom": 566.6875
+        },
+        {
+          "index": 111,
+          "top": 583.5625,
+          "bottom": 614.5625
+        },
+        {
+          "index": 122,
+          "top": 631.4375,
+          "bottom": 662.4375
+        },
+        {
+          "index": 133,
+          "top": 679.3125,
+          "bottom": 710.3125
+        },
+        {
+          "index": 144,
+          "top": 727.1875,
+          "bottom": 758.1875
+        }
+      ],
+      "hash": "60c5fea355f55f41765a3f22cf9d742dcc1f90ff64f963720209267e76a94867"
+    },
+    {
+      "name": "webkit-rotated-landscape",
+      "offset": 44,
+      "first": 26,
+      "excerpt": "线。站台上的钟比手机慢了三分钟。林远核对了两次，没有走去询问",
+      "scrollTop": 58,
+      "maxScroll": 79,
+      "client": [
+        636,
+        182
+      ],
+      "top": 135.21875,
+      "bottom": 317.21875,
+      "lines": [
+        {
+          "index": 0,
+          "top": 96.421875,
+          "bottom": 121.421875
+        },
+        {
+          "index": 26,
+          "top": 135.84375,
+          "bottom": 160.84375
+        },
+        {
+          "index": 52,
+          "top": 175.265625,
+          "bottom": 200.265625
+        },
+        {
+          "index": 78,
+          "top": 214.6875,
+          "bottom": 239.6875
+        },
+        {
+          "index": 104,
+          "top": 254.109375,
+          "bottom": 279.109375
+        },
+        {
+          "index": 131,
+          "top": 293.53125,
+          "bottom": 318.53125
+        }
+      ],
+      "hash": "60c5fea355f55f41765a3f22cf9d742dcc1f90ff64f963720209267e76a94867"
+    },
+    {
+      "name": "webkit-returned-portrait",
+      "offset": 44,
+      "first": 44,
+      "excerpt": "核对了两次，没有走去询问值班员。他看见玻璃上自己的倒影，才发",
+      "scrollTop": 220,
+      "maxScroll": 235,
+      "client": [
+        360,
+        475
+      ],
+      "top": 296.375,
+      "bottom": 771.375,
+      "lines": [
+        {
+          "index": 0,
+          "top": 104.8125,
+          "bottom": 135.8125
+        },
+        {
+          "index": 11,
+          "top": 152.6875,
+          "bottom": 183.6875
+        },
+        {
+          "index": 22,
+          "top": 200.5625,
+          "bottom": 231.5625
+        },
+        {
+          "index": 33,
+          "top": 248.4375,
+          "bottom": 279.4375
+        },
+        {
+          "index": 44,
+          "top": 296.3125,
+          "bottom": 327.3125
+        },
+        {
+          "index": 55,
+          "top": 344.1875,
+          "bottom": 375.1875
+        },
+        {
+          "index": 66,
+          "top": 392.0625,
+          "bottom": 423.0625
+        },
+        {
+          "index": 77,
+          "top": 439.9375,
+          "bottom": 470.9375
+        },
+        {
+          "index": 89,
+          "top": 487.8125,
+          "bottom": 518.8125
+        },
+        {
+          "index": 100,
+          "top": 535.6875,
+          "bottom": 566.6875
+        },
+        {
+          "index": 111,
+          "top": 583.5625,
+          "bottom": 614.5625
+        },
+        {
+          "index": 122,
+          "top": 631.4375,
+          "bottom": 662.4375
+        },
+        {
+          "index": 133,
+          "top": 679.3125,
+          "bottom": 710.3125
+        },
+        {
+          "index": 144,
+          "top": 727.1875,
+          "bottom": 758.1875
+        }
+      ],
+      "hash": "60c5fea355f55f41765a3f22cf9d742dcc1f90ff64f963720209267e76a94867"
+    },
+    {
+      "name": "webkit-menu-return",
+      "offset": 44,
+      "first": 44,
+      "excerpt": "核对了两次，没有走去询问值班员。他看见玻璃上自己的倒影，才发",
+      "scrollTop": 220,
+      "maxScroll": 235,
+      "client": [
+        360,
+        475
+      ],
+      "top": 296.375,
+      "bottom": 771.375,
+      "lines": [
+        {
+          "index": 0,
+          "top": 104.8125,
+          "bottom": 135.8125
+        },
+        {
+          "index": 11,
+          "top": 152.6875,
+          "bottom": 183.6875
+        },
+        {
+          "index": 22,
+          "top": 200.5625,
+          "bottom": 231.5625
+        },
+        {
+          "index": 33,
+          "top": 248.4375,
+          "bottom": 279.4375
+        },
+        {
+          "index": 44,
+          "top": 296.3125,
+          "bottom": 327.3125
+        },
+        {
+          "index": 55,
+          "top": 344.1875,
+          "bottom": 375.1875
+        },
+        {
+          "index": 66,
+          "top": 392.0625,
+          "bottom": 423.0625
+        },
+        {
+          "index": 77,
+          "top": 439.9375,
+          "bottom": 470.9375
+        },
+        {
+          "index": 89,
+          "top": 487.8125,
+          "bottom": 518.8125
+        },
+        {
+          "index": 100,
+          "top": 535.6875,
+          "bottom": 566.6875
+        },
+        {
+          "index": 111,
+          "top": 583.5625,
+          "bottom": 614.5625
+        },
+        {
+          "index": 122,
+          "top": 631.4375,
+          "bottom": 662.4375
+        },
+        {
+          "index": 133,
+          "top": 679.3125,
+          "bottom": 710.3125
+        },
+        {
+          "index": 144,
+          "top": 727.1875,
+          "bottom": 758.1875
+        }
+      ],
+      "hash": "60c5fea355f55f41765a3f22cf9d742dcc1f90ff64f963720209267e76a94867"
+    },
+    {
+      "name": "webkit-font-size-return",
+      "offset": 44,
+      "first": 44,
+      "excerpt": "核对了两次，没有走去询问值班员。他看见玻璃上自己的倒影，才发",
+      "scrollTop": 220,
+      "maxScroll": 235,
+      "client": [
+        360,
+        475
+      ],
+      "top": 296.375,
+      "bottom": 771.375,
+      "lines": [
+        {
+          "index": 0,
+          "top": 104.8125,
+          "bottom": 135.8125
+        },
+        {
+          "index": 11,
+          "top": 152.6875,
+          "bottom": 183.6875
+        },
+        {
+          "index": 22,
+          "top": 200.5625,
+          "bottom": 231.5625
+        },
+        {
+          "index": 33,
+          "top": 248.4375,
+          "bottom": 279.4375
+        },
+        {
+          "index": 44,
+          "top": 296.3125,
+          "bottom": 327.3125
+        },
+        {
+          "index": 55,
+          "top": 344.1875,
+          "bottom": 375.1875
+        },
+        {
+          "index": 66,
+          "top": 392.0625,
+          "bottom": 423.0625
+        },
+        {
+          "index": 77,
+          "top": 439.9375,
+          "bottom": 470.9375
+        },
+        {
+          "index": 89,
+          "top": 487.8125,
+          "bottom": 518.8125
+        },
+        {
+          "index": 100,
+          "top": 535.6875,
+          "bottom": 566.6875
+        },
+        {
+          "index": 111,
+          "top": 583.5625,
+          "bottom": 614.5625
+        },
+        {
+          "index": 122,
+          "top": 631.4375,
+          "bottom": 662.4375
+        },
+        {
+          "index": 133,
+          "top": 679.3125,
+          "bottom": 710.3125
+        },
+        {
+          "index": 144,
+          "top": 727.1875,
+          "bottom": 758.1875
+        }
+      ],
+      "hash": "60c5fea355f55f41765a3f22cf9d742dcc1f90ff64f963720209267e76a94867"
+    },
+    {
+      "name": "webkit-later-user-scroll",
+      "first": 22,
+      "excerpt": "连成一条线。站台上的钟比手机慢了三分钟。林远核对了两次，没有",
+      "scrollTop": 120,
+      "maxScroll": 235,
+      "client": [
+        360,
+        475
+      ],
+      "top": 296.375,
+      "bottom": 771.375,
+      "lines": [
+        {
+          "index": 0,
+          "top": 204.8125,
+          "bottom": 235.8125
+        },
+        {
+          "index": 11,
+          "top": 252.6875,
+          "bottom": 283.6875
+        },
+        {
+          "index": 22,
+          "top": 300.5625,
+          "bottom": 331.5625
+        },
+        {
+          "index": 33,
+          "top": 348.4375,
+          "bottom": 379.4375
+        },
+        {
+          "index": 44,
+          "top": 396.3125,
+          "bottom": 427.3125
+        },
+        {
+          "index": 55,
+          "top": 444.1875,
+          "bottom": 475.1875
+        },
+        {
+          "index": 66,
+          "top": 492.0625,
+          "bottom": 523.0625
+        },
+        {
+          "index": 77,
+          "top": 539.9375,
+          "bottom": 570.9375
+        },
+        {
+          "index": 89,
+          "top": 587.8125,
+          "bottom": 618.8125
+        },
+        {
+          "index": 100,
+          "top": 635.6875,
+          "bottom": 666.6875
+        },
+        {
+          "index": 111,
+          "top": 683.5625,
+          "bottom": 714.5625
+        },
+        {
+          "index": 122,
+          "top": 731.4375,
+          "bottom": 762.4375
+        },
+        {
+          "index": 133,
+          "top": 779.3125,
+          "bottom": 810.3125
+        },
+        {
+          "index": 144,
+          "top": 827.1875,
+          "bottom": 858.1875
+        }
+      ],
+      "hash": "60c5fea355f55f41765a3f22cf9d742dcc1f90ff64f963720209267e76a94867"
+    },
+    {
+      "name": "webkit-later-scroll-rotated",
+      "offset": 22,
+      "first": 0,
+      "excerpt": "售票员把窗口里的灯关掉时，雨正沿着站台的屋檐连成一条线。站台",
+      "scrollTop": 14,
+      "maxScroll": 79,
+      "client": [
+        636,
+        182
+      ],
+      "top": 135.21875,
+      "bottom": 317.21875,
+      "lines": [
+        {
+          "index": 0,
+          "top": 140.421875,
+          "bottom": 165.421875
+        },
+        {
+          "index": 26,
+          "top": 179.84375,
+          "bottom": 204.84375
+        },
+        {
+          "index": 52,
+          "top": 219.265625,
+          "bottom": 244.265625
+        },
+        {
+          "index": 78,
+          "top": 258.6875,
+          "bottom": 283.6875
+        },
+        {
+          "index": 104,
+          "top": 298.109375,
+          "bottom": 323.109375
+        },
+        {
+          "index": 131,
+          "top": 337.53125,
+          "bottom": 362.53125
+        }
+      ],
+      "hash": "60c5fea355f55f41765a3f22cf9d742dcc1f90ff64f963720209267e76a94867"
+    },
+    {
+      "name": "webkit-later-scroll-returned",
+      "offset": 22,
+      "first": 22,
+      "excerpt": "连成一条线。站台上的钟比手机慢了三分钟。林远核对了两次，没有",
+      "scrollTop": 120,
+      "maxScroll": 235,
+      "client": [
+        360,
+        475
+      ],
+      "top": 296.375,
+      "bottom": 771.375,
+      "lines": [
+        {
+          "index": 0,
+          "top": 204.8125,
+          "bottom": 235.8125
+        },
+        {
+          "index": 11,
+          "top": 252.6875,
+          "bottom": 283.6875
+        },
+        {
+          "index": 22,
+          "top": 300.5625,
+          "bottom": 331.5625
+        },
+        {
+          "index": 33,
+          "top": 348.4375,
+          "bottom": 379.4375
+        },
+        {
+          "index": 44,
+          "top": 396.3125,
+          "bottom": 427.3125
+        },
+        {
+          "index": 55,
+          "top": 444.1875,
+          "bottom": 475.1875
+        },
+        {
+          "index": 66,
+          "top": 492.0625,
+          "bottom": 523.0625
+        },
+        {
+          "index": 77,
+          "top": 539.9375,
+          "bottom": 570.9375
+        },
+        {
+          "index": 89,
+          "top": 587.8125,
+          "bottom": 618.8125
+        },
+        {
+          "index": 100,
+          "top": 635.6875,
+          "bottom": 666.6875
+        },
+        {
+          "index": 111,
+          "top": 683.5625,
+          "bottom": 714.5625
+        },
+        {
+          "index": 122,
+          "top": 731.4375,
+          "bottom": 762.4375
+        },
+        {
+          "index": 133,
+          "top": 779.3125,
+          "bottom": 810.3125
+        },
+        {
+          "index": 144,
+          "top": 827.1875,
+          "bottom": 858.1875
+        }
+      ],
+      "hash": "60c5fea355f55f41765a3f22cf9d742dcc1f90ff64f963720209267e76a94867"
+    }
+  ],
+  "routes": [
+    {
+      "branch": 0,
+      "entry": "html-desktop",
+      "ids": [
+        "stmt_ui_5",
+        "stmt_ui_7",
+        "stmt_ui_9",
+        "stmt_ui_11",
+        "stmt_ui_13",
+        "stmt_ui_15",
+        "stmt_ui_17",
+        "stmt_ui_19",
+        "stmt_ui_21",
+        "stmt_ui_25",
+        "stmt_ui_23",
+        "stmt_ui_31",
+        "stmt_ui_33",
+        "stmt_ui_35",
+        "stmt_ui_37",
+        "stmt_ui_39",
+        "stmt_ui_41",
+        "stmt_ui_43",
+        "stmt_ui_45",
+        "stmt_ui_51",
+        "stmt_ui_47",
+        "stmt_ui_49",
+        "stmt_ui_61",
+        "stmt_ui_63",
+        "stmt_ui_65",
+        "stmt_ui_67",
+        "stmt_ui_69",
+        "stmt_ui_71",
+        "stmt_ui_73",
+        "stmt_ui_75",
+        "stmt_ui_77",
+        "stmt_ui_79",
+        "stmt_ui_81",
+        "stmt_ui_91",
+        "stmt_ui_93",
+        "stmt_ui_95",
+        "stmt_ui_97",
+        "stmt_ui_99",
+        "stmt_ui_101",
+        "stmt_ui_103",
+        "stmt_ui_105",
+        "stmt_ui_107",
+        "stmt_ui_109",
+        "stmt_ui_113",
+        "stmt_ui_119",
+        "stmt_ui_121",
+        "stmt_ui_123",
+        "stmt_ui_125",
+        "stmt_ui_127",
+        "stmt_ui_129",
+        "stmt_ui_139",
+        "stmt_ui_131",
+        "stmt_ui_133",
+        "stmt_ui_135",
+        "stmt_ui_137",
+        "stmt_ui_146",
+        "stmt_ui_148",
+        "stmt_ui_150",
+        "stmt_ui_152",
+        "stmt_ui_167",
+        "stmt_ui_154",
+        "stmt_ui_156",
+        "stmt_ui_158",
+        "stmt_ui_160",
+        "stmt_ui_162",
+        "stmt_ui_164"
+      ],
+      "mutedNativeVoices": 6,
+      "ending": "故事告一段落\n同行的约定\n\n已达成 1 / 2 个结局\n\n已读、画廊、音乐与结局记录会保留。可以查看收藏，或读取存档探索其他选择。\n\n查看收藏与结局\n读取存档探索其他路线\n回到标题",
+      "fontPercent": 140
+    },
+    {
+      "branch": 1,
+      "entry": "website-phone",
+      "ids": [
+        "stmt_ui_5",
+        "stmt_ui_7",
+        "stmt_ui_9",
+        "stmt_ui_11",
+        "stmt_ui_13",
+        "stmt_ui_15",
+        "stmt_ui_17",
+        "stmt_ui_19",
+        "stmt_ui_21",
+        "stmt_ui_25",
+        "stmt_ui_23",
+        "stmt_ui_31",
+        "stmt_ui_33",
+        "stmt_ui_35",
+        "stmt_ui_37",
+        "stmt_ui_39",
+        "stmt_ui_41",
+        "stmt_ui_43",
+        "stmt_ui_45",
+        "stmt_ui_51",
+        "stmt_ui_47",
+        "stmt_ui_49",
+        "stmt_ui_61",
+        "stmt_ui_63",
+        "stmt_ui_65",
+        "stmt_ui_67",
+        "stmt_ui_69",
+        "stmt_ui_71",
+        "stmt_ui_73",
+        "stmt_ui_75",
+        "stmt_ui_77",
+        "stmt_ui_79",
+        "stmt_ui_81",
+        "stmt_ui_174",
+        "stmt_ui_176",
+        "stmt_ui_196",
+        "stmt_ui_178",
+        "stmt_ui_180",
+        "stmt_ui_182",
+        "stmt_ui_184",
+        "stmt_ui_186",
+        "stmt_ui_188",
+        "stmt_ui_190",
+        "stmt_ui_192",
+        "stmt_ui_203",
+        "stmt_ui_205",
+        "stmt_ui_207",
+        "stmt_ui_209",
+        "stmt_ui_211",
+        "stmt_ui_223",
+        "stmt_ui_213",
+        "stmt_ui_215",
+        "stmt_ui_217",
+        "stmt_ui_219",
+        "stmt_ui_221",
+        "stmt_ui_230",
+        "stmt_ui_232",
+        "stmt_ui_234",
+        "stmt_ui_236",
+        "stmt_ui_250",
+        "stmt_ui_238",
+        "stmt_ui_240",
+        "stmt_ui_242",
+        "stmt_ui_244",
+        "stmt_ui_246",
+        "stmt_ui_248"
+      ],
+      "mutedNativeVoices": 6,
+      "ending": "故事告一段落\n远行的约定\n\n已达成 1 / 2 个结局\n\n已读、画廊、音乐与结局记录会保留。可以查看收藏，或读取存档探索其他选择。\n\n查看收藏与结局\n读取存档探索其他路线\n回到标题",
+      "fontPercent": 140
+    }
+  ],
+  "artifacts": {
+    "editor": {
+      "/assets/index-DS8UFGyK.js": "9584edf3315a32046640e3a2521f151f6ee7733263c26085605446154bb864af",
+      "/assets/index-DNbmjF5j.css": "67271527adceeeb5cdc822f62bb23802fa266c60b28c48c2be0620e5fae1832d"
+    },
+    "html": {
+      "bytes": 43024527,
+      "sha256": "1fcc68fe837aaa6bd051a7c83682016e0dbf924be90c871e4e7fba8b3d620549"
+    },
+    "website": {
+      "bytes": 32510867,
+      "sha256": "03c3ee251c6da849611b2b2078f1205548a40c2daa3e041d24ab34dfa64b7a97"
+    },
+    "source": {
+      "sha256": "f48264f9836e9a60fa753e3df47a710095d8e82be34f7b72981ce64d49dbb6a0",
+      "entries": 65,
+      "media": 25,
+      "version": "1.8.0",
+      "projectDigest": "6decebb7dedd38df076b6d096eddd7947fd66d73e0237ee076eccaeab798382a"
+    }
+  },
+  "scope": "Same 1.8.0 story/media. Three desktop engines for rotation, fonts, menu, user scroll, end/start and virtual-clock Auto only. Chromium actual editor exports and 140% complete routes (HTML desktop + HTTP phone viewport), save/reload/load. No physical phone/Safari/natural reading timing/human listening/public HTTPS or offline upgrade acceptance. Reading anchors are transient, not serialized in saves."
+}

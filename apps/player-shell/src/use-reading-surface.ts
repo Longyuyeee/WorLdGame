@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { hasUnreadBelow } from './player-reading';
+import { ReadingPosition } from './reading-position';
 export function useCompactReadingLayout() {
   return useReadingMediaQuery('(max-width: 640px), (max-height: 480px)');
 }
@@ -15,20 +16,24 @@ export function useReadingMediaQuery(query: string) {
 }
 export function useReadingSurface(identity: string, layoutRevision: unknown) {
   const element = useRef<HTMLButtonElement | null>(null), previous = useRef('');
+  const position = useRef<ReadingPosition | null>(null);
   const [unread, setUnread] = useState(false);
   const gesture = useRef({ x: 0, y: 0, moved: false });
-  const measure = () => setUnread(element.current !== null && hasUnreadBelow(element.current));
+  const updateUnread = () => setUnread(element.current !== null && hasUnreadBelow(element.current));
+  const measure = () => { position.current?.scroll(); updateUnread(); };
   useLayoutEffect(() => {
     const current = element.current;
-    if (!current) { setUnread(false); return; }
-    if (previous.current !== identity) { current.scrollTop = 0; previous.current = identity; }
-    measure();
-    const observer = typeof ResizeObserver === 'function' ? new ResizeObserver(measure) : null;
+    if (!current) { position.current = null; setUnread(false); return; }
+    if (previous.current !== identity || position.current?.element !== current) { position.current = new ReadingPosition(current); previous.current = identity; }
+    else position.current.reflow(true);
+    updateUnread();
+    const reflow = () => { position.current?.reflow(); updateUnread(); };
+    const observer = typeof ResizeObserver === 'function' ? new ResizeObserver(reflow) : null;
     observer?.observe(current);
     if (current.firstElementChild) observer?.observe(current.firstElementChild);
     const text = current.querySelector('.player-dialogue__text'); if (text) observer?.observe(text);
-    window.addEventListener('resize', measure);
-    return () => { observer?.disconnect(); window.removeEventListener('resize', measure); };
+    window.addEventListener('resize', reflow);
+    return () => { observer?.disconnect(); window.removeEventListener('resize', reflow); };
   }, [identity, layoutRevision]);
   return { element, unread, measure, gesture,
     nextPage() {

@@ -2,7 +2,7 @@
 
 项目制作样例素材，2026-10-13。
 
-2026-10-17 [#378](../../docs/378-web-publication-reading.md)仅调整正式游戏的手机阅读／版本和离线入口。源工程及十六条校订记录仍在 web-story-continuity；当前游戏在 [web-publication-reading](../../evidence/web-publication-reading)。正文、演出和全部 25 媒体保持，仍为 1.8.0，来源／发行状态不变。
+2026-10-17 [#379](../../docs/379-web-reading-position.md)修复旋转、字号及界面往返时的阅读位置，沿用 #378 版本／离线入口收纳。源工程及十六条校订记录仍在 web-story-continuity；当前游戏在 [web-reading-position](../../evidence/web-reading-position)。正文、演出和全部 25 媒体保持，仍为 1.8.0，来源／发行状态不变。
 
 2026-10-17 当前内容候选为 [web-story-continuity](../../evidence/web-story-continuity) 的 **1.8.0**，校订五段旁白和七步地点／人物／雨声演出，详见 [editorial-review-v1.8.md](editorial-review-v1.8.md) 与 [#377](../../docs/377-web-story-continuity-candidate.md)。全部 25 份媒体逐字节保持，来源台账事实不变，未重生成图像或语音；发行条件仍待确认。原 1.7.14 工程和游戏保留，新剧情不承诺兼容其旧档。下方为历史制作事实。
 
