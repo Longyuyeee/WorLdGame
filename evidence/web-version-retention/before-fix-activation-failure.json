@@ -1,0 +1,59 @@
+{
+  "error": "TimeoutError: locator.waitFor: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#offline-status').filter({ hasText: '本机另有新版' }) to be visible\u001b[22m\n",
+  "stack": "locator.waitFor: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#offline-status').filter({ hasText: '本机另有新版' }) to be visible\u001b[22m\n\n    at explicitActivation (E:\\ProjectSave\\GeminiProject\\WorLdGame\\tools\\run-web-version-retention.mjs:108:249)\n    at async file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-version-retention.mjs:146:56",
+  "status": "离线内容已就绪（文件已缓存）。请在当前浏览器断网重开并核对画面、声音和存读档；浏览器清理站点数据后需重新下载。",
+  "workerStatus": {
+    "response": {
+      "ready": true,
+      "version": "sha256:b890c25cec964df36a63e043e2305161c0d36fc6cb4ff477edbe48e3591b6ab8",
+      "retained": false,
+      "latest": {
+        "schemaVersion": 1,
+        "releaseId": "sha256:b890c25cec964df36a63e043e2305161c0d36fc6cb4ff477edbe48e3591b6ab8",
+        "publicationVersion": "1.9.0",
+        "inventory": {
+          "optimization-report.json": "sha256:1484027ca12c6463ec39f346cd85bb75b9d1b2ae50f6d1dead3f50516a54ddf6",
+          "media/a1e6e500aa1ca5d4b0dcdca821070f1b17f617a14227f76a83eb0257e128847b.png": "sha256:a1e6e500aa1ca5d4b0dcdca821070f1b17f617a14227f76a83eb0257e128847b",
+          "media/558c25c6e369f18b98ff550165c38a06fc96f1ba0fba89ab69c3dc45f08bf94e.png": "sha256:558c25c6e369f18b98ff550165c38a06fc96f1ba0fba89ab69c3dc45f08bf94e",
+          "media/cd749f04403e3b4c8483350b77e79fb01bf9166de3f65e9d701583d43afead75.png": "sha256:cd749f04403e3b4c8483350b77e79fb01bf9166de3f65e9d701583d43afead75",
+          "media/1ed954eeb7d22cd6176cb702dbc78977684c6a47261a8b36e152654d2700968a.png": "sha256:1ed954eeb7d22cd6176cb702dbc78977684c6a47261a8b36e152654d2700968a",
+          "media/598b41535295814f1e98a4388d8df83012897402090b83d988e5e2c6b583b57f.png": "sha256:598b41535295814f1e98a4388d8df83012897402090b83d988e5e2c6b583b57f",
+          "media/9ded1d5e951474c53f36f92fa7dc5ab6fcf575ebc3d6fb648a2759c5f9015698.png": "sha256:9ded1d5e951474c53f36f92fa7dc5ab6fcf575ebc3d6fb648a2759c5f9015698",
+          "media/d8721a9d412e6589161ceffc2ada4f65e9c20ff7402319569b4a86623ab00c96.png": "sha256:d8721a9d412e6589161ceffc2ada4f65e9c20ff7402319569b4a86623ab00c96",
+          "media/6ef4b958c86328d5515b034a7060e5081430fcdc279536ceeaac43f15ce7f83b.png": "sha256:6ef4b958c86328d5515b034a7060e5081430fcdc279536ceeaac43f15ce7f83b",
+          "media/d69d2e28ca0d7d547c27f32cbd49703ebc40ddf36b0224f56001f7d2a73bd16a.wav": "sha256:d69d2e28ca0d7d547c27f32cbd49703ebc40ddf36b0224f56001f7d2a73bd16a",
+          "media/7b0aeee0aef6219584fef7833b6960ecb316bffa3b565ab13f847151068ba0bd.png": "sha256:7b0aeee0aef6219584fef7833b6960ecb316bffa3b565ab13f847151068ba0bd",
+          "media/fbbc665d5ebb4e5dad123383d1077f3d968a620b7e36cce46795c08669605c98.wav": "sha256:fbbc665d5ebb4e5dad123383d1077f3d968a620b7e36cce46795c08669605c98",
+          "media/78c4a9d21f19861265c4ce8c8e3b56f4a8bdb0777515ec93a9e53facbb17b863.wav": "sha256:78c4a9d21f19861265c4ce8c8e3b56f4a8bdb0777515ec93a9e53facbb17b863",
+          "media/49e0d7f4aedf5242a8c5001d3875ec3cae7836d5c73e57415db7f5fdaf627807.png": "sha256:49e0d7f4aedf5242a8c5001d3875ec3cae7836d5c73e57415db7f5fdaf627807",
+          "media/26be1da92d18729069c0fda981697a09631fbe7525d4517af5f3633824bf13c0.wav": "sha256:26be1da92d18729069c0fda981697a09631fbe7525d4517af5f3633824bf13c0",
+          "media/342b2b082636ff9d0e8fff71a0ad7f53dfc5bb3fb6125927371b0828cf417197.wav": "sha256:342b2b082636ff9d0e8fff71a0ad7f53dfc5bb3fb6125927371b0828cf417197",
+          "media/9851880463e1d27bb758947fd998c834d942817f5c589fdd1b3ef31f870add27.wav": "sha256:9851880463e1d27bb758947fd998c834d942817f5c589fdd1b3ef31f870add27",
+          "media/d2cd20b0b73ee05ee5ae19a1d6f0af29956e492144a3f708747cdc84bb6cd1d8.wav": "sha256:d2cd20b0b73ee05ee5ae19a1d6f0af29956e492144a3f708747cdc84bb6cd1d8",
+          "media/eeff44bae98f46d3fefaf1b8d9e3f27ee08ac635043e8d660e759f57946d8057.wav": "sha256:eeff44bae98f46d3fefaf1b8d9e3f27ee08ac635043e8d660e759f57946d8057",
+          "media/0e68ac781943cf48422d833c6eb6550f66ee4fb31901f12f492e3ca8c079695a.wav": "sha256:0e68ac781943cf48422d833c6eb6550f66ee4fb31901f12f492e3ca8c079695a",
+          "media/cc0bd25e03762753601ed2464aff8cb0fadd99db43610a7eaebb752a7acef028.wav": "sha256:cc0bd25e03762753601ed2464aff8cb0fadd99db43610a7eaebb752a7acef028",
+          "media/b7b78ec4e28133260db750e20de3e4c56bda60e6e65f73b58b09412e75e76d4c.wav": "sha256:b7b78ec4e28133260db750e20de3e4c56bda60e6e65f73b58b09412e75e76d4c",
+          "media/f90e09e4c2dadc8c6d255c137cd4ce3bc5b40d8a7331e9467c813075a809786a.wav": "sha256:f90e09e4c2dadc8c6d255c137cd4ce3bc5b40d8a7331e9467c813075a809786a",
+          "media/9a2a3bce8a89205a0ae6ac1cd22620dedae77bd519db5ec5c90b2302b55db47b.png": "sha256:9a2a3bce8a89205a0ae6ac1cd22620dedae77bd519db5ec5c90b2302b55db47b",
+          "media/db56676dcd83122d0f0442173693870abb9f6df05d732d510f9915ccea963fc6.png": "sha256:db56676dcd83122d0f0442173693870abb9f6df05d732d510f9915ccea963fc6",
+          "media/5ab4b3cf1b83bf897d386238f1fad4e87f36b6eea3d940e0c3d4101204404e37.png": "sha256:5ab4b3cf1b83bf897d386238f1fad4e87f36b6eea3d940e0c3d4101204404e37",
+          "media/02ab310670cd897e865ebb590e66094b188c305ee61959e8b4160e6f30ba2e9a.png": "sha256:02ab310670cd897e865ebb590e66094b188c305ee61959e8b4160e6f30ba2e9a",
+          "index.html": "sha256:faf2a587da708241cc91a73ad9d6b6343779a539c857a126a24c1e02ff3089cf",
+          "player.js": "sha256:113835da8c767341bfbe50fdf7d9f04895fa3e4095a184dd322cde212468c18c",
+          "player.css": "sha256:c5a667da8e9083753ecd58f02e43b016cd0ad67a85dee62cd8eded63ff0436e1",
+          "save-compatibility.json": "sha256:3b783b1cc6c5cdf2ede2ff0219598eca3d1f19344dd58787f8f40c884ea6f8a3",
+          "offline.js": "sha256:3e5d85e06b2b2a1d251988bf75c06b0c3c87ff2433b8e35c254a648b1be9bca6",
+          "app-icon.svg": "sha256:e6c8ab87ad0b0192c7707b02b0c0128f3b99c63965b3378469a02978002bd533",
+          "manifest.webmanifest": "sha256:8e226d7a94a1eaf6f41407b1906dc7a2faf2c85591e721928bcfd502916b93d7",
+          "offline.css": "sha256:72beab5e14dbd9edb4900632b99935473e5b35917255cf57ff0aea778f5d9da7"
+        }
+      }
+    },
+    "url": "http://127.0.0.1:9257/game/?world-release=sha256%3Af96eaf42b524d144fced8436c65dee176def05adf5bd43a2531d9e1f699a86be",
+    "active": "activated",
+    "controller": "activated"
+  },
+  "checks": [],
+  "errors": []
+}

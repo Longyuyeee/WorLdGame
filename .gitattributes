@@ -76,3 +76,5 @@ evidence/web-reading-position/*.html -text
 evidence/web-story-branch-context/*.html -text
 evidence/web-story-branch-context/*.worldsave -text
 evidence/web-story-branch-context/*.worldreview -text
+evidence/web-version-retention/*.html -text
+evidence/web-version-retention/*.worldsave -text

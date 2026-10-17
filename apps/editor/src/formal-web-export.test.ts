@@ -93,7 +93,7 @@ describe("formal Web game packaging", () => {
     expect(directoryPage.querySelector('link[rel="manifest"]')?.getAttribute("href")).toBe("manifest.webmanifest");
     expect(directoryPage.getElementById("offline-action")?.textContent).toBe("下载离线内容");
     const manifest = JSON.parse(text("manifest.webmanifest"));
-    expect(manifest.start_url).toBe("./index.html");
+    expect(manifest.start_url).toBe('./index.html?world-release=' + encodeURIComponent(directoryPage.querySelector<HTMLMetaElement>('meta[name="world-release"]')!.content));
     expect(manifest.scope).toBe("./");
     const inventory = JSON.parse(text("sw.js").match(/^const inventory = (.*);$/m)![1]!);
     expect(inventory["preview.mjs"]).toBeUndefined();

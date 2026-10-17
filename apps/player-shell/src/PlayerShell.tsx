@@ -512,6 +512,10 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
       if (!trigger || document.activeElement !== trigger) (content.kind === 'title' ? titleSaveTrigger.current : readingMenuTrigger.current)?.focus();
     });
   }, [content.kind]);
+  const openPublicationBackup = () => {
+    if (!saveStore || !saveCoordinator || saveOperation === 'busy' || hostActivity !== 'active') return false;
+    stopSkip(); setAutoEnabled(false); setAutoPlayback('off'); setSaveView('backup'); openSavePanel('load'); return true;
+  };
   const cancelRead = useCallback(() => { setPendingRead(null); queueMicrotask(() => readIntentTrigger.current?.focus()); }, []);
   useEffect(() => {
     if (!savePanelOpen || !saveDialog.current) return;
@@ -2303,7 +2307,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
             )}
           </aside>
         )}
-        {readingMenuOpen && !editorPreview && <PlayerPublicationTools />}
+        {readingMenuOpen && !editorPreview && <PlayerPublicationTools onOpenBackup={openPublicationBackup} />}
         </PlayerPanelRegion>
         {readingMenuOpen && <>{panelComponents("menu")}{panelAudit("menu")}</>}
         </div>
@@ -2372,7 +2376,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
                 const locale = event.target.value; setState(current => configurePlayerCoreLocaleV1(current, locale)); if (!editorPreview) storePlayerLocalePreference(project.manifest.projectId, locale);
               }}>{snapshot.localization.availableLocales.map(locale => <option key={locale} value={locale}>{locale}</option>)}</select></label>}
             </nav>
-            {!editorPreview && <PlayerPublicationTools />}
+            {!editorPreview && <PlayerPublicationTools onOpenBackup={openPublicationBackup} />}
             {recoveryStore !== undefined && (recoveryCandidate !== null || recoveryOperation === 'scanning' || recoveryOperation === 'error' || newStoryConfirmation) && <div className="player-title-recovery" aria-label="开始与恢复进度">
               <div className="player-recovery" role={recoveryOperation === "error" ? "alert" : "status"} aria-live="polite" aria-busy={recoveryOperation === "scanning"}>
                 <div><strong>{newStoryConfirmation ? "确认开始新故事？" : recoveryCandidate ? "发现可恢复进度" : "恢复保护"}</strong>

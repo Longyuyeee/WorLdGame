@@ -7,7 +7,7 @@ export const WEB_DEPLOYMENT_TASKS = [
   '选择网站上传 ZIP，可直接生成仅含公开文件的包，无需安装 Node.js；完整解压后只上传其中内容，含 build-info.json，最后更新 sw.js。不要上传制作交付包、source、release 或 review。原网页目录 ZIP 仍可用 check-deployment.cmd 生成纯网站目录，或只读核对实际 HTTPS 地址的公开字节/类型；该本地检查器需要 Node.js，不替代实际游玩。网站不要将缺失文件回退为 index.html，sw.js 建议 no-cache。',
   '在自己有权限的 HTTPS 实际地址核对标题、版本、所有媒体、完整路线和两结局、声音、保存刷新与显式读取；本机预览不是公网地址。',
   '使用实际手机检查竖屏/横屏、阅读菜单、系统键盘、锁屏/后台、声音恢复和低内存；桌面触控模拟不代替真机。',
-  '在同一实际地址主动下载离线内容，等就绪后断网重开；更新前备份玩家 .worldsave，核对上一版工程，再测试旧版离线→新版等待→关闭所有窗口→重开→读取旧档。内容已变时保留原版入口。',
+  '在同一实际地址主动下载离线内容，等就绪后断网重开。更新前导出 .worldsave、复制本版浏览器内入口并核对上一版工程；实测新版等待／明确启用、旧版入口重开与两版分别读档。剧情变化必须拒绝旧档并保留可运行原版；本版入口依赖本浏览器缓存，换机／清理后不能代替完整原版游戏，新旧版共用槽位需先备份。',
 ] as const;
 
 /** A private, current-source inventory. Not a permission certificate or a record of executed deployment tests. */

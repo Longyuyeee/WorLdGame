@@ -4,6 +4,7 @@ import { afterEach, expect, it, vi } from 'vitest';
 import { loadProject, migrateS0Project, type S0Project } from '@world-studio/project-domain';
 import tiny from '../../../fixtures/projects/tiny/project.s0.json';
 import { PlayerShell } from './PlayerShell';
+import { PlayerPublicationTools } from './PlayerPublicationTools';
 
 afterEach(() => { cleanup(); document.body.replaceChildren(); localStorage.clear(); vi.restoreAllMocks(); });
 const project = loadProject(migrateS0Project(tiny as S0Project).files);
@@ -67,4 +68,12 @@ it('includes a newly visible download cancellation action in the live menu keybo
   fireEvent.keyDown(cancel, { key: 'Tab' }); expect(screen.getByRole('button', { name: '返回故事' })).toHaveFocus();
   fireEvent.click(cancel); expect(cancelled).toHaveBeenCalledOnce(); expect(tools.closest('[role="dialog"]')).not.toBeNull();
   fireEvent.keyDown(window, { key: 'Escape' }); await act(async () => {}); expect(root.querySelector('main')!.dataset.runtimeStateHash).toBe(hash);
+});
+
+it('routes backup preparation to the latest mounted callback and removes the bridge when the tools leave', () => {
+  const { root, tools } = fixture(), first = vi.fn(() => true), next = vi.fn(() => true);
+  const view = render(<PlayerPublicationTools onOpenBackup={first} />, { container: root });
+  expect(tools.dispatchEvent(new Event('world-open-save-backup', { cancelable: true }))).toBe(false); expect(first).toHaveBeenCalledOnce();
+  view.rerender(<PlayerPublicationTools onOpenBackup={next} />); tools.dispatchEvent(new Event('world-open-save-backup', { cancelable: true })); expect(next).toHaveBeenCalledOnce(); expect(first).toHaveBeenCalledOnce();
+  view.unmount(); expect(tools.dispatchEvent(new Event('world-open-save-backup', { cancelable: true }))).toBe(true);
 });

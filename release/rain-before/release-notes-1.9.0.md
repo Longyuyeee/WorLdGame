@@ -2,13 +2,15 @@
 
 2026-10-17。仍为 Web 制作候选，未公开上线或完成发行确认。
 
+当前运行文件更新见 [#382](../../docs/382-web-content-update-and-old-version-continuity.md)：更新前可直达进度备份、复制本版浏览器内入口，稍后继续或明确启用并另开新版。保留旧缓存并拒绝缺失时混用新版，修复双窗口版本绑定与状态时序。该入口依赖同浏览器缓存，不是完整原版文件或换机备份；新旧版共用槽位，需先导出进度。此保护不能追溯改造已缓存的历史 UI，1.8.0 旧档仍不兼容 1.9.0。正文与全部 26 素材不变，HTML 的 Player 运行文件随之更新。
+
 同版网站更新见 [#381](../../docs/381-web-offline-download-and-recovery.md)：显示离线文件下载进度，可取消并保留进度，失败指出文件和对应重试；旧缓存更新的取消、失败、重试与断网原槽位读取已在本机 Chromium 检查。正文、26 素材、源工程和单文件 HTML 未变，没有增加剧情版本或扩大旧档兼容。
 
 - 修正远行路线借用了另一条路线的共同经历，回扣两条路线共享的照片题字。
 - 离店送到公交站时使用新夜雨公交站画面；进出候车室的雨声随地点变化。
 - 保留原分支、所有原 ID、25 份原媒体与九句合成语音；新增一张背景、一段旁白修订、四步演出，共 9,751 字符、85 演出、26 项媒体。沿用 #378／#379 信息收纳和阅读定位。
 
-[当前工程、HTML 和校订记录](../../evidence/web-story-branch-context)沿 #380，[当前网站上传 ZIP](../../evidence/web-offline-download/before-rain-stops-website.zip)沿 #381，同为 1.9.0。只有网站包内的公开文件用于部署，工程／校订／来源台账不可整包上传；精确范围和下一批工作见 #381。
+[当前工程和校订记录](../../evidence/web-story-branch-context)沿 #380，[当前 HTML](../../evidence/web-version-retention/before-rain-stops.html)与[网站上传 ZIP](../../evidence/web-version-retention/before-rain-stops-website.zip)沿 #382，同为 1.9.0。只有网站包内的公开文件用于部署，工程／校订／来源台账不可整包上传；精确范围和下一批工作见 #382。
 
 **不兼容 1.8.0 或更早剧情存档。** 旧玩家保留 [1.8.0 原游戏](../../evidence/web-reading-position/before-rain-stops.html)及备份接续，新版从头开始。新背景由内置 imagegen 生成，来源及完整提示词可核对，不代表已确认发行条件。
 

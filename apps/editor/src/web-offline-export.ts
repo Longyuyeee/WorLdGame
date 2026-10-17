@@ -6,6 +6,13 @@ const client = String.raw`(() => {
   const action = document.getElementById('offline-action');
   const cancel = document.getElementById('offline-cancel');
   const install = document.getElementById('offline-install');
+  const tools = document.getElementById('world-publication-tools');
+  const plan = document.getElementById('offline-update-plan');
+  const acknowledge = document.getElementById('offline-update-ack');
+  const confirm = document.getElementById('offline-update-confirm');
+  const latestLink = document.getElementById('offline-open-latest');
+  const ownRelease = tools.dataset.worldRelease, ownVersion = tools.dataset.publicationVersion;
+  let latestInfo, planBusy = false;
   let registration, promptEvent, operation, cancelledWorker, lastFailure, epoch = 0;
   const say = (text, label) => { status.textContent = text; summary.textContent = label; };
   const finish = () => {
@@ -30,6 +37,31 @@ const client = String.raw`(() => {
   if (!isSecureContext || !('serviceWorker' in navigator)) {
     say('当前浏览器或网址不支持网站离线，可继续在线玩；请使用 HTTPS 或下载完整目录包。', '当前环境不支持'); action.hidden = true; return;
   }
+  if (document.getElementById('player-root')?.dataset.startupState === 'release-missing') { action.hidden = true; return; }
+  const releaseUrl = release => { const url = new URL(location.pathname, location.href); url.searchParams.set('world-release', release); return url.href; };
+  document.getElementById('offline-keep-entry').onclick = () => {
+    const entry = document.getElementById('offline-current-entry'); entry.value = releaseUrl(ownRelease); entry.hidden = false; entry.focus(); entry.select();
+  };
+  document.getElementById('offline-backup').onclick = () => {
+    if (tools.dispatchEvent(new Event('world-open-save-backup', { cancelable: true }))) say('暂时无法打开备份，请从存读档的“备份”页导出进度；当前故事保持不变。', '请先备份');
+  };
+  const updatePlan = () => {
+    const newer = latestInfo && latestInfo.releaseId !== ownRelease;
+    confirm.hidden = false;
+    confirm.disabled = !acknowledge.checked || Boolean(operation) || planBusy;
+    confirm.textContent = registration?.waiting ? '启用已下载新版（本版仍保留）' : newer ? '再次检查更新' : '确认检查并下载';
+    latestLink.hidden = !newer || Boolean(registration?.waiting) || !acknowledge.checked;
+    if (newer) latestLink.href = releaseUrl(latestInfo.releaseId);
+    document.getElementById('offline-version-note').textContent = newer ? '当前窗口：' + ownVersion + '；本机可用新版：' + latestInfo.publicationVersion + '。版本号相同也可能是运行文件更新；旧档仍需实际核验。' : '当前窗口：' + ownVersion + '。先保留需要的进度和本版入口，再检查更新。';
+  };
+  const setLatest = info => {
+    if (!info || !/^sha256:[a-f0-9]{64}$/.test(info.releaseId) || typeof info.publicationVersion !== 'string') return;
+    if (latestInfo?.releaseId !== info.releaseId) acknowledge.checked = false;
+    latestInfo = info; updatePlan();
+  };
+  const showPlan = () => { plan.hidden = false; updatePlan(); };
+  acknowledge.onchange = updatePlan;
+  document.getElementById('offline-update-later').onclick = () => { plan.hidden = true; action.focus(); };
   const request = (worker, type, requestId) => new Promise((resolve, reject) => {
     const channel = new MessageChannel();
     const timer = setTimeout(() => { channel.port1.close(); reject(new Error('timeout')); }, type === 'CACHE' ? 300000 : 10000);
@@ -50,21 +82,26 @@ const client = String.raw`(() => {
   const waiting = () => {
     if (!registration?.waiting) return false;
     finish();
-    say('新版已下载，当前故事仍使用原版，不会自动打断。只有作者核对过的兼容版本才能继续旧档；未经核对的更新请保留原版入口。关闭所有游戏窗口后重新打开会使用新版。', '新版等待重开');
-    action.textContent = '检查更新'; return true;
+    say('新版已下载。当前窗口继续本版，重开本版入口也不会自动换剧情。先备份并保留本版入口，再选择启用新版；本机缓存并非永久备份。', '新版等待选择');
+    action.textContent = '查看已下载新版'; showPlan();
+    const worker = registration.waiting;
+    void request(worker, 'INFO').then(info => { if (registration.waiting === worker || registration.active === worker) setLatest(info); }).catch(() => {});
+    return true;
   };
   const ready = async () => {
     if (waiting()) return;
     if (!registration?.active) return;
-    const pending = epoch;
+    const pending = ++epoch, worker = registration.active;
     try {
-      const result = await request(registration.active, 'STATUS');
-      if (epoch !== pending) return;
+      const result = await request(worker, 'STATUS');
+      if (epoch !== pending || registration.active !== worker) return;
       if (waiting()) return;
       finish();
-      if (result.ready) { say('离线内容已就绪（文件已缓存）。请在当前浏览器断网重开并核对画面、声音和存读档；浏览器清理站点数据后需重新下载。', '文件已缓存'); action.textContent = '检查更新'; }
+      setLatest(result.latest);
+      if (result.ready) { say(result.retained ? '本版离线内容仍保留，本机另有新版。可先备份并保留本版入口，再选择在新窗口打开新版；当前故事不会切换。' : '离线内容已就绪（文件已缓存）。请在当前浏览器断网重开并核对画面、声音和存读档；浏览器清理站点数据后需重新下载。', '文件已缓存'); action.textContent = result.retained ? '查看版本与备份' : '检查更新'; }
+      else if (result.retained) { say('本版缓存不完整，不能用新版文件补齐。请保留存档备份，使用作者提供的原版完整游戏；也可查看新版，但旧档可能不兼容。', '旧版文件缺失'); action.textContent = '查看版本与备份'; }
       else { say('离线内容不完整，请联网重新下载；在线游玩仍可继续。', '需要重新下载'); action.textContent = '重试离线下载'; }
-    } catch { if (epoch !== pending) return; finish(); say('暂时无法确认离线内容，请联网重试。', '状态未确认'); action.textContent = '重试离线下载'; }
+    } catch { if (epoch !== pending || registration.active !== worker) return; finish(); say('暂时无法确认离线内容，请联网重试。', '状态未确认'); action.textContent = '重试离线下载'; }
   };
   const failed = (cacheRepair, detail) => {
     const updating = Boolean(registration?.active) && !cacheRepair;
@@ -114,7 +151,7 @@ const client = String.raw`(() => {
       say('暂时无法确认取消结果；可以继续游玩，或再次取消下载。', '取消未确认');
     }
   };
-  action.onclick = async () => {
+  const perform = async approved => {
     const cacheRepair = action.textContent === '重试离线下载' && Boolean(registration?.active);
     action.disabled = true;
     let pending;
@@ -128,12 +165,20 @@ const client = String.raw`(() => {
         if (!result.ready) throw new Error('cache failed');
         await ready();
       } else {
-        const pendingEpoch = epoch;
+        if (!approved) { action.disabled = false; showPlan(); return; }
+        if (registration.waiting) { await request(registration.waiting, 'ACTIVATE'); return; }
+        const pendingEpoch = epoch, previousWorker = registration.active;
         await registration.update();
-        if (!registration.installing && epoch === pendingEpoch) await ready();
+        if (!registration.installing && epoch === pendingEpoch) {
+          await ready();
+          if (!operation && !registration.waiting && registration.active === previousWorker) say('已检查更新，暂未发现新的可用版本。当前窗口继续本版，已缓存的其他版本仍可在下方选择。', '暂无新版');
+        }
       }
     } catch { if (pending ? operation === pending && cancelledWorker !== pending.worker : !cancelledWorker) failed(cacheRepair); }
   };
+  action.onclick = () => { void perform(false); };
+  confirm.onclick = () => { if (!acknowledge.checked || planBusy) return; planBusy = true; confirm.disabled = true; void perform(true).finally(() => { planBusy = false; updatePlan(); }); };
+  navigator.serviceWorker.addEventListener('controllerchange', () => { void ready(); });
   navigator.serviceWorker.getRegistration('./').then(value => {
     if (value && value.scope === new URL('./', location.href).href) { registration = value; watch(); }
   }).catch(() => { say('无法读取离线状态，请重试。', '状态未确认'); });
@@ -143,7 +188,18 @@ const worker = String.raw`
 const prefix = 'world-offline:' + encodeURIComponent(self.registration.scope) + ':';
 const cacheName = prefix + version;
 const entries = Object.entries(inventory).map(([path, digest]) => [new URL(path, self.registration.scope).href, digest]);
-const urls = new Set(entries.map(([url]) => url));
+const metadataUrl = new URL('__world-release-info__', self.registration.scope).href;
+const ownInfo = { schemaVersion: 1, releaseId: version, publicationVersion, inventory };
+const releaseId = url => { const value = new URL(url).searchParams.get('world-release'); return value === null ? version : /^sha256:[a-f0-9]{64}$/.test(value) ? value : null; };
+async function targetInfo(event) {
+  const id = event.source?.url ? releaseId(event.source.url) : version;
+  if (id === version) return { id, info: ownInfo };
+  if (!id || !(await caches.keys()).includes(prefix + id)) return { id, info: null };
+  try {
+    const response = await (await caches.open(prefix + id)).match(metadataUrl), info = response && await response.json();
+    return { id, info: info?.schemaVersion === 1 && info.releaseId === id && info.inventory && typeof info.publicationVersion === 'string' ? info : null };
+  } catch { return { id, info: null }; }
+}
 let activeTask;
 async function report(task, phase, detail = {}) {
   const clients = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
@@ -173,6 +229,7 @@ function fill(requestId = 'install') {
         }
         task.completed++;
       }
+      await cache.put(metadataUrl, new Response(JSON.stringify(ownInfo), { headers: { 'Content-Type': 'application/json' } }));
       task.path = ''; await report(task, 'progress');
     } catch (error) {
       await report(task, signal.aborted ? 'cancelled' : 'failed', { reason: error.reason, httpStatus: error.httpStatus });
@@ -181,42 +238,63 @@ function fill(requestId = 'install') {
   })();
   return task.promise;
 }
-async function complete() {
-  if (!(await caches.keys()).includes(cacheName)) return false;
-  const cache = await caches.open(cacheName);
-  return (await Promise.all(entries.map(async ([url]) => Boolean(await cache.match(url))))).every(Boolean);
+async function complete(id = version, info = ownInfo) {
+  if (!id || !info || !(await caches.keys()).includes(prefix + id)) return false;
+  const cache = await caches.open(prefix + id);
+  return (await Promise.all(Object.keys(info.inventory).map(async path => Boolean(await cache.match(new URL(path, self.registration.scope).href))))).every(Boolean);
 }
 self.addEventListener('install', event => event.waitUntil(fill().catch(async error => { await caches.delete(cacheName); throw error; })));
 self.addEventListener('activate', event => event.waitUntil((async () => {
-  for (const key of await caches.keys()) if (key.startsWith(prefix) && key !== cacheName) await caches.delete(key);
+  // Pinned pages and their saved links still need previous public game bytes.
+  // Never delete an older game merely because another build activates.
   await self.clients.claim();
 })()));
 self.addEventListener('message', event => {
-  if (!['STATUS', 'CACHE', 'CANCEL'].includes(event.data?.type)) return;
+  if (!['STATUS', 'CACHE', 'CANCEL', 'INFO', 'ACTIVATE'].includes(event.data?.type)) return;
   event.waitUntil((async () => {
     try {
+      if (event.data.type === 'INFO') { event.ports[0]?.postMessage(ownInfo); return; }
+      if (event.data.type === 'ACTIVATE') { await self.skipWaiting(); event.ports[0]?.postMessage({ activated: true }); return; }
+      const target = await targetInfo(event);
       if (event.data.type === 'CANCEL') {
         const task = activeTask, owned = Boolean(task && task.id === event.data.requestId);
         if (owned) { task.controller.abort(); await task.promise.catch(() => {}); }
         event.ports[0]?.postMessage({ cancelled: owned, ready: owned && task.id === 'install' ? false : await complete(), version }); return;
       }
       if (event.data.type === 'CACHE') {
+        if (target.id !== version) { event.ports[0]?.postMessage({ ready: false, retained: true, latest: ownInfo }); return; }
         if (activeTask && activeTask.id !== event.data.requestId) { event.ports[0]?.postMessage({ busy: true, version }); return; }
         await fill(event.data.requestId);
       }
-      event.ports[0]?.postMessage({ ready: await complete(), version });
+      event.ports[0]?.postMessage({ ready: await complete(target.id, target.info), version: target.id, retained: target.id !== version, latest: ownInfo });
     }
     catch { event.ports[0]?.postMessage({ ready: false, version }); }
   })());
 });
 self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
-  const url = new URL(event.request.url); url.search = ''; url.hash = '';
+  const url = new URL(event.request.url);
+  if (!url.href.startsWith(self.registration.scope)) return;
+  const requested = url.searchParams.get('world-release'); url.search = ''; url.hash = '';
   if (url.href === self.registration.scope) url.pathname += 'index.html';
-  if (!urls.has(url.href)) return;
+  if (url.href === metadataUrl) { event.respondWith(new Response('Not a public game file', { status: 404 })); return; }
   event.respondWith((async () => {
-    const response = await (await caches.open(cacheName)).match(url.href);
-    if (!response) return fetch(event.request);
+    const client = event.clientId ? await self.clients.get(event.clientId) : null;
+    const navigating = event.request.mode === 'navigate';
+    const pinned = requested !== null || (!navigating && Boolean(client && new URL(client.url).searchParams.has('world-release')));
+    const id = requested !== null ? releaseId(event.request.url) : navigating ? version : client ? releaseId(client.url) : version;
+    const exists = id && (await caches.keys()).includes(prefix + id);
+    const target = pinned && event.request.mode === 'navigate' ? await targetInfo({ source: { url: event.request.url } }) : null;
+    const incomplete = target && !await complete(target.id, target.info);
+    const response = exists && !incomplete ? await (await caches.open(prefix + id)).match(url.href) : null;
+    if (!response) {
+      if (!pinned) return fetch(event.request);
+      if (event.request.mode === 'navigate') {
+        const latest = self.registration.scope.replaceAll('&', '&amp;').replaceAll('"', '&quot;');
+        return new Response('<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>旧版入口不可用</title><main><h1>旧版离线内容不可用</h1><p role="alert">未替换为新版，也未改写存档。请保留备份，使用作者提供的原版游戏。清理缓存或换浏览器后，本版链接不能代替完整游戏文件。</p><a href="' + latest + '">查看当前线上版本（旧档可能不兼容）</a></main>', { status: 410, headers: { 'Content-Type': 'text/html; charset=utf-8' } });
+      }
+      return new Response('This retained version is missing a game file; refusing mixed-version fallback.', { status: 503 });
+    }
     const range = event.request.headers.get('range');
     if (!range) return response;
     const match = /^bytes=(\d*)-(\d*)$/.exec(range);
@@ -239,11 +317,16 @@ export function addWebOfflineFiles(files: Record<string, Uint8Array>, title: str
   files["app-icon.svg"] = encode('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="100" fill="#181827"/><path d="M96 148h56l40 180 38-132h52l38 132 40-180h56l-66 224h-56l-38-128-38 128h-56z" fill="#c5b5ff"/></svg>');
   files["manifest.webmanifest"] = encode(JSON.stringify({ id: "./", name: title, short_name: title.slice(0, 24), lang: "zh-CN", start_url: "./index.html", scope: "./", display: "standalone", background_color: "#181827", theme_color: "#181827", icons: [{ src: icon?.path ?? "app-icon.svg", sizes: icon ? `${icon.size}x${icon.size}` : "any", type: icon ? "image/png" : "image/svg+xml", purpose: "any" }] }));
   files["index.html"] = encode(new TextDecoder().decode(files["index.html"]).replace('</head>', `<meta name="application-version" content="${publicationVersion}"><link rel="icon" href="${icon?.path ?? "app-icon.svg"}"></head>`));
-  const panel = `<div id="world-publication-home" hidden><section id="world-publication-tools" aria-label="游戏信息"><p id="world-publication-version">版本 ${publicationVersion}</p><details id="offline-panel"><summary>离线与安装 · <span id="offline-summary" role="status">尚未下载</span></summary><p id="offline-status" role="status">尚未下载离线内容</p><p>需要约 ${size} MiB 空间及下载流量。安装入口由浏览器提供，也可查看浏览器菜单中的“安装/添加到主屏幕”。</p><button id="offline-action" type="button">下载离线内容</button> <button id="offline-cancel" type="button" hidden>取消下载</button> <button id="offline-install" type="button" hidden>安装游戏</button></details></section></div>`;
-  files["offline.css"] = encode('#offline-panel{box-sizing:border-box;width:100%;color:var(--player-ink,#eee);font:14px/1.6 system-ui;overflow-wrap:anywhere}#offline-panel summary{box-sizing:border-box;cursor:pointer;min-height:44px;padding:10px 12px;border:1px solid var(--player-muted,#b9a8ed);border-radius:8px}#offline-panel summary:focus-visible{outline:3px solid var(--player-accent,#b9a8ed);outline-offset:-3px}#offline-panel p{margin:10px 0}#offline-panel button{min-height:44px;padding:8px 14px;border-radius:8px;border:1px solid var(--player-muted,#b9a8ed);background:var(--player-panel,#292638);color:inherit}#offline-panel button[hidden]{display:none}');
+  const panel = `<div id="world-publication-home" hidden><section id="world-publication-tools" data-world-release="__WORLD_RELEASE__" data-publication-version="${publicationVersion}" aria-label="游戏信息"><p id="world-publication-version">版本 ${publicationVersion}</p><details id="offline-panel"><summary>离线与安装 · <span id="offline-summary" role="status">尚未下载</span></summary><p id="offline-status" role="status">尚未下载离线内容</p><p>本版完整离线内容约 ${size} MiB，下载或保留其他版本另需空间与流量。安装入口由浏览器提供，也可查看浏览器菜单中的“安装/添加到主屏幕”。</p><button id="offline-action" type="button">下载离线内容</button> <button id="offline-cancel" type="button" hidden>取消下载</button> <button id="offline-install" type="button" hidden>安装游戏</button><section id="offline-update-plan" aria-label="更新前准备" hidden><h3>更新前准备</h3><p id="offline-version-note"></p><p>新剧情可能不兼容旧档。先导出进度，再保留本版入口；该入口只依赖本浏览器的缓存，换机或清理数据后可能失效，不能代替作者提供的完整游戏文件。同一作品的新旧版共用本浏览器存档槽位，继续保存可能覆盖另一版的槽位；请先导出需要的进度。新旧版缓存会同时占用空间。</p><button id="offline-backup" type="button">备份游玩进度</button> <button id="offline-keep-entry" type="button">显示本版入口</button><label>本版浏览器内入口<input id="offline-current-entry" aria-label="本版浏览器内入口" type="text" readonly hidden></label><label><input id="offline-update-ack" type="checkbox">我已了解旧档可能不兼容，并已保留需要的资料</label><button id="offline-update-confirm" type="button" disabled>确认检查并下载</button> <a id="offline-open-latest" target="_blank" rel="noopener" hidden>在新窗口打开新版</a> <button id="offline-update-later" type="button">稍后，继续本版</button></section></details></section></div>`;
+  files["offline.css"] = encode('#offline-panel{box-sizing:border-box;width:100%;color:var(--player-ink,#eee);font:14px/1.6 system-ui;overflow-wrap:anywhere}#offline-panel summary{box-sizing:border-box;cursor:pointer;min-height:44px;padding:10px 12px;border:1px solid var(--player-muted,#b9a8ed);border-radius:8px}#offline-panel summary:focus-visible{outline:3px solid var(--player-accent,#b9a8ed);outline-offset:-3px}#offline-panel p{margin:10px 0}#offline-panel button{min-height:44px;padding:8px 14px;border-radius:8px;border:1px solid var(--player-muted,#b9a8ed);background:var(--player-panel,#292638);color:inherit}#offline-panel button[hidden],#offline-panel a[hidden],#offline-panel section[hidden],#offline-panel input[hidden]{display:none}#offline-update-plan{border-top:1px solid var(--player-muted,#b9a8ed);margin-top:12px;padding-top:8px;text-align:start}#offline-update-plan label{display:block;margin:10px 0}#offline-current-entry{box-sizing:border-box;max-width:100%;width:100%;min-height:44px}#offline-open-latest{display:inline-block;padding:10px 8px;min-height:24px;color:inherit}');
   files["index.html"] = encode(new TextDecoder().decode(files["index.html"]).replace('</head>', '<link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#181827"><link rel="stylesheet" href="offline.css"></head>').replace(/<body([^>]*)>/, '<body$1>' + panel).replace('</body>', '<script src="offline.js"></script></body>'));
-  const inventory = Object.fromEntries(Object.entries(files).map(([path, bytes]) => [path, createBlobDigest(bytes)]));
+  const baseInventory = Object.fromEntries(Object.entries(files).map(([path, bytes]) => [path, createBlobDigest(bytes)]));
   // Worker bytes participate in the version so fixes also create a fresh cache.
-  const version = createBlobDigest(encode(JSON.stringify({ inventory, worker })));
-  files["sw.js"] = encode(`const inventory = ${JSON.stringify(inventory)};\nconst version = ${JSON.stringify(version)};\n${worker}`);
+  const version = createBlobDigest(encode(JSON.stringify({ inventory: baseInventory, worker })));
+  files["index.html"] = encode(new TextDecoder().decode(files["index.html"]).replace('data-world-release="__WORLD_RELEASE__"', `data-world-release="${version}"`).replace('</head>', `<meta name="world-release" content="${version}"></head>`));
+  const manifest = JSON.parse(new TextDecoder().decode(files['manifest.webmanifest']));
+  manifest.start_url = './index.html?world-release=' + encodeURIComponent(version);
+  files['manifest.webmanifest'] = encode(JSON.stringify(manifest));
+  const inventory = Object.fromEntries(Object.entries(files).map(([path, bytes]) => [path, createBlobDigest(bytes)]));
+  files["sw.js"] = encode(`const inventory = ${JSON.stringify(inventory)};\nconst version = ${JSON.stringify(version)};\nconst publicationVersion = ${JSON.stringify(publicationVersion)};\n${worker}`);
 }

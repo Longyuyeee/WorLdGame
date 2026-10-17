@@ -4,7 +4,7 @@ import { prepareNativeAtlasMediaAsync as hydrateNativeAtlasMediaAsync } from "./
 import { mountWorldPlayerV1 } from "./mount-player";
 vi.mock("./lazy-atlas-media",()=>({prepareNativeAtlasMediaAsync:vi.fn()}));
 vi.mock("./mount-player",()=>({mountWorldPlayerV1:vi.fn()}));
-afterEach(()=>{ vi.resetAllMocks(); document.body.replaceChildren(); });
+afterEach(()=>{ vi.resetAllMocks(); document.body.replaceChildren(); document.querySelector('meta[name="world-release"]')?.remove(); history.replaceState(null, '', '/'); });
 const fixture=()=>{const root=document.createElement("div"),payload=document.createElement("script");payload.textContent="{}";return{root,payload};};
 it("shows loading, cancels, retries and cleans up only its own successful attempt",async()=>{
   const {root,payload}=fixture(),dispose=vi.fn(),unmount=vi.fn(),trimIdle=vi.fn(),notifyMemoryPressure=vi.fn();
@@ -43,4 +43,28 @@ it("keeps game information available during loading, cancellation and failure, h
   vi.mocked(mountWorldPlayerV1).mockReturnValue({ unmount: vi.fn() } as unknown as ReturnType<typeof mountWorldPlayerV1>);
   root.querySelector('button')!.click(); await vi.waitFor(() => expect(root.dataset.startupState).toBe('ready')); expect(home.hidden).toBe(true);
   handle.dispose(); expect(home.hidden).toBe(false);
+});
+
+it('refuses a requested old release when a fresh browser receives a different server build, without parsing or mounting it', () => {
+  const meta = document.createElement('meta'); meta.name = 'world-release'; meta.content = 'sha256:' + 'a'.repeat(64); document.head.append(meta);
+  history.replaceState(null, '', '/game/?world-release=' + encodeURIComponent('sha256:' + 'b'.repeat(64)));
+  const { root, payload } = fixture(); const handle = startExportedPlayer(root, payload);
+  expect(root.dataset.startupState).toBe('release-missing'); expect(root.querySelector('[role="alert"]')).toHaveTextContent('未打开新版或改写存档');
+  expect(new URL(root.querySelector('a')!.href).searchParams.has('world-release')).toBe(false); expect(mountWorldPlayerV1).not.toHaveBeenCalled(); expect(hydrateNativeAtlasMediaAsync).not.toHaveBeenCalled(); handle.dispose();
+});
+
+it('navigates an unversioned website entry before mounting so replacement Workers see a pinned client URL', () => {
+  const doc = document.implementation.createHTMLDocument(), replace = vi.fn(); Object.defineProperty(doc, 'defaultView', { value: { location: { protocol: 'http:', href: 'http://localhost/game/?setting=keep#place', replace } } });
+  const meta = doc.createElement('meta'); meta.name = 'world-release'; meta.content = 'sha256:' + 'a'.repeat(64); doc.head.append(meta);
+  const root = doc.createElement('div'), payload = doc.createElement('script'); payload.textContent = '{}'; const handle = startExportedPlayer(root, payload);
+  const target = new URL(replace.mock.calls[0]![0]); expect(target.searchParams.get('world-release')).toBe(meta.content); expect(target.searchParams.get('setting')).toBe('keep'); expect(target.hash).toBe('#place');
+  expect(root.dataset.startupState).toBe('pinning'); expect(mountWorldPlayerV1).not.toHaveBeenCalled(); expect(hydrateNativeAtlasMediaAsync).not.toHaveBeenCalled(); handle.dispose();
+});
+
+it('mounts a matching pinned website without another navigation', async () => {
+  const meta = document.createElement('meta'); meta.name = 'world-release'; meta.content = 'sha256:' + 'a'.repeat(64); document.head.append(meta); history.replaceState(null, '', '/game/?world-release=' + encodeURIComponent(meta.content));
+  vi.mocked(hydrateNativeAtlasMediaAsync).mockResolvedValue({ media: [], dispose: vi.fn(), trimIdle: vi.fn() }); vi.mocked(mountWorldPlayerV1).mockReturnValue({ unmount: vi.fn() } as unknown as ReturnType<typeof mountWorldPlayerV1>);
+  const { root, payload } = fixture(); const handle = startExportedPlayer(root, payload);
+  expect(new URL(location.href).searchParams.get('world-release')).toBe(meta.content);
+  await vi.waitFor(() => expect(root.dataset.startupState).toBe('ready')); handle.dispose();
 });

@@ -1,0 +1,17 @@
+{
+  "passed": true,
+  "from": "1.8.0",
+  "to": "1.9.0",
+  "savedHash": "60c5fea355f55f41765a3f22cf9d742dcc1f90ff64f963720209267e76a94867",
+  "backupSha256": "f92107cc9a84465f755f393a5c86a6221c07a8b0f2a3a0a7bc49b4bdb0680aeb",
+  "oldCaches": [
+    "world-offline:http%3A%2F%2F127.0.0.1%3A3098%2Fgame%2F:sha256:96598746eb987e39fcfcd466e6dead925e122a9bca00a1ca475493face90765a"
+  ],
+  "newCaches": [
+    "world-offline:http%3A%2F%2F127.0.0.1%3A3098%2Fgame%2F:sha256:ddef5bf57fe45d595cf04457b4b28c489bc9620548585fcb79cf2d1136f90fe9"
+  ],
+  "oldCachesDeleted": true,
+  "rejection": "这份备份来自未核对的游戏版本，请使用对应版本，或由作者核对兼容后再导入。",
+  "errors": [],
+  "loopbackOnly": true
+}

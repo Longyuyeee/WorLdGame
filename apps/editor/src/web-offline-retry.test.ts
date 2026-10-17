@@ -14,7 +14,7 @@ class Channel {
   port1 = { onmessage: null as ((event: { data: unknown }) => void) | null, close() {} };
   port2 = { reply: (data: unknown) => this.port1.onmessage?.({ data }) };
 }
-function client() {
+function client(href = 'http://localhost/') {
   const files: Record<string, Uint8Array> = { 'index.html': new TextEncoder().encode('<html><head></head><body></body></html>') };
   addWebOfflineFiles(files, '更新测试'); document.body.innerHTML = new DOMParser().parseFromString(new TextDecoder().decode(files['index.html']), 'text/html').body.innerHTML;
   document.getElementById('world-publication-home')!.hidden = false;
@@ -23,23 +23,30 @@ function client() {
   const update = vi.fn(async () => {}); const register = vi.fn(async () => ({ ...registration, update }));
   const serviceWorker = Object.assign(new EventTarget(), { getRegistration: vi.fn(async () => Object.assign(registration, { update })), register });
   const navigator = { serviceWorker };
-  new Function('document', 'window', 'navigator', 'isSecureContext', 'MessageChannel', 'location', new TextDecoder().decode(files['offline.js']))(document, window, navigator, true, Channel, { protocol: 'http:', href: 'http://localhost/' });
+  new Function('document', 'window', 'navigator', 'isSecureContext', 'MessageChannel', 'location', new TextDecoder().decode(files['offline.js']))(document, window, navigator, true, Channel, { protocol: 'http:', href, pathname: new URL(href).pathname });
   const progress = (worker: Worker, detail: Record<string, unknown>) => { const event = new MessageEvent('message', { data: { type: 'WORLD_OFFLINE_PROGRESS', requestId: 'install', phase: 'progress', completed: 2, total: 8, path: 'media/rain.png', ...detail } }); Object.defineProperty(event, 'source', { value: worker }); serviceWorker.dispatchEvent(event); };
-  return { active, registration, update, register, progress };
+  return { active, registration, update, register, progress, serviceWorker };
 }
+function clickUpdate(name = '检查更新') {
+  fireEvent.click(screen.getByRole('button', { name }));
+  const ack = document.getElementById('offline-update-ack') as HTMLInputElement;
+  if (!ack.checked) fireEvent.click(ack);
+  fireEvent.click(document.getElementById('offline-update-confirm')!);
+}
+
 afterEach(() => { document.body.innerHTML = ''; vi.restoreAllMocks(); });
 it('retries a failed new worker download, not a successful re-download of the old active game', async () => {
   const { active, registration, update } = client(); await screen.findByRole('button', { name: '检查更新' });
   const failed = new Worker(); update.mockImplementationOnce(async () => { registration.installing = failed; registration.dispatchEvent(new Event('updatefound')); });
-  fireEvent.click(screen.getByRole('button', { name: '检查更新' })); await waitFor(() => expect(update).toHaveBeenCalledOnce()); failed.change('redundant'); registration.installing = null;
+  clickUpdate(); await waitFor(() => expect(update).toHaveBeenCalledOnce()); failed.change('redundant'); registration.installing = null;
   await screen.findByRole('button', { name: '重试更新' }, { timeout: 1000 }); expect(document.getElementById('offline-status')).toHaveTextContent('原有离线内容保留');
   const next = new Worker(); update.mockImplementationOnce(async () => { registration.installing = next; registration.dispatchEvent(new Event('updatefound')); });
-  fireEvent.click(screen.getByRole('button', { name: '重试更新' })); await waitFor(() => expect(update).toHaveBeenCalledTimes(2)); expect(active.messages).not.toContain('CACHE');
+  clickUpdate('重试更新'); await waitFor(() => expect(update).toHaveBeenCalledTimes(2)); expect(active.messages).not.toContain('CACHE');
   registration.installing = null; registration.waiting = next; next.change('installed'); expect(document.getElementById('offline-status')).toHaveTextContent('新版已下载');
 });
 it('keeps an update network failure separate from repair of an incomplete old offline cache', async () => {
   const { registration, update } = client(); await screen.findByRole('button', { name: '检查更新' }); update.mockRejectedValueOnce(Error('network offline'));
-  fireEvent.click(screen.getByRole('button', { name: '检查更新' })); await screen.findByRole('button', { name: '重试更新' }, { timeout: 1000 }); expect(document.getElementById('offline-status')).toHaveTextContent('原有离线内容保留');
+  clickUpdate(); await screen.findByRole('button', { name: '重试更新' }, { timeout: 1000 }); expect(document.getElementById('offline-status')).toHaveTextContent('原有离线内容保留');
   expect(registration.active.messages).not.toContain('CACHE');
 });
 it('still repairs the current cache when status actually reports missing offline files', async () => {
@@ -51,7 +58,7 @@ it('still repairs the current cache when status actually reports missing offline
 it('shows file progress only from the current worker and request, without interpreting file names as HTML', async () => {
   const { active, registration, update, progress } = client(); await screen.findByRole('button', { name: '检查更新' });
   const next = new Worker(); update.mockImplementationOnce(async () => { registration.installing = next; registration.dispatchEvent(new Event('updatefound')); });
-  fireEvent.click(screen.getByRole('button', { name: '检查更新' })); await screen.findByRole('button', { name: '取消下载' });
+  clickUpdate(); await screen.findByRole('button', { name: '取消下载' });
   progress(active, { completed: 7 }); progress(next, { requestId: 'stale' }); progress(next, { total: -1 });
   expect(document.getElementById('offline-status')).not.toHaveTextContent('2 / 8');
   progress(next, { path: '<img src=x onerror=alert(1)>' }); expect(document.getElementById('offline-status')).toHaveTextContent('2 / 8');
@@ -62,12 +69,12 @@ it('cancels an updating worker, ignores its late error/state events and retries 
   const { active, registration, update, progress } = client(); await screen.findByRole('button', { name: '检查更新' });
   const next = new Worker(); next.handle = (message, reply) => reply({ cancelled: message.type === 'CANCEL', ready: false });
   update.mockImplementationOnce(async () => { registration.installing = next; registration.dispatchEvent(new Event('updatefound')); });
-  fireEvent.click(screen.getByRole('button', { name: '检查更新' })); await screen.findByRole('button', { name: '取消下载' });
+  clickUpdate(); await screen.findByRole('button', { name: '取消下载' });
   screen.getByRole('button', { name: '取消下载' }).focus(); fireEvent.click(screen.getByRole('button', { name: '取消下载' })); await screen.findByRole('button', { name: '重试更新' });
   expect(screen.getByRole('button', { name: '重试更新' })).toHaveFocus();
   next.change('redundant'); progress(next, { phase: 'failed' }); registration.installing = null;
   expect(document.getElementById('offline-summary')).toHaveTextContent('已取消'); expect(document.getElementById('offline-status')).toHaveTextContent('原有离线内容和故事进度保留');
-  fireEvent.click(screen.getByRole('button', { name: '重试更新' })); await waitFor(() => expect(update).toHaveBeenCalledTimes(2)); expect(active.messages).not.toContain('CACHE');
+  clickUpdate('重试更新'); await waitFor(() => expect(update).toHaveBeenCalledTimes(2)); expect(active.messages).not.toContain('CACHE');
 });
 
 it('keeps an active-cache repair cancellation separate from its late CACHE response', async () => {
@@ -96,7 +103,7 @@ it('does not report repair failure when CACHE settles before the cancellation ac
 it.each(['http', 'integrity'])('names the failed file and keeps the correct update retry (%s)', async reason => {
   const { registration, update, progress } = client(); await screen.findByRole('button', { name: '检查更新' }); const next = new Worker();
   update.mockImplementationOnce(async () => { registration.installing = next; registration.dispatchEvent(new Event('updatefound')); });
-  fireEvent.click(screen.getByRole('button', { name: '检查更新' })); await screen.findByRole('button', { name: '取消下载' });
+  clickUpdate(); await screen.findByRole('button', { name: '取消下载' });
   progress(next, { phase: 'failed', reason, httpStatus: 503 });
   expect(document.getElementById('offline-status')).toHaveTextContent('media/rain.png'); expect(document.getElementById('offline-status')).toHaveTextContent(reason === 'http' ? 'HTTP 503' : '文件与本版清单不一致');
   expect(screen.getByRole('button', { name: '重试更新' })).toBeEnabled();
@@ -105,9 +112,37 @@ it.each(['http', 'integrity'])('names the failed file and keeps the correct upda
 it('retains failure details arriving after redundant, but ignores them after a new download starts', async () => {
   const { registration, update, progress } = client(); await screen.findByRole('button', { name: '检查更新' }); const next = new Worker();
   update.mockImplementationOnce(async () => { registration.installing = next; registration.dispatchEvent(new Event('updatefound')); });
-  fireEvent.click(screen.getByRole('button', { name: '检查更新' })); await screen.findByRole('button', { name: '取消下载' }); next.change('redundant'); registration.installing = null;
+  clickUpdate(); await screen.findByRole('button', { name: '取消下载' }); next.change('redundant'); registration.installing = null;
   progress(next, { phase: 'failed', reason: 'http', httpStatus: 503 }); expect(document.getElementById('offline-status')).toHaveTextContent('HTTP 503');
   const retry = new Worker(); update.mockImplementationOnce(async () => { registration.installing = retry; registration.dispatchEvent(new Event('updatefound')); });
-  fireEvent.click(screen.getByRole('button', { name: '重试更新' })); await screen.findByRole('button', { name: '取消下载' });
+  clickUpdate('重试更新'); await screen.findByRole('button', { name: '取消下载' });
   progress(next, { phase: 'failed', reason: 'http', httpStatus: 404 }); expect(document.getElementById('offline-status')).not.toHaveTextContent('HTTP 404');
+});
+
+it('requires explicit preparation before checking, keeps a private-query-free current entry and supports deferring', async () => {
+  const { update } = client('http://localhost/?token=private#place'); await screen.findByRole('button', { name: '检查更新' });
+  fireEvent.click(screen.getByRole('button', { name: '检查更新' })); expect(update).not.toHaveBeenCalled(); expect(screen.getByRole('button', { name: '确认检查并下载' })).toBeDisabled();
+  fireEvent.click(screen.getByRole('button', { name: '显示本版入口' })); const url = new URL((screen.getByLabelText('本版浏览器内入口') as HTMLInputElement).value);
+  expect([...url.searchParams.keys()]).toEqual(['world-release']); expect(url.hash).toBe('');
+  fireEvent.click(screen.getByRole('button', { name: '稍后，继续本版' })); expect(document.getElementById('offline-update-plan')).not.toBeVisible(); expect(update).not.toHaveBeenCalled();
+  clickUpdate(); await waitFor(() => expect(update).toHaveBeenCalledOnce()); await waitFor(() => expect(document.getElementById('offline-summary')).toHaveTextContent('暂无新版'));
+});
+
+it('requires acknowledgement again for the actual waiting release, activates only on demand and opens the new version separately', async () => {
+  const { active, registration, update } = client(); await screen.findByRole('button', { name: '检查更新' }); const next = new Worker(), info = { releaseId: 'sha256:' + 'b'.repeat(64), publicationVersion: '1.9.0' };
+  next.handle = (message, reply) => { if (message.type === 'ACTIVATE') { registration.waiting = null; registration.active = next; next.state = 'activated'; reply({ activated: true }); next.dispatchEvent(new Event('statechange')); } else reply(message.type === 'INFO' ? info : { ready: true, retained: true, latest: info }); };
+  update.mockImplementationOnce(async () => { registration.installing = next; registration.dispatchEvent(new Event('updatefound')); }); clickUpdate(); await screen.findByRole('button', { name: '取消下载' }); registration.installing = null; registration.waiting = next; next.change('installed');
+  await waitFor(() => expect(document.getElementById('offline-version-note')).toHaveTextContent('1.9.0')); expect((document.getElementById('offline-update-ack') as HTMLInputElement).checked).toBe(false); expect(next.messages).not.toContain('ACTIVATE');
+  fireEvent.click(document.getElementById('offline-update-ack')!); fireEvent.click(screen.getByRole('button', { name: '启用已下载新版（本版仍保留）' }));
+  const link = await screen.findByRole('link', { name: '在新窗口打开新版' }); expect(link).toHaveAttribute('target', '_blank'); expect(new URL(link.getAttribute('href')!).searchParams.get('world-release')).toBe(info.releaseId); expect(active.messages).not.toContain('ACTIVATE');
+});
+
+it.each([true, false])('ignores an old active worker STATUS after controller replacement (old replies first: %s)', async oldFirst => {
+  const { active, registration, serviceWorker } = client(); let oldReply: ((value: unknown) => void) | undefined, newReply: ((value: unknown) => void) | undefined;
+  active.handle = (_message, reply) => { oldReply = reply; }; await waitFor(() => expect(oldReply).toBeDefined());
+  const next = new Worker(); next.state = 'activated'; next.handle = (_message, reply) => { newReply = reply; }; registration.active = next; serviceWorker.dispatchEvent(new Event('controllerchange'));
+  await waitFor(() => expect(newReply).toBeDefined());
+  const oldInfo = { ready: true, latest: { releaseId: 'sha256:' + 'a'.repeat(64), publicationVersion: '1.8.0' } }, nextInfo = { ready: true, retained: true, latest: { releaseId: 'sha256:' + 'b'.repeat(64), publicationVersion: '1.9.0' } };
+  if (oldFirst) { oldReply!(oldInfo); newReply!(nextInfo); } else { newReply!(nextInfo); oldReply!(oldInfo); }
+  await screen.findByRole('button', { name: '查看版本与备份' }); expect(document.getElementById('offline-status')).toHaveTextContent('本机另有新版'); expect(document.getElementById('offline-version-note')).toHaveTextContent('1.9.0');
 });
