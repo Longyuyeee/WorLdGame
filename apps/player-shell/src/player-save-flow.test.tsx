@@ -4,6 +4,7 @@ import { withProjectSettings } from '@world-studio/gal-settings';
 import { loadProject, migrateS0Project, type S0Project } from '@world-studio/project-domain';
 import tiny from '../../../fixtures/projects/tiny/project.s0.json';
 import { PlayerShell } from './PlayerShell';
+import { testSaveComparison } from './test-save-store';
 import type { WorldPlayerSaveSlotV3, WorldPlayerSaveStoreV3 } from './player-save-store';
 
 afterEach(() => localStorage.clear());
@@ -15,7 +16,8 @@ function project() {
 }
 function store() {
   const rows = new Map<string, WorldPlayerSaveSlotV3>();
-  return { rows, version: '3.0.0' as const, backend: 'memory-test', async list() { return [...rows.values()]; }, async read(_project: string, id: string) { return rows.get(id) ?? null; }, async readPreview() { return null; }, async write(row) { if (row.schemaVersion !== 3) throw Error('legacy'); rows.set(row.slotId, row); } } satisfies WorldPlayerSaveStoreV3 & { rows: typeof rows };
+  const result = { rows, version: '3.0.0' as const, backend: 'memory-test', writeIfUnchanged: testSaveComparison((): WorldPlayerSaveStoreV3 => result), async list() { return [...rows.values()]; }, async read(_project: string, id: string) { return rows.get(id) ?? null; }, async readPreview() { return null; }, async write(row) { if (row.schemaVersion !== 3) throw Error('legacy'); rows.set(row.slotId, row); } } satisfies WorldPlayerSaveStoreV3 & { rows: typeof rows };
+  return result;
 }
 const dialog = () => screen.getByRole('dialog', { name: '存读档槽位' });
 const card = (id: string) => document.querySelector(`[data-save-slot="${id}"]`)! as HTMLElement;

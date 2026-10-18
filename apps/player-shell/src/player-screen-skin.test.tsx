@@ -19,7 +19,8 @@ it.each([
   expect(panel).toHaveAttribute("data-skin-screen", id);
   expect(container.querySelector("main")).toHaveAttribute("data-save-store", "appearance-preview-memory");
   if (id === "save") {
-    fireEvent.click(within(screen.getByRole("region", { name: "手动存档 1" })).getByRole("button", { name: "保存" }));
+    const save = within(screen.getByRole("region", { name: "手动存档 1" })).getByRole("button", { name: "保存" });
+    await waitFor(() => expect(save).toBeEnabled()); fireEvent.click(save);
     await waitFor(() => expect(panel).toHaveTextContent("已保存"));
     expect(within(screen.getByRole("region", { name: "手动存档 1" })).queryByText("空槽位")).not.toBeInTheDocument();
   }

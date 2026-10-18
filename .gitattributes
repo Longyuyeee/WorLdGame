@@ -113,3 +113,5 @@ evidence/web-backup-continuation/*.html -text
 evidence/web-backup-continuation/**/*.worldsave -text
 evidence/web-save-list-recovery/*.html -text
 evidence/web-save-list-recovery/**/*.worldsave -text
+evidence/web-manual-save-safety/*.html -text
+evidence/web-manual-save-safety/**/*.worldsave -text

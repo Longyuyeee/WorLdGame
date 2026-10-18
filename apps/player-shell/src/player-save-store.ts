@@ -99,6 +99,8 @@ export interface WorldPlayerSaveStoreV3 {
   read(projectId: string, slotId: string): Promise<WorldPlayerSaveSlotV3 | null>;
   readPreview(projectId: string, slotId: string): Promise<Blob | null>;
   write(slot: WorldPlayerSaveSlotV1 | WorldPlayerSaveSlotV2 | WorldPlayerSaveSlotV3, preview?: Blob): Promise<void>;
+  /** Atomic comparison and replacement, required for manual saves and backup imports.
+   * null expects an absent slot; false means no write. Legacy hosts keep reads and quick/auto saves. */
   writeIfUnchanged?(slot: WorldPlayerSaveSlotV3, expected: WorldPlayerSaveSummaryV3 | null, preview?: Blob): Promise<boolean>;
 }
 

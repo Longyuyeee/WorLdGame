@@ -306,7 +306,8 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
   const [saveIntent, setSaveIntent] = useState<'save' | 'load'>('save');
   const [pendingRead, setPendingRead] = useState<{ slotId: string; expectedArtifactHash?: string; slot: WorldPlayerSaveSummaryV3 | undefined } | null>(null);
   const readIntentTrigger = useRef<HTMLButtonElement | null>(null);
-  const [pendingOverwriteSlotId, setPendingOverwriteSlotId] = useState<string | null>(null);
+  const [pendingOverwrite, setPendingOverwrite] = useState<WorldPlayerSaveSummaryV3 | null>(null);
+  const foregroundSave = useRef<{ store: WorldPlayerSaveStoreV3; projectId: string; owner: ForegroundSessionRunner } | null>(null);
   const [saveOperation, setSaveOperation] = useState<"idle" | "busy" | "saved" | "loaded" | "error">("idle");
   const [saveMessage, setSaveMessage] = useState("请选择槽位");
   const [saveFeedback, setSaveFeedback] = useState<string | null>(null);
@@ -561,7 +562,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
   const openSavePanel = useCallback((intent?: 'save' | 'load') => {
     saveDialogTrigger.current = document.activeElement instanceof HTMLElement && document.activeElement !== document.body ? document.activeElement : null;
     setSaveIntent(intent ?? (content.kind === 'title' ? 'load' : 'save')); setPendingRead(null);
-    setReadingMenuOpen(false); setHistoryPanelOpen(false); setPendingOverwriteSlotId(null); setSavePanelOpen(true);
+    setReadingMenuOpen(false); setHistoryPanelOpen(false); setPendingOverwrite(null); setSavePanelOpen(true);
   }, [content.kind]);
   const closeSavePanel = useCallback(() => {
     backupPreparation.current?.cancel();
@@ -704,7 +705,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
   }, [project, restorePlaybackControls, state.replaySession, restartVoice]);
 
   useEffect(() => { if (savePanelOpen) void refreshSaveSlots(); }, [savePanelOpen, refreshSaveSlots]);
-  useEffect(() => { if (!saveListReady) setPendingOverwriteSlotId(null); }, [saveListReady]);
+  useEffect(() => { if (!saveListReady) setPendingOverwrite(null); }, [saveListReady]);
   useEffect(() => {
     if (saveListReady && saveMessage.includes('；列表尚未刷新')) setSaveMessage(current => current.replace('；列表尚未刷新，请重试列表核对，勿重复保存。', '；列表已刷新，请核对槽位。'));
   }, [saveListReady, saveMessage]);
@@ -794,43 +795,66 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
     return saveStore.previewStorage === 'unavailable' ? 'unavailable' : captured.slot.preview.status;
   }, [captureCurrentSlot, saveStore, snapshot, state,sessionRunner]);
 
-  const saveToSlot = useCallback(async (kind: "manual" | "quick", slotId: string) => {
+  const saveToSlot = useCallback(async (kind: "manual" | "quick", slotId: string, expected?: WorldPlayerSaveSummaryV3 | null) => {
     storyAdvance.cancel();
-    if (saveCoordinator === undefined) return;
+    if (saveCoordinator === undefined || saveStore === undefined) return;
+    if (kind === 'manual' && (expected === undefined || saveStore.writeIfUnchanged === undefined)) return;
+    if (foregroundSave.current?.store === saveStore && foregroundSave.current.projectId === project.manifest.projectId && foregroundSave.current.owner === sessionRunner) return;
+    const operation = { store: saveStore, projectId: project.manifest.projectId, owner: sessionRunner };
+    foregroundSave.current = operation;
     setSaveOperation("busy");
-    setSaveMessage("正在写入…");
+    setSaveMessage("正在保存，请等待结果，勿关闭或重复保存…");
     setSaveFeedback(null);
+    setPendingOverwrite(null);
     const projectId = project.manifest.projectId;
-    const prepared = { preview: captureSavePreview(projectId, state.runtimeState?.cursor.sceneId ?? "", snapshot.runtimeStateHash), savedAt: now() };
+    let writeStarted = false;
     try {
-      const previewStatus = await saveCoordinator.writeFixed(() => persistCurrentSlot(kind, slotId, state, snapshot, prepared));
+      const prepared = { preview: captureSavePreview(projectId, state.runtimeState?.cursor.sceneId ?? "", snapshot.runtimeStateHash), savedAt: now() };
+      const result = await saveCoordinator.writeFixed(async () => {
+        const captured = await captureCurrentSlot(kind, slotId, state, snapshot, prepared);
+        if (!sessionRunner.active || saveContext.current.projectId !== projectId || saveContext.current.store !== saveStore) throw new DOMException('Save scope changed', 'AbortError');
+        writeStarted = true;
+        const written = kind === 'manual'
+          ? await saveStore.writeIfUnchanged!(captured.slot, expected!, captured.preview)
+          : (await saveStore.write(captured.slot, captured.preview), true);
+        return { written, previewStatus: saveStore.previewStorage === 'unavailable' ? 'unavailable' : captured.slot.preview.status };
+      });
       if (!sessionRunner.active || saveContext.current.projectId !== projectId || saveContext.current.store !== saveStore || saveContext.current.previewCapture !== previewCapture) return;
       const listed = await refreshSaveSlots(true);
       if(!sessionRunner.active||saveContext.current.projectId!==projectId||saveContext.current.store!==saveStore)return;
-      setPendingOverwriteSlotId(null);
+      if (!result.written) {
+        setSaveOperation('error');
+        setSaveMessage(`${playerSaveLabel(slotId)}槽位已更新，本次未保存，当前故事保持不变。${listed ? '请核对最新槽位后重新确认覆盖，或选择空槽位。' : '请先重试读取存档列表，再核对目标。'}`);
+        return;
+      }
       setSaveOperation("saved");
-      setSaveMessage(`${playerSaveLabel(slotId)}已保存${previewStatus === "available" ? "（含截图）" : "（预览不可用）"}${listed ? '' : '；列表尚未刷新，请重试列表核对，勿重复保存。'}`);
+      setSaveMessage(`${playerSaveLabel(slotId)}已保存${result.previewStatus === "available" ? "（含截图）" : "（预览不可用）"}${listed ? '' : '；列表尚未刷新，请重试列表核对，勿重复保存。'}`);
       setSaveFeedback((kind === 'quick' ? '快速存档已保存' : '手动存档已保存') + (saveStore?.previewStorage === 'unavailable' ? '（截图不可用）' : ''));
       setBackgroundSaveFailure(null);
     } catch {
       if(!sessionRunner.active||saveContext.current.projectId!==projectId||saveContext.current.store!==saveStore)return;
+      const listed = writeStarted ? await refreshSaveSlots(true) : false;
+      if(!sessionRunner.active||saveContext.current.projectId!==projectId||saveContext.current.store!==saveStore)return;
       setSaveOperation("error");
-      setSaveMessage("写入失败，原存档保持不变");
+      setSaveMessage(writeStarted
+        ? `保存结果尚未确认，当前故事保持不变。${listed ? '列表已重新读取，请核对目标槽位，勿直接重复保存。' : '请先重试读取存档列表，再核对目标，勿重复保存。'}`
+        : '未能准备存档，本次未提交写入，原存档保持不变。请重试或导出当前进度备份。');
       if (kind === 'quick') setSaveView('quick');
       openSavePanel();
-    }
-  }, [persistCurrentSlot, previewCapture, project.manifest.projectId, refreshSaveSlots, saveCoordinator, saveStore, openSavePanel,sessionRunner, captureSavePreview, now, state, snapshot]);
+    } finally { if (foregroundSave.current === operation) foregroundSave.current = null; }
+  }, [captureCurrentSlot, previewCapture, project.manifest.projectId, refreshSaveSlots, saveCoordinator, saveStore, openSavePanel,sessionRunner, captureSavePreview, now, state, snapshot]);
 
-  const requestSaveToSlot = useCallback((slotId: string, occupied: boolean) => {
-    if (!saveListReady) return;
-    if (occupied && pendingOverwriteSlotId !== slotId) {
-      setPendingOverwriteSlotId(slotId);
+  const requestSaveToSlot = useCallback((slotId: string) => {
+    if (!saveListReady || saveStore?.writeIfUnchanged === undefined) return;
+    const occupied = saveSlots.find(slot => slot.slotId === slotId);
+    if (occupied && pendingOverwrite?.slotId !== slotId) {
+      setPendingOverwrite(structuredClone(occupied));
       setSaveOperation("idle");
       setSaveMessage(`${playerSaveLabel(slotId)}已有存档，请再次确认覆盖`);
       return;
     }
-    void saveToSlot("manual", slotId);
-  }, [pendingOverwriteSlotId, saveToSlot, saveListReady]);
+    void saveToSlot("manual", slotId, occupied ? pendingOverwrite : null);
+  }, [pendingOverwrite, saveToSlot, saveListReady, saveSlots, saveStore]);
 
   const loadFromSlot = useCallback(async (slotId: string, expectedArtifactHash?: string) => {
     storyAdvance.cancel();
@@ -1107,7 +1131,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
     setPendingRead(null);
     setSavePage(0);
     setSaveView("manual");
-    setPendingOverwriteSlotId(null);
+    setPendingOverwrite(null);
     setSaveOperation("idle");
     setSaveMessage("请选择槽位");
     setSaveFeedback(null);
@@ -1733,7 +1757,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
   const hasReadingProblem = hasProgressProblem || readingMediaSurface && hasMediaProblem;
   const openCurrentProgressSave = () => {
     if (hostActivity !== 'active' || saveOperation === 'busy' || !saveBoundaryAllowed || !saveStore || snapshot.sceneReplay.active) return;
-    setSaveView('manual'); setPendingOverwriteSlotId(null); openSavePanel('save');
+    setSaveView('manual'); setPendingOverwrite(null); openSavePanel('save');
   };
   const recoveryProblem = hasRecoveryProblem && <section className="player-progress-problem" role={recoveryOperation === 'error' ? 'alert' : 'status'} aria-label="恢复保护提醒">
     <strong>{recoveryOperation === 'error' ? '恢复保护需要处理' : '发现可恢复进度'}</strong><p>{recoveryMessage}</p>
@@ -2502,8 +2526,9 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
                   <div className="player-load-confirm__target"><strong>将读取的进度</strong><div><PlayerSaveDetails slot={pendingRead.slot} /></div></div>
                   <footer>{!sessionRead.pending && <button type="button" autoFocus onClick={cancelRead}>取消读取</button>}<button type="button" disabled={hostActivity !== 'active' || saveOperation === 'busy'} onClick={() => void loadFromSlot(pendingRead.slotId, pendingRead.expectedArtifactHash)}>确认读取</button></footer>
                 </section> : <>
-                <nav className="player-save-intent" aria-label="存读档操作"><button type="button" disabled={saveOperation === 'busy' || !saveBoundaryAllowed || snapshot.sceneReplay.active} aria-pressed={saveIntent === 'save'} onClick={() => { setSaveIntent('save'); setPendingOverwriteSlotId(null); if (saveView !== 'manual' && saveView !== 'quick') setSaveView('manual'); }}>保存进度</button><button ref={readIntentTrigger} type="button" disabled={saveOperation === 'busy'} aria-pressed={saveIntent === 'load'} onClick={() => { setSaveIntent('load'); setPendingOverwriteSlotId(null); }}>读取进度</button></nav>
+                <nav className="player-save-intent" aria-label="存读档操作"><button type="button" disabled={saveOperation === 'busy' || !saveBoundaryAllowed || snapshot.sceneReplay.active} aria-pressed={saveIntent === 'save'} onClick={() => { setSaveIntent('save'); setPendingOverwrite(null); if (saveView !== 'manual' && saveView !== 'quick') setSaveView('manual'); }}>保存进度</button><button ref={readIntentTrigger} type="button" disabled={saveOperation === 'busy'} aria-pressed={saveIntent === 'load'} onClick={() => { setSaveIntent('load'); setPendingOverwrite(null); }}>读取进度</button></nav>
                 <p className="player-save-intro">{saveIntent === 'save' ? '选择一个手动或快速槽位保存当前故事。已有存档需要确认覆盖。' : '选择一个已有存档继续阅读。空槽位没有可读取的进度。'}</p>
+                {saveIntent === 'save' && saveView === 'manual' && saveStore.writeIfUnchanged === undefined && <p role="note">当前宿主不支持安全手动保存，请使用本游戏 Web 播放器，或从备份页导出当前进度。读取原存档不受影响。</p>}
                 <nav className="player-save__views" aria-label="存档类型">
                   <button type="button" disabled={saveOperation === "busy"} aria-pressed={saveView === "manual"} onClick={() => setSaveView("manual")}>手动</button>
                   <button type="button" disabled={saveOperation === "busy"} aria-pressed={saveView === "auto"} onClick={() => { setSaveIntent("load"); setSaveView("auto"); }}>自动</button>
@@ -2519,11 +2544,11 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
                   isCurrent={() => saveContext.current.projectId === project.manifest.projectId && saveContext.current.store === saveStore && liveState.current.artifacts?.manifest.buildId === snapshot.identities.buildId} />}
                 {saveView !== 'backup' && <div className="player-save-grid">{(saveView === 'manual' ? Array.from({ length: 6 }, (_, index) => `manual-${savePage * 6 + index + 1}`) : saveView === 'auto' ? Array.from({ length: 5 }, (_, index) => `auto-${index + 1}`) : saveView === 'checkpoint' ? Array.from({ length: 3 }, (_, index) => `checkpoint-${index + 1}`) : ['quick-1']).map(slotId => {
                   const slot = saveSlots.find(candidate => candidate.slotId === slotId);
-                  return <PlayerSaveCard key={slotId} slotId={slotId} slot={slot} intent={saveIntent} verified={saveListReady} disabled={hostActivity !== 'active' || saveOperation === 'busy' || !saveListReady} canSave={saveBoundaryAllowed && !snapshot.sceneReplay.active} overwrite={pendingOverwriteSlotId === slotId}
+                  return <PlayerSaveCard key={slotId} slotId={slotId} slot={slot} intent={saveIntent} verified={saveListReady} disabled={hostActivity !== 'active' || saveOperation === 'busy' || !saveListReady} canSave={saveBoundaryAllowed && !snapshot.sceneReplay.active && (saveView !== 'manual' || saveStore.writeIfUnchanged !== undefined)} overwrite={pendingOverwrite?.slotId === slotId}
                     preview={<PlayerSavePreview projectId={project.manifest.projectId} slot={slot} store={saveStore} />}
-                    onSave={() => slotId.startsWith('quick-') ? void saveToSlot('quick', slotId) : requestSaveToSlot(slotId, slot !== undefined)} onRead={() => requestLoadFromSlot(slotId)} />;
+                    onSave={() => slotId.startsWith('quick-') ? void saveToSlot('quick', slotId) : requestSaveToSlot(slotId)} onRead={() => requestLoadFromSlot(slotId)} />;
                 })}</div>}
-                {saveView === 'manual' && <nav className="player-save__pages" aria-label="手动存档分页"><button type="button" disabled={savePage === 0 || saveOperation === 'busy'} onClick={() => { setSavePage(0); setPendingOverwriteSlotId(null); }}>上一页</button><span>第 {savePage + 1} / 2 页</span><button type="button" disabled={savePage === 1 || saveOperation === 'busy'} onClick={() => { setSavePage(1); setPendingOverwriteSlotId(null); }}>下一页</button></nav>}
+                {saveView === 'manual' && <nav className="player-save__pages" aria-label="手动存档分页"><button type="button" disabled={savePage === 0 || saveOperation === 'busy'} onClick={() => { setSavePage(0); setPendingOverwrite(null); }}>上一页</button><span>第 {savePage + 1} / 2 页</span><button type="button" disabled={savePage === 1 || saveOperation === 'busy'} onClick={() => { setSavePage(1); setPendingOverwrite(null); }}>下一页</button></nav>}
                 </>}
                 </PlayerPanelRegion>
                 {panelComponents("save")}{panelAudit("save")}

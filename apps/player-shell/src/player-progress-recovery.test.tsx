@@ -3,6 +3,7 @@ import { afterEach, expect, it, vi } from 'vitest';
 import { loadProject, migrateS0Project } from '@world-studio/project-domain';
 import { withProjectSettings } from '@world-studio/gal-settings';
 import { PlayerShell } from './PlayerShell';
+import { testSaveComparison } from './test-save-store';
 import { createPlayerMediaMultichannelDemoV1 } from './media-demo';
 import type { WorldPlayerRecoveryRecordV1, WorldPlayerRecoveryStoreV1 } from './player-recovery-store';
 import type { WorldPlayerSaveSlotV3, WorldPlayerSaveStoreV3 } from './player-save-store';
@@ -23,7 +24,7 @@ async function setup(media = false) {
   const write = vi.fn((value: WorldPlayerRecoveryRecordV1) => new Promise<void>((resolve, reject) => jobs.push({ value, finish() { saved = value; resolve(); }, fail: reject })));
   const recoveryStore: WorldPlayerRecoveryStoreV1 = { version: '1.0.0', backend: 'delayed', read: async () => saved, write, clear: async () => { saved = null; } };
   const slots = new Map<string, WorldPlayerSaveSlotV3>();
-  const saveStore: WorldPlayerSaveStoreV3 = { version: '3.0.0', backend: 'test', list: async () => [...slots.values()], read: async (_projectId, slotId) => slots.get(slotId) ?? null, readPreview: async () => null, write: async value => { if (value.schemaVersion !== 3) throw Error('legacy'); slots.set(value.slotId, value); } };
+  const saveStore: WorldPlayerSaveStoreV3 = { version: '3.0.0', backend: 'test', writeIfUnchanged: testSaveComparison(() => saveStore), list: async () => [...slots.values()], read: async (_projectId, slotId) => slots.get(slotId) ?? null, readPreview: async () => null, write: async value => { if (value.schemaVersion !== 3) throw Error('legacy'); slots.set(value.slotId, value); } };
   const props = { project, saveStore, recoveryStore, ...(media ? { mediaAssets: demo.mediaAssets } : {}), previewCapture: { version: '1.0.0' as const, owner: 'player-host-compositor' as const, capture: async () => null } };
   const view = render(<PlayerShell {...props} />); await waitFor(() => expect(view.container.querySelector('main')).toHaveAttribute('data-recovery-operation', 'idle'));
   vi.useFakeTimers(); await act(async () => { fireEvent.click(screen.getByRole('button', { name: '开始故事' })); });

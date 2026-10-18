@@ -4,13 +4,14 @@ import { afterEach, expect, it, vi } from 'vitest';
 import { loadProject, migrateS0Project } from '@world-studio/project-domain';
 import { withProjectSettings } from '@world-studio/gal-settings';
 import { PlayerShell } from './PlayerShell';
+import { testSaveComparison } from './test-save-store';
 import type { WorldPlayerSaveSlotV3, WorldPlayerSaveStoreV3 } from './player-save-store';
 
 afterEach(() => { cleanup(); localStorage.clear(); vi.useRealTimers(); });
 function setup(write?: (value: WorldPlayerSaveSlotV3) => Promise<void>) {
   const base = loadProject(migrateS0Project({ schemaVersion: 0, id: 'save_notice', title: 'Save notice', entrySceneId: 'main', characters: [], scenes: [{ id: 'main', title: 'Main', statements: [{ id: 'before', kind: 'narration', textId: 'before_text', text: 'Before' }, { id: 'after', kind: 'narration', textId: 'after_text', text: 'After' }, { id: 'end', kind: 'end', endingName: 'Done' }] }] }).files);
   const project = { ...base, settings: withProjectSettings(base.settings, { text: { revealMode: 'instant', minimumDisplayMilliseconds: 0 } }) }, slots = new Map<string, WorldPlayerSaveSlotV3>();
-  const store: WorldPlayerSaveStoreV3 = { version: '3.0.0', backend: 'notice-test', async list() { return [...slots.values()]; }, async read(_id, slot) { return slots.get(slot) ?? null; }, async readPreview() { return null; }, async write(value) { if (value.schemaVersion !== 3) throw Error('legacy'); await write?.(value); slots.set(value.slotId, value); } };
+  const store: WorldPlayerSaveStoreV3 = { version: '3.0.0', backend: 'notice-test', writeIfUnchanged: testSaveComparison(() => store), async list() { return [...slots.values()]; }, async read(_id, slot) { return slots.get(slot) ?? null; }, async readPreview() { return null; }, async write(value) { if (value.schemaVersion !== 3) throw Error('legacy'); await write?.(value); slots.set(value.slotId, value); } };
   const view = render(<PlayerShell project={project} saveStore={store} />);
   fireEvent.click(screen.getByRole('button', { name: '开始故事' }));
   return { ...view, slots };
@@ -49,7 +50,7 @@ it('does not replace an active manual write status when an earlier background wr
   await act(async () => { failAuto(Error('disk')); });
   await waitFor(() => expect(finishManual).toBeTypeOf('function'));
   expect(test.container.querySelector('main')).toHaveAttribute('data-save-operation', 'busy');
-  expect(within(panel).getByText('正在写入…')).toBeInTheDocument();
+  expect(within(panel).getByText('正在保存，请等待结果，勿关闭或重复保存…')).toBeInTheDocument();
   expect(within(panel).getByRole('button', { name: '关闭存读档' })).toBeDisabled();
   await act(async () => { finishManual(); });
   await waitFor(() => expect(test.container.querySelector('main')).toHaveAttribute('data-save-operation', 'saved'));

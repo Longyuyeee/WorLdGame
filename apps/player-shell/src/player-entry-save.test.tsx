@@ -28,7 +28,7 @@ it('shows failed quick writes, preserves the story and lets the player return', 
   fireEvent.click(screen.getByRole('button', { name: /开始故事/ }));
   const hash = view.container.querySelector('main')?.getAttribute('data-runtime-state-hash');
   fireEvent.click(screen.getByRole('button', { name: '快速保存' }));
-  expect(await screen.findByRole('alert')).toHaveTextContent('写入失败，原存档保持不变');
+  expect(await screen.findByRole('alert')).toHaveTextContent('保存结果尚未确认');
   expect(screen.getByRole('dialog', { name: '存读档槽位' })).toBeVisible();
   expect(view.container.querySelector('main')).toHaveAttribute('data-runtime-state-hash', hash);
   fireEvent.click(screen.getByRole('button', { name: '关闭存读档' }));

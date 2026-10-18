@@ -3,6 +3,7 @@ import { afterEach, expect, it, vi } from "vitest";
 import { withProjectSettings } from "@world-studio/gal-settings";
 import { applyWebCredits, DEFAULT_WEB_CREDITS, applyWebPlayerAppearance, createProjectTemplate, DEFAULT_WEB_PLAYER_APPEARANCE, defaultWebPageLayout, defaultWebPlayerLayout, defaultWebPlayerSkin, semanticHash, type WebLayoutAction } from "@world-studio/project-domain";
 import { PlayerShell } from "./PlayerShell";
+import { testSaveComparison } from './test-save-store';
 import type { WorldPlayerSaveSlotV3, WorldPlayerSaveStoreV3 } from "./player-save-store";
 afterEach(() => { vi.restoreAllMocks(); localStorage.clear(); });
 function fixture() {
@@ -12,7 +13,7 @@ function fixture() {
   const component = (text: string, action: WebLayoutAction) => ({ id: `layout_${action}`, kind: "button" as const, text, action, fit: "contain" as const, assetId: "", desktop: defaultWebPageLayout("menu").desktop.primary, mobile: null });
   const layout = { ...defaultWebPlayerLayout(), menu: { ...defaultWebPageLayout("menu"), enabled: true, components: [component("Custom history", "history"), component("Custom save", "save"), component("Menu return", "resume"), component("Custom preferences", "preferences"), component("Custom additional", "additional"), component("Custom load", "load")] }, save: { ...defaultWebPageLayout("save"), enabled: true, components: [component("Save return", "resume")] }, history: { ...defaultWebPageLayout("history"), enabled: true, components: [component("History return", "resume")] } };
   const rows = new Map<string, WorldPlayerSaveSlotV3>();
-  const store = { version: "3.0.0" as const, backend: "memory-test", async list() { return [...rows.values()]; }, async read(_p: string, slot: string) { return rows.get(slot) ?? null; }, async readPreview() { return null; }, async write(row) { if (row.schemaVersion === 3) rows.set(row.slotId, row); } } satisfies WorldPlayerSaveStoreV3;
+  const store = { version: "3.0.0" as const, backend: "memory-test", writeIfUnchanged: testSaveComparison((): WorldPlayerSaveStoreV3 => store), async list() { return [...rows.values()]; }, async read(_p: string, slot: string) { return rows.get(slot) ?? null; }, async readPreview() { return null; }, async write(row) { if (row.schemaVersion === 3) rows.set(row.slotId, row); } } satisfies WorldPlayerSaveStoreV3;
   const extended = { ...layout, ...Object.fromEntries((["preferences", "credits", "ending"] as const).map(surface => [surface, { ...defaultWebPageLayout(surface), enabled: true, components: [component(`${surface} return`, "resume")] }])) };
   return { project: applyWebCredits(applyWebPlayerAppearance(project, { ...DEFAULT_WEB_PLAYER_APPEARANCE, skin: { ...defaultWebPlayerSkin(), layout: extended } }), { ...DEFAULT_WEB_CREDITS, studio: "Test team", entries: [{ role: "Writer", name: "<plain text>", url: "https://example.com/writer" }], acknowledgements: "Original source\nLicense pending" }), store, rows };
 }

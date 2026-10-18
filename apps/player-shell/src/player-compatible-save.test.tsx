@@ -3,6 +3,7 @@ import { expect, it } from "vitest";
 import { loadProject, migrateS0Project, verifyWebSaveCompatibility, type S0Project } from "@world-studio/project-domain";
 import source from "../../../fixtures/projects/branching/project.s0.json";
 import { PlayerShell } from "./PlayerShell";
+import { testSaveComparison } from './test-save-store';
 import { createWorldPlayerSaveSlotV3, type WorldPlayerSaveSlotV3, type WorldPlayerSaveStoreV3 } from "./player-save-store";
 import { createWorldPlayerRecoveryRecordV1, type WorldPlayerRecoveryRecordV1, type WorldPlayerRecoveryStoreV1 } from "./player-recovery-store";
 import { createPlayerCore, startPlayerCore, createPlayerCoreSessionSaveV1, createPlayerCoreSnapshotV1 } from "@world-studio/player-core";
@@ -23,7 +24,7 @@ function stores() {
   const original = createWorldPlayerSaveSlotV3({ ...common, slotId: "quick-1", kind: "quick", chapterId: null, chapterTitle: null,
     sceneTitle: "Fork", route: null, customMetadata: {}, preview: { status: "unavailable", reason: "capture-unavailable" }, checkpointStepId: null });
   const rows = new Map<string, WorldPlayerSaveSlotV3>([["quick-1", original]]);
-  const save: WorldPlayerSaveStoreV3 = { version: "3.0.0", backend: "memory-test", async list() { return [...rows.values()]; },
+  const save: WorldPlayerSaveStoreV3 = { version: "3.0.0", backend: "memory-test", writeIfUnchanged: testSaveComparison(() => save), async list() { return [...rows.values()]; },
     async read(_project, id) { return rows.get(id) ?? null; }, async readPreview() { return null; }, async write(row) { if (row.schemaVersion !== 3) throw Error("legacy"); rows.set(row.slotId, row); } };
   let recovery: WorldPlayerRecoveryRecordV1 | null = createWorldPlayerRecoveryRecordV1(common);
   const recover: WorldPlayerRecoveryStoreV1 = { version: "1.0.0", backend: "memory-test", async read() { return recovery; }, async write(row) { recovery = row; }, async clear() { recovery = null; } };

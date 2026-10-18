@@ -1,0 +1,69 @@
+{
+  "passed": true,
+  "contentVersion": "1.11.0",
+  "technicalVersion": "S0.41",
+  "promoted": true,
+  "artifacts": {
+    "html": {
+      "bytes": 46810141,
+      "sha256": "6f05b517be7b5cb03bb21b7116977d55ff2879b90fdaac8aff651587419affae"
+    },
+    "website": {
+      "bytes": 35396590,
+      "sha256": "2869f4f492c354e663f33e66fb65b4decb7bcd05b8212a5dedb8403ca16cf8c1"
+    }
+  },
+  "sourceAndNotes": "evidence/web-story-plans-and-farewell",
+  "pendingNotes": 25,
+  "retained": [
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops-project.zip",
+      "sha256": "43ef6e1673ed3dffbf705b4f178b2122fc960971eaf47286b33742fa285f0576"
+    },
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops.worldreview",
+      "sha256": "747534249345da6ce337054b4e7f47a1516556beda7079ef7b6d093e590bce8f"
+    },
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops.html",
+      "sha256": "6e5dfb4dfb88b5e210354fbcaeb8ccc4e79d50aa935a1d449f750bde8fc822fa"
+    },
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops-website.zip",
+      "sha256": "25ef0ab90a396f01dcfb09e60f754fb31a82f59aedb8da869b4a199a59e8f19e"
+    },
+    {
+      "file": "evidence/web-save-list-recovery/before-rain-stops.html",
+      "sha256": "9dabe35ec398313913f0e584485ecfd103fde287d3077834f9885e393ef6b981"
+    },
+    {
+      "file": "evidence/web-save-list-recovery/before-rain-stops-website.zip",
+      "sha256": "3d22df92aae0bb1e81e5f1c119856be895172c558143fbe42f8fb3ee42f8c1cd"
+    }
+  ],
+  "backupSha256": "2c0b50617f69ed5f6a1af29ae30aa41588ef1d0b88d87a7828519c66ca7f782b",
+  "browsers": [
+    {
+      "engine": "chromium",
+      "browser": "151.0.7922.34",
+      "passed": true,
+      "checks": 7
+    },
+    {
+      "engine": "firefox",
+      "browser": "153.0",
+      "passed": true,
+      "checks": 7
+    },
+    {
+      "engine": "webkit",
+      "browser": "26.5",
+      "passed": true,
+      "checks": 7
+    }
+  ],
+  "listRegression": {
+    "engine": "chromium",
+    "checks": 7
+  }
+}
