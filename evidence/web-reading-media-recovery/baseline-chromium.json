@@ -1,0 +1,31 @@
+{
+  "passed": true,
+  "engine": "chromium",
+  "browser": "151.0.7922.34",
+  "artifactSha256": "1993d4da00f96063f1f25d0cca382f630c874e5d11055f2665f3c73221c11c93",
+  "checks": [
+    {
+      "name": "original-native-error-covers-ordinary-reading",
+      "original": {
+        "hash": "82e2acf507042ca294db18181ea77af0e7eed1889ee86690bac318ce59634412",
+        "cursor": "4",
+        "audio": "enabled",
+        "auto": "off",
+        "text": "售票员把窗口里的灯关掉时，雨正沿着站台的屋檐连成一条线。站台上的钟比手机慢了三分钟。林远核对了两次，没有走去询问值班员。他看见玻璃上自己的倒影，才发现他已经穿着这件外套站了很久。行李箱旁挂着新公司的地址，手机里存着一份还没签字的合同；这些东西都能说明他要去哪里，却没有一样能替他解释为什么迟迟不肯往前走。"
+      },
+      "overlap": {
+        "error": {
+          "top": 164,
+          "bottom": 274
+        },
+        "reading": {
+          "top": 72.25,
+          "bottom": 247.75
+        },
+        "overlapHeight": 83.75
+      }
+    }
+  ],
+  "errors": [],
+  "scope": "Actual complete game, invalid native WAV and PNG sources, native touch/keyboard/menu interactions and phone-sized desktop geometry. No fabricated native error/ended events, narrative state or DOM geometry; not physical phone/Safari, natural timing/listening, permissions or public deployment."
+}

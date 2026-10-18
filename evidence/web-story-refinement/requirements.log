@@ -1,0 +1,12 @@
+
+> world-studio@0.0.0-s0.41 audit:requirements
+> node tools/audit-requirements.mjs
+
+{
+  "status": "PASS",
+  "requirements": 50,
+  "usp": 10,
+  "p0Modules": 13,
+  "acceptanceCriteria": 27,
+  "owners": 6
+}

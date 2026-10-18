@@ -1,0 +1,8 @@
+{
+  "passed": false,
+  "label": "webkit",
+  "error": "TimeoutError: locator.selectOption: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByLabel('文字显示', { exact: true })\u001b[22m\n",
+  "stack": "locator.selectOption: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByLabel('文字显示', { exact: true })\u001b[22m\n\n    at E:\\ProjectSave\\GeminiProject\\WorLdGame\\tools\\run-web-reading-resume.mjs:54:82",
+  "errors": [],
+  "checks": []
+}

@@ -1,0 +1,21 @@
+
+> world-studio@0.0.0-s0.41 audit:web-reading-advance:browser
+> node tools/run-web-reading-advance.mjs
+
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+locator.waitFor: Timeout 30000ms exceeded.
+Call log:
+  - waiting for getByText('已核对版本：1.7.0、1.7.1、1.7.2、1.7.3、1.7.4、1.7.5、1.7.6、1.7.7、1.7.8、1.7.9、1.7.10。读取不会改写原槽位，继续保存仍遵循手动覆盖确认。', { exact: true }) to be visible
+
+    at author (E:\Project\AIProject\ClaudeProject\WorLdGame\tools\run-web-audio-recovery.mjs:41:418)
+    at async file:///E:/Project/AIProject/ClaudeProject/WorLdGame/tools/run-web-audio-recovery.mjs:146:340 {
+  log: [
+    "  - waiting for getByText('已核对版本：1.7.0、1.7.1、1.7.2、1.7.3、1.7.4、1.7.5、1.7.6、1.7.7、1.7.8、1.7.9、1.7.10。读取不会改写原槽位，继续保存仍遵循手动覆盖确认。', { exact: true }) to be visible"
+  ],
+  name: 'TimeoutError'
+}
+
+Node.js v24.14.0

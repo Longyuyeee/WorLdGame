@@ -1,0 +1,14 @@
+{
+  "checks": [
+    {
+      "name": "eight-existing-notes-imported-and-three-actual-issues-recorded",
+      "detail": {}
+    },
+    {
+      "name": "ten-text-revisions-and-nine-voice-beats-applied-through-editor-with-undo-redo",
+      "detail": {}
+    }
+  ],
+  "errors": [],
+  "failure": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\n8 !== 11\n\n    at author (file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-story-beats.mjs:92:10)\n    at async file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-story-beats.mjs:169:46"
+}

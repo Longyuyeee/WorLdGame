@@ -9,7 +9,7 @@ import {
 } from "@world-studio/project-domain";
 
 export type RouteNodeKind = "entry" | "scene" | "ending";
-export type RouteFactKind = "choice" | "label" | "jump" | "call" | "condition" | "ending";
+export type RouteFactKind = "choice" | "label" | "jump" | "call" | "return" | "condition" | "ending";
 
 export interface RouteChapterV1 {
   readonly id: string;
@@ -22,6 +22,7 @@ export interface RouteFactV1 {
   readonly kind: RouteFactKind;
   readonly label: string;
   readonly targetLabel?: string;
+  readonly continuationStatementId?: string;
 }
 
 export interface RouteSceneNodeV1 {
@@ -145,7 +146,17 @@ function stringOperand(instruction: RuntimeInstructionV1, key: string): string |
   return typeof value === "string" ? value : undefined;
 }
 
-function fact(instruction: RuntimeInstructionV1): RouteFactV1 | undefined {
+function expressionSummary(value: unknown, names: ReadonlyMap<string, string>): string {
+  if (value === null || typeof value !== "object" || Array.isArray(value)) return "表达式不可用";
+  const node = value as Record<string, unknown>;
+  if (node.kind === "identifier" && typeof node.name === "string") return names.get(node.name) ?? node.name;
+  if (node.kind === "literal") return JSON.stringify(node.value) ?? "表达式不可用";
+  if (node.kind === "unary") return `${node.operator}(${expressionSummary(node.operand, names)})`;
+  if (node.kind === "binary") return `(${expressionSummary(node.left, names)} ${node.operator} ${expressionSummary(node.right, names)})`;
+  return "表达式不可用";
+}
+
+function fact(instruction: RuntimeInstructionV1, names: ReadonlyMap<string, string>, next?: RuntimeInstructionV1): RouteFactV1 | undefined {
   if (instruction.opcode === "choice") return { id: instruction.instructionId, kind: "choice", label: stringOperand(instruction, "prompt") ?? "未命名选择" };
   if (instruction.opcode === "label") return { id: instruction.instructionId, kind: "label", label: stringOperand(instruction, "name") ?? "未命名标签" };
   if (instruction.opcode === "jump" || instruction.opcode === "call" || instruction.opcode === "condition") {
@@ -153,15 +164,28 @@ function fact(instruction: RuntimeInstructionV1): RouteFactV1 | undefined {
     return {
       id: instruction.instructionId,
       kind: instruction.opcode,
-      label: instruction.opcode === "condition" ? "条件分支" : instruction.opcode === "jump" ? "跳转" : "调用",
+      label: instruction.opcode === "condition" ? `条件 ${expressionSummary(instruction.operands.expressionAst, names)}；不成立则继续下一步` : instruction.opcode === "jump" ? "跳转" : next === undefined ? "调用；返回位置在场景末尾，请补充后续语句" : `调用；执行返回后继续 ${next.instructionId}`,
+      ...(instruction.opcode === "call" && next !== undefined ? { continuationStatementId: next.instructionId } : {}),
       ...(targetLabel === undefined ? {} : { targetLabel })
     };
   }
+  if (instruction.opcode === "return") return { id: instruction.instructionId, kind: "return", label: "返回最近一次调用的下一步；没有调用记录时会报错" };
   if (instruction.opcode === "end") return { id: instruction.instructionId, kind: "ending", label: stringOperand(instruction, "name") ?? "未命名结局" };
   return undefined;
 }
 
-function choiceEdges(instruction: RuntimeInstructionV1, sourceSceneId: string, knownSceneIds: ReadonlySet<string>): readonly RouteEdgeV1[] {
+function instructionEdges(instruction: RuntimeInstructionV1, sourceSceneId: string, knownSceneIds: ReadonlySet<string>): readonly RouteEdgeV1[] {
+  if (instruction.opcode === "jump" || instruction.opcode === "call" || instruction.opcode === "condition") {
+    const targetSceneId = stringOperand(instruction, "targetSceneId");
+    // Only the Compiler can distinguish scene targets from same-named local labels.
+    if (targetSceneId === undefined) return [];
+    return [{
+      id: instruction.instructionId, sourceSceneId, targetSceneId,
+      statementId: instruction.instructionId,
+      label: instruction.opcode === "condition" ? "条件成立" : instruction.opcode === "call" ? "调用" : "跳转",
+      status: knownSceneIds.has(targetSceneId) ? "valid" : "dangling"
+    }];
+  }
   if (instruction.opcode !== "choice" || !Array.isArray(instruction.operands.options)) return [];
   return instruction.operands.options.flatMap((value) => {
     if (value === null || Array.isArray(value) || typeof value !== "object") return [];
@@ -182,6 +206,8 @@ function choiceEdges(instruction: RuntimeInstructionV1, sourceSceneId: string, k
 
 export function buildRouteGraphFromCompilation(project: CanonicalProject, compilation: ProjectAnalysisResult): RouteGraphV1 {
   const knownSceneIds = new Set(project.scenes.map((scene) => scene.id));
+  const variableNames = new Map<string, string>(project.variables.variables.flatMap((variable) =>
+    typeof variable.id === "string" && typeof variable.name === "string" ? [[variable.id, `${variable.name} [${variable.id}]`] as const] : []));
   const chapterByScene = new Map<string, string>();
   let sceneOffset = 0;
   const chapters = project.chapters.map<RouteChapterV1>((chapter) => {
@@ -193,7 +219,7 @@ export function buildRouteGraphFromCompilation(project: CanonicalProject, compil
   if (sceneOffset !== project.scenes.length) throw new Error("Route graph chapter topology does not match the project scenes");
   const nodes = project.scenes.map<RouteSceneNodeV1>((scene, sceneIndex) => {
     const instructions = compilation.cache.scenes[scene.id]?.scene.instructions ?? [];
-    const facts = instructions.flatMap((instruction) => fact(instruction) ?? []);
+    const facts = instructions.flatMap((instruction, index) => fact(instruction, variableNames, instructions[index + 1]) ?? []);
     return {
       id: scene.id,
       title: scene.title,
@@ -207,7 +233,7 @@ export function buildRouteGraphFromCompilation(project: CanonicalProject, compil
     };
   });
   const edges = project.scenes.flatMap((scene) =>
-    (compilation.cache.scenes[scene.id]?.scene.instructions ?? []).flatMap((instruction) => choiceEdges(instruction, scene.id, knownSceneIds))
+    (compilation.cache.scenes[scene.id]?.scene.instructions ?? []).flatMap((instruction) => instructionEdges(instruction, scene.id, knownSceneIds))
   );
   const groups=Object.values(project.layouts).flatMap((layout)=>layout.groups??[]);
   const viewport=Object.values(project.layouts).find((layout)=>layout.viewport!==undefined)?.viewport;

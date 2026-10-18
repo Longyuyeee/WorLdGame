@@ -1,0 +1,9 @@
+{
+  "checks": [
+    "The actual main story authors overview/gallery/music/replay/endings viewport layouts with isolated content and return regions, real-preview drag/one undo/keyboard, matching desktop/phone geometry, safe action lists and phone-hidden art.",
+    "Save/reopen, source project, portable configuration/skin bytes and both formal exports retain all five extra layouts without changing story, characters, seven assets or the existing title/reading/menu/save/history/preferences/credits/ending layouts."
+  ],
+  "errors": [],
+  "failure": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\nfalse !== true\n\n    at play (file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-additional-layout.mjs:97:288)\n    at async file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-additional-layout.mjs:134:19",
+  "text": "给明天的回信 · 0.9.0\n\n记住这一句\n阅读选项\nEXTRAS\n收藏总览\n返回剧情\n\n随着剧情推进，已发现的收藏与结局会自动记录在这里。\n\n1 / 4 已发现\nCG 画廊\n\n在剧情中看过的画面会自动收录\n\n3 项尚未发现\n查看内容\n0 / 2 已发现\n场景回想\n\n达成相关结局后，可以重温对应场景\n\n2 项尚未发现\n查看内容\n1 / 1 已发现\n音乐室\n\n在剧情中听过的音乐会自动收录\n\n查看内容\n0 / 2 已发现\n结局\n\n达成的结局会自动记录\n\n2 项尚未发现\n查看内容\n回到游戏继续阅读\n\n进度已自动保存\n\n旧车站将在今晚停用。屋檐下的广播重复着同一条通知：距离末班车出发，还有四十分钟。\n点击继续 →"
+}

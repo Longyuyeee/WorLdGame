@@ -7,6 +7,7 @@ import {
   type ProjectFiles,
   type ProjectLifecycleSession
 } from "@world-studio/project-domain";
+import { ProjectArchiveError, type ProjectArchiveBinaryFiles } from "@world-studio/project-domain";
 import {
   AssetBlobError,
   assetBlobPath,
@@ -72,32 +73,52 @@ export async function exportPortableProjectBundle(
   source: PortableProjectBundleSource
 ): Promise<Uint8Array> {
   if (session.project === null) throw new AssetBlobError("INVALID_ASSET", "index", session.projectId, "Read-only projects cannot be exported as portable bundles");
-  const index = parseAssetIndex(serializeAssetIndex(await source.loadIndex()));
+  return exportPortableCanonicalProject(session.project, await source.loadIndex(), source);
+}
+
+export async function exportPortableCanonicalProject(project: CanonicalProject, assetIndex: AssetIndex, source: Pick<AssetBlobStore, "read">, signal?: AbortSignal): Promise<Uint8Array> {
+  signal?.throwIfAborted();
+  const index = parseAssetIndex(serializeAssetIndex(assetIndex));
   const digests = [...new Set(index.assets.map((entry) => entry.source.digest))].sort();
   const files: Record<string, Uint8Array> = Object.fromEntries(
-    Object.entries(saveProject(session.project)).map(([path, text]) => [path, encoder.encode(text)])
+    Object.entries(saveProject(project)).map(([path, text]) => [path, encoder.encode(text)])
   );
   let referencedBytes = 0;
   for (const digest of digests) {
+    signal?.throwIfAborted();
     const bytes = await source.read(digest);
-    if (bytes === null || createBlobDigest(bytes) !== digest) throw new AssetBlobError("CORRUPT_BLOB", "read", digest, "Referenced source Blob is missing or corrupt during export");
-    files[blobArchivePath(digest)] = bytes;
+    signal?.throwIfAborted();
+    if (bytes === null || createBlobDigest(bytes) !== digest || index.assets.some(entry => entry.source.digest === digest && entry.source.byteLength !== bytes.length)) throw new AssetBlobError("CORRUPT_BLOB", "read", digest, "Referenced source Blob is missing, corrupt or has the wrong size during export");
+    files[blobArchivePath(digest)] = bytes.slice();
     referencedBytes += bytes.byteLength;
   }
   const manifest: PortableBundleManifest = {
     schemaVersion: 1,
-    projectId: session.project.manifest.projectId,
+    projectId: project.manifest.projectId,
     assetCount: index.assets.length,
     blobCount: digests.length,
     referencedBytes
   };
   files[BUNDLE_INDEX_PATH] = encoder.encode(serializeAssetIndex(index));
   files[BUNDLE_MANIFEST_PATH] = encoder.encode(JSON.stringify(manifest));
+  signal?.throwIfAborted();
   return exportProjectBinaryZip(files);
 }
 
 export function importPortableProjectBundle(archive: Uint8Array): ImportedPortableProjectBundle {
-  const binary = importProjectBinaryZip(archive, BUNDLE_LIMITS);
+  return importPortableProjectFiles(importProjectBinaryZip(archive, BUNDLE_LIMITS));
+}
+
+/** Reuse an already CRC-checked ZIP entry map; portable limits still apply. */
+export function importPortableProjectFiles(binary: ProjectArchiveBinaryFiles): ImportedPortableProjectBundle {
+  const entries = Object.entries(binary);
+  if (entries.length > BUNDLE_LIMITS.maxEntries) throw new ProjectArchiveError('SIZE_LIMIT', 'ZIP has too many entries');
+  let total = 0;
+  for (const [path, bytes] of entries) {
+    if (!path || path.length > 240 || path.startsWith('/') || path.includes('\\') || path.includes('\0') || /^[A-Za-z]:/u.test(path) || path.split('/').some(part => !part || part === '.' || part === '..') || Object.hasOwn(Object.prototype, path)) throw new ProjectArchiveError('UNSAFE_PATH', `Unsafe archive path: ${path}`);
+    total += bytes.byteLength;
+    if (bytes.byteLength > BUNDLE_LIMITS.maxEntryBytes || total > BUNDLE_LIMITS.maxTotalBytes) throw new ProjectArchiveError('SIZE_LIMIT', 'ZIP entry exceeds the import budget');
+  }
   const hasManifest = BUNDLE_MANIFEST_PATH in binary;
   const hasIndex = BUNDLE_INDEX_PATH in binary;
   if (hasManifest !== hasIndex) throw new AssetBlobError("INVALID_ASSET", "index", BUNDLE_PREFIX, "Portable asset manifest and index must both be present");

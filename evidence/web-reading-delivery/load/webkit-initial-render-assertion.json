@@ -1,0 +1,7 @@
+{
+  "passed": false,
+  "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n+ actual - expected\n\n+ 'reading'\n- 'validating'\n",
+  "stack": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n+ actual - expected\n\n+ 'reading'\n- 'validating'\n\n    at file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-reading-delivery-load.mjs:79:52",
+  "checks": [],
+  "errors": []
+}

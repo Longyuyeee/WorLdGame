@@ -1,0 +1,8 @@
+{
+  "passed": true,
+  "browser": "155.0.8059.41",
+  "checks": [
+    "targeted final layout: desktop and 390px options stay within viewport, author checkboxes align beside their text, light/dark themes inspected; no handoff or game rerun"
+  ],
+  "errors": []
+}

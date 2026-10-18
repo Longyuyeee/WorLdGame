@@ -1,0 +1,193 @@
+{
+  "passed": true,
+  "label": "candidate",
+  "browser": "151.0.7922.34",
+  "candidateArchiveSha256": "740c77522cf12e70cdf48989fa2e217c7c3bfe363ca5d178223e40cf8fb5ab22",
+  "runtimeHash": "420505c4f2ae0370e23d4c0aa6a102fe38d892c00caf9cd744bdfc4576eb78c1",
+  "samples": [
+    {
+      "run": 0,
+      "readyMs": 132.5,
+      "cpuProfilerAttached": true,
+      "cpu": [
+        {
+          "location": "(idle) ",
+          "sampledMs": 55.05
+        },
+        {
+          "location": "layout http://127.0.0.1:14018/offline.js",
+          "sampledMs": 23.739
+        },
+        {
+          "location": "(program) ",
+          "sampledMs": 23.389999999999993
+        },
+        {
+          "location": "../../../packages/project-domain/src/sha256.ts:4 Ge",
+          "sampledMs": 4.628
+        },
+        {
+          "location": "../../../packages/project-domain/src/codec.ts:126 ",
+          "sampledMs": 4.223
+        },
+        {
+          "location": "../../../node_modules/react-dom/cjs/react-dom-client.production.js:4333 yo",
+          "sampledMs": 3.2990000000000004
+        },
+        {
+          "location": "(anonymous) http://127.0.0.1:14018/player.js",
+          "sampledMs": 2.896
+        },
+        {
+          "location": "../../../packages/project-compiler/src/canonical-json.ts:3 m",
+          "sampledMs": 2.1100000000000003
+        },
+        {
+          "location": "../../../packages/project-compiler/src/canonical-json.ts:27 g",
+          "sampledMs": 1.8810000000000002
+        },
+        {
+          "location": "(garbage collector) ",
+          "sampledMs": 1.6700000000000002
+        },
+        {
+          "location": "endAriaCaches ",
+          "sampledMs": 1.516
+        },
+        {
+          "location": "innerSerialize ",
+          "sampledMs": 1.496
+        },
+        {
+          "location": "../../../packages/project-domain/src/sha256.ts:20 Ke",
+          "sampledMs": 1.4
+        },
+        {
+          "location": "../../../node_modules/react-dom/cjs/react-dom-client.production.js:7392 Dc",
+          "sampledMs": 1.363
+        },
+        {
+          "location": "../../../packages/project-compiler/src/canonical-json.ts:13 h",
+          "sampledMs": 1.298
+        },
+        {
+          "location": "../../../node_modules/react-dom/cjs/react-dom-client.production.js:313 xe",
+          "sampledMs": 1.294
+        },
+        {
+          "location": "computeAriaRole ",
+          "sampledMs": 1.185
+        },
+        {
+          "location": "../src/player-preferences.ts:32 Oo",
+          "sampledMs": 1.139
+        },
+        {
+          "location": "../../../packages/project-domain/src/sha256.ts:30 qe",
+          "sampledMs": 1.127
+        },
+        {
+          "location": "../../../node_modules/react-dom/cjs/react-dom-client.production.js:8725 Wc",
+          "sampledMs": 1.105
+        },
+        {
+          "location": "query ",
+          "sampledMs": 1.092
+        },
+        {
+          "location": "../../../packages/project-domain/src/codec.ts:123 tt",
+          "sampledMs": 1.089
+        },
+        {
+          "location": "../../../packages/project-compiler/src/compiler.ts:343 pn",
+          "sampledMs": 1.086
+        },
+        {
+          "location": "../../../packages/runtime/src/canonical.ts:60 ",
+          "sampledMs": 1.085
+        },
+        {
+          "location": "../../../node_modules/react-dom/cjs/react-dom-client.production.js:1412 tn",
+          "sampledMs": 1.085
+        },
+        {
+          "location": "../../../packages/project-compiler/src/compiler.ts:448 mn",
+          "sampledMs": 1.082
+        },
+        {
+          "location": "../../../node_modules/react-dom/cjs/react-dom-client.production.js:8571 Lc",
+          "sampledMs": 1.081
+        },
+        {
+          "location": "../../../node_modules/react-dom/cjs/react-dom-client.production.js:13346 Pd",
+          "sampledMs": 1.067
+        },
+        {
+          "location": "../../../packages/project-domain/src/sha256.ts:3 We",
+          "sampledMs": 1.06
+        },
+        {
+          "location": "../../../packages/project-domain/src/web-save-compatibility.ts:77 Ot",
+          "sampledMs": 1.059
+        }
+      ],
+      "telemetry": {
+        "tasks": [],
+        "frames": [
+          {
+            "start": 11.299999997019768,
+            "duration": 81.70000000298023
+          }
+        ]
+      }
+    },
+    {
+      "run": 1,
+      "readyMs": 121.19999999552965,
+      "cpuProfilerAttached": false,
+      "cpu": null,
+      "telemetry": {
+        "tasks": [],
+        "frames": [
+          {
+            "start": 20,
+            "duration": 68.5
+          }
+        ]
+      }
+    },
+    {
+      "run": 2,
+      "readyMs": 116.10000000149012,
+      "cpuProfilerAttached": false,
+      "cpu": null,
+      "telemetry": {
+        "tasks": [],
+        "frames": []
+      }
+    },
+    {
+      "run": 3,
+      "readyMs": 116.20000000298023,
+      "cpuProfilerAttached": false,
+      "cpu": null,
+      "telemetry": {
+        "tasks": [],
+        "frames": []
+      }
+    },
+    {
+      "run": 4,
+      "readyMs": 122.5,
+      "cpuProfilerAttached": false,
+      "cpu": null,
+      "telemetry": {
+        "tasks": [],
+        "frames": []
+      }
+    }
+  ],
+  "errors": [],
+  "scope": "five fresh desktop contexts, title visible and enabled; first profiled; no CPU throttle or forced GC, not a device or statistical benchmark",
+  "physicalDevice": false
+}

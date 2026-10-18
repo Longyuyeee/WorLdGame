@@ -5,11 +5,27 @@ import {
   createProjectSnapshot,
   createStudioSession,
   hasPendingDraft,
+  pendingDraftSceneIds,
   reduceStudioSession,
   restoreStudioSession
 } from "./studio-session";
 
 describe("S0.9 studio source projection and recovery session", () => {
+  it("tracks all isolated drafts across save, reopen and partial repair", () => {
+    let session = createStudioSession();
+    const sceneIds = session.project.scenes.slice(0, 2).map((scene) => scene.id);
+    for (const sceneId of sceneIds) {
+      session = reduceStudioSession(session, { type: "select-scene", sceneId });
+      session = reduceStudioSession(session, { type: "edit-script", commandId: `broken_${sceneId}`, source: 'scene "unterminated' });
+    }
+    expect(pendingDraftSceneIds(session)).toEqual(sceneIds);
+    session = restoreStudioSession(createProjectSnapshot(session, 1));
+    expect(pendingDraftSceneIds(session)).toEqual(sceneIds);
+    session = reduceStudioSession(session, { type: "select-scene", sceneId: sceneIds[1]! });
+    session = reduceStudioSession(session, { type: "discard-draft" });
+    expect(pendingDraftSceneIds(session)).toEqual([sceneIds[0]]);
+    expect(hasPendingDraft(session)).toBe(false);
+  });
   it("atomically selects a statement in another scene for project search navigation", () => {
     const initial = createStudioSession();
     const targetScene = initial.project.scenes[1]!;

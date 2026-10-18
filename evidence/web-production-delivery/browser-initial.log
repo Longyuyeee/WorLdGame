@@ -1,0 +1,17 @@
+optional HTML production ZIP uses one saved source; different internal/published names kept correctly; manifest bytes/digests and optional notes verified; packaged local game reaches short ending at 390px
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+locator.click: Error: strict mode violation: getByRole('button', { name: /^打开项目：分支创作流程/ }) resolved to 2 elements:
+    1) <button aria-label="打开项目：分支创作流程" class="home-project-card">…</button> aka getByRole('button', { name: '打开项目：分支创作流程' }).first()
+    2) <button aria-label="打开项目：分支创作流程" class="home-project-card">…</button> aka getByRole('button', { name: '打开项目：分支创作流程' }).nth(1)
+
+Call log:
+  - waiting for getByRole('button', { name: /^打开项目：分支创作流程/ })
+
+    at E:\Project\AIProject\ClaudeProject\WorLdGame\tools\run-web-production-delivery.mjs:40:174 {
+  log: [ "  - waiting for getByRole('button', { name: /^打开项目：分支创作流程/ })" ]
+}
+
+Node.js v24.14.0

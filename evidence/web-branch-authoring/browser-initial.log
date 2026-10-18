@@ -1,0 +1,143 @@
+failure page: W
+分支创作流程
+保存到本机
+故事
+素材
+游戏外观
+检查
+发布
+添加内容
+场景列表
+写作
+演出
+路线
+脚本
+收起预览
+
+场景写作
+
+车站选择
+
+1 段文字 · 1 处选择 · 每一段，都是故事的一部分
+
+添加成段文字
+插入与整理内容
+复制、移动与多选
+
+还没有角色。先创建一位角色，就可以写对白。创建角色
+
+演出时间线与工具
+变量
+01
+同行次数 = 0
+变量
+02
+愿意同行 = false
+变量
+03
+约定内容 = "起点"
+条件
+04
+愿意同行 && 同行次数 >= 2 → choose
+旁白
+05
+雨声渐渐停下，你会走向哪里？
+标签
+06
+choose
+选择
+07
+玩家在这里作出选择
+每个选项进入一个场景；调整顺序不会改变选项身份。
+3 个选项
+选择提示
+选项 1
+1
+↑
+↓
+删除
+选项文本
+接下来进入
+车站选择
+留下
+远行
+同行
+进入场景
+选项 2
+2
+↑
+↓
+删除
+选项文本
+接下来进入
+车站选择
+留下
+远行
+同行
+进入场景
+选项 3
+3
+↑
+↓
+删除
+选项文本
+接下来进入
+车站选择
+留下
+远行
+同行
+进入场景
+添加选项
+应用修改
+可进入目标场景继续写作，再返回这一处分支。
+＋ 添加内容
+即时预览
+LIVE
+预览尺寸
+16:9 · 标准横屏
+16:10 · 桌面宽屏
+4:3 · 经典画幅
+21:9 · 超宽银幕
+9:16 · 手机竖屏
+自定义 · 精确尺寸
+安全区
+车站选择
+选择下一段故事
+1和朋友同行
+2留在车站
+3乘车出发
+←
+7 / 7
+→
+▶
+运行
+测试倍率
+0.5×
+1×
+2×
+4×
+∞
+选择停止点
+完整故事试玩
+从故事开头出发，体验选择与结局。
+试玩完整流程
+选择试玩起点
+调试详情
+变量、调用记录与问题定位
+r— · h—/—
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: {"left":68,"right":359,"viewport":390,"width":291,"scroll":319}
+    at fit (file:///E:/Project/AIProject/ClaudeProject/WorLdGame/tools/run-web-branch-authoring.mjs:31:14)
+    at async file:///E:/Project/AIProject/ClaudeProject/WorLdGame/tools/run-web-branch-authoring.mjs:70:62 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v24.14.0

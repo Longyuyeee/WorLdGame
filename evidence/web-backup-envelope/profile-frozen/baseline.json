@@ -1,0 +1,156 @@
+{
+  "passed": true,
+  "label": "baseline",
+  "baselineCommit": "7ca00eb882235ccbac4cbc132c1151eca2caf967",
+  "browser": "151.0.7922.34",
+  "bundleSha256": "ce99229929f761c7a4a9df5e76d9c13d570a1b0cdabadaa49ff3f3b3e883eaa8",
+  "sourceSha256": "2c0b50617f69ed5f6a1af29ae30aa41588ef1d0b88d87a7828519c66ca7f782b",
+  "rows": [
+    {
+      "round": 1,
+      "repetitions": 1,
+      "serializedCharacters": 36178,
+      "bytes": 43111,
+      "encode": {
+        "wallMs": 3.199999988079071,
+        "maximumHeartbeatGapMs": 5.699999988079071,
+        "beats": 5
+      },
+      "decode": {
+        "wallMs": 2,
+        "maximumHeartbeatGapMs": 5,
+        "beats": 5
+      }
+    },
+    {
+      "round": 2,
+      "repetitions": 1,
+      "serializedCharacters": 36178,
+      "bytes": 43111,
+      "encode": {
+        "wallMs": 2,
+        "maximumHeartbeatGapMs": 5.0999999940395355,
+        "beats": 5
+      },
+      "decode": {
+        "wallMs": 1.5,
+        "maximumHeartbeatGapMs": 5.0999999940395355,
+        "beats": 5
+      }
+    },
+    {
+      "round": 3,
+      "repetitions": 1,
+      "serializedCharacters": 36178,
+      "bytes": 43111,
+      "encode": {
+        "wallMs": 1.300000011920929,
+        "maximumHeartbeatGapMs": 5,
+        "beats": 5
+      },
+      "decode": {
+        "wallMs": 1.4000000059604645,
+        "maximumHeartbeatGapMs": 5,
+        "beats": 5
+      }
+    },
+    {
+      "round": 1,
+      "repetitions": 128,
+      "serializedCharacters": 4630784,
+      "bytes": 5384985,
+      "encode": {
+        "wallMs": 78.69999998807907,
+        "maximumHeartbeatGapMs": 77.09999999403954,
+        "beats": 6
+      },
+      "decode": {
+        "wallMs": 65.40000000596046,
+        "maximumHeartbeatGapMs": 64.80000001192093,
+        "beats": 6
+      }
+    },
+    {
+      "round": 2,
+      "repetitions": 128,
+      "serializedCharacters": 4630784,
+      "bytes": 5384985,
+      "encode": {
+        "wallMs": 75.5,
+        "maximumHeartbeatGapMs": 74.69999998807907,
+        "beats": 6
+      },
+      "decode": {
+        "wallMs": 73.2999999821186,
+        "maximumHeartbeatGapMs": 72.7999999821186,
+        "beats": 6
+      }
+    },
+    {
+      "round": 3,
+      "repetitions": 128,
+      "serializedCharacters": 4630784,
+      "bytes": 5384985,
+      "encode": {
+        "wallMs": 72.80000001192093,
+        "maximumHeartbeatGapMs": 71.40000000596046,
+        "beats": 6
+      },
+      "decode": {
+        "wallMs": 60.69999998807907,
+        "maximumHeartbeatGapMs": 58.89999997615814,
+        "beats": 6
+      }
+    },
+    {
+      "round": 1,
+      "repetitions": 512,
+      "serializedCharacters": 18523136,
+      "bytes": 21536793,
+      "encode": {
+        "wallMs": 314.80000001192093,
+        "maximumHeartbeatGapMs": 313.5,
+        "beats": 6
+      },
+      "decode": {
+        "wallMs": 245.30000001192093,
+        "maximumHeartbeatGapMs": 244.90000000596046,
+        "beats": 6
+      }
+    },
+    {
+      "round": 2,
+      "repetitions": 512,
+      "serializedCharacters": 18523136,
+      "bytes": 21536793,
+      "encode": {
+        "wallMs": 319.09999999403954,
+        "maximumHeartbeatGapMs": 339.09999999403954,
+        "beats": 1
+      },
+      "decode": {
+        "wallMs": 266,
+        "maximumHeartbeatGapMs": 265.09999999403954,
+        "beats": 6
+      }
+    },
+    {
+      "round": 3,
+      "repetitions": 512,
+      "serializedCharacters": 18523136,
+      "bytes": 21536793,
+      "encode": {
+        "wallMs": 313,
+        "maximumHeartbeatGapMs": 313.09999999403954,
+        "beats": 5
+      },
+      "decode": {
+        "wallMs": 244.59999999403954,
+        "maximumHeartbeatGapMs": 244,
+        "beats": 5
+      }
+    }
+  ],
+  "remainingWorkers": 0,
+  "scope": "Envelope-only same-machine Chromium probe; baseline freezes the original backup and worker modules from the recorded commit. Repeated actual serialized text is synthetic and NOT a valid long Runtime save; formal load deliberately stops at an explicit sentinel. Measures JSON/envelope work plus its dispatch, not complete import, real long story, phone performance or total speedup. Cancellation uses an actual in-flight CPU Worker, without delayed replies; exact CPU instruction at abort is not observed."
+}

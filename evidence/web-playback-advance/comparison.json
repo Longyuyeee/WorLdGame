@@ -1,0 +1,22 @@
+{
+  "passed": true,
+  "matchedOutcomes": 18,
+  "originalQuickSlotsMatched": [
+    480,
+    960
+  ],
+  "baselineIdentity": {
+    "baselineCommit": "0ae9cfe0fabeeb535acc587cc1806b659bb8f8d5",
+    "bundleHash": "f87cea20071215692271c3acf5a337e0c0e5ca6b1198be355acd4042cacf5b80",
+    "cssHash": "6d26d35ba789994b63aa6cf67db4eee5c334f2290ac73e27c0430dc1204697f3",
+    "fixtureHash": "9681155629618e6b5ed052ff2d1f56290251304568648b8cd82027cc0525716c",
+    "frozenSourcesHash": "4f637aa7beabf7a15c51f41aa4444fc4d1d3e7facf165e1db109b4bcfa82b6b5"
+  },
+  "currentIdentity": {
+    "baselineCommit": "0ae9cfe0fabeeb535acc587cc1806b659bb8f8d5",
+    "bundleHash": "4e5f073a665687193ced33abab18ccb5d983bdf58497cb17ce4f7df1fde03799",
+    "cssHash": "6d26d35ba789994b63aa6cf67db4eee5c334f2290ac73e27c0430dc1204697f3",
+    "fixtureHash": "9681155629618e6b5ed052ff2d1f56290251304568648b8cd82027cc0525716c",
+    "frozenSourcesHash": "4f637aa7beabf7a15c51f41aa4444fc4d1d3e7facf165e1db109b4bcfa82b6b5"
+  }
+}

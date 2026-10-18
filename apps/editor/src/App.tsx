@@ -1,4 +1,57 @@
 import { memo, useCallback, useEffect, useMemo, useReducer, useRef, useState, type CSSProperties, type FormEvent, type PointerEvent as ReactPointerEvent } from "react";
+import { variableOptionLabels } from './variable-option-labels';
+import { EditorThemeControl } from './editor-theme';
+import { AssetLibraryPreview, type AssetLibraryReader } from './asset-library-card';
+import { DirectionAssetPicker } from "./DirectionAssetPicker";
+import { CharacterTargetFields } from "./CharacterTargetFields";
+import { directionStageContext, type DirectionStageContext } from "./direction-stage-context";
+import { TextBatchDialog } from "./TextBatchDialog";
+import { MotionPresetDialog } from "./MotionPresetDialog";
+import { applySkinImportPlan, type SkinImportPlan } from "./player-skin-bundle";
+import { STORY_MOTION_PARAMETERS, storyMotionError } from "@world-studio/story-core";
+import { describeDirection, directionActionLabel, directionParameterLabel } from "./direction-description";
+import { WebReleaseGuide } from "./WebReleaseGuide";
+import { WebReleaseReadiness, useWebReleaseInspection } from "./WebReleaseReadiness";
+import { WebReleaseValidationError, type WebReleaseFinding } from "./web-release-readiness";
+import { normalizeAudioVolume } from "./audio-volume";
+import { StudioNavigation, type StudioPage } from './studio-navigation';
+import { StudioIcon } from './studio-icon';
+import { ProjectMenu } from './project-menu';
+import { StoryCreateMenu } from './story-create-menu';
+import type { EntityKind, ProjectStructureIntent } from './project-entity-dialog';
+import { assetSourceUsages, checkAssetSource, republishAssetEntry } from './asset-repair';
+import { ConditionExpressionFields } from './condition-expression-fields';
+import { ChoiceInspector } from "./ChoiceInspector";
+import { choiceEditOperations } from "./choice-edit";
+import { VariableAssignmentFields } from "./ExpressionFields";
+import { expressionProblem } from "./expression-edit";
+import type { ExpressionValueType } from "@world-studio/story-language";
+import { SceneFlowPanel } from './SceneFlowPanel';
+import { RouteTargetPicker } from './RouteTargetPicker';
+import { RouteReviewPanel } from './RouteReviewPanel';
+import { routeReviewSourceHash, type RouteReviewTrace } from './route-review';
+import { createWebDeliveryBundle } from "./web-delivery-bundle";
+import { usePlaytestProgress, type PlaytestProgressState } from './use-playtest-progress';
+import { PlaytestProgressPanel } from './PlaytestProgressPanel';
+import { PlaytestProgressRestore } from './PlaytestProgressTransfer';
+import { DEFAULT_PUBLICATION_WORKFLOW, loadStudioWorkPosition, resumePublicationWorkflow, resumeWorkSelection, type PublicationWorkflow } from './studio-work-position';
+import { useRememberStudioWorkPosition } from './use-studio-work-position';
+import { usePlaytestNotes } from "./use-playtest-notes";
+import { PlaytestNoteDialog, PlaytestReviewBoard } from "./PlaytestReview";
+import { PlaytestReviewTask } from "./PlaytestReviewTask";
+import { PreviewTranscript } from './PreviewTranscript';
+import { WebCreditsDialog, creditsSummary } from './WebCreditsDialog';
+import { WebAssetSourcesDialog } from './WebAssetSourcesDialog';
+import { WebReleasePreparation } from './WebReleasePreparation';
+import type { WebSourceReviewTarget } from './web-asset-source-workflow';
+import { TextReplaceDialog } from './TextReplaceDialog';
+import { BatchAssetImportDialog } from './BatchAssetImportDialog';
+import { usePageLeaveGuard } from './use-page-leave-guard';
+import { batchImportError, type BatchAssetResult } from './asset-batch-import';
+import { DEFAULT_REVIEW_LIST, canConfirmReview, defaultReviewRange, nextPendingReview, reviewLocationExists, reviewNoteSignature, reviewRunIsCurrent, type ReviewListView, type ReviewRange, type ReviewRun, type ReviewStartResult, type ReviewTask } from "./playtest-review-task";
+import { mergePlaytestNotes, noteReviewState, readPlaytestNotes, writePlaytestNotes, type PlaytestNote, type PlaytestNoteLocation } from "./playtest-notes";
+import { projectSceneFlow } from '@world-studio/route-graph';
+import { compileProject } from '@world-studio/project-compiler';
 import {
   AssetBlobError,
   assetBackupRecordId,
@@ -31,7 +84,7 @@ import {
   type SceneResourceManifest,
   type StoryStatement
 } from "@world-studio/story-core";
-import { assignRouteSceneGroup, buildRouteGraph, buildRouteGraphFromCompilation, buildRouteGraphIncremental, createRouteGraphIndex, deleteRouteGroup, locateRouteDiagnostic, queryRouteGraphWindow, renameRouteScene, resetRouteSceneLayout, reviewRouteToEnding, setRouteScenePosition, setRouteViewport, toggleRouteGroup, upsertRouteGroup, ROUTE_GRAPH_WINDOW_LIMIT, type RenameRouteSceneResult, type RouteNodeKind, type RouteProjectMutationResult, type RouteSceneNodeV1 } from "@world-studio/route-graph";
+import { assignRouteSceneGroup, buildRouteGraphFromCompilation, buildRouteGraphIncremental, createRouteGraphIndex, deleteRouteGroup, locateRouteDiagnostic, queryRouteGraphWindow, renameRouteScene, resetRouteSceneLayout, reviewRouteToEnding, setRouteScenePosition, setRouteViewport, toggleRouteGroup, upsertRouteGroup, ROUTE_GRAPH_WINDOW_LIMIT, type RenameRouteSceneResult, type RouteNodeKind, type RouteProjectMutationResult, type RouteSceneNodeV1 } from "@world-studio/route-graph";
 import {
   CAMERA_GEOMETRY_PARAMETERS,
   DIALOGUE_TEMPLATES,
@@ -84,15 +137,18 @@ import {
   createStudioSession,
   createStudioSessionFromCanonical,
   hasPendingDraft,
+  pendingDraftSceneIds,
   reduceStudioSession,
   restoreStudioSession,
+  studioHistorySceneIds,
   type StudioAction,
   type StudioMode,
   type StudioSession
 } from "./studio-session";
 import { TransactionalTextarea } from "./transactional-textarea";
+import { WritingTextInspector } from "./writing-text-inspector";
 import { IndexedDbProjectFileStore } from "./indexeddb-project-store";
-import { createBrowserWriterLeaseOwnerId, markBrowserWriterLeaseOwnerHandoff } from "./writer-lease-owner";
+import { createBrowserWriterLeaseOwnerId, markBrowserWriterLeaseOwnerHandoff, rememberBrowserWriterLeaseOwnerId } from "./writer-lease-owner";
 import { WORKSPACE_MODES, workspaceModeDescriptor, type WorkspaceModeId } from "./workspace-modes";
 import { MobileFocusWorkspace } from "./MobileFocusWorkspace";
 import {
@@ -108,7 +164,7 @@ import {
   restoreWorkspaceContext,
   workspaceContextProjection
 } from "./workspace-context";
-import { IndexedDbAssetRepository } from "./indexeddb-asset-repository";
+import { IndexedDbAssetRepository, type IndexedDbAssetImportResult } from "./indexeddb-asset-repository";
 import {
   WEB_ASSET_IMPORT_MAX_BYTES,
   canonicalAssetId,
@@ -155,7 +211,7 @@ import {
   type LoadedPreviewMedia,
   type PreviewUrlFactory
 } from "./preview-media-runtime";
-import { createSequenceInsertPlan, duplicateSequencePlan, sequenceMoveAfterId, sequenceRangeSelection, type SequenceInsertKind } from "./sequence-editor-model";
+import { createSequenceInsertPlan, duplicateSequencePlan, sequenceInsertionAnchor, sequenceMoveAfterId, sequenceRangeSelection, type SequenceInsertKind } from "./sequence-editor-model";
 import { createStageSurfaceMetrics, mapClientPointToStage, type StageDesignPoint } from "./stage-surface";
 import { createStagePlacementPatch } from "./stage-director";
 import {
@@ -184,9 +240,19 @@ import {
 import { createPreviewRenderFrame } from "./preview-render-host";
 import { PreviewCanvasHost } from "./preview-canvas-host";
 import { PreviewAudioLayer } from "./preview-audio-layer";
+import { readPreviewAudioMuted, storePreviewAudioMuted } from "./preview-audio-preference";
 import { deriveDialoguePresentation } from "./dialogue-presentation";
-import { createPlayableWebDownload, type PlayableWebArtifact } from "./playable-web-export";
-import { projectCanonicalFromStory, projectCanonicalWithAssetIndex, projectCanonicalWithStory } from "./canonical-project-adapter";
+import { createFormalWebArtifact, createFormalWebDirectoryArtifact, type FormalWebArtifact } from "./formal-web-export";
+import { WebPublicationSettings, readWebPublication } from "./web-publication";
+import { resumeStudioSession, type StudioContinuity } from "./studio-continuity";
+import { previewStartTargetExists, resumePreviewContinuity, type PreviewContinuity } from "./preview-continuity";
+import { deriveFormalPreviewStage } from "./formal-preview-stage";
+import { losslessExportEnabled, setLosslessExport } from "./export-optimization";
+import { AtlasExportSettings } from "./AtlasExportSettings";
+import { atlasExportGroups, setAtlasExportGroups } from "./atlas-export";
+import { nativeAtlasEnabled, setNativeAtlas } from "./native-atlas-export";
+import { NativeAtlasPreviewSession } from "./native-atlas-preview";
+import { projectCanonicalForEditor, projectCanonicalFromStory, projectCanonicalWithAssetIndex, projectCanonicalWithStory } from "./canonical-project-adapter";
 import { choiceOptionTarget, planRouteChoiceRetarget } from "./route-repair";
 import {
   approveFormalPreviewBarrier,
@@ -346,6 +412,9 @@ interface CommonProps {
 }
 
 interface WorkspaceHeaderProps extends CommonProps {
+  readonly onOpenProject?: () => void | Promise<void>;
+  readonly onReturnHome?: () => void | Promise<void>;
+  readonly onExportProject?: () => void | Promise<void>;
   readonly mode: StudioMode;
   readonly workspaceMode: WorkspaceModeId;
   readonly experienceLevel: ExperienceLevelId;
@@ -451,6 +520,7 @@ const WorkspaceNavigation = memo(function WorkspaceNavigation({
               className={candidate === mode ? "mode-tab is-active" : "mode-tab"}
               key={candidate}
               onClick={() => onModeChange(candidate)}
+              disabled={inputDirty}
               role="tab"
               aria-selected={candidate === mode}
             >
@@ -482,20 +552,38 @@ function WorkspaceHeader({
   onOpenBackups,
   settingsOpen,
   onOpenSettings,
+  onOpenProject,
+  onReturnHome,
+  onExportProject,
   dispatch
 }: WorkspaceHeaderProps) {
+  useEffect(() => {
+    const close = (event: MouseEvent) => { const menu = document.querySelector<HTMLDetailsElement>(".editor-preferences"); if (menu && !menu.contains(event.target as Node)) menu.open = false; };
+    const escape = (event: KeyboardEvent) => { if (event.key === "Escape") { const menu = document.querySelector<HTMLDetailsElement>(".editor-preferences"); if (menu) menu.open = false; } };
+    document.addEventListener("pointerdown", close); document.addEventListener("keydown", escape);
+    return () => { document.removeEventListener("pointerdown", close); document.removeEventListener("keydown", escape); };
+  }, []);
   const sourceSession = activeSourceSession(session);
   const pendingDraft = hasPendingDraft(session);
   return (
     <header className="workspace-header">
       <div className="brand-lockup">
-        <span className="brand-mark" aria-hidden="true">W</span>
-        <div>
-          <p className="eyebrow">WorLd Studio · S0.41</p>
+        <span className="brand-mark studio-logo" aria-hidden="true">W</span><strong className="brand-product">WorLd Studio</strong>
+        {onOpenProject ? <ProjectMenu title={session.project.title} disabled={inputDirty || pendingDraftSceneIds(session).length > 0 || ["loading", "saving", "autosaving", "unavailable"].includes(persistence.status)} blockedReason={pendingDraftSceneIds(session).length > 0 ? "请先修复或丢弃脚本草稿，再切换项目。" : ["loading", "saving", "autosaving"].includes(persistence.status) ? "正在保存或恢复，请稍候。" : "请先应用或放弃当前输入，再切换项目。"} onStructure={onOpenProject} {...(onReturnHome ? { onHome: onReturnHome } : {})} {...(onExportProject ? { onExport: onExportProject } : {})} /> : <div>
+          <p className="eyebrow">创作工作区</p>
           <h1>{session.project.title}</h1>
-        </div>
+        </div>}
       </div>
 
+      <details className="editor-preferences">
+        <summary><StudioIcon name="settings" /><span>编辑器设置</span></summary>
+        <div className="editor-preferences__panel">
+        <div className="mobile-history-actions">
+          <button type="button" disabled={sourceSession.history.length === 0 || pendingDraft || inputDirty} onClick={() => dispatch({ type: "undo" })}>撤销上一步</button>
+          <button type="button" disabled={sourceSession.future.length === 0 || pendingDraft || inputDirty} onClick={() => dispatch({ type: "redo" })}>重做上一步</button>
+        </div>
+        <EditorThemeControl />
+        <details><summary>高级编辑选项</summary>
       <WorkspaceNavigation
         mode={mode}
         workspaceMode={workspaceMode}
@@ -510,11 +598,15 @@ function WorkspaceHeader({
         onExperienceLevelChange={onExperienceLevelChange}
         onMotionPreferenceChange={onMotionPreferenceChange}
       />
+        </details>
+        </div>
+      </details>
 
       <div className="history-actions" aria-label="脚本历史">
         <button
           className="icon-button"
           aria-label="撤销"
+          title="撤销当前场景的写作修改；整批文字替换会一起撤销。不撤销结构管理修改。"
           disabled={sourceSession.history.length === 0 || pendingDraft || inputDirty}
           onClick={() => dispatch({ type: "undo" })}
         >
@@ -523,26 +615,35 @@ function WorkspaceHeader({
         <button
           className="icon-button"
           aria-label="重做"
+          title="重做当前场景的写作修改；整批文字替换会一起重做。"
           disabled={sourceSession.future.length === 0 || pendingDraft || inputDirty}
           onClick={() => dispatch({ type: "redo" })}
         >
           ↷
         </button>
+        <details className="history-boundary">
+          <summary>撤销范围</summary>
+          <div>
+          <p>撤销与重做针对当前场景的已应用写作修改；跨场景整批文字替换一起恢复。结构管理的新增、改名、删除不由这里撤销。关闭工程或刷新后，写作历史重新开始，已保存内容不受影响。</p>
+          {session.historyBoundary && <p role="status">最近重建历史：{session.historyBoundary.resetSceneNames.join("、")}。{session.historyBoundary.reason}其他未受影响的场景仍保留原记录。</p>}
+          </div>
+        </details>
         <span className={pendingDraft ? "save-state is-draft" : inputDirty ? "save-state is-buffered" : "save-state"}>
           <span className="save-state__dot" aria-hidden="true" />
           {pendingDraft
             ? "错误草稿 · 未提交"
             : inputDirty
               ? "输入批次 · 未提交"
-              : `本地事务 · r${sourceSession.revision}`}
+              : "修改已同步"}
         </span>
         <button
           type="button"
           className={settingsOpen ? "settings-open-button is-active" : "settings-open-button"}
           aria-pressed={settingsOpen}
           onClick={onOpenSettings}
+          disabled={inputDirty}
         >
-          项目设置
+          游戏外观
         </button>
         <button
           className="backup-button"
@@ -576,13 +677,15 @@ function WorkspaceHeader({
 }
 
 interface SceneRailProps extends CommonProps {
+  readonly disabled?: boolean;
+  readonly onSelectScene?: () => void;
   readonly assetIndex: AssetIndex;
   readonly assetStatus: AssetVaultStatus;
   readonly onOpenAssets: () => void;
   readonly onGlobalJump: (match: ProjectSearchMatch) => void;
 }
 
-function SceneRail({ session, dispatch, assetIndex, assetStatus, onOpenAssets, onGlobalJump }: SceneRailProps) {
+function SceneRail({ session, dispatch, assetIndex, assetStatus, onOpenAssets, onGlobalJump, onSelectScene, disabled = false }: SceneRailProps) {
   const [query, setQuery] = useState("");
   const [activeResult, setActiveResult] = useState(0);
   const index = useMemo(() => createProjectSearchIndex(session.project), [session.project]);
@@ -607,11 +710,11 @@ function SceneRail({ session, dispatch, assetIndex, assetStatus, onOpenAssets, o
       <div className="panel-heading">
         <div>
           <p className="eyebrow">PROJECT</p>
-          <h2>场景</h2>
+          <h2>章节与场景</h2>
         </div>
         <span className="count-badge">{session.project.scenes.length}</span>
       </div>
-      <form className="project-search" role="search" aria-label="搜索全部场景" onSubmit={(event) => {
+      <form className="project-search" data-has-query={query.trim().length > 0} role="search" aria-label="搜索全部场景" onSubmit={(event) => {
         event.preventDefault();
         jump(selectedMatch);
       }}>
@@ -621,7 +724,7 @@ function SceneRail({ session, dispatch, assetIndex, assetStatus, onOpenAssets, o
           type="search"
           value={query}
           autoComplete="off"
-          placeholder="场景、ID 或内容"
+          placeholder="搜索场景或对白"
           aria-controls="project-search-results"
           aria-describedby="project-search-status"
           onChange={(event) => setQuery(event.target.value)}
@@ -659,8 +762,9 @@ function SceneRail({ session, dispatch, assetIndex, assetStatus, onOpenAssets, o
         {session.project.scenes.map((scene, index) => (
           <button
             className={scene.id === session.activeSceneId ? "scene-item is-active" : "scene-item"}
+            disabled={disabled}
             key={scene.id}
-            onClick={() => dispatch({ type: "select-scene", sceneId: scene.id })}
+            onClick={() => { dispatch({ type: "select-scene", sceneId: scene.id }); onSelectScene?.(); }}
           >
             <span className="scene-index">{String(index + 1).padStart(2, "0")}</span>
             <span>
@@ -739,7 +843,25 @@ function canBuildThumbnail(entry: AssetIndex["assets"][number]): boolean {
     (entry.source.mimeType === "image/png" || entry.source.mimeType === "image/jpeg" || entry.source.mimeType === "image/webp");
 }
 
+function directionAssetName(statement: Extract<StoryStatement, { kind: "direction" }>, index: AssetIndex): string | undefined {
+  const inspection = inspectDirectiveArguments(statement.summary);
+  const assetId = inspection.parameters.asset;
+  if (!assetId || inspection.duplicateKeys.includes("asset")) return undefined;
+  return index.assets.find(entry => entry.assetId === assetId)?.displayName;
+}
+
 interface AssetVaultDialogProps {
+  readonly reader: AssetLibraryReader | null;
+  readonly initialAssetId?: string | null;
+  readonly experienceLevel: ExperienceLevelId;
+  readonly onCheckSource: (entry: AssetIndexEntry) => Promise<string>;
+  readonly project: StoryProject;
+  readonly onOpenUsage: (sceneId: string, statementId: string) => void;
+  readonly onRename: (entry: AssetIndexEntry, name: string) => void;
+  readonly onUndoAsset: () => void;
+  readonly onRedoAsset: () => void;
+  readonly canUndoAsset: boolean;
+  readonly canRedoAsset: boolean;
   readonly index: AssetIndex;
   readonly lifecycle: AssetLifecycleManifest;
   readonly gcLocked: boolean;
@@ -773,6 +895,10 @@ interface AssetVaultDialogProps {
 }
 
 function AssetVaultDialog({
+  reader,
+  initialAssetId,
+  experienceLevel,
+  project, onOpenUsage, onRename, onUndoAsset, onRedoAsset, canUndoAsset, canRedoAsset, onCheckSource,
   index,
   lifecycle,
   gcLocked,
@@ -808,6 +934,14 @@ function AssetVaultDialog({
   const [assetId, setAssetId] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [kind, setKind] = useState<AssetKind>("other");
+  const [editingAssetId, setEditingAssetId] = useState<string | null>(null);
+  useEffect(() => {
+    const entry = index.assets.find(item => item.assetId === initialAssetId);
+    if (entry) { setEditingAssetId(entry.assetId); setAssetId(entry.assetId); setDisplayName(entry.displayName); setKind(entry.kind); }
+  }, [initialAssetId]);
+  const [sourceChecks, setSourceChecks] = useState<Record<string, { revision: number; message: string; pending: boolean }>>({});
+  const usages = useMemo(() => assetSourceUsages(project), [project]);
+  const missingUsages = usages.filter((usage) => !index.assets.some((entry) => entry.assetId === usage.assetId));
   const importing = importState.phase === "reading" || importState.phase === "inspecting" || importState.phase === "committing";
   const storageReady = status === "ready" || status === "success" || status === "cancelled";
   const selectedExisting = index.assets.find((entry) => entry.assetId === assetId);
@@ -819,6 +953,7 @@ function AssetVaultDialog({
   const chooseFile = (selected: File | null) => {
     setFile(selected);
     if (selected === null) return;
+    if (editingAssetId !== null) return;
     setAssetId(createSuggestedId(selected.name));
     setDisplayName(selected.name.replace(/\.[^.]+$/, ""));
     setKind(inferAssetKind(selected.type || "application/octet-stream"));
@@ -826,28 +961,49 @@ function AssetVaultDialog({
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (file === null || assetId.trim().length === 0 || displayName.trim().length === 0 || importing) return;
-    onImport(file, { assetId: assetId.trim(), displayName: displayName.trim(), kind, tags: [] });
+    onImport(file, { assetId: assetId.trim(), displayName: displayName.trim(), kind, tags: selectedExisting?.tags ?? [], ...(selectedExisting?.preservedFields === undefined ? {} : { preservedFields: selectedExisting.preservedFields }) });
   };
 
   return (
     <div className="asset-overlay" role="presentation" onMouseDown={(event) => {
       if (event.target === event.currentTarget && !importing) onClose();
     }}>
-      <section className="asset-dialog" role="dialog" aria-modal="true" aria-labelledby="asset-dialog-title">
+      <section className="asset-dialog" data-experience-level={experienceLevel} role="dialog" aria-modal="true" aria-labelledby="asset-dialog-title">
         <div className="asset-dialog__heading">
           <div>
-            <p className="eyebrow">CONTENT-ADDRESSED LOCAL VAULT</p>
-            <h2 id="asset-dialog-title">资源保险库</h2>
+            <p className="eyebrow">你的故事素材</p>
+            <h2 id="asset-dialog-title">素材管理</h2>
           </div>
           <div className="asset-dialog__summary">
-            <span>{index.assets.length} 资源</span><span>Index r{index.indexRevision}</span>
+            <span>{index.assets.length} 项素材</span>
             <button className="icon-button" aria-label="关闭资源保险库" onClick={onClose}>×</button>
           </div>
         </div>
         <p className="asset-dialog__intro">
-          单文件上限 {formatBytes(WEB_ASSET_IMPORT_MAX_BYTES)}。Worker 检查真实签名、尺寸、时长与危险 SVG；通过后 Blob 与 Index 才在同一 fenced 事务中提交。
+          导入图片、音频或视频，供故事中的演出使用。单个文件最大 {formatBytes(WEB_ASSET_IMPORT_MAX_BYTES)}。
         </p>
+        {selectedExisting && <section className="asset-detail-overview" aria-label="当前素材预览">
+          <AssetLibraryPreview entry={selectedExisting} reader={reader} />
+          <h3>{selectedExisting.displayName}</h3>
+          <dl><div><dt>文件大小</dt><dd>{formatBytes(selectedExisting.source.byteLength)}</dd></div><div><dt>文件类型</dt><dd>{selectedExisting.source.mimeType}</dd></div><div><dt>媒体检查</dt><dd>{assetInspectionLabel(selectedExisting)}</dd></div></dl>
+          <div className="asset-detail-usages"><strong>故事中的使用位置</strong>{usages.filter(usage => usage.assetId === selectedExisting.assetId).map(usage => <button key={`${usage.sceneId}:${usage.statementId}:${usage.parameter}`} type="button" disabled={importing} onClick={() => onOpenUsage(usage.sceneId, usage.statementId)}>{usage.sceneTitle} <span aria-hidden="true">↗</span></button>)}{!usages.some(usage => usage.assetId === selectedExisting.assetId) && <small>尚未在已提交的故事中使用</small>}</div>
+        </section>}
 
+        <details className="asset-repair-details" open={missingUsages.length > 0}><summary>素材引用与恢复</summary>
+        <section className="asset-repair-panel" aria-label="素材引用与恢复">
+          <h3>素材引用与恢复</h3>
+          <p>改名只改变显示名称；替换文件保留稳定 ID，所有使用位置会一起更新。剧情引用修改使用顶部脚本撤销；最近一次资源更新可在本窗口撤销/重做，关闭工程后请使用备份恢复。</p>
+          <button type="button" disabled={!storageReady || importing || !canUndoAsset} onClick={onUndoAsset}>撤销最近资源更新</button>
+          <button type="button" disabled={!storageReady || importing || !canRedoAsset} onClick={onRedoAsset}>重做最近资源更新</button>
+          {missingUsages.length === 0 ? <p>已提交演出没有缺失的 Asset ID 引用。</p> : <ul>{missingUsages.map((usage) => <li key={`${usage.sceneId}:${usage.statementId}:${usage.parameter}`}>
+            缺失资源 {usage.assetId} · {usage.sceneTitle} · {usage.parameter}
+            <button type="button" disabled={importing} onClick={() => onOpenUsage(usage.sceneId, usage.statementId)}>修复引用：{usage.statementId}</button>
+          </li>)}</ul>}
+          <small>此列表检查已提交演出的 asset/transitionAsset 引用，不代表底层文件均可读取；有错误草稿请先修复。</small>
+        </section>
+        </details>
+        <details className="author-technical-details">
+          <summary>高级资源维护与优化</summary>
         <section className="asset-lifecycle" aria-label="资源生命周期">
           <div className="asset-lifecycle__heading">
             <div><p className="eyebrow">SOURCE → DERIVATIVE LINEAGE</p><h3>资源血缘与安全回收</h3></div>
@@ -928,28 +1084,29 @@ function AssetVaultDialog({
           </div>}
         </section>
 
+        </details>
         <form className="asset-import-form" onSubmit={submit}>
           <label className="asset-file-picker">
-            <span>{file === null ? "选择图片、音频、视频或字体" : file.name}</span>
+            <span>{file === null ? selectedExisting ? "选择文件替换此素材" : "选择图片、音频、视频或字体" : file.name}</span>
             <small>{file === null ? "浏览本机文件" : `${formatBytes(file.size)} · ${file.type || "application/octet-stream"}`}</small>
             <input
               aria-label="选择资源文件"
               type="file"
               accept="image/*,audio/*,video/*,.woff,.woff2,.ttf,.otf"
               disabled={!storageReady || importing}
-              onChange={(event) => chooseFile(event.target.files?.[0] ?? null)}
+              onChange={(event) => { chooseFile(event.target.files?.[0] ?? null); event.currentTarget.value = ""; }}
             />
           </label>
           <div className="asset-metadata-grid">
-            <label><span>稳定 Asset ID</span><input aria-label="资源 Asset ID" value={assetId} disabled={importing} onChange={(event) => setAssetId(event.target.value)} /></label>
+            <label><span>稳定 Asset ID</span><input aria-label="资源 Asset ID" value={assetId} disabled={importing || editingAssetId !== null} onChange={(event) => setAssetId(event.target.value)} /></label>
             <label><span>显示名称</span><input aria-label="资源显示名称" value={displayName} disabled={importing} onChange={(event) => setDisplayName(event.target.value)} /></label>
-            <label><span>资源类型</span><select aria-label="资源类型" value={kind} disabled={importing} onChange={(event) => setKind(event.target.value as AssetKind)}>
+            <label><span>资源类型</span><select aria-label="资源类型" value={kind} disabled={importing || editingAssetId !== null} onChange={(event) => setKind(event.target.value as AssetKind)}>
               <option value="background">背景</option><option value="character">角色</option><option value="cg">CG</option>
               <option value="audio">音频</option><option value="video">视频</option><option value="font">字体</option>
               <option value="ui">UI</option><option value="other">其他</option>
             </select></label>
           </div>
-          {selectedExisting !== undefined && <p className="asset-replace-notice">将更新稳定 ID <code>{assetId}</code> 的源内容；旧 Blob 保持不可变并进入孤儿审计。</p>}
+          {selectedExisting !== undefined && <p className="asset-replace-notice">替换文件后，故事中使用此素材的位置会一起更新。修改名称可单独保存。</p>}
           <div className={`asset-import-status asset-import-status--${importState.phase}`} aria-live="polite">
             <div><strong>{importState.phase === "reading" ? "正在读取文件"
               : importState.phase === "inspecting" ? "正在执行媒体安全检查"
@@ -962,6 +1119,10 @@ function AssetVaultDialog({
             <p>{importState.detail}</p>
           </div>
           <div className="asset-import-actions">
+            {editingAssetId !== null && <>
+              <button type="button" disabled={!storageReady || importing || !selectedExisting || !displayName.trim() || displayName.trim() === selectedExisting.displayName} onClick={() => selectedExisting && onRename(selectedExisting, displayName.trim())}>仅保存资源名称</button>
+              <button type="button" disabled={importing} onClick={() => { setEditingAssetId(null); setFile(null); setAssetId(""); setDisplayName(""); }}>取消资源编辑</button>
+            </>}
             {importing ? <button type="button" className="danger-button" onClick={onCancel}>取消导入</button> : null}
             <button type="submit" disabled={!storageReady || file === null || assetId.trim().length === 0 || displayName.trim().length === 0 || importing}>
               {selectedExisting === undefined ? "导入到资源保险库" : "更新此资源"}
@@ -969,6 +1130,7 @@ function AssetVaultDialog({
           </div>
         </form>
 
+        <details className="asset-all-items" open={selectedExisting === undefined}><summary>文件信息与维护 · {index.assets.length} 项素材</summary>
         <div className="asset-list" aria-label="已导入资源">
           {index.assets.length === 0 ? <p className="asset-list__empty">尚未导入资源。导入不会修改原始文件，也不会把媒体写入剧情 JSON/WAL。</p> : index.assets.map((entry) => (
             <article className="asset-item" key={entry.assetId}>
@@ -976,23 +1138,43 @@ function AssetVaultDialog({
               <div><strong>{entry.displayName}</strong><code>{entry.assetId}</code></div>
               <div><span>{formatBytes(entry.source.byteLength)} · {assetInspectionLabel(entry)}</span><code>{entry.source.digest.slice(7, 19)}…</code></div>
               <div className="asset-item__derivatives">
+                <button type="button" disabled={importing || sourceChecks[entry.assetId]?.pending} onClick={() => {
+                  const revision = index.indexRevision;
+                  setSourceChecks((checks) => ({ ...checks, [entry.assetId]: { revision, message: "正在校验源文件…", pending: true } }));
+                  void onCheckSource(entry).then((message) => setSourceChecks((checks) => ({ ...checks, [entry.assetId]: { revision, message, pending: false } })));
+                }}>验证源文件</button>
+                {sourceChecks[entry.assetId]?.revision === index.indexRevision && <small role="status">{sourceChecks[entry.assetId]?.message}</small>}
+                <button type="button" disabled={!storageReady || importing} aria-label={`编辑资源：${entry.assetId}`} onClick={() => { setEditingAssetId(entry.assetId); setAssetId(entry.assetId); setDisplayName(entry.displayName); setKind(entry.kind); setFile(null); }}>改名 / 替换文件</button>
+                <details><summary>使用位置 · {usages.filter((usage) => usage.assetId === entry.assetId).length}</summary>{usages.filter((usage) => usage.assetId === entry.assetId).map((usage) => <button key={`${usage.sceneId}:${usage.statementId}:${usage.parameter}`} type="button" disabled={importing} onClick={() => onOpenUsage(usage.sceneId, usage.statementId)}>{usage.sceneTitle} · {usage.statementId} · {usage.parameter}</button>)}</details>
                 <button type="button" className="asset-item__derive" disabled={!storageReady || importing || !canBuildThumbnail(entry)} onClick={() => onBuildThumbnail(entry.assetId)}>生成缩略图</button>
                 <button type="button" className="asset-item__derive" disabled={!storageReady || importing} onClick={() => onBuildSidecar(entry.assetId)}>生成 Sidecar</button>
               </div>
             </article>
           ))}
         </div>
+        </details>
       </section>
     </div>
   );
 }
 
 interface SequenceViewProps extends CommonProps {
+  readonly editingShortcutsEnabled?: boolean;
+  readonly canonicalProject?: CanonicalProject;
+  readonly onMotionProjectChange?: (project: CanonicalProject) => void;
+  readonly inputDirty: boolean;
+  readonly assetReader?: AssetLibraryReader | null;
+  readonly onCreateEntity?: (kind: Exclude<EntityKind, "chapter">) => void;
+  readonly stageExpanded?: boolean;
   readonly createCommandId: () => string;
   readonly createEntityId: (prefix: string) => string;
   readonly onInputDirtyChange: (dirty: boolean) => void;
   readonly assetIndex: AssetIndex;
   readonly variableIds: readonly string[];
+  readonly variableDefaults?: Readonly<Record<string, string>>;
+  readonly variableTypes?: Readonly<Record<string, "boolean" | "number" | "string">>;
+  readonly variableNames: Readonly<Record<string,string>>;
+  readonly variableDisplayNames: Readonly<Record<string, string>>;
   readonly requestedFocusStatementId: string | null;
   readonly onRequestedFocusHandled: () => void;
   readonly runtimeRouteTrace: RuntimeRouteTrace;
@@ -1053,17 +1235,28 @@ interface DirectionInspectorProps {
   readonly disabled: boolean;
   readonly createCommandId: () => string;
   readonly dispatch: (action: StudioAction) => void;
+  readonly assetReader?: AssetLibraryReader | null;
+  readonly onDirtyChange?: (dirty: boolean) => void;
+  readonly stageContext?: DirectionStageContext;
 }
 
-function DirectionInspector({
+export function DirectionInspector({
   statement,
   assetIndex,
   disabled,
   createCommandId,
-  dispatch
+  dispatch,
+  assetReader = null,
+  onDirtyChange = () => {},
+  stageContext = { characters: [], newSlot: "actor_1" }
 }: DirectionInspectorProps) {
   const inspection = inspectDirectiveArguments(statement.summary);
   const [form, setForm] = useState<DirectionForm>(() => ({ ...inspection.parameters }));
+  const [baseline, setBaseline] = useState(() => JSON.stringify(inspection.parameters));
+  const [notice, setNotice] = useState("");
+  const dirty = JSON.stringify(form) !== baseline;
+  useEffect(() => { onDirtyChange(dirty); }, [dirty]);
+  useEffect(() => () => onDirtyChange(false), []);
   const action = resolveDirectiveAction(statement.command, form.action);
   const assetRequired = action !== undefined && directiveActionRequiresAsset(statement.command, action);
   const characterGeometryActive = statement.command === "show" && (action === "show" || action === "move");
@@ -1079,7 +1272,7 @@ function DirectionInspector({
   const duration = statement.command === "audio" ? (form.fade ?? "") : (form.duration ?? "");
   const durationValid = !durationActive || duration.length === 0 || /^\d+(?:\.\d+)?(?:ms|s)$/.test(duration);
   const volumeValid = !assetRequired || statement.command !== "audio" || form.volume === undefined || form.volume.length === 0 ||
-    (/^\d+(?:\.\d+)?$/.test(form.volume) && Number(form.volume) >= 0 && Number(form.volume) <= 1);
+    normalizeAudioVolume(form.volume) !== null;
   const busValid = statement.command !== "audio" || ["voice", "bgm", "sfx", "ambient"].includes(form.bus ?? "");
   const slot = form.slot ?? "primary";
   const slotValid = statement.command !== "show" || SAFE_STAGE_SLOT.test(slot);
@@ -1103,8 +1296,9 @@ function DirectionInspector({
   const moveHasGeometry = action !== "move" || (statement.command === "camera" ? CAMERA_GEOMETRY_PARAMETERS : STAGE_MOVE_GEOMETRY_PARAMETERS).some((key) => (form[key] ?? "").trim().length > 0);
   const easingValid = statement.command !== "camera" && action !== "move" || form.easing === undefined || form.easing.length === 0 || isStageEasing(form.easing);
   const transitionValid = form.transition === undefined || form.transition.length === 0 || isStageTransition(form.transition);
-  const templateValid = statement.command !== "textbox" || action === "reset" || isDialogueTemplate(form.template ?? "");
-  const canApply = !disabled && inspection.duplicateKeys.length === 0 && action !== undefined && assetKnown && busValid && slotValid && zValid && templateValid &&
+  const templateValid = statement.command !== "textbox" || action === "reset" || action === "motion" || isDialogueTemplate(form.template ?? "");
+  const motionError = storyMotionError(statement.command, action ?? "", form);
+  const canApply = !disabled && !motionError && inspection.duplicateKeys.length === 0 && action !== undefined && assetKnown && busValid && slotValid && zValid && templateValid &&
     geometryValid && bezierError === undefined && cameraGeometryValid && moveHasGeometry && easingValid && transitionValid && transitionAssetKnown && durationValid && volumeValid;
 
   const setField = (key: string, value: string) => setForm((current) => ({ ...current, [key]: value }));
@@ -1114,10 +1308,10 @@ function DirectionInspector({
   const keys = statement.command === "background"
     ? ["action", "asset", "transition", "transitionAsset", "duration"]
     : statement.command === "show"
-      ? ["action", "asset", "slot", "z", "expression", "position", "x", "y", "scale", "rotation", "anchorX", "anchorY", "curve", "control1X", "control1Y", "control2X", "control2Y", "transition", "transitionAsset", "duration", "easing"]
+      ? ["action", "asset", "slot", "z", "expression", "position", "x", "y", "scale", "rotation", "anchorX", "anchorY", "curve", "control1X", "control1Y", "control2X", "control2Y", "transition", "transitionAsset", "duration", "easing", ...STORY_MOTION_PARAMETERS]
       : statement.command === "camera"
         ? ["action", "x", "y", "zoom", "rotation", "duration", "easing"]
-        : statement.command === "textbox" ? ["action", "template"] : ["action", "asset", "bus", "loop", "volume", "fade", "transitionAsset"];
+        : statement.command === "textbox" ? ["action", "template", ...STORY_MOTION_PARAMETERS] : ["action", "asset", "bus", "loop", "volume", "fade", "transitionAsset"];
   const inactiveResourcePatch = statement.command === "background"
     ? { asset: null, transitionAsset: null }
     : statement.command === "show"
@@ -1128,33 +1322,36 @@ function DirectionInspector({
           : { asset: null, z: null, expression: null, position: null, x: null, y: null, scale: null, rotation: null, anchorX: null, anchorY: null, curve: null, control1X: null, control1Y: null, control2X: null, control2Y: null, transition: null, transitionAsset: null, duration: null }
       : statement.command === "camera"
         ? action === "reset" ? { x: null, y: null, zoom: null, rotation: null } : {}
-        : statement.command === "textbox" ? action === "reset" ? { template: null } : {} : { asset: null, loop: null, volume: null, fade: null, transitionAsset: null };
+        : statement.command === "textbox" ? action === "reset" || action === "motion" ? { template: null } : {} : { asset: null, loop: null, volume: null, fade: null, transitionAsset: null };
 
   return (
     <form className="direction-inspector" onSubmit={(event) => {
       event.preventDefault();
       if (!canApply) return;
-      dispatch({
+      try { dispatch({
         type: "patch-direction",
         commandId: createCommandId(),
         statementId: statement.id,
         parameters: {
           ...fieldPatch(keys),
+          ...(statement.command === "audio" && assetRequired ? { volume: form.volume?.trim() ? normalizeAudioVolume(form.volume) : null } : {}),
           action: action ?? null,
           ...(statement.command === "show" && action === "show" ? { easing: null, curve: null, control1X: null, control1Y: null, control2X: null, control2Y: null } : {}),
-          ...(!assetRequired ? inactiveResourcePatch : {})
+          ...(!assetRequired && form.motion !== "fade-out" ? inactiveResourcePatch : {})
         },
         removeLegacyPositional: inspection.positional.length > 0
-      });
+      }); setBaseline(JSON.stringify(form)); setNotice(""); }
+      catch (error) { setNotice((error as Error).message); }
     }}>
       <div className="direction-inspector__hero">
-        <span className={`direction-command direction-command--${statement.command}`}>@{statement.command}</span>
+        <span className={`direction-command direction-command--${statement.command}`}><StudioIcon name={statement.command === "show" ? "characters" : statement.command === "audio" ? "audio" : statement.command === "camera" ? "director" : "assets"} /></span>
         <div>
-          <strong>图形化演出参数</strong>
-          <small>稳定 ID 局部提交 · Index r{assetIndex.indexRevision}</small>
+          <strong>{describeDirection(statement, assetIndex)}</strong>
+          <small>调整后应用，立即在舞台预览中查看</small>
         </div>
       </div>
 
+      {form.motion && <p role={motionError ? "alert" : "status"}>{motionError || "此步包含剧情动效，可通过“动效预设”预览和调整。"}</p>}
       {inspection.positional.length > 0 && (
         <div className="migration-notice" role="status">
           <strong>检测到旧式描述</strong>
@@ -1169,7 +1366,7 @@ function DirectionInspector({
       <div className="direction-field">
         <label htmlFor={`direction-action-${statement.id}`}>动作</label>
         <select id={`direction-action-${statement.id}`} aria-label="演出动作" value={action ?? ""} disabled={disabled} onChange={(event) => setField("action", event.target.value)}>
-          {directiveActionOptions(statement.command).map((option) => <option key={option} value={option}>{option}</option>)}
+          {directiveActionOptions(statement.command).filter(option => option !== "motion" || action === "motion").map((option) => <option key={option} value={option}>{directionActionLabel(statement.command, option)}</option>)}
         </select>
       </div>
 
@@ -1182,22 +1379,10 @@ function DirectionInspector({
       </div>}
 
       {assetRequired && <div className="direction-field direction-field--wide">
-        <label htmlFor={`direction-asset-${statement.id}`}>主资源</label>
-        <input
-          id={`direction-asset-${statement.id}`}
-          aria-label="演出主资源"
-          list={`direction-assets-${statement.id}`}
-          value={assetId}
-          disabled={disabled}
-          placeholder={compatibleAssets.length === 0 ? "先导入兼容资源" : "选择或输入 Asset ID"}
-          onChange={(event) => setField("asset", event.target.value)}
-        />
-        <datalist id={`direction-assets-${statement.id}`}>
-          {compatibleAssets.map((entry) => <option key={entry.assetId} value={entry.assetId}>{entry.displayName} · {entry.kind}</option>)}
-        </datalist>
+        <DirectionAssetPicker modalBrowser assets={compatibleAssets} value={assetId} disabled={disabled} label="演出主资源" reader={assetReader} onChange={value => setField("asset", value)} />
         <small className={assetId.length > 0 && !assetKnown ? "is-error" : ""}>
           {compatibleAssets.length === 0
-            ? `Asset Index 中没有可用于 @${statement.command} 的资源`
+            ? "还没有适合这项演出的素材，请在素材页导入"
             : assetId.length === 0
               ? `${compatibleAssets.length} 个兼容资源可选`
               : assetKnown ? "资源类型与索引均已验证" : "该 ID 不存在或资源类型不兼容"}
@@ -1208,17 +1393,18 @@ function DirectionInspector({
         <div className="direction-field">
           <label htmlFor={`direction-transition-${statement.id}`}>过渡</label>
           <select id={`direction-transition-${statement.id}`} aria-label="演出过渡" value={form.transition ?? ""} disabled={disabled} onChange={(event) => setField("transition", event.target.value)}>
-            <option value="">无</option>{STAGE_TRANSITIONS.map((transition) => <option key={transition} value={transition}>{transition[0]!.toUpperCase() + transition.slice(1)}</option>)}
+            <option value="">无</option>{STAGE_TRANSITIONS.map((transition) => <option key={transition} value={transition}>{directionParameterLabel(transition)}</option>)}
           </select>
           {!transitionValid && <small className="is-error">仅支持 fade、dissolve 或 slide</small>}
         </div>
       )}
       {statement.command === "show" && <>
-        <div className="direction-field"><label htmlFor={`direction-slot-${statement.id}`}>角色槽位</label><input id={`direction-slot-${statement.id}`} aria-label="角色槽位" value={slot} disabled={disabled} placeholder="primary" onChange={(event) => setField("slot", event.target.value)} />{!slotValid && <small className="is-error">需为稳定标识符</small>}</div>
+        <CharacterTargetFields context={stageContext} index={assetIndex} value={slot} action={action ?? "show"} disabled={disabled} label="角色槽位" onChange={value => setField("slot", value)} />
+        {!slotValid && <small className="is-error">角色位置标识需以字母或下划线开头，只能使用字母、数字、下划线或连字符。</small>}
         {characterGeometryActive && <div className="direction-field"><label htmlFor={`direction-z-${statement.id}`}>层级</label><input id={`direction-z-${statement.id}`} aria-label="角色层级" type="number" min={MIN_STAGE_Z} max={MAX_STAGE_Z} value={form.z ?? ""} disabled={disabled} placeholder="0" onChange={(event) => setField("z", event.target.value)} />{!zValid && <small className="is-error">范围 {MIN_STAGE_Z}–{MAX_STAGE_Z}</small>}</div>}
         {assetRequired && <div className="direction-field"><label htmlFor={`direction-expression-${statement.id}`}>表情</label><input id={`direction-expression-${statement.id}`} aria-label="角色表情" value={form.expression ?? ""} disabled={disabled} placeholder="smile" onChange={(event) => setField("expression", event.target.value)} /></div>}
         {characterGeometryActive && <div className="direction-field"><label htmlFor={`direction-position-${statement.id}`}>位置</label><select id={`direction-position-${statement.id}`} aria-label="角色位置" value={form.position ?? ""} disabled={disabled} onChange={(event) => setField("position", event.target.value)}><option value="">默认</option><option value="left">左</option><option value="center">中</option><option value="right">右</option></select></div>}
-        {characterGeometryActive && <div className="direction-geometry" aria-label="角色舞台几何">
+        {characterGeometryActive && <details className="direction-advanced"><summary>精细位置、缩放与锚点</summary><div className="direction-geometry" aria-label="角色舞台几何">
           <div className="direction-field"><label htmlFor={`direction-x-${statement.id}`}>X（%）</label><input id={`direction-x-${statement.id}`} aria-label="角色水平位置" type="number" min={MIN_STAGE_PERCENT} max={MAX_STAGE_PERCENT} step="0.1" value={form.x ?? ""} disabled={disabled} placeholder="50" onChange={(event) => setField("x", event.target.value)} /></div>
           <div className="direction-field"><label htmlFor={`direction-y-${statement.id}`}>Y（%）</label><input id={`direction-y-${statement.id}`} aria-label="角色垂直位置" type="number" min={MIN_STAGE_PERCENT} max={MAX_STAGE_PERCENT} step="0.1" value={form.y ?? ""} disabled={disabled} placeholder="100" onChange={(event) => setField("y", event.target.value)} /></div>
           <div className="direction-field"><label htmlFor={`direction-scale-${statement.id}`}>缩放</label><input id={`direction-scale-${statement.id}`} aria-label="角色缩放" type="number" min={MIN_STAGE_SCALE} max={MAX_STAGE_SCALE} step="0.01" value={form.scale ?? ""} disabled={disabled} placeholder="1" onChange={(event) => setField("scale", event.target.value)} /></div>
@@ -1226,7 +1412,7 @@ function DirectionInspector({
           <div className="direction-field"><label htmlFor={`direction-anchor-x-${statement.id}`}>锚点 X</label><input id={`direction-anchor-x-${statement.id}`} aria-label="角色水平锚点" type="number" min={MIN_STAGE_ANCHOR} max={MAX_STAGE_ANCHOR} step="0.01" value={form.anchorX ?? ""} disabled={disabled} placeholder="0.5" onChange={(event) => setField("anchorX", event.target.value)} /></div>
           <div className="direction-field"><label htmlFor={`direction-anchor-y-${statement.id}`}>锚点 Y</label><input id={`direction-anchor-y-${statement.id}`} aria-label="角色垂直锚点" type="number" min={MIN_STAGE_ANCHOR} max={MAX_STAGE_ANCHOR} step="0.01" value={form.anchorY ?? ""} disabled={disabled} placeholder="1" onChange={(event) => setField("anchorY", event.target.value)} /></div>
           {!geometryValid && <small className="is-error">位置 0–100，缩放 0.1–4，旋转 -360–360，锚点 0–1</small>}
-        </div>}
+        </div></details>}
         {action === "move" && !moveHasGeometry && <small className="is-error">Move 至少需要一个位置、缩放、旋转、锚点或层级参数</small>}
         {action === "move" && <div className="direction-field"><label htmlFor={`direction-curve-${statement.id}`}>空间路径</label><select id={`direction-curve-${statement.id}`} aria-label="角色空间路径" value={form.curve ?? ""} disabled={disabled} onChange={(event) => {
           const curve = event.target.value;
@@ -1250,27 +1436,30 @@ function DirectionInspector({
         <div className="direction-field"><label htmlFor={`camera-easing-${statement.id}`}>镜头缓动</label><select id={`camera-easing-${statement.id}`} aria-label="镜头缓动" value={form.easing ?? ""} disabled={disabled} onChange={(event) => setField("easing", event.target.value)}><option value="">Linear（兼容默认）</option>{STAGE_EASINGS.filter((value) => value !== "linear").map((value) => <option key={value} value={value}>{value}</option>)}</select>{!easingValid && <small className="is-error">请选择冻结的缓动曲线</small>}</div>
       </>}
       {statement.command === "audio" && <>
-        <div className="direction-field"><label htmlFor={`direction-bus-${statement.id}`}>音轨</label><select id={`direction-bus-${statement.id}`} aria-label="音频总线" value={form.bus ?? ""} disabled={disabled} onChange={(event) => setField("bus", event.target.value)}><option value="">请选择</option><option value="voice">Voice</option><option value="bgm">BGM</option><option value="sfx">SFX</option><option value="ambient">Ambient</option></select></div>
+        <div className="direction-field"><label htmlFor={`direction-bus-${statement.id}`}>音轨</label><select id={`direction-bus-${statement.id}`} aria-label="音频总线" value={form.bus ?? ""} disabled={disabled} onChange={(event) => setField("bus", event.target.value)}><option value="">请选择</option><option value="voice">角色配音</option><option value="bgm">背景音乐</option><option value="sfx">音效</option><option value="ambient">环境声音</option></select></div>
         {assetRequired && <><div className="direction-field"><label htmlFor={`direction-loop-${statement.id}`}>循环</label><select id={`direction-loop-${statement.id}`} aria-label="音频循环" value={form.loop ?? ""} disabled={disabled} onChange={(event) => setField("loop", event.target.value)}><option value="">默认</option><option value="true">开启</option><option value="false">关闭</option></select></div>
-        <div className="direction-field"><label htmlFor={`direction-volume-${statement.id}`}>音量 0–1</label><input id={`direction-volume-${statement.id}`} aria-label="音频音量" inputMode="decimal" value={form.volume ?? ""} disabled={disabled} placeholder="1" onChange={(event) => setField("volume", event.target.value)} /></div></>}
+        <div className="direction-field"><label htmlFor={`direction-volume-${statement.id}`}>音量 0–1</label><input id={`direction-volume-${statement.id}`} aria-label="音频音量" inputMode="decimal" value={form.volume ?? ""} disabled={disabled} placeholder="1" onChange={(event) => setField("volume", event.target.value)} />{!volumeValid && <small role="alert">音量需要在 0–1 之间，最多三位小数。</small>}</div></>}
       </>}
       {durationActive && <div className="direction-field">
         <label htmlFor={`direction-duration-${statement.id}`}>{statement.command === "audio" ? "淡入/淡出" : statement.command === "camera" ? "镜头时长" : "时长"}</label>
         <input id={`direction-duration-${statement.id}`} aria-label="演出时长" value={duration} disabled={disabled} placeholder="300ms / 0.5s" onChange={(event) => setField(statement.command === "audio" ? "fade" : "duration", event.target.value)} />
         {!durationValid && <small className="is-error">必须带 ms 或 s 单位</small>}
       </div>}
-      {assetRequired && <div className="direction-field direction-field--wide">
+      {assetRequired && <details className="direction-advanced"><summary>高级过渡素材</summary><div className="direction-field direction-field--wide">
         <label htmlFor={`direction-transition-asset-${statement.id}`}>过渡资源（可选）</label>
         <input id={`direction-transition-asset-${statement.id}`} aria-label="过渡资源" list={`transition-assets-${statement.id}`} value={transitionAsset} disabled={disabled} placeholder="可选 Asset ID" onChange={(event) => setField("transitionAsset", event.target.value)} />
         <datalist id={`transition-assets-${statement.id}`}>{assetIndex.assets.map((entry) => <option key={entry.assetId} value={entry.assetId}>{entry.displayName}</option>)}</datalist>
         {!transitionAssetKnown && <small className="is-error">过渡资源不在 Asset Index 中</small>}
-      </div>}
+      </div></details>}
       <div className="direction-inspector__actions">
+        {dirty && <button type="button" disabled={disabled} onClick={() => { setForm({ ...inspection.parameters }); setBaseline(JSON.stringify(inspection.parameters)); setNotice(""); }}>放弃演出修改</button>}
         <span>{inspection.duplicateKeys.length === 0 ? "未知参数保持原样" : "提交已锁定"}</span>
         <button type="submit" disabled={!canApply}>
           {inspection.positional.length > 0 ? "迁移旧描述并应用" : "应用演出参数"}
         </button>
       </div>
+      {(!geometryValid || !transitionAssetKnown) && <p role="alert">精细位置或高级过渡素材需要修正，请展开对应参数后检查。</p>}
+      {notice && <p role="alert">{notice}</p>}
     </form>
   );
 }
@@ -1392,9 +1581,12 @@ function BatchDirectionPanel({ statements, sceneDirections, selectionPositions, 
 }
 
 interface DirectionInsertPanelProps {
+  readonly stageContext: DirectionStageContext;
+  readonly insertionLabel: string;
   readonly command: DirectionCommand;
   readonly afterId: string;
   readonly assetIndex: AssetIndex;
+  readonly assetReader?: AssetLibraryReader | null;
   readonly disabled: boolean;
   readonly createCommandId: () => string;
   readonly createEntityId: (prefix: "stmt" | "txt") => string;
@@ -1402,11 +1594,14 @@ interface DirectionInsertPanelProps {
   readonly onClose: () => void;
 }
 
-function DirectionInsertPanel({ command, afterId, assetIndex, disabled, createCommandId, createEntityId, dispatch, onClose }: DirectionInsertPanelProps) {
+export function DirectionInsertPanel({ stageContext, insertionLabel, command, afterId, assetIndex, assetReader = null, disabled, createCommandId, createEntityId, dispatch, onClose }: DirectionInsertPanelProps) {
+  const dialog = useRef<HTMLDialogElement>(null);
+  useEffect(() => { if (!dialog.current?.open) dialog.current?.showModal(); }, []);
+  const parameterLabels: Readonly<Record<string, string>> = { set: "切换", clear: "清除", show: "显示", hide: "隐藏", move: "移动", reset: "恢复默认", play: "播放", stop: "停止", pause: "暂停", resume: "继续", fade: "渐变", dissolve: "叠化", slide: "滑动", linear: "匀速", "ease-in": "缓入", "ease-out": "缓出", "ease-in-out": "缓入缓出" };
   const defaultAction = resolveDirectiveAction(command, undefined)!;
   const [action, setAction] = useState(defaultAction);
   const [asset, setAsset] = useState("");
-  const [slot, setSlot] = useState("primary");
+  const [slot, setSlot] = useState(stageContext.newSlot);
   const [z, setZ] = useState("0");
   const [x, setX] = useState(command === "camera" ? "0" : "50");
   const [y, setY] = useState(command === "camera" ? "0" : "100");
@@ -1416,6 +1611,10 @@ function DirectionInsertPanel({ command, afterId, assetIndex, disabled, createCo
   const [easing, setEasing] = useState("ease-in-out");
   const [transition, setTransition] = useState("");
   const [bus, setBus] = useState("bgm");
+  const [loop,setLoop] = useState(true);
+  const [volume, setVolume] = useState("0.6");
+  const [notice, setNotice] = useState("");
+  const [position, setPosition] = useState("center");
   const [template, setTemplate] = useState<DialogueTemplate>("adv");
   const compatibleAssets = compatibleDirectionAssets(command, assetIndex.assets);
   const assetRequired = directiveActionRequiresAsset(command, action);
@@ -1435,10 +1634,12 @@ function DirectionInsertPanel({ command, afterId, assetIndex, disabled, createCo
   const durationValid = command !== "camera" && !(command === "background" && transition.length > 0) || /^\d+(?:\.\d+)?(?:ms|s)$/.test(duration);
   const transitionValid = transition.length === 0 || (STAGE_TRANSITIONS as readonly string[]).includes(transition);
   const templateValid = command !== "textbox" || action === "reset" || isDialogueTemplate(template);
-  const canSubmit = !disabled && assetValid && slotValid && zValid && moveGeometryValid && cameraGeometryValid && durationValid && transitionValid && templateValid;
+  const volumeValid = command !== "audio" || !assetRequired || normalizeAudioVolume(volume) !== null;
+  const canSubmit = !disabled && assetValid && slotValid && zValid && moveGeometryValid && cameraGeometryValid && durationValid && transitionValid && templateValid && volumeValid;
   const commandLabel = command === "background" ? "背景" : command === "show" ? "角色" : command === "camera" ? "镜头" : command === "textbox" ? "文本框" : "音频";
 
   return (
+    <dialog ref={dialog} className="entity-edit-dialog direction-create-dialog" aria-label={`添加${commandLabel}演出`} onCancel={onClose}>
     <form className={`direction-insert direction-insert--${command}`} aria-label={`新增${commandLabel}演出`} onSubmit={(event) => {
       event.preventDefault();
       if (!canSubmit) return;
@@ -1450,7 +1651,7 @@ function DirectionInsertPanel({ command, afterId, assetIndex, disabled, createCo
       }
       if (command === "show") {
         parameters.slot = slot;
-        if (assetRequired) parameters.z = z;
+        if (assetRequired) { parameters.z = z; parameters.position = position; }
         if (moveActive) {
           parameters.x = x;
           parameters.y = y;
@@ -1465,8 +1666,8 @@ function DirectionInsertPanel({ command, afterId, assetIndex, disabled, createCo
       if (command === "audio") {
         parameters.bus = bus;
         if (assetRequired) {
-          parameters.loop = "false";
-          parameters.volume = "1";
+          parameters.loop = String(loop);
+          parameters.volume = normalizeAudioVolume(volume)!;
         }
       }
       if (command === "camera") {
@@ -1475,34 +1676,41 @@ function DirectionInsertPanel({ command, afterId, assetIndex, disabled, createCo
         if (cameraMoveActive) Object.assign(parameters, { x, y, zoom, rotation });
       }
       if (command === "textbox" && action === "set") parameters.template = template;
-      dispatch({ type: "insert-direction", commandId: createCommandId(), afterId, statementId: createEntityId("stmt"), command, parameters });
-      onClose();
+      try { dispatch({ type: "insert-direction", commandId: createCommandId(), afterId, statementId: createEntityId("stmt"), command, parameters }); onClose(); }
+      catch (error) { setNotice((error as Error).message); }
     }} onKeyDown={(event) => { if (event.key === "Escape") onClose(); }}>
       <div className="direction-insert__heading">
-        <div><span className={`track-command track-command--${command}`}>@{command}</span><strong>新增{commandLabel}演出</strong></div>
+        <div><span className="entity-symbol"><StudioIcon name={command === "camera" ? "director" : "assets"} /></span><strong>新增{commandLabel}演出</strong></div>
         <button type="button" aria-label="关闭演出插入面板" onClick={onClose}>×</button>
       </div>
-      <p>插入锚点 <code>{afterId}</code></p>
+      <p className="direction-insertion-context">{insertionLabel}</p>
+      <details><summary>技术信息</summary><p>插入位置：<code>{afterId}</code></p></details>
       <div className="direction-insert__fields">
-        <label><span>动作</span><select aria-label="新增演出动作" value={action} disabled={disabled} onChange={(event) => setAction(event.target.value as typeof action)}>{directiveActionOptions(command).map((value) => <option key={value} value={value}>{value}</option>)}</select></label>
-        {assetRequired && <label className="direction-insert__asset"><span>资源</span><input aria-label="新增演出资源" list={`insert-assets-${command}`} value={asset} disabled={disabled} placeholder={compatibleAssets.length === 0 ? "请先导入兼容资源" : "选择 Asset ID"} onChange={(event) => setAsset(event.target.value)} /><datalist id={`insert-assets-${command}`}>{compatibleAssets.map((entry) => <option key={entry.assetId} value={entry.assetId}>{entry.displayName}</option>)}</datalist></label>}
-        {command === "show" && <label><span>槽位</span><input aria-label="新增角色槽位" value={slot} disabled={disabled} onChange={(event) => setSlot(event.target.value)} /></label>}
+        <label><span>动作</span><select aria-label="新增演出动作" value={action} disabled={disabled} onChange={(event) => { const next = event.target.value as typeof action; setAction(next); if (command === "show") setSlot(next === "show" ? stageContext.newSlot : stageContext.characters.length === 1 ? stageContext.characters[0]?.slot ?? "" : ""); }}>{directiveActionOptions(command).filter(value => value !== "motion").map((value) => <option key={value} value={value}>{directionActionLabel(command, value)}</option>)}</select></label>
+        {assetRequired && <DirectionAssetPicker assets={compatibleAssets} value={asset} disabled={disabled} label="新增演出资源" reader={assetReader} onChange={setAsset} />}
+        {command === "show" && <CharacterTargetFields context={stageContext} index={assetIndex} value={slot} action={action} disabled={disabled} label="新增角色槽位" onChange={setSlot} />}
         {command === "show" && assetRequired && <label><span>层级</span><input aria-label="新增角色层级" type="number" min={MIN_STAGE_Z} max={MAX_STAGE_Z} value={z} disabled={disabled} onChange={(event) => setZ(event.target.value)} /></label>}
-        {moveActive && <><label><span>X（%）</span><input aria-label="新增移动水平位置" type="number" min={MIN_STAGE_PERCENT} max={MAX_STAGE_PERCENT} step="0.1" value={x} disabled={disabled} onChange={(event) => setX(event.target.value)} /></label><label><span>Y（%）</span><input aria-label="新增移动垂直位置" type="number" min={MIN_STAGE_PERCENT} max={MAX_STAGE_PERCENT} step="0.1" value={y} disabled={disabled} onChange={(event) => setY(event.target.value)} /></label><label><span>缓动</span><select aria-label="新增移动缓动" value={easing} disabled={disabled} onChange={(event) => setEasing(event.target.value)}>{STAGE_EASINGS.map((value) => <option key={value} value={value}>{value}</option>)}</select></label></>}
+        {command === "show" && assetRequired && <label><span>画面位置</span><select aria-label="新增角色位置" value={position} disabled={disabled} onChange={event => setPosition(event.target.value)}><option value="left">左侧</option><option value="center">中央</option><option value="right">右侧</option></select></label>}
+        {moveActive && <><label><span>X（%）</span><input aria-label="新增移动水平位置" type="number" min={MIN_STAGE_PERCENT} max={MAX_STAGE_PERCENT} step="0.1" value={x} disabled={disabled} onChange={(event) => setX(event.target.value)} /></label><label><span>Y（%）</span><input aria-label="新增移动垂直位置" type="number" min={MIN_STAGE_PERCENT} max={MAX_STAGE_PERCENT} step="0.1" value={y} disabled={disabled} onChange={(event) => setY(event.target.value)} /></label><label><span>缓动</span><select aria-label="新增移动缓动" value={easing} disabled={disabled} onChange={(event) => setEasing(event.target.value)}>{STAGE_EASINGS.map((value) => <option key={value} value={value}>{parameterLabels[value] ?? value}</option>)}</select></label></>}
         {cameraMoveActive && <><label><span>偏移 X（%）</span><input aria-label="新增镜头水平偏移" type="number" min={MIN_CAMERA_OFFSET} max={MAX_CAMERA_OFFSET} step="0.1" value={x} disabled={disabled} onChange={(event) => setX(event.target.value)} /></label><label><span>偏移 Y（%）</span><input aria-label="新增镜头垂直偏移" type="number" min={MIN_CAMERA_OFFSET} max={MAX_CAMERA_OFFSET} step="0.1" value={y} disabled={disabled} onChange={(event) => setY(event.target.value)} /></label><label><span>倍率</span><input aria-label="新增镜头倍率" type="number" min={MIN_CAMERA_ZOOM} max={MAX_CAMERA_ZOOM} step="0.05" value={zoom} disabled={disabled} onChange={(event) => setZoom(event.target.value)} /></label><label><span>旋转</span><input aria-label="新增镜头旋转" type="number" min={MIN_CAMERA_ROTATION} max={MAX_CAMERA_ROTATION} step="0.1" value={rotation} disabled={disabled} onChange={(event) => setRotation(event.target.value)} /></label></>}
-        {command === "background" && <><label><span>转场</span><select aria-label="新增背景转场" value={transition} disabled={disabled} onChange={(event) => setTransition(event.target.value)}><option value="">无</option>{STAGE_TRANSITIONS.map((value) => <option key={value} value={value}>{value}</option>)}</select></label>{transition.length > 0 && <label><span>时长</span><input aria-label="新增背景转场时长" value={duration} disabled={disabled} onChange={(event) => setDuration(event.target.value)} /></label>}</>}
-        {command === "camera" && <><label><span>时长</span><input aria-label="新增镜头时长" value={duration} disabled={disabled} onChange={(event) => setDuration(event.target.value)} /></label><label><span>缓动</span><select aria-label="新增镜头缓动" value={easing} disabled={disabled} onChange={(event) => setEasing(event.target.value)}>{STAGE_EASINGS.map((value) => <option key={value} value={value}>{value}</option>)}</select></label></>}
-        {command === "audio" && <label><span>总线</span><select aria-label="新增音频总线" value={bus} disabled={disabled} onChange={(event) => setBus(event.target.value)}><option value="voice">Voice</option><option value="bgm">BGM</option><option value="sfx">SFX</option><option value="ambient">Ambient</option></select></label>}
+        {command === "background" && <><label><span>转场</span><select aria-label="新增背景转场" value={transition} disabled={disabled} onChange={(event) => setTransition(event.target.value)}><option value="">无</option>{STAGE_TRANSITIONS.map((value) => <option key={value} value={value}>{parameterLabels[value] ?? value}</option>)}</select></label>{transition.length > 0 && <label><span>时长</span><input aria-label="新增背景转场时长" value={duration} disabled={disabled} onChange={(event) => setDuration(event.target.value)} /></label>}</>}
+        {command === "camera" && <><label><span>时长</span><input aria-label="新增镜头时长" value={duration} disabled={disabled} onChange={(event) => setDuration(event.target.value)} /></label><label><span>缓动</span><select aria-label="新增镜头缓动" value={easing} disabled={disabled} onChange={(event) => setEasing(event.target.value)}>{STAGE_EASINGS.map((value) => <option key={value} value={value}>{parameterLabels[value] ?? value}</option>)}</select></label></>}
+        {command === "audio" && <label><span>音轨</span><select aria-label="新增音频总线" value={bus} disabled={disabled} onChange={(event) => { const value = event.target.value; setBus(value); setLoop(value === "bgm" || value === "ambient"); }}><option value="voice">角色配音</option><option value="bgm">背景音乐</option><option value="sfx">音效</option><option value="ambient">环境声音</option></select></label>}
+        {command === "audio" && assetRequired && <label><span>音量</span><input aria-label="新增音频音量" type="number" min="0" max="1" step="0.001" value={volume} disabled={disabled} onChange={event => setVolume(event.target.value)} /></label>}
+        {command === 'audio' && assetRequired && <label><input type="checkbox" aria-label="循环播放音频" checked={loop} disabled={disabled} onChange={event=>setLoop(event.target.checked)}/>循环播放（适合背景音乐）</label>}
         {command === "textbox" && action === "set" && <label><span>模板</span><select aria-label="新增文本框模板" value={template} disabled={disabled} onChange={(event) => setTemplate(event.target.value as DialogueTemplate)}>{DIALOGUE_TEMPLATES.map((value) => <option key={value} value={value}>{value.toUpperCase()}</option>)}</select></label>}
       </div>
-      {!assetValid && <small className="is-error">请选择 Asset Index 中类型兼容的资源</small>}
+      {notice && <p role="alert">{notice}</p>}
+      {!volumeValid && <p role="alert">音量需要在 0–1 之间，最多三位小数。</p>}
+      {!assetValid && <small className="is-error">请选择适合当前演出的素材</small>}
       {!slotValid && <small className="is-error">槽位必须是稳定标识符</small>}
       {!zValid && <small className="is-error">层级必须是 {MIN_STAGE_Z}–{MAX_STAGE_Z} 的整数</small>}
       {!moveGeometryValid && <small className="is-error">移动位置必须在 0–100 之间</small>}
       {!cameraGeometryValid && <small className="is-error">镜头偏移 -100–100，倍率 0.5–3，旋转 -30–30</small>}
       {!durationValid && <small className="is-error">转场或镜头时长必须带 ms 或 s 单位</small>}
-      <div className="direction-insert__actions"><span>提交后写回权威脚本并自动选中新步骤</span><button type="submit" disabled={!canSubmit}>插入演出</button></div>
+      <div className="direction-insert__actions"><span>添加后会自动选中新步骤，故事与预览同步更新</span><button type="submit" disabled={!canSubmit}>插入演出</button></div>
     </form>
+    </dialog>
   );
 }
 
@@ -1696,13 +1904,26 @@ function isCharacterMoveCue(statement: StoryStatement): boolean {
   return inspected.duplicateKeys.length === 0 && inspected.positional.length === 0 && resolveDirectiveAction("show", inspected.parameters.action) === "move";
 }
 
-interface SequenceInspectorProps { readonly statement: Exclude<StoryStatement,{readonly kind:"dialogue"|"direction"}>;readonly disabled:boolean;readonly characterIds:readonly string[];readonly targetIds:readonly string[];readonly variableIds:readonly string[];readonly createCommandId:()=>string;readonly dispatch:(action:StudioAction)=>void; }
-function SequenceInspector({statement,disabled,targetIds,variableIds,createCommandId,dispatch}:SequenceInspectorProps){
+interface SequenceInspectorProps { readonly statement: Exclude<StoryStatement,{readonly kind:"dialogue"|"narration"|"direction"|"choice"}>;readonly disabled:boolean;readonly onDirtyChange:(dirty:boolean)=>void;readonly characterIds:readonly string[];readonly targetNames:Readonly<Record<string,string>>;readonly targetIds:readonly string[];readonly variableNames:Readonly<Record<string,string>>;readonly variableIds:readonly string[];readonly variableTypes:Readonly<Record<string,"boolean"|"number"|"string">>;readonly createCommandId:()=>string;readonly dispatch:(action:StudioAction)=>void; }
+function SequenceInspector({statement,disabled,onDirtyChange,targetNames,targetIds,variableIds,variableNames,variableTypes,createCommandId,dispatch}:SequenceInspectorProps){
+  const form = useRef<HTMLFormElement>(null);
+  const baseline = useRef("");
+  const [dirty, setDirty] = useState(false);
+  const [resetSerial, setResetSerial] = useState(0);
+  const [error, setError] = useState("");
+  const signature = (overrides: Readonly<Record<string,string>> = {}) => form.current ? JSON.stringify([...new FormData(form.current).entries()].map(([key, value]) => [key, overrides[key] ?? value])) : "";
+  const markDirty = (overrides: Readonly<Record<string,string>> = {}) => { const next = signature(overrides) !== baseline.current; setDirty(next); onDirtyChange(next); setError(""); };
+  useEffect(() => { form.current?.reset(); baseline.current = signature(); setDirty(false); onDirtyChange(false); setError(""); }, [statement, resetSerial]);
+  useEffect(() => () => onDirtyChange(false), []);
   if(statement.kind==="return")return <div className="readonly-step">返回调用方；该语句没有可编辑参数。</div>;
   const submit=(event:FormEvent<HTMLFormElement>)=>{event.preventDefault();const data=new FormData(event.currentTarget),value=(name:string)=>String(data.get(name)??"").trim();let patch:Readonly<Record<string,unknown>>={};
-    if(statement.kind==="narration")patch={textRaw:JSON.stringify(value("text"))};
-    else if(statement.kind==="choice"){const operations=[{kind:"update" as const,statementId:statement.id,patch:{promptRaw:JSON.stringify(value("prompt"))}},...statement.options.map((option)=>({kind:"update" as const,statementId:option.id,patch:{labelRaw:JSON.stringify(value(`label:${option.id}`)),targetLabel:value(`target:${option.id}`)}}))];dispatch({type:"p0-batch",commandId:createCommandId(),operations,selectedStatementId:statement.id});return;}
-    else if(statement.kind==="label")patch={name:value("name")};
+    if (disabled) return;
+    if (statement.kind === "set" || statement.kind === "condition") {
+      const symbols: Readonly<Record<string, ExpressionValueType>> = Object.fromEntries(variableIds.map(id => [id, variableTypes[id] ?? "unknown"]));
+      const problem = expressionProblem(value("expression"), symbols, statement.kind === "condition" ? "boolean" : variableTypes[value("variable")] ?? "unknown");
+      if (problem) { setError(problem); return; }
+    }
+    if(statement.kind==="label")patch={name:value("name")};
     else if(statement.kind==="jump"||statement.kind==="call")patch={targetLabel:value("target")};
     else if(statement.kind==="set")patch={variable:value("variable"),expressionRaw:value("expression")};
     else if(statement.kind==="condition")patch={expressionRaw:value("expression"),targetLabel:value("target")};
@@ -1710,30 +1931,39 @@ function SequenceInspector({statement,disabled,targetIds,variableIds,createComma
     else patch={nameRaw:JSON.stringify(value("ending"))};
     dispatch({type:"p0-update",commandId:createCommandId(),statementId:statement.id,patch});
   };
-  return <form key={`${statement.id}:${statementLabel(statement)}`} className="sequence-inspector" aria-label={`${statementKindLabel(statement)}类型化参数`} onSubmit={submit}>
-    {statement.kind==="narration"&&<label><span>旁白文本</span><textarea name="text" defaultValue={statement.text} rows={3} required disabled={disabled}/></label>}
-    {statement.kind==="choice"&&<><label><span>选择提示</span><input name="prompt" defaultValue={statement.prompt} required disabled={disabled}/></label>{statement.options.map((option)=><fieldset key={option.id}><legend>{option.id}</legend><label><span>选项文本</span><input name={`label:${option.id}`} defaultValue={option.label} required disabled={disabled}/></label><label><span>目标稳定 ID</span><select name={`target:${option.id}`} defaultValue={option.targetSceneId} disabled={disabled}>{[...new Set([option.targetSceneId,...targetIds])].map((id)=><option key={id} value={id}>{id}</option>)}</select></label></fieldset>)}</>}
+  return <form key={`${statement.id}:${statementLabel(statement)}:${resetSerial}`} ref={form} onChange={() => markDirty()} className="sequence-inspector" aria-label={`${statementKindLabel(statement)}类型化参数`} onSubmit={submit}>
     {statement.kind==="label"&&<label><span>标签稳定名</span><input name="name" defaultValue={statement.name} required pattern="[A-Za-z_][A-Za-z0-9_.-]*" disabled={disabled}/></label>}
-    {(statement.kind==="jump"||statement.kind==="call")&&<label><span>目标稳定 ID</span><select name="target" defaultValue={statement.targetLabel} disabled={disabled}>{[...new Set([statement.targetLabel,...targetIds])].map((id)=><option key={id} value={id}>{id}</option>)}</select></label>}
-    {statement.kind==="set"&&<><label><span>变量稳定 ID</span><select name="variable" defaultValue={statement.variable} disabled={disabled}>{[...new Set([statement.variable,...variableIds])].map((id)=><option key={id} value={id}>{id}</option>)}</select></label><label><span>类型化表达式</span><input name="expression" defaultValue={statement.expression} required disabled={disabled}/></label></>}
-    {statement.kind==="condition"&&<><label><span>条件表达式</span><input name="expression" defaultValue={statement.expression} required disabled={disabled}/></label><label><span>成立时目标</span><select name="target" defaultValue={statement.targetLabel} disabled={disabled}>{[...new Set([statement.targetLabel,...targetIds])].map((id)=><option key={id} value={id}>{id}</option>)}</select></label></>}
+    {(statement.kind==="jump"||statement.kind==="call")&&<label><span>接下来进入</span><select name="target" defaultValue={statement.targetLabel} disabled={disabled}>{[...new Set([statement.targetLabel,...targetIds])].map((id)=><option key={id} value={id}>{targetNames[id] ?? `失效目标 · ${id}`}</option>)}</select></label>}
+    {statement.kind === "set" && <VariableAssignmentFields variable={statement.variable} expression={statement.expression} variableIds={variableIds} variableNames={variableNames} variableTypes={variableTypes} disabled={disabled} onDraftChange={(expression, variable) => markDirty({ expression, variable })} />}
+    {statement.kind==="condition"&&<><ConditionExpressionFields expression={statement.expression} variableIds={variableIds} variableNames={variableNames} variableTypes={variableTypes} disabled={disabled} onDraftChange={expression => markDirty({ expression })}/><label><span>成立时目标</span><select name="target" defaultValue={statement.targetLabel} disabled={disabled}>{[...new Set([statement.targetLabel,...targetIds])].map((id)=><option key={id} value={id}>{targetNames[id] ?? `失效目标 · ${id}`}</option>)}</select></label><small className="condition-flow-hint">条件成立时进入所选场景或标签；不成立时继续下一个步骤。</small></>}
     {statement.kind==="wait"&&<label><span>等待时长</span><input name="duration" defaultValue={statement.duration} required pattern="[0-9]+(?:\.[0-9]+)?(?:ms|s)" disabled={disabled}/></label>}
     {statement.kind==="end"&&<label><span>结局名称</span><input name="ending" defaultValue={statement.endingName} required disabled={disabled}/></label>}
-    <button type="submit" disabled={disabled}>应用类型化参数</button><small>字段按 AST 类型提交，不解析卡片显示文本。</small>
+    <button type="submit" disabled={disabled}>应用修改</button>{dirty && <button type="button" onClick={() => { setResetSerial(value => value + 1); setDirty(false); onDirtyChange(false); }}>放弃修改</button>}<small>{dirty ? "参数有未应用的修改。请先应用或放弃，再切换场景或添加内容。" : "应用修改后，故事和预览会同步更新。"}</small>{error && <p role="alert">{error}</p>}
   </form>;
 }
 
 function SequenceView({
+  editingShortcutsEnabled = true,
   session,
   dispatch,
   createCommandId,
   createEntityId,
   onInputDirtyChange,
   assetIndex,
+  assetReader = null,
+  inputDirty,
   variableIds,
+  variableDefaults,
+  variableTypes,
+  variableNames,
+  variableDisplayNames,
   requestedFocusStatementId,
   onRequestedFocusHandled,
-  runtimeRouteTrace
+  runtimeRouteTrace,
+  stageExpanded = true,
+  onCreateEntity,
+  canonicalProject,
+  onMotionProjectChange
 }: SequenceViewProps) {
   const scene = findScene(session.project, session.activeSceneId);
   const selected = findStatement(session.project, scene.id, session.selectedStatementId);
@@ -1743,6 +1973,8 @@ function SequenceView({
   const nextStatement = scene.statements[selectedIndex + 1];
   const pendingDraft = hasPendingDraft(session);
   const [insertCommand, setInsertCommand] = useState<DirectionCommand | null>(null);
+  const [textBatchOpen, setTextBatchOpen] = useState(false);
+  const [motionPresetOpen, setMotionPresetOpen] = useState(false);
   const [keyframeInsertOpen, setKeyframeInsertOpen] = useState(false);
   const [motionPathOpen, setMotionPathOpen] = useState(false);
   const [bezierPathOpen, setBezierPathOpen] = useState(false);
@@ -1751,15 +1983,21 @@ function SequenceView({
   const [selectedDirectionIds, setSelectedDirectionIds] = useState<readonly string[]>([]);
   const [rangeAnchorId, setRangeAnchorId] = useState<string | null>(null);
   const [selectionNotice, setSelectionNotice] = useState<string | null>(null);
+  const [choiceReturn, setChoiceReturn] = useState<{ sceneId: string; statementId: string } | null>(null);
   const [stageWindowStart, setStageWindowStart] = useState(0);
   const [stageSearchQuery, setStageSearchQuery] = useState("");
   const [activeStageSearchResult, setActiveStageSearchResult] = useState(0);
   const [pendingStageFocusId, setPendingStageFocusId] = useState<string | null>(null);
   const [sequenceInsertKind,setSequenceInsertKind]=useState<SequenceInsertKind>("dialogue");
+  const [insertBefore,setInsertBefore]=useState(false);
   const [sequenceMultiSelect,setSequenceMultiSelect]=useState(false);
   const [sequenceSelectedIds,setSequenceSelectedIds]=useState<readonly string[]>([]);
   const [sequenceRangeAnchor,setSequenceRangeAnchor]=useState<string|null>(null);
   const [collapsedStatementIds,setCollapsedStatementIds]=useState<readonly string[]>([]);
+  const [inspectorDirty, setInspectorDirty] = useState(false);
+  const [pendingWritingFocusId, setPendingWritingFocusId] = useState<string | null>(null);
+  const textStatements = scene.statements.filter(item => item.kind === "dialogue" || item.kind === "narration");
+  const textPosition = textStatements.findIndex(item => item.id === selected.id);
   const stageWindow = createStageWindow(scene.statements.length, stageWindowStart);
   const visibleStatements = scene.statements.slice(stageWindow.start, stageWindow.end);
   const selectedInStageWindow = selectedIndex >= stageWindow.start && selectedIndex < stageWindow.end;
@@ -1779,19 +2017,28 @@ function SequenceView({
   const timelinePlayheadIndex = timelineFollowsRuntime ? runtimeCurrentIndex : selectedIndex;
   const timelinePlayheadCue = stageTimeline.cues[timelinePlayheadIndex];
   const syntaxNodes=activeSourceSession(session).committedDocument.nodes;
-  const sequenceReferences={characterIds:session.project.characters.map((item)=>item.id),sceneIds:session.project.scenes.map((item)=>item.id),labelIds:syntaxNodes.flatMap((item)=>item.kind==="label"?[item.name]:[]),variableIds:[...new Set([...variableIds,...syntaxNodes.flatMap((item)=>item.kind==="set"?[item.variable]:[])])],assetIds:assetIndex.assets.map((item)=>item.assetId)};
+  const sequenceReferences={characterIds:session.project.characters.map((item)=>item.id),sceneIds:session.project.scenes.map((item)=>item.id),labelIds:syntaxNodes.flatMap((item)=>item.kind==="label"?[item.name]:[]),variableIds:[...new Set([...variableIds,...syntaxNodes.flatMap((item)=>item.kind==="set"?[item.variable]:[])])],assetIds:assetIndex.assets.map((item)=>item.assetId),...(variableDefaults ? {variableDefaults} : {}),...(variableTypes ? {variableTypes} : {})};
   const sequenceInsertRequirement = sequenceInsertKind === "dialogue" && sequenceReferences.characterIds.length === 0
-    ? "插入对白前，请先返回项目结构创建至少一名角色。"
+    ? "还没有角色。先创建一位角色，就可以写对白。"
     : (sequenceInsertKind === "set" || sequenceInsertKind === "condition") && sequenceReferences.variableIds.length === 0
-      ? "插入变量语句前，请先返回项目结构创建至少一个变量。"
-      : (sequenceInsertKind === "background" || sequenceInsertKind === "show" || sequenceInsertKind === "audio") && sequenceReferences.assetIds.length === 0
-        ? "插入演出语句前，请先打开资源保险库导入资源。"
-        : null;
+      ? "还没有变量。先创建变量，用来记录故事状态。"
+      : null;
   const targetIds=[...new Set([...sequenceReferences.labelIds,...sequenceReferences.sceneIds])];
+  const sceneTitleCounts = new Map<string, number>();
+  for (const scene of session.project.scenes) sceneTitleCounts.set(scene.title, (sceneTitleCounts.get(scene.title) ?? 0) + 1);
+  const targetNames:Readonly<Record<string,string>>=Object.fromEntries([
+    ...session.project.scenes.map(item=>[item.id, `场景：${item.title}${(sceneTitleCounts.get(item.title) ?? 0) > 1 ? ` · ${item.id}` : ''}`]),
+    ...sequenceReferences.labelIds.map(id=>[id, `当前场景标签：${id}`])
+  ]);
   const selectedSequenceIds=sequenceMultiSelect?sequenceSelectedIds:[selected.id];
-  const insertionAnchor=selected.kind==="choice"?selected.options.at(-1)?.id??selected.id:selected.id;
+  const insertionAnchor=sequenceInsertionAnchor(scene.statements,scene.id,selected.id,insertBefore);
   const insertPlan=(plan:ReturnType<typeof createSequenceInsertPlan>)=>{const first=plan[0]?.node,selectedStatementId=first===undefined?undefined:first.kind==="dialogue"||first.kind==="narration"?first.statementId:first.id;dispatch({type:"p0-batch",commandId:createCommandId(),operations:plan.map((step)=>({kind:"insert" as const,afterId:step.afterId,node:step.node})),...(selectedStatementId===undefined?{}:{selectedStatementId})});};
   const choiceChildren=(statement:StoryStatement)=>statement.kind==="choice"?statement.options.map((item)=>item.id):[];
+  const requestSequenceInsert=()=>{
+    if (inspectorDirty) return;
+    if(sequenceInsertKind==='background'||sequenceInsertKind==='show'||sequenceInsertKind==='audio'||sequenceInsertKind==='camera'||sequenceInsertKind==='textbox') setInsertCommand(sequenceInsertKind);
+    else insertPlan(createSequenceInsertPlan(sequenceInsertKind,insertionAnchor,sequenceReferences,createEntityId));
+  };
   const duplicateSelected=()=>insertPlan(duplicateSequencePlan(selected,insertionAnchor,createEntityId));
   const deleteSelected=()=>{const ids=scene.statements.filter((item)=>selectedSequenceIds.includes(item.id)).flatMap((item)=>[item.id,...choiceChildren(item)]);dispatch({type:"p0-batch",commandId:createCommandId(),operations:ids.map((statementId)=>({kind:"delete" as const,statementId}))});setSequenceSelectedIds([]);};
   const moveStatement=(statement:StoryStatement,direction:-1|1)=>{const afterId=sequenceMoveAfterId(scene.statements,scene.id,statement.id,direction);if(afterId===undefined)return;const operations=[{kind:"move" as const,statementId:statement.id,afterId}];if(statement.kind==="choice"){let anchor=statement.id;for(const option of statement.options){operations.push({kind:"move" as const,statementId:option.id,afterId:anchor});anchor=option.id;}}dispatch({type:"p0-batch",commandId:createCommandId(),operations,selectedStatementId:statement.id});};
@@ -1901,14 +2148,26 @@ function SequenceView({
     }
   }, [pendingStageFocusId, selected.id, stageWindow.start]);
   useEffect(() => {
+    // The fallback inspector is replaced when a bounded card window moves.
+    // Focus only the final mounted input, not that temporary copy.
+    if (pendingWritingFocusId !== selected.id || !selectedInStageWindow) return;
+    const target = document.getElementById(`writing-text-${pendingWritingFocusId}`);
+    if (target instanceof HTMLTextAreaElement) {
+      target.focus({ preventScroll: true });
+      target.scrollIntoView?.({ block: "nearest" });
+      setPendingWritingFocusId(null);
+    }
+  }, [pendingWritingFocusId, selected.id, stageWindow.start]);
+  useEffect(() => {
     if (requestedFocusStatementId === null || requestedFocusStatementId !== selected.id) return;
     setStageWindowStart(revealStageIndex(stageWindow, selectedIndex).start);
     setPendingStageFocusId(requestedFocusStatementId);
     onRequestedFocusHandled();
   }, [requestedFocusStatementId, selected.id, selectedIndex]);
   useEffect(() => {
+    if (!editingShortcutsEnabled) return;
     const shortcut = (event: KeyboardEvent) => {
-      if (!event.altKey || pendingDraft) return;
+      if (event.isComposing || event.keyCode === 229 || !event.altKey || pendingDraft || inspectorDirty || textBatchOpen || document.querySelector("dialog[open]")) return;
       const command = event.key === "1" ? "background" : event.key === "2" ? "show" : event.key === "3" ? "audio" : event.key === "4" ? "camera" : event.key === "5" ? "textbox" : null;
       if (command === null) return;
       event.preventDefault();
@@ -1916,18 +2175,87 @@ function SequenceView({
     };
     globalThis.addEventListener("keydown", shortcut);
     return () => globalThis.removeEventListener("keydown", shortcut);
-  }, [pendingDraft]);
-  useEffect(()=>{const shortcut=(event:KeyboardEvent)=>{if(!pendingDraft&&sequenceInsertRequirement===null&&event.ctrlKey&&event.key==="Enter"){event.preventDefault();insertPlan(createSequenceInsertPlan(sequenceInsertKind,insertionAnchor,sequenceReferences,createEntityId));}};globalThis.addEventListener("keydown",shortcut);return()=>globalThis.removeEventListener("keydown",shortcut);},[pendingDraft,sequenceInsertKind,sequenceInsertRequirement,insertionAnchor,session.project,assetIndex]);
+  }, [editingShortcutsEnabled, pendingDraft, inspectorDirty, textBatchOpen]);
+  useEffect(()=>{if(!editingShortcutsEnabled)return;const shortcut=(event:KeyboardEvent)=>{if(event.isComposing||event.keyCode===229)return;if(!document.querySelector("dialog[open]")&&!pendingDraft&&!inspectorDirty&&!textBatchOpen&&sequenceInsertRequirement===null&&event.ctrlKey&&event.key==="Enter"){event.preventDefault();requestSequenceInsert();}};globalThis.addEventListener("keydown",shortcut);return()=>globalThis.removeEventListener("keydown",shortcut);},[editingShortcutsEnabled,pendingDraft,inspectorDirty,textBatchOpen,sequenceInsertKind,sequenceInsertRequirement,insertionAnchor,session.project,assetIndex]);
 
+  const selectedInspector = (<div className="inline-inspector">
+        <div className="inspector-label-row">
+          {selected.kind === "dialogue" ? (
+            <label htmlFor={`writing-text-${selected.id}`}>对白内容</label>
+          ) : (
+            <span className="inspector-title">编辑{statementKindLabel(selected)}</span>
+          )}
+          <span className="step-type-label">{statementKindLabel(selected)}</span>
+        </div>
+        {selected.kind === "dialogue" || selected.kind === "narration" ? (
+          <WritingTextInspector key={selected.id} statement={selected} characters={session.project.characters} disabled={pendingDraft} position={textPosition + 1} total={textStatements.length} onDirtyChange={dirty => { setInspectorDirty(dirty); onInputDirtyChange(dirty); }}
+            onCommit={text => {
+              const action: StudioAction = selected.kind === "dialogue"
+                ? { type: "patch-dialogue", commandId: createCommandId(), statementId: selected.id, text }
+                : { type: "p0-update", commandId: createCommandId(), statementId: selected.id, patch: { textRaw: JSON.stringify(text) } };
+              const candidate = reduceStudioSession(session, action);
+              if (candidate.notice.tone === "error") return candidate.notice.detail;
+              dispatch(action); return null;
+            }}
+            onSpeakerChange={speakerId => dispatch({ type: "p0-update", commandId: createCommandId(), statementId: selected.id, patch: { speakerId } })}
+            onNavigate={direction => {
+              const target = textStatements[textPosition + direction];
+              if (!target) return;
+              setPendingWritingFocusId(target.id);
+              dispatch({ type: "select-statement", statementId: target.id });
+            }}
+          />
+        ) : selected.kind === "direction" ? (
+          <details key={selected.id} open={stageExpanded} className="step-properties"><summary>编辑演出 · {describeDirection(selected, assetIndex)}</summary>
+          <DirectionInspector
+            stageContext={directionStageContext(scene.statements, selectedIndex, session.project.scenes.flatMap(item => item.statements))}
+            key={`${selected.id}:${selected.summary}`}
+            statement={selected}
+            assetIndex={assetIndex}
+            disabled={pendingDraft}
+            createCommandId={createCommandId}
+            assetReader={assetReader}
+            onDirtyChange={dirty => { setInspectorDirty(dirty); onInputDirtyChange(dirty); }}
+            dispatch={action => {
+              const candidate = reduceStudioSession(session, action);
+              if (candidate.notice.tone === "error") throw new Error(candidate.notice.detail);
+              dispatch(action);
+            }}
+          />
+          <details className="direction-source-details"><summary>查看脚本参数</summary><code>@{selected.command} {selected.summary}</code></details>
+          </details>
+        ) : selected.kind === "choice" ? <ChoiceInspector key={selected.id} statement={selected} scenes={session.project.scenes} disabled={pendingDraft} createId={createEntityId} onDirtyChange={dirty => { setInspectorDirty(dirty); onInputDirtyChange(dirty); }} onApply={draft => {
+          const action: StudioAction = { type: "p0-batch", commandId: createCommandId(), operations: choiceEditOperations(selected, draft, sequenceReferences.sceneIds), selectedStatementId: selected.id };
+          const candidate = reduceStudioSession(session, action);
+          if (candidate.notice.tone === "error") throw new Error(candidate.notice.detail);
+          dispatch(action);
+        }} onOpenTarget={sceneId => { setChoiceReturn({ sceneId: scene.id, statementId: selected.id }); dispatch({ type: "select-scene", sceneId }); }} /> : <SequenceInspector statement={selected} disabled={pendingDraft} onDirtyChange={dirty => { setInspectorDirty(dirty); onInputDirtyChange(dirty); }} characterIds={sequenceReferences.characterIds} targetIds={targetIds} targetNames={targetNames} variableIds={sequenceReferences.variableIds} variableNames={variableNames} variableTypes={variableTypes ?? {}} createCommandId={createCommandId} dispatch={dispatch}/>}
+        <p className="field-help">
+          点击下方步骤编辑内容。对白和旁白停止输入或失焦后自动应用；其他参数需应用或放弃修改。
+        </p>
+      </div>);
+  const displayStatement = (statement: StoryStatement) => {
+    if (statement.kind === "direction") return describeDirection(statement, assetIndex);
+    let label = statementLabel(statement);
+    for (const [id, name] of Object.entries(variableDisplayNames)) label = label.replaceAll(id, name);
+    for (const asset of assetIndex.assets) label = label.replaceAll(asset.assetId, asset.displayName);
+    if (statement.kind === "jump" || statement.kind === "call") label = session.project.scenes.find(item => item.id === statement.targetLabel)?.title ?? statement.targetLabel;
+    return label;
+  };
   return (
-    <section className="authoring-panel view-enter" aria-labelledby="sequence-heading">
+    <section className="authoring-panel view-enter" data-stage-expanded={stageExpanded} aria-labelledby="sequence-heading">
       <div className="panel-heading authoring-heading">
         <div>
-          <p className="eyebrow">SEQUENCE · CANONICAL STABLE-ID PATCH</p>
+          <p className="eyebrow">{stageExpanded ? "演出编排" : "场景写作"}</p>
           <h2 id="sequence-heading">{scene.title}</h2>
+          <p className="scene-intro">{scene.statements.filter(item => item.kind === "dialogue" || item.kind === "narration").length} 段文字 · {scene.statements.filter(item => item.kind === "choice").length} 处选择 · 每一段，都是故事的一部分</p>
         </div>
-        <span className="context-chip">权威脚本投影</span>
+        <div><span className="context-chip">{scene.statements.length} 个步骤</span><button type="button" disabled={pendingDraft || inspectorDirty} onClick={() => setTextBatchOpen(true)}>添加成段文字</button></div>
       </div>
+      {choiceReturn !== null && (choiceReturn.sceneId !== scene.id || choiceReturn.statementId !== selected.id) && <div className="choice-return" aria-label="分支写作返回入口"><StudioIcon name="route" /><span>来自“{session.project.scenes.find(item => item.id === choiceReturn.sceneId)?.title ?? "原场景"}”的选择</span><button type="button" disabled={inputDirty || pendingDraft || inspectorDirty || !session.project.scenes.find(item => item.id === choiceReturn.sceneId)?.statements.some(item => item.id === choiceReturn.statementId)} onClick={() => {
+        const origin = choiceReturn; setChoiceReturn(null); dispatch({ type: "select-project-result", sceneId: origin.sceneId, statementId: origin.statementId });
+        requestAnimationFrame(() => document.getElementById(`statement-card-${origin.statementId}`)?.scrollIntoView({ block: "nearest" }));
+      }}>返回分支<StudioIcon name="back" /></button></div>}
 
       <div
         className={runtimeRouteTrace.active ? "sequence-runtime-trace is-active" : "sequence-runtime-trace"}
@@ -1936,28 +2264,33 @@ function SequenceView({
       >
         <span aria-hidden="true">◆</span>
         {runtimeCurrentIndex >= 0 ? (
-          <span>Runtime 当前步骤 · <strong>{runtimeCurrentStatementId}</strong></span>
+          <span>试玩到第 <strong>{runtimeCurrentIndex + 1}</strong> 步 · {statementKindLabel(scene.statements[runtimeCurrentIndex]!)}</span>
         ) : runtimeRouteTrace.active && runtimeRouteTrace.currentSceneId !== scene.id ? (
-          <span>Runtime 当前位于其他场景 · <strong>{runtimeRouteTrace.currentSceneId}</strong></span>
+          <span>正在试玩 · <strong>{session.project.scenes.find(item => item.id === runtimeRouteTrace.currentSceneId)?.title ?? "其他场景"}</strong></span>
         ) : runtimeRouteTrace.active ? (
-          <span>Runtime 当前内部指令未映射到剧情步骤</span>
+          <span>正在处理演出，完成后继续故事</span>
         ) : (
-          <span>Runtime 未运行 · 启动试玩后高亮正式执行位置</span>
+          <span>写作中 · 点击步骤编辑，完整试玩时会标出故事位置</span>
         )}
       </div>
 
+      <div className="direction-quick-actions" aria-label="场景演出快捷操作"><span>场景演出</span>{([ ["background", "背景", "assets"], ["show", "角色", "characters"], ["audio", "声音", "audio"], ["camera", "镜头", "director"], ["textbox", "对白框", "appearance"] ] as const).map(([command, label, icon]) => <button key={command} type="button" data-command={command} disabled={inputDirty || pendingDraft || inspectorDirty} onClick={() => setInsertCommand(command)}><StudioIcon name={icon} />添加{label}</button>)}</div>
+      {canonicalProject && onMotionProjectChange && <button className="motion-preset-entry" type="button" disabled={inputDirty || pendingDraft || inspectorDirty || !(selected.kind === "dialogue" || selected.kind === "narration" || selected.kind === "direction" && ["show", "textbox"].includes(selected.command))} onClick={() => setMotionPresetOpen(true)}>动效预设 · 试看并应用</button>}
+      <details className="statement-tools"><summary>插入与整理内容<span>复制、移动与多选</span></summary>
       <div className="statement-toolbar" aria-label="对白结构工具">
-        <label className="sequence-insert"><span>插入语句</span><select aria-label="插入 P0 语句类型" value={sequenceInsertKind} disabled={pendingDraft} onChange={(event)=>setSequenceInsertKind(event.target.value as SequenceInsertKind)}>{([['dialogue','对白'],['narration','旁白'],['choice','两选项选择'],['label','标签'],['jump','跳转'],['call','调用'],['return','返回'],['set','设置变量'],['condition','条件分支'],['wait','等待'],['end','结局'],['background','背景'],['show','角色演出'],['camera','镜头'],['audio','音频'],['textbox','文本框模板']] as const).map(([value,label])=><option value={value} key={value}>{label}</option>)}</select></label>
-        <button type="button" aria-keyshortcuts="Control+Enter" disabled={pendingDraft||sequenceInsertRequirement!==null} onClick={()=>insertPlan(createSequenceInsertPlan(sequenceInsertKind,insertionAnchor,sequenceReferences,createEntityId))}>＋ 插入</button>
-        <button type="button" disabled={pendingDraft||sequenceMultiSelect} onClick={duplicateSelected}>复制</button>
-        <button type="button" aria-label="语句上移" disabled={pendingDraft||sequenceMultiSelect||sequenceMoveAfterId(scene.statements,scene.id,selected.id,-1)===undefined} onClick={()=>moveSelected(-1)}>↑</button>
-        <button type="button" aria-label="语句下移" disabled={pendingDraft||sequenceMultiSelect||sequenceMoveAfterId(scene.statements,scene.id,selected.id,1)===undefined} onClick={()=>moveSelected(1)}>↓</button>
-        <button type="button" aria-pressed={sequenceMultiSelect} disabled={pendingDraft} onClick={()=>{const next=!sequenceMultiSelect;setSequenceMultiSelect(next);setSequenceSelectedIds(next?[selected.id]:[]);setSequenceRangeAnchor(next?selected.id:null);}}>{sequenceMultiSelect?`${sequenceSelectedIds.length} 已选`:'多选'}</button>
+        <label className="sequence-insert"><span>插入语句</span><select aria-label="插入 P0 语句类型" value={sequenceInsertKind} disabled={pendingDraft || inspectorDirty} onChange={(event)=>setSequenceInsertKind(event.target.value as SequenceInsertKind)}>{([['dialogue','对白'],['narration','旁白'],['choice','两选项选择'],['label','标签'],['jump','跳转'],['call','调用'],['return','返回'],['set','设置变量'],['condition','条件分支'],['wait','等待'],['end','结局'],['background','背景'],['show','角色演出'],['camera','镜头'],['audio','音频'],['textbox','文本框模板']] as const).map(([value,label])=><option value={value} key={value}>{label}</option>)}</select></label>
+        <button type="button" aria-keyshortcuts="Control+Enter" disabled={pendingDraft || inspectorDirty||sequenceInsertRequirement!==null} onClick={requestSequenceInsert}>＋ 插入</button>
+        <label><input type="checkbox" checked={insertBefore} disabled={pendingDraft || inspectorDirty} onChange={event=>setInsertBefore(event.target.checked)}/>插入到当前步骤之前</label>
+        <button type="button" disabled={pendingDraft || inspectorDirty||sequenceMultiSelect} onClick={duplicateSelected}>复制</button>
+        <button type="button" aria-label="语句上移" disabled={pendingDraft || inspectorDirty||sequenceMultiSelect||sequenceMoveAfterId(scene.statements,scene.id,selected.id,-1)===undefined} onClick={()=>moveSelected(-1)}>↑</button>
+        <button type="button" aria-label="语句下移" disabled={pendingDraft || inspectorDirty||sequenceMultiSelect||sequenceMoveAfterId(scene.statements,scene.id,selected.id,1)===undefined} onClick={()=>moveSelected(1)}>↓</button>
+        <button type="button" aria-pressed={sequenceMultiSelect} disabled={pendingDraft || inspectorDirty} onClick={()=>{const next=!sequenceMultiSelect;setSequenceMultiSelect(next);setSequenceSelectedIds(next?[selected.id]:[]);setSequenceRangeAnchor(next?selected.id:null);}}>{sequenceMultiSelect?`${sequenceSelectedIds.length} 已选`:'多选'}</button>
         <button type="button" disabled={selectedSequenceIds.length===0} onClick={()=>setCollapsedStatementIds((current)=>[...new Set([...current,...selectedSequenceIds])])}>折叠</button>
         <button type="button" disabled={selectedSequenceIds.length===0} onClick={()=>setCollapsedStatementIds((current)=>current.filter((id)=>!selectedSequenceIds.includes(id)))}>展开</button>
-        <button type="button" className="danger-button" disabled={pendingDraft||selectedSequenceIds.length===0} onClick={deleteSelected}>删除所选</button>
+        <button type="button" className="danger-button" disabled={pendingDraft || inspectorDirty||selectedSequenceIds.length===0} onClick={deleteSelected}>删除所选</button>
       </div>
-      {sequenceInsertRequirement !== null && <p className="sequence-insert-requirement" role="status">{sequenceInsertRequirement}</p>}
+      </details>
+      {sequenceInsertRequirement !== null && <p className="sequence-insert-requirement" role="status">{sequenceInsertRequirement}{onCreateEntity && (sequenceInsertKind === "dialogue" || sequenceInsertKind === "set" || sequenceInsertKind === "condition") && <button type="button" disabled={pendingDraft || inspectorDirty} onClick={() => onCreateEntity(sequenceInsertKind === "dialogue" ? "character" : "variable")}>{sequenceInsertKind === "dialogue" ? "创建角色" : "创建变量"}</button>}</p>}
 
       <div className="statement-toolbar statement-toolbar--legacy" aria-label="对白快捷工具">
         <button
@@ -2021,9 +2354,11 @@ function SequenceView({
         </button>
       </div>
 
-      <section className="stage-track" aria-label="图形化演出轨道" data-window-size={stageWindow.size} data-rendered-statements={visibleStatements.length}>
+      <details key={stageExpanded ? "director" : "writer"} className="stage-track" open={stageExpanded} aria-label="图形化演出轨道" data-window-size={stageWindow.size} data-rendered-statements={visibleStatements.length}>
+        <summary>演出时间线与工具 <span>背景、角色、音频和镜头</span></summary>
+        <details className="director-tools">
+          <summary>添加与整理演出<span>背景、角色、镜头与运动</span></summary>
         <div className="stage-track__heading">
-          <div><span className="eyebrow">STAGE TRACK</span><strong>演出层级概览</strong></div>
           <div className="stage-track__tools">
             <div className="stage-track__actions" aria-label="当前演出指令操作">
               <button type="button" aria-label="演出左移" disabled={!canMoveDirectionLeft} onClick={() => {
@@ -2035,20 +2370,20 @@ function SequenceView({
               <button type="button" aria-label="复制演出" disabled={multiSelectMode || selected.kind !== "direction" || pendingDraft} onClick={() => {
                 if (selected.kind === "direction") dispatch({ type: "duplicate-direction", commandId: createCommandId(), statementId: selected.id, newStatementId: createEntityId("stmt") });
               }}>复制</button>
-              <button type="button" aria-label={multiSelectMode ? "结束演出多选" : "开始演出多选"} aria-pressed={multiSelectMode} disabled={pendingDraft} onClick={toggleMultiSelect}>{multiSelectMode ? `${selectedDirectionIds.length} 已选` : "多选"}</button>
+              <button type="button" aria-label={multiSelectMode ? "结束演出多选" : "开始演出多选"} aria-pressed={multiSelectMode} disabled={pendingDraft || inspectorDirty} onClick={toggleMultiSelect}>{multiSelectMode ? `${selectedDirectionIds.length} 已选` : "多选"}</button>
               <button type="button" className="is-danger" aria-label="删除演出" disabled={multiSelectMode || selected.kind !== "direction" || pendingDraft} onClick={() => {
                 if (selected.kind === "direction") deleteDirection(selected.id);
               }}>删除</button>
             </div>
             <div className="stage-track__insert" aria-label="新增演出指令">
-              {([['background', '＋ 背景', 'Alt+1'], ['show', '＋ 角色', 'Alt+2'], ['audio', '＋ 音频', 'Alt+3'], ['camera', '＋ 镜头', 'Alt+4'], ['textbox', '＋ 文本框', 'Alt+5']] as const).map(([command, label, shortcut]) => <button key={command} type="button" aria-keyshortcuts={shortcut} disabled={pendingDraft} onClick={() => { setKeyframeInsertOpen(false); setMotionPathOpen(false); setBezierPathOpen(false); setInsertCommand(command); }}>{label}</button>)}
-              <button type="button" className="stage-keyframe-button" disabled={pendingDraft || multiSelectMode || !keyframeSeed.ok} title={keyframeSeed.ok ? "从当前角色状态创建下一关键帧" : "请先选择舞台上有效的角色 Show 或 Move Cue"} onClick={() => { setInsertCommand(null); setMotionPathOpen(false); setBezierPathOpen(false); setKeyframeInsertOpen(true); }}>＋ 关键帧</button>
-              <button type="button" className="stage-motion-path-button" disabled={pendingDraft || multiSelectMode || !keyframeSeed.ok} title={keyframeSeed.ok ? "从当前角色状态创建两段运动路径" : "请先选择舞台上有效的角色 Show 或 Move Cue"} onClick={() => { setInsertCommand(null); setKeyframeInsertOpen(false); setBezierPathOpen(false); setMotionPathOpen(true); }}>＋ 路径</button>
-              <button type="button" className="stage-bezier-path-button" disabled={pendingDraft || multiSelectMode || !keyframeSeed.ok} title={keyframeSeed.ok ? "创建单一三次贝塞尔角色路径" : "请先选择舞台上有效的角色 Show 或 Move Cue"} onClick={() => { setInsertCommand(null); setKeyframeInsertOpen(false); setMotionPathOpen(false); setBezierPathOpen(true); }}>＋ 贝塞尔</button>
+              {([['background', '＋ 背景', 'Alt+1'], ['show', '＋ 角色', 'Alt+2'], ['audio', '＋ 音频', 'Alt+3'], ['camera', '＋ 镜头', 'Alt+4'], ['textbox', '＋ 文本框', 'Alt+5']] as const).map(([command, label, shortcut]) => <button key={command} type="button" aria-keyshortcuts={shortcut} disabled={pendingDraft || inspectorDirty} onClick={() => { setKeyframeInsertOpen(false); setMotionPathOpen(false); setBezierPathOpen(false); setInsertCommand(command); }}>{label}</button>)}
+              <button type="button" className="stage-keyframe-button" disabled={pendingDraft || inspectorDirty || multiSelectMode || !keyframeSeed.ok} title={keyframeSeed.ok ? "从当前角色状态创建下一关键帧" : "请先选择舞台上有效的角色 Show 或 Move Cue"} onClick={() => { setInsertCommand(null); setMotionPathOpen(false); setBezierPathOpen(false); setKeyframeInsertOpen(true); }}>＋ 关键帧</button>
+              <button type="button" className="stage-motion-path-button" disabled={pendingDraft || inspectorDirty || multiSelectMode || !keyframeSeed.ok} title={keyframeSeed.ok ? "从当前角色状态创建两段运动路径" : "请先选择舞台上有效的角色 Show 或 Move Cue"} onClick={() => { setInsertCommand(null); setKeyframeInsertOpen(false); setBezierPathOpen(false); setMotionPathOpen(true); }}>＋ 路径</button>
+              <button type="button" className="stage-bezier-path-button" disabled={pendingDraft || inspectorDirty || multiSelectMode || !keyframeSeed.ok} title={keyframeSeed.ok ? "创建单一三次贝塞尔角色路径" : "请先选择舞台上有效的角色 Show 或 Move Cue"} onClick={() => { setInsertCommand(null); setKeyframeInsertOpen(false); setMotionPathOpen(false); setBezierPathOpen(true); }}>＋ 贝塞尔</button>
             </div>
           </div>
         </div>
-        <form className="stage-search" role="search" aria-label="搜索当前场景步骤" onSubmit={(event: FormEvent) => {
+        <form className="stage-search" role="search" aria-label="搜索当前场景步骤" data-has-query={stageSearch.query.length > 0} onSubmit={(event: FormEvent) => {
           event.preventDefault();
           jumpToStageSearchMatch(selectedSearchMatch);
         }}>
@@ -2059,7 +2394,7 @@ function SequenceView({
               id="stage-step-search"
               type="search"
               value={stageSearchQuery}
-              placeholder="步骤号、Statement ID 或对白"
+              placeholder="搜索步骤或对白"
               autoComplete="off"
               aria-controls="stage-search-results"
               aria-describedby="stage-search-status"
@@ -2106,7 +2441,8 @@ function SequenceView({
           </div>}
           {pendingDraft && <small>当前 Script 草稿尚未提交；搜索继续使用最后一次有效场景。</small>}
         </form>
-        <div className="stage-track__window" role="group" aria-label="演出轨道可视窗口">
+        </details>
+        <div className="stage-track__window" role="group" aria-label="演出轨道可视窗口" data-windowed={stageWindow.hasPrevious || stageWindow.hasNext}>
           <button type="button" aria-label="上一段演出步骤" disabled={!stageWindow.hasPrevious || draggedDirectionId !== null} onClick={() => setStageWindowStart(moveStageWindow(stageWindow, -1).start)}>← 上一段</button>
           <output aria-live="polite">步骤 {stageWindow.total === 0 ? 0 : stageWindow.start + 1}–{stageWindow.end} / {stageWindow.total}</output>
           <button type="button" aria-label="下一段演出步骤" disabled={!stageWindow.hasNext || draggedDirectionId !== null} onClick={() => setStageWindowStart(moveStageWindow(stageWindow, 1).start)}>下一段 →</button>
@@ -2145,7 +2481,7 @@ function SequenceView({
                   key={cue.statementId}
                   aria-label={`时间标记 ${formatStageTimelineTime(cue.startMilliseconds)}，步骤 ${cue.statementIndex + 1}`}
                   disabled={timelineFollowsRuntime || pendingDraft}
-                  onClick={() => dispatch({ type: "select-statement", statementId: cue.statementId })}
+                  onClick={() => { if (!inspectorDirty) dispatch({ type: "select-statement", statementId: cue.statementId }); }}
                 >
                   <span>{formatStageTimelineTime(cue.startMilliseconds)}</span>
                   <small>{cue.durationMilliseconds}ms</small>
@@ -2155,7 +2491,7 @@ function SequenceView({
           </div>
           {(["background", "character", "camera", "audio", "text", "story"] as const).map((lane) => (
             <div className={`stage-lane stage-lane--${lane}`} key={lane}>
-              <span className="stage-lane__label">{lane === "background" ? "BG" : lane === "character" ? "CHAR" : lane === "camera" ? "CAM" : lane === "audio" ? "AUDIO" : lane === "text" ? "TEXT" : "STORY"}</span>
+              <span className="stage-lane__label">{lane === "background" ? "背景" : lane === "character" ? "角色" : lane === "camera" ? "镜头" : lane === "audio" ? "音频" : lane === "text" ? "文本" : "故事"}</span>
               <div className="stage-lane__steps">
                 {visibleStatements.map((statement, visibleIndex) => {
                   const index = stageWindow.start + visibleIndex;
@@ -2217,7 +2553,7 @@ function SequenceView({
                       }
                     }}
                   >
-                    <span>{String(index + 1).padStart(2, "0")}</span><strong>{statement.kind === "direction" ? `@${statement.command}` : statementKindLabel(statement)}</strong>{isCharacterMoveCue(statement) && <em className="stage-cue__keyframe">KF</em>}
+                    <span>{String(index + 1).padStart(2, "0")}</span><strong>{statement.kind === "direction" ? directionAssetName(statement, assetIndex) ?? `@${statement.command}` : statementKindLabel(statement)}</strong>{isCharacterMoveCue(statement) && <em className="stage-cue__keyframe">KF</em>}
                   </button>
                 ) : <span className={`stage-cue stage-cue--empty${index === timelinePlayheadIndex ? " is-playhead" : ""}`} aria-hidden="true" key={`${statement.id}:empty`} />;
                 })}
@@ -2225,7 +2561,7 @@ function SequenceView({
             </div>
           ))}
         </div>
-      </section>
+      </details>
 
       {multiSelectMode && <BatchDirectionPanel
         key={`${scene.id}:${selectedDirections[0]?.command ?? "empty"}:${selectedDirections.every((item) => item.command === selectedDirections[0]?.command) ? "same" : "mixed"}`}
@@ -2233,7 +2569,7 @@ function SequenceView({
         sceneDirections={sceneDirections}
         selectionPositions={selectionPositions}
         assetIndex={assetIndex}
-        disabled={pendingDraft}
+        disabled={pendingDraft || inspectorDirty}
         createCommandId={createCommandId}
         dispatch={dispatch}
         onSelectSameCommand={() => {
@@ -2277,22 +2613,39 @@ function SequenceView({
         selectionNotice={selectionNotice}
       />}
 
+      {motionPresetOpen && canonicalProject && onMotionProjectChange && <MotionPresetDialog project={canonicalProject} statements={scene.statements} selectedId={selected.id} sceneId={scene.id} reader={assetReader} createId={createEntityId} onProjectChange={onMotionProjectChange} onClose={() => setMotionPresetOpen(false)} onDirtyChange={onInputDirtyChange} onApply={operations => {
+        const action: StudioAction = { type: "p0-batch", commandId: createCommandId(), operations, selectedStatementId: selected.id };
+        const candidate = reduceStudioSession(session, action);
+        if (candidate.notice.tone === "error" || hasPendingDraft(candidate)) throw new Error(candidate.notice.detail);
+        if (activeSourceSession(candidate).revision === activeSourceSession(session).revision) return;
+        dispatch(action);
+      }} />}
+      {textBatchOpen && <TextBatchDialog characters={session.project.characters} afterId={insertionAnchor} createId={createEntityId}
+        onDirtyChange={onInputDirtyChange} onClose={() => setTextBatchOpen(false)} onApply={(operations, selectedStatementId) => {
+          const action: StudioAction = { type: "p0-batch", commandId: createCommandId(), operations, selectedStatementId };
+          const candidate = reduceStudioSession(session, action);
+          if (activeSourceSession(candidate).revision === activeSourceSession(session).revision) throw new Error(candidate.notice.detail);
+          dispatch(action);
+        }} />}
       {insertCommand !== null && <DirectionInsertPanel
         key={`${insertCommand}:${selected.id}`}
         command={insertCommand}
-        afterId={selected.id}
+        stageContext={directionStageContext(scene.statements, insertionAnchor === scene.id ? 0 : scene.statements.findIndex(item => item.id === selected.id) + (insertBefore || selected.kind === "end" ? 0 : 1), session.project.scenes.flatMap(item => item.statements))}
+        insertionLabel={`${scene.title} · ${insertionAnchor === scene.id ? "在场景开头" : insertBefore || selected.kind === "end" ? "在当前步骤之前" : "在当前步骤之后"}插入`}
+        afterId={insertionAnchor}
         assetIndex={assetIndex}
-        disabled={pendingDraft}
+        assetReader={assetReader}
+        disabled={pendingDraft || inspectorDirty}
         createCommandId={createCommandId}
         createEntityId={createEntityId}
-        dispatch={dispatch}
+        dispatch={action => { const candidate = reduceStudioSession(session, action); if (candidate.notice.tone === "error") throw new Error(candidate.notice.detail); dispatch(action); }}
         onClose={() => setInsertCommand(null)}
       />}
 
       {keyframeInsertOpen && keyframeSeed.ok && <StageKeyframeInsertPanel
         key={keyframeSeed.seed.sourceStatementId}
         seed={keyframeSeed.seed}
-        disabled={pendingDraft}
+        disabled={pendingDraft || inspectorDirty}
         createCommandId={createCommandId}
         createEntityId={createEntityId}
         dispatch={dispatch}
@@ -2302,7 +2655,7 @@ function SequenceView({
       {motionPathOpen && keyframeSeed.ok && <StageMotionPathPanel
         key={keyframeSeed.seed.sourceStatementId}
         seed={keyframeSeed.seed}
-        disabled={pendingDraft}
+        disabled={pendingDraft || inspectorDirty}
         createCommandId={createCommandId}
         createEntityId={createEntityId}
         dispatch={dispatch}
@@ -2312,20 +2665,25 @@ function SequenceView({
       {bezierPathOpen && keyframeSeed.ok && <StageBezierPathPanel
         key={keyframeSeed.seed.sourceStatementId}
         seed={keyframeSeed.seed}
-        disabled={pendingDraft}
+        disabled={pendingDraft || inspectorDirty}
         createCommandId={createCommandId}
         createEntityId={createEntityId}
         dispatch={dispatch}
         onClose={() => setBezierPathOpen(false)}
       />}
 
+
+      {stageExpanded && selectedInspector}
+
       <div className="statement-list" aria-label={`剧情步骤，当前显示 ${stageWindow.start + 1} 至 ${stageWindow.end}，共 ${stageWindow.total} 步`}>
         {visibleStatements.map((statement, visibleIndex) => {
           const index = stageWindow.start + visibleIndex;
           const runtimeCurrent = statement.id === runtimeCurrentStatementId;
           return (
+          <article key={statement.id} className={`statement-entry statement-entry--${statement.kind}${statement.id === selected.id ? " is-active" : ""}`} >
           <button
             id={`statement-card-${statement.id}`}
+            disabled={inspectorDirty}
             key={statement.id}
             className={[
               `statement-card statement-card--${statement.kind}`,
@@ -2336,58 +2694,27 @@ function SequenceView({
             aria-pressed={sequenceMultiSelect?sequenceSelectedIds.includes(statement.id):undefined}
             aria-current={runtimeCurrent ? "step" : undefined}
             data-runtime-current={runtimeCurrent}
-            aria-label={`选择${statementKindLabel(statement)}：${statementLabel(statement)}`}
+            aria-label={`选择${statementKindLabel(statement)}：${statement.kind === "direction" ? displayStatement(statement) : statementLabel(statement)}`}
             aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown Delete Shift+Space"
             onKeyDown={(event)=>{if(pendingDraft)return;if(sequenceMultiSelect&&event.shiftKey&&(event.key===" "||event.key==="Enter")){event.preventDefault();const ids=sequenceRangeAnchor===null?[statement.id]:sequenceRangeSelection(scene.statements,sequenceRangeAnchor,statement.id);setSequenceSelectedIds(ids);return;}if(!sequenceMultiSelect&&event.altKey&&event.key==="ArrowUp"){event.preventDefault();moveStatement(statement,-1);}else if(!sequenceMultiSelect&&event.altKey&&event.key==="ArrowDown"){event.preventDefault();moveStatement(statement,1);}else if(event.key==="Delete"){event.preventDefault();deleteSelected();}}}
             onDoubleClick={()=>setCollapsedStatementIds((current)=>current.includes(statement.id)?current.filter((id)=>id!==statement.id):[...current,statement.id])}
           >
-            <span className="statement-order">{String(index + 1).padStart(2, "0")}</span>
-            <span className="statement-kind">{statementKindLabel(statement)}</span>
-            <span className="statement-copy">{collapsedStatementIds.includes(statement.id)?"已折叠":statementLabel(statement)}</span>
+            <span className={`statement-avatar statement-avatar--${statement.kind}`} aria-hidden="true">{statement.kind === "dialogue" ? (session.project.characters.find(character => character.id === statement.speakerId)?.displayName ?? "?").slice(0, 1) : <StudioIcon name={statement.kind === "direction" ? "director" : statement.kind === "choice" ? "route" : statement.kind === "set" ? "variables" : statement.kind === "end" ? "checks" : "write"} />}</span>
+            <span className="statement-content">
+              <span className="statement-meta"><strong>{statement.kind === "dialogue" ? session.project.characters.find(character => character.id === statement.speakerId)?.displayName ?? "缺失角色" : statementKindLabel(statement)}</strong><span className="statement-order">{String(index + 1).padStart(2, "0")}</span></span>
+              <span className="statement-copy">{collapsedStatementIds.includes(statement.id) ? "已折叠" : displayStatement(statement)}</span>
+              {statement.kind === "choice" && !collapsedStatementIds.includes(statement.id) && <span className="statement-options">{statement.options.map(option => <span key={option.id}><span aria-hidden="true">→</span>{option.label}<small>{session.project.scenes.find(item => item.id === option.targetSceneId)?.title ?? "目标待设置"}</small></span>)}</span>}
+            </span>
           </button>
+          {!stageExpanded && statement.id === selected.id && !collapsedStatementIds.includes(statement.id) && selectedInspector}
+          </article>
         );
         })}
       </div>
 
-      <div className="inline-inspector">
-        <div className="inspector-label-row">
-          {selected.kind === "dialogue" ? (
-            <label htmlFor="dialogue-editor">对白内容</label>
-          ) : (
-            <span className="inspector-title">当前步骤 · 类型化参数</span>
-          )}
-          <code>{selected.id}</code>
-        </div>
-        {selected.kind === "dialogue" ? (
-          <TransactionalTextarea
-            id="dialogue-editor"
-            value={selected.text}
-            rows={4}
-            disabled={pendingDraft}
-            onDirtyChange={onInputDirtyChange}
-            onCommit={(text) =>
-              dispatch({
-                type: "patch-dialogue",
-                commandId: createCommandId(),
-                statementId: selected.id,
-                text
-              })
-            }
-          />
-        ) : selected.kind === "direction" ? (
-          <DirectionInspector
-            key={`${selected.id}:${selected.summary}`}
-            statement={selected}
-            assetIndex={assetIndex}
-            disabled={pendingDraft}
-            createCommandId={createCommandId}
-            dispatch={dispatch}
-          />
-        ) : <SequenceInspector statement={selected} disabled={pendingDraft} characterIds={sequenceReferences.characterIds} targetIds={targetIds} variableIds={sequenceReferences.variableIds} createCommandId={createCommandId} dispatch={dispatch}/>}
-        <p className="field-help">
-          Sequence 不持有第二份剧情；每次编辑都通过稳定 ID Patch 写回权威 Script，再重新投影。
-        </p>
-      </div>
+      {!stageExpanded && !selectedInStageWindow && selectedInspector}
+      <button type="button" className="add-story-content" disabled={pendingDraft || inspectorDirty} onClick={() => { const tools = document.querySelector<HTMLDetailsElement>(".statement-tools"); if (tools) { tools.open = true; tools.scrollIntoView({ block: "nearest" }); tools.querySelector<HTMLSelectElement>("select")?.focus(); } }}>＋ 添加内容</button>
+
     </section>
   );
 }
@@ -2482,6 +2809,8 @@ function ScriptView({
 }
 
 interface FlowViewProps extends CommonProps {
+  readonly reviewTrace: RouteReviewTrace | null;
+  readonly reviewBlocked: boolean;
   readonly canonicalProject: CanonicalProject;
   readonly runtimeRouteTrace: RuntimeRouteTrace;
   readonly routeCompiler?: EditorProjectCompilerState;
@@ -2500,6 +2829,7 @@ interface FlowViewProps extends CommonProps {
 }
 
 export interface RuntimeRouteTrace {
+  readonly review?: RouteReviewTrace;
   readonly active: boolean;
   readonly currentSceneId: string | null;
   readonly currentStatementId: string | null;
@@ -2529,11 +2859,12 @@ const compilerCacheLabels = {
   "source-mismatch": "源正文变化后重建"
 } as const;
 
-function FlowView({ session, dispatch, canonicalProject, runtimeRouteTrace, routeCompiler, hasLocalChanges, trustedChangedSceneIds, createCommandId, onOpenSequence, onRenameScene, onSetScenePosition, onResetSceneLayout, onUpsertGroup, onToggleGroup, onDeleteGroup, onAssignGroup, onSetViewport }: FlowViewProps) {
+function FlowView({ session, dispatch, canonicalProject, runtimeRouteTrace, reviewTrace, reviewBlocked, routeCompiler, hasLocalChanges, trustedChangedSceneIds, createCommandId, onOpenSequence, onRenameScene, onSetScenePosition, onResetSceneLayout, onUpsertGroup, onToggleGroup, onDeleteGroup, onAssignGroup, onSetViewport }: FlowViewProps) {
   const canonicalHash = useMemo(() => hasLocalChanges ? undefined : semanticHash(canonicalProject), [canonicalProject, hasLocalChanges]);
   const compilerAligned = routeCompiler !== undefined && routeCompiler.projectHash === canonicalHash;
   const incrementalProjection = useMemo(() => !compilerAligned && routeCompiler !== undefined ? buildRouteGraphIncremental(canonicalProject, routeCompiler.compilation.cache, trustedChangedSceneIds) : undefined, [canonicalProject, compilerAligned, routeCompiler, trustedChangedSceneIds]);
-  const graph = useMemo(() => compilerAligned ? buildRouteGraphFromCompilation(canonicalProject, routeCompiler.compilation) : incrementalProjection?.graph ?? buildRouteGraph(canonicalProject), [canonicalProject, compilerAligned, incrementalProjection, routeCompiler]);
+  const flowAnalysis = useMemo(() => compilerAligned ? routeCompiler.compilation : incrementalProjection?.analysis ?? compileProject(canonicalProject, "debug"), [canonicalProject, compilerAligned, incrementalProjection, routeCompiler]);
+  const graph = useMemo(() => buildRouteGraphFromCompilation(canonicalProject, flowAnalysis), [canonicalProject, flowAnalysis]);
   const compilerStatus = compilerAligned
     ? `${compilerCacheLabels[routeCompiler.cacheStatus]} · ${routeCompiler.compilation.stats.compiledSceneIds.length} 编译 / ${routeCompiler.compilation.stats.reusedSceneIds.length} 复用`
     : incrementalProjection === undefined ? "未接入宿主缓存 · 内存全量编译" : `存在未保存改动 · 内存增量分析 · ${incrementalProjection.analysis.stats.compiledSceneIds.length} 编译 / ${incrementalProjection.analysis.stats.reusedSceneIds.length} 复用`;
@@ -2548,6 +2879,22 @@ function FlowView({ session, dispatch, canonicalProject, runtimeRouteTrace, rout
   const [endingRouteStep, setEndingRouteStep] = useState(0);
   const [selectedSceneId, setSelectedSceneId] = useState(session.activeSceneId);
   const selected = graph.nodes.find((node) => node.id === selectedSceneId) ?? graph.nodes[0];
+  const sceneFlow = useMemo(() => selected === undefined ? [] : projectSceneFlow(flowAnalysis, selected.id), [flowAnalysis, selected]);
+  const stepTitles = useMemo(() => {
+    const names: Record<string, string> = { dialogue: "对白", narration: "旁白", direction: "演出", choice: "选择", condition: "条件", jump: "跳转", call: "调用", return: "返回", label: "标签", end: "结局", set: "赋值", wait: "等待", checkpoint: "检查点" };
+    const sceneNames = new Map(session.project.scenes.map((scene) => [scene.id, scene.title]));
+    const facts = new Map(graph.nodes.flatMap((node) => node.facts.map((fact) => [fact.id, fact] as const)));
+    return new Map(session.project.scenes.flatMap((scene) => {
+      const localLabels = new Set(scene.statements.flatMap((statement) => statement.kind === "label" ? [statement.name] : []));
+      return scene.statements.map((statement) => {
+        let title = `${names[statement.kind] ?? statement.kind} · ${statementLabel(statement)}`;
+        if (statement.kind === "condition") title = facts.get(statement.id)?.label ?? title;
+        if (statement.kind === "end") title = statementLabel(statement);
+        if (statement.kind === "jump" || statement.kind === "call") title = `${names[statement.kind]} · ${localLabels.has(statement.targetLabel) ? statement.targetLabel : sceneNames.get(statement.targetLabel) ?? statement.targetLabel}`;
+        return [statement.id, title] as const;
+      });
+    }));
+  }, [session.project, graph]);
   const [title, setTitle] = useState(selected?.title ?? "");
   const [layoutX, setLayoutX] = useState(selected?.layout.x ?? 0);
   const [layoutY, setLayoutY] = useState(selected?.layout.y ?? 0);
@@ -2605,8 +2952,36 @@ function FlowView({ session, dispatch, canonicalProject, runtimeRouteTrace, rout
     ...(windowOffset === undefined ? { anchorSceneId: routeWindowAnchorSceneId } : { offset: windowOffset })
   }), [query,chapterFilter,kindFilter,groupFilter,routeIndex, routeWindowAnchorSceneId, windowOffset]);
   const visibleNodes = routeWindow.nodes;
+  const routeCanvasRef = useRef<HTMLDivElement>(null);
+  const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
+  const [canvasMode, setCanvasMode] = useState<"fit" | "manual">("fit");
+  const [canvasZoom, setCanvasZoom] = useState<number | null>(null);
+  useEffect(() => {
+    const canvas = routeCanvasRef.current;
+    if (!canvas || typeof ResizeObserver === "undefined") return;
+    const observer = new ResizeObserver(entries => {
+      const rect = entries[0]?.contentRect;
+      if (rect) setCanvasSize({ width: rect.width, height: rect.height });
+    });
+    observer.observe(canvas);
+    return () => observer.disconnect();
+  }, []);
+  useEffect(() => { setCanvasZoom(null); setCanvasMode(graph.viewport.x === 0 && graph.viewport.y === 0 && graph.viewport.zoom === 1 ? "fit" : "manual"); }, [graph.viewport.x, graph.viewport.y, graph.viewport.zoom]);
+  const routeBounds = useMemo(() => ({
+    left: Math.min(...visibleNodes.map(node => node.layout.x), 0),
+    top: Math.min(...visibleNodes.map(node => node.layout.y), 0),
+    right: Math.max(...visibleNodes.map(node => node.layout.x + 250), 250),
+    bottom: Math.max(...visibleNodes.map(node => node.layout.y + 112), 112)
+  }), [visibleNodes]);
+  const fittedZoom = canvasSize.width > 0 ? Math.max(0.5, Math.min(1, (canvasSize.width - 48) / (routeBounds.right - routeBounds.left), (canvasSize.height - 48) / (routeBounds.bottom - routeBounds.top))) : graph.viewport.zoom;
+  const routeZoom = canvasZoom ?? (canvasMode === "fit" ? fittedZoom : graph.viewport.zoom);
+  const routeX = canvasMode === "fit" && canvasSize.width > 0 ? routeBounds.left * routeZoom - 24 : graph.viewport.x;
+  const routeY = canvasMode === "fit" && canvasSize.height > 0 ? routeBounds.top * routeZoom - 24 : graph.viewport.y;
+  const sceneTitles = useMemo(() => new Map(graph.nodes.map((node) => [node.id, node.title])), [graph.nodes]);
   const selectedOutgoingEdges = selected === undefined ? [] : graph.edges.filter((edge)=>edge.sourceSceneId===selected.id);
-  const repairEdge = selectedOutgoingEdges.find((edge)=>edge.id===repairEdgeId) ?? selectedOutgoingEdges[0];
+  const choiceStatementIds = new Set(selected?.facts.filter((fact) => fact.kind === "choice").map((fact) => fact.id));
+  const repairableEdges = selectedOutgoingEdges.filter((edge) => choiceStatementIds.has(edge.statementId));
+  const repairEdge = repairableEdges.find((edge)=>edge.id===repairEdgeId) ?? repairableEdges[0];
   const saveTitle = () => {
     if (selected === undefined) return;
     const result = onRenameScene(selected.id, title);
@@ -2688,10 +3063,11 @@ function FlowView({ session, dispatch, canonicalProject, runtimeRouteTrace, rout
     <section className="flow-panel view-enter" aria-labelledby="flow-heading">
       <div className="panel-heading authoring-heading">
         <div>
-          <p className="eyebrow">N40 · CANONICAL ROUTE GRAPH</p>
-          <h2 id="flow-heading">Route Map</h2>
+          <p className="eyebrow">STORY ROUTES</p>
+          <h2 id="flow-heading">故事路线</h2>
+          {selected !== undefined && <button type="button" onClick={() => { const properties = document.querySelector<HTMLDetailsElement>(".route-properties"); if (properties) properties.open = true; const panel = document.getElementById("scene-flow-panel"); panel?.scrollIntoView({ block: "center" }); panel?.focus({ preventScroll: true }); }}>查看「{selected.title}」场景内走向</button>}
         </div>
-        <span className="context-chip context-chip--cyan">Compiler 图事实</span>
+        <span className="context-chip">{graph.nodes.length} 个场景</span>
       </div>
       <div className="route-toolbar">
         <div className="route-compiler-cache" role="status" aria-label="Route Compiler 缓存状态">{compilerStatus}</div>
@@ -2704,6 +3080,8 @@ function FlowView({ session, dispatch, canonicalProject, runtimeRouteTrace, rout
         </div>
         <div className="route-summary" aria-label="路线图统计"><span>{graph.nodes.length} 场景</span><span>{graph.edges.length} 连接</span><span>{graph.diagnostics.length} 诊断</span></div>
       </div>
+      <details className="route-tools"><summary>路线布局与评审工具</summary>
+      <RouteReviewPanel project={canonicalProject} graph={graph} trace={reviewTrace} blocked={reviewBlocked} onOpen={onOpenSequence} />
       <div className="route-layout-toolbar" aria-label="路线布局工具">
         <div className="route-group-create"><label><span>分组 ID</span><input aria-label="新路线分组 ID" value={newGroupId} onChange={(event)=>setNewGroupId(event.target.value)} placeholder="group_route" /></label><label><span>分组名称</span><input aria-label="新路线分组名称" value={newGroupTitle} onChange={(event)=>setNewGroupTitle(event.target.value)} placeholder="路线名称" /></label><button type="button" onClick={createGroup}>创建路线分组</button></div>
         <div className="route-groups" aria-label="路线分组列表">{graph.groups.map((group)=><span className="route-group-chip" key={group.groupId}><button type="button" aria-label={`${group.collapsed?"展开":"折叠"}分组：${group.title}`} aria-pressed={group.collapsed} onClick={()=>commitMutation(onToggleGroup(group.groupId),group.collapsed?"路线分组已展开":"路线分组已折叠")}>{group.collapsed?"＋":"−"} {group.title} · {graph.nodes.filter((node)=>node.layout.groupId===group.groupId).length}</button><button type="button" aria-label={`删除分组：${group.title}`} onClick={()=>commitMutation(onDeleteGroup(group.groupId),"路线分组已删除 · 节点已解除视觉分组")}>×</button></span>)}{graph.groups.length===0&&<span>尚无自定义分组</span>}</div>
@@ -2728,7 +3106,8 @@ function FlowView({ session, dispatch, canonicalProject, runtimeRouteTrace, rout
           </div>}
         </>}
       </section>
-      <div className="route-window-controls" aria-label="路线局部窗口">
+      </details>
+      <div className="route-window-controls" aria-label="路线局部窗口" data-windowed={routeWindow.hasPrevious || routeWindow.hasNext}>
         <button type="button" aria-label="上一段路线场景" disabled={!routeWindow.hasPrevious} onClick={() => setWindowOffset(Math.max(0, routeWindow.start - ROUTE_GRAPH_WINDOW_LIMIT))}>← 上一段</button>
         <span role="status" aria-label="路线窗口范围">{routeWindow.totalMatches === 0 ? "0 / 0" : `${routeWindow.start + 1}–${routeWindow.end} / ${routeWindow.totalMatches}`}</span>
         <button type="button" aria-label="下一段路线场景" disabled={!routeWindow.hasNext} onClick={() => setWindowOffset(routeWindow.end)}>下一段 →</button>
@@ -2740,8 +3119,16 @@ function FlowView({ session, dispatch, canonicalProject, runtimeRouteTrace, rout
           : "Runtime 未运行 · 启动试玩后将在此投影当前、已访问和已走连接"}
       </div>
       <div className="flow-canvas">
-        <div className="flow-grid" aria-label="路线场景节点" onDragOver={(event)=>event.preventDefault()} onDrop={(event)=>{event.preventDefault();const sceneId=event.dataTransfer.getData("text/plain"),rect=event.currentTarget.getBoundingClientRect();if(sceneId!=="")commitMutation(onSetScenePosition(sceneId,(event.clientX-rect.left+graph.viewport.x)/graph.viewport.zoom,(event.clientY-rect.top+graph.viewport.y)/graph.viewport.zoom),"拖拽位置已写入 Layout Sidecar");}}>
-          <div className="flow-grid__surface" aria-label="路线画布表面" style={{transform:`translate(-${graph.viewport.x}px, -${graph.viewport.y}px) scale(${graph.viewport.zoom})`} as CSSProperties}>
+        <div className="route-canvas-controls" aria-label="路线画布缩放"><button type="button" aria-label="缩小路线图" disabled={routeZoom <= 0.5} onClick={() => setCanvasZoom(Math.max(0.5, routeZoom - 0.1))}>−</button><output>{Math.round(routeZoom * 100)}%</output><button type="button" aria-label="放大路线图" disabled={routeZoom >= 2} onClick={() => setCanvasZoom(Math.min(2, routeZoom + 0.1))}>＋</button><button type="button" onClick={() => { setCanvasMode("fit"); setCanvasZoom(null); }}>适应画布</button></div>
+        <div ref={routeCanvasRef} className="flow-grid" aria-label="路线场景节点" onDragOver={(event)=>event.preventDefault()} onDrop={(event)=>{event.preventDefault();const sceneId=event.dataTransfer.getData("text/plain"),rect=event.currentTarget.getBoundingClientRect();if(sceneId!=="")commitMutation(onSetScenePosition(sceneId,(event.clientX-rect.left+routeX)/routeZoom,(event.clientY-rect.top+routeY)/routeZoom),"拖拽位置已写入 Layout Sidecar");}}>
+          <div className="flow-grid__surface" aria-label="路线画布表面" style={{transform:`translate(${-routeX}px, ${-routeY}px) scale(${routeZoom})`} as CSSProperties}>
+          <svg className="route-connections-svg" aria-hidden="true"><defs><marker id="studio-route-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8" fill="var(--wg-color-border-strong)" /></marker></defs>{routeWindow.edges.map(edge => {
+            const source = visibleNodes.find(node => node.id === edge.sourceSceneId), target = visibleNodes.find(node => node.id === edge.targetSceneId);
+            if (!source || !target || edge.status !== "valid") return null;
+            const x1 = source.layout.x + 250, y1 = source.layout.y + 56, x2 = target.layout.x, y2 = target.layout.y + 56;
+            const bend = Math.max(50, Math.abs(x2 - x1) / 2);
+            return <path key={edge.id} d={`M${x1} ${y1} C${x1 + bend} ${y1},${x2 - bend} ${y2},${x2} ${y2}`} fill="none" stroke="var(--wg-color-border-strong)" strokeWidth="2" markerEnd="url(#studio-route-arrow)" />;
+          })}</svg>
           {visibleNodes.map((node, index) => {
             const runtimeCurrent = runtimeRouteTrace.active && node.id === runtimeRouteTrace.currentSceneId;
             const runtimeVisited = runtimeRouteTrace.active && runtimeVisitedScenes.has(node.id);
@@ -2786,25 +3173,29 @@ function FlowView({ session, dispatch, canonicalProject, runtimeRouteTrace, rout
           {visibleNodes.length === 0 && <p className="route-empty">没有匹配的路线场景；权威工程未被修改。</p>}
           </div>
         </div>
+        <details className="route-connections"><summary>场景连接 · {routeWindow.edges.length} 条</summary>
         <div className="edge-list" aria-label="路线连接">
           <p className="eyebrow">CONNECTIONS</p>
+          <small>静态连接不代表本次一定经过：条件仅成立时跳转，调用需执行返回语句才能回到原处。请试玩确认实际结局。</small>
           {routeWindow.edges.map((edge) => {
             const runtimeVisited = runtimeRouteTrace.active && runtimeVisitedEdges.has(edge.id);
             const routeReviewed = reviewedEdgeIds.has(edge.id);
             return (
             <div className={["edge-row",runtimeVisited?"is-runtime-visited":"",routeReviewed?"is-route-reviewed":""].filter(Boolean).join(" ")} key={edge.id} data-testid={`route-edge-${edge.id}`} data-runtime-visited={runtimeVisited} data-route-reviewed={routeReviewed}>
-              <span>{edge.sourceSceneId}</span><span className="edge-arrow">→</span>
-              <strong>{edge.label}</strong><span className="edge-arrow">→</span>
+              <span title={edge.sourceSceneId}>{sceneTitles.get(edge.sourceSceneId) ?? edge.sourceSceneId}</span><span className="edge-arrow">→</span>
+              <strong><button type="button" className="edge-row__target" aria-label={`修改连接：${edge.label} · ${edge.statementId}`} onClick={() => onOpenSequence(edge.sourceSceneId, edge.statementId)}>{edge.label} · 修改</button></strong><span className="edge-arrow">→</span>
               {edge.status === "valid"
-                ? <button type="button" className="edge-row__target" aria-label={`定位路线目标：${edge.label} · ${edge.targetSceneId}`} onClick={()=>focusRouteScene(edge.targetSceneId)}>{edge.targetSceneId}</button>
+                ? <button type="button" className="edge-row__target" aria-label={`定位路线目标：${edge.label} · ${edge.targetSceneId}`} onClick={()=>focusRouteScene(edge.targetSceneId)}>{sceneTitles.get(edge.targetSceneId) ?? edge.targetSceneId}</button>
                 : <span>{edge.targetSceneId}</span>}{edge.status === "dangling" && <em>悬空</em>}{runtimeVisited && <em className="edge-row__runtime-state">已走过</em>}{routeReviewed && <em className="edge-row__review-state">结局路线</em>}
             </div>
             );
           })}
           {routeWindow.edgesTruncated && <p className="route-empty">当前相关连接超过局部上限；请缩小搜索或切换窗口。</p>}
         </div>
+        </details>
       </div>
-      {selected !== undefined && <aside className="route-inspector" aria-label="路线场景 Inspector">
+      {selected !== undefined && <details className="route-properties"><summary>当前场景属性与内部走向 · {selected.title}</summary><aside className="route-inspector" aria-label="路线场景 Inspector">
+        <SceneFlowPanel key={selected.id} steps={sceneFlow} titles={stepTitles} sceneTitles={sceneTitles} sceneId={selected.id} onOpen={onOpenSequence} />
         <div><p className="eyebrow">STABLE SCENE</p><strong>{selected.title}</strong><code>{selected.id}</code></div>
         <label><span>路线场景名称</span><input aria-label="路线场景名称" value={title} onChange={(event) => setTitle(event.target.value)} /></label>
         <label><span>节点 X</span><input type="number" aria-label="路线节点 X" value={layoutX} onChange={(event) => setLayoutX(event.currentTarget.valueAsNumber)} /></label>
@@ -2812,25 +3203,71 @@ function FlowView({ session, dispatch, canonicalProject, runtimeRouteTrace, rout
         <label><span>所属分组</span><select aria-label="节点所属分组" value={selectedGroupId} onChange={(event)=>setSelectedGroupId(event.target.value)}><option value="">不分组</option>{graph.groups.map((group)=><option key={group.groupId} value={group.groupId}>{group.title}</option>)}</select></label>
         <div className="route-target-navigation" aria-label="控制流目标导航">
           <span>控制流目标</span>
+          {selected.facts.filter((fact) => fact.kind === "call" || fact.kind === "return").map((fact) => <div key={`call-${fact.id}`}>
+            <p>{fact.label}</p>
+            <button type="button" aria-label={`修改控制语句：${fact.id}`} onClick={() => onOpenSequence(selected.id, fact.id)}>修改{fact.kind === "call" ? "调用" : "返回"}</button>
+            {fact.continuationStatementId !== undefined && <button type="button" aria-label={`定位调用后续：${fact.id}`} onClick={() => onOpenSequence(selected.id, fact.continuationStatementId)}>查看返回后继续的位置</button>}
+          </div>)}
+          {selected.facts.filter((fact) => fact.kind === "condition").map((fact) => <button type="button" key={`condition-${fact.id}`} aria-label={`修改条件：${fact.id}`} onClick={() => onOpenSequence(selected.id, fact.id)}>{fact.label} · 修改条件</button>)}
           {selected.facts.filter((fact)=>fact.targetLabel!==undefined).map((fact)=>{const target=selected.facts.find((candidate)=>candidate.kind==="label"&&candidate.label===fact.targetLabel);return <button type="button" key={fact.id} disabled={target===undefined} aria-label={`打开标签目标：${fact.targetLabel}`} onClick={()=>{if(target!==undefined)onOpenSequence(selected.id,target.id);}}>{fact.kind} → {fact.targetLabel}{target===undefined?" · 缺失":""}</button>;})}
-          {selectedOutgoingEdges.map((edge)=><button type="button" key={edge.id} disabled={edge.status!=="valid"} aria-label={`定位场景目标：${edge.label} · ${edge.targetSceneId}`} onClick={()=>focusRouteScene(edge.targetSceneId)}>{edge.label} → {edge.targetSceneId}{edge.status==="dangling"?" · 悬空":""}</button>)}
+          {selectedOutgoingEdges.map((edge)=><button type="button" key={edge.id} disabled={edge.status!=="valid"} aria-label={`定位场景目标：${edge.label} · ${edge.targetSceneId}`} onClick={()=>focusRouteScene(edge.targetSceneId)}>{edge.label} → {sceneTitles.get(edge.targetSceneId) ?? edge.targetSceneId}{edge.status==="dangling"?" · 悬空":""}</button>)}
           {repairEdge!==undefined&&<button type="button" className="route-target-repair-toggle" aria-expanded={repairEditorOpen} aria-controls={`route-target-repair-${selected.id}`} onClick={()=>setRepairEditorOpen((open)=>!open)}>{repairEditorOpen?"收起 Choice 目标修复":"修改 Choice 目标"}</button>}
-          {repairEdge!==undefined&&repairEditorOpen&&<div id={`route-target-repair-${selected.id}`} className="route-target-repair" aria-label="路线 Choice 目标修复"><label><span>选择连接</span><select aria-label="选择待修复路线连接" value={repairEdge.id} onChange={(event)=>setRepairEdgeId(event.target.value)}>{selectedOutgoingEdges.map((edge)=><option key={edge.id} value={edge.id}>{edge.label} · {edge.id}</option>)}</select></label><label><span>目标稳定 ID</span><input aria-label={`修改选择目标：${repairEdge.label}`} list={`route-repair-targets-${selected.id}`} value={repairTargets[repairEdge.id]??repairEdge.targetSceneId} onChange={(event)=>setRepairTargets((current)=>({...current,[repairEdge.id]:event.target.value}))}/><datalist id={`route-repair-targets-${selected.id}`}>{visibleNodes.map((node)=><option key={node.id} value={node.id}>{node.title}</option>)}</datalist></label><button type="button" aria-label={`应用选择目标：${repairEdge.label}`} disabled={(repairTargets[repairEdge.id]??repairEdge.targetSceneId)===repairEdge.targetSceneId||pendingRepair!==null} onClick={()=>applyChoiceTarget(repairEdge.sourceSceneId,repairEdge.id,repairEdge.targetSceneId)}>应用目标</button><small>候选仅显示当前 64 节点窗口；提交时按完整工程验证 stable ID。</small></div>}
+          {repairEdge !== undefined && repairEditorOpen && <div id={`route-target-repair-${selected.id}`} className="route-target-repair" aria-label="路线 Choice 目标修复">
+            <label><span>选择要修改的选项</span><select aria-label="选择待修复路线连接" value={repairEdge.id} onChange={(event) => setRepairEdgeId(event.target.value)}>{repairableEdges.map((edge) => <option key={edge.id} value={edge.id}>{edge.label} · {edge.id}</option>)}</select></label>
+            <RouteTargetPicker key={repairEdge.id} scenes={session.project.scenes} sourceSceneId={selected.id} currentTargetId={repairEdge.targetSceneId} targetId={repairTargets[repairEdge.id] ?? repairEdge.targetSceneId} disabled={pendingRepair !== null} onSelect={(id) => { setRepairTargets((current) => ({ ...current, [repairEdge.id]: id })); setEditResult(null); }} />
+            <label><span>接下来进入（按名称选择后自动填写）</span><input aria-label={`修改选择目标：${repairEdge.label}`} list={`route-repair-targets-${selected.id}`} value={repairTargets[repairEdge.id] ?? repairEdge.targetSceneId} onChange={(event) => setRepairTargets((current) => ({ ...current, [repairEdge.id]: event.target.value }))} /></label>
+            <datalist id={`route-repair-targets-${selected.id}`}>{visibleNodes.map((node) => <option key={node.id} value={node.id}>{node.title}</option>)}</datalist>
+            <button type="button" aria-label={`应用选择目标：${repairEdge.label}`} disabled={(repairTargets[repairEdge.id] ?? repairEdge.targetSceneId) === repairEdge.targetSceneId || pendingRepair !== null} onClick={() => applyChoiceTarget(repairEdge.sourceSceneId, repairEdge.id, repairEdge.targetSceneId)}>应用目标</button>
+            <small>只有点击应用才修改连接；支持脚本撤销/重做。保存后请试玩确认，两条分支都应检查。</small>
+          </div>}
           {selected.facts.every((fact)=>fact.targetLabel===undefined)&&graph.edges.every((edge)=>edge.sourceSceneId!==selected.id)&&<small>当前场景没有可导航目标</small>}
         </div>
         <div className="route-nudge" aria-label="节点键盘与触控移动"><button type="button" aria-label="节点左移 24" onClick={()=>nudgeSelected("left")}>←</button><button type="button" aria-label="节点上移 24" onClick={()=>nudgeSelected("up")}>↑</button><button type="button" aria-label="节点下移 24" onClick={()=>nudgeSelected("down")}>↓</button><button type="button" aria-label="节点右移 24" onClick={()=>nudgeSelected("right")}>→</button><small>Alt＋方向键亦可移动</small></div>
         <div className="route-inspector__actions"><button type="button" onClick={saveTitle}>通过 Project Service 保存</button><button type="button" onClick={saveLayout}>保存节点布局</button><button type="button" onClick={assignGroup}>保存节点分组</button><button type="button" onClick={resetLayout}>重建自动布局</button><button type="button" onClick={() => onOpenSequence(selected.id)}>进入 Sequence</button></div>
         {editResult !== null && <p className={`route-edit-result route-edit-result--${editResult.tone}`} role={editResult.tone === "error" ? "alert" : "status"}>{editResult.text}</p>}
-      </aside>}
+      </aside></details>}
+      <details className="route-diagnostics-panel" open={graph.diagnostics.some(item => item.severity === "error")}><summary>路线诊断 · {graph.diagnostics.length} 项</summary>
       <section className="route-diagnostics" aria-label="Route Compiler 诊断">
         <p className="eyebrow">COMPILER DIAGNOSTICS · {graph.diagnostics.length}</p>
         {graph.diagnostics.length === 0 ? <p>正式 Compiler 未报告路线阻断。</p> : <ul>{graph.diagnostics.map((item, index) => {const location=locateRouteDiagnostic(graph,item);const statementExists=location.status==="located"&&location.statementId!==undefined&&session.project.scenes.find((scene)=>scene.id===location.sceneId)?.statements.some((statement)=>statement.id===location.statementId)===true;return <li key={`${item.code}:${item.sceneId ?? "project"}:${item.statementId ?? index}`}><div><code>{item.code}</code><span>{item.message}</span></div><div className="route-diagnostics__actions"><button type="button" disabled={location.status!=="located"} aria-label={`定位诊断：${item.code} · ${item.sceneId??"全局"}`} onClick={()=>{if(location.status==="located")focusRouteScene(location.sceneId!);}}>定位 Route</button>{statementExists&&<button type="button" aria-label={`进入诊断内容：${item.code} · ${item.statementId}`} onClick={()=>onOpenSequence(location.sceneId!,location.statementId)}>进入内容</button>}</div></li>;})}</ul>}
       </section>
+      </details>
     </section>
   );
 }
 
+type PreviewPlaytestRequest = { readonly serial: number; readonly target: NonNullable<Parameters<typeof startFormalPreview>[1]> };
+
 interface PreviewPanelProps extends CommonProps {
+  readonly focusMode?: boolean;
+  readonly onFocusModeChange?: (value: boolean) => void;
+  readonly publicationWorkflow?: PublicationWorkflow;
+  readonly onPublicationWorkflowChange?: (workflow: PublicationWorkflow) => void;
+  readonly beforeDeliverySave?: (signal: AbortSignal) => Promise<boolean>;
+  readonly deliveryReviewNotes?: readonly PlaytestNote[];
+  readonly reviewNotesError?: string;
+  readonly revisionTarget?: { readonly sceneId: string; readonly statementId: string } | null;
+  readonly onRevise?: (location: PlaytestNoteLocation) => void;
+  readonly onRecordIssue?: (location: PlaytestNoteLocation) => void;
+  readonly onFinishRevision?: () => void;
+  readonly reviewDialogOpen?: boolean;
+  readonly playtestRequest?: PreviewPlaytestRequest | null;
+  readonly onPlaytestRequestHandled?: (result: ReviewStartResult) => void;
+  readonly pendingReviewNotes?: number;
+  readonly onOpenReviewNotes?: () => void;
+  readonly initialPublicationStep?: number;
+  readonly initialPublicationFormat?: PublicationWorkflow['format'];
+  readonly reviewTrace?: RouteReviewTrace | null;
+  readonly playtestProgress?: PlaytestProgressState;
+  readonly onRestartPlaytest?: (format: PublicationWorkflow['format']) => void;
+  readonly onReleaseFix?: (finding: WebReleaseFinding, format: PublicationWorkflow['format']) => void;
+  readonly onReleaseReview?: (route: boolean, format: PublicationWorkflow['format']) => void;
+  readonly continuity?: PreviewContinuity | undefined;
+  readonly onContinuityChange?: ((continuity: PreviewContinuity) => void) | undefined;
+  readonly hidden?: boolean;
+  readonly onDraftChange?: (dirty: boolean) => void;
+  readonly publicationOnly?: boolean;
+  readonly onPublicationChange: (project: CanonicalProject) => void;
   readonly createCommandId: () => string;
   readonly inputDirty: boolean;
   readonly assetIndex: AssetIndex;
@@ -2857,40 +3294,82 @@ function useDevicePixelRatio(): number {
   return ratio;
 }
 
-function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetIndex, assetRepository, canonicalProject, onRouteTraceChange }: PreviewPanelProps) {
+function PreviewPanel({ focusMode = false, onFocusModeChange, publicationWorkflow, onPublicationWorkflowChange, beforeDeliverySave, deliveryReviewNotes = [], reviewNotesError = '', revisionTarget = null, onRevise, onRecordIssue, onFinishRevision, reviewDialogOpen = false, playtestRequest = null, onPlaytestRequestHandled, pendingReviewNotes = 0, onOpenReviewNotes, session, dispatch, createCommandId, inputDirty, assetIndex, assetRepository, canonicalProject, onRouteTraceChange, onPublicationChange, publicationOnly = false, onDraftChange, hidden = false, continuity, onContinuityChange, initialPublicationStep = 0, initialPublicationFormat = "html", reviewTrace = null, playtestProgress, onRestartPlaytest, onReleaseFix, onReleaseReview }: PreviewPanelProps) {
+  const focusToggle = useRef<HTMLButtonElement>(null);
+  const projectRunBlocked = inputDirty || pendingDraftSceneIds(session).length > 0;
+  const [publicationSettingsDirty, setPublicationSettingsDirty] = useState(false);
+  const [creditsOpen, setCreditsOpen] = useState(false);
+  const [sourcesOpen, setSourcesOpen] = useState<WebSourceReviewTarget | null>(null);
+  const publicationDirty = publicationSettingsDirty || creditsOpen || sourcesOpen !== null;
+  const [localPublicationWorkflow, setLocalPublicationWorkflow] = useState<PublicationWorkflow>(() => ({ ...DEFAULT_PUBLICATION_WORKFLOW, step: initialPublicationStep, format: initialPublicationFormat }));
+  const workflow = publicationWorkflow ?? localPublicationWorkflow;
+  const updateWorkflow = (patch: Partial<PublicationWorkflow>) => (onPublicationWorkflowChange ?? setLocalPublicationWorkflow)({ ...workflow, ...patch });
+  const { includeProductionBundle, includeReviewNotes, includePlaytestProgress, step: publicationStep, format: publicationFormat } = workflow;
+  const setIncludeProductionBundle = (value: boolean) => updateWorkflow({ includeProductionBundle: value });
+  const setIncludeReviewNotes = (value: boolean) => updateWorkflow({ includeReviewNotes: value });
+  const setIncludePlaytestProgress = (value: boolean) => updateWorkflow({ includePlaytestProgress: value });
+  const setPublicationStep = (value: number) => updateWorkflow({ step: value });
+  const setPublicationFormat = (value: PublicationWorkflow['format']) => updateWorkflow({ format: value });
+  useEffect(() => { onDraftChange?.(publicationDirty); }, [publicationDirty, onDraftChange]);
+  useEffect(() => () => onDraftChange?.(false), [onDraftChange]);
   const [viewportProfileId, setViewportProfileId] = useState<PreviewViewportProfileId>(
     DEFAULT_PREVIEW_VIEWPORT_ID
   );
   const [customViewport, setCustomViewport] = useState({ width: 1920, height: 1080 });
-  const [showSafeArea, setShowSafeArea] = useState(true);
+  const [showSafeArea, setShowSafeArea] = useState(false);
+  const [previewMuted, setPreviewMuted] = useState(readPreviewAudioMuted);
   const [lastStagePoint, setLastStagePoint] = useState<StageDesignPoint | null>(null);
   const [stageDirectorMessage, setStageDirectorMessage] = useState<string | null>(null);
   const devicePixelRatio = useDevicePixelRatio();
-  const settingsApplication = useMemo(() => createGalSettingsApplicationV1(canonicalProject.settings, "web"), [canonicalProject.settings]);
+  const [resumption, releaseResumption] = useState<ReturnType<typeof resumePreviewContinuity> | null>(() => resumePreviewContinuity(canonicalProject, assetIndex, continuity));
+  const [previewSource, setPreviewSource] = useState(() => ({ project: resumption!.continuity.project, assetIndex: resumption!.continuity.assetIndex }));
+  useEffect(() => { releaseResumption(null); }, []);
   const [transport, transportDispatch] = useReducer(
     reducePreviewTransport,
     undefined,
     createPreviewTransportState
   );
-  const [playable, setPlayable] = useState<FormalPreviewState>(createIdleFormalPreviewState);
-  const [runtimeDetailsOpen, setRuntimeDetailsOpen] = useState(false);
-  const [hotUpdate, setHotUpdate] = useState<Exclude<FormalPreviewHotUpdateResult, { readonly kind: "unchanged" }> | null>(null);
-  const [webBuild, setWebBuild] = useState<(PlayableWebArtifact & { readonly href: string; readonly dispose: () => void }) | null>(null);
+  const [playable, setPlayable] = useState<FormalPreviewState>(() => resumption!.continuity.playable);
+  const [runtimeDetailsOpen, setRuntimeDetailsOpen] = useState(() => resumption!.continuity.detailsOpen);
+  const [resumed, setResumed] = useState(() => resumption!.resumed);
+  const [hotUpdate, setHotUpdate] = useState<Exclude<FormalPreviewHotUpdateResult, { readonly kind: "unchanged" }> | null>(() => resumption!.update);
+  const [webBuild, setWebBuild] = useState<(Omit<FormalWebArtifact, "html"> & { readonly directory: boolean; readonly websiteOnly: boolean; readonly href: string; readonly production?: { readonly href: string; readonly filename: string; readonly byteLength: number; readonly notesIncluded: boolean; readonly progressIncluded: boolean }; readonly dispose: () => void }) | null>(null);
+  const [webBuilding, setWebBuilding] = useState(false);
+  const [webBuildPhase, setWebBuildPhase] = useState("正在打包当前游戏…");
+  const webBuildGeneration = useRef(0);
+  const webBuildController = useRef<AbortController | null>(null);
   const [webBuildError, setWebBuildError] = useState<string | null>(null);
+  const releaseInspection = useWebReleaseInspection(canonicalProject, assetRepository, publicationOnly && publicationStep === 2, projectRunBlocked || publicationDirty);
   const playableActive = playable.status !== "idle";
+  const presentationProject = playableActive ? previewSource.project : canonicalProject;
+  const presentationIndex = playableActive ? previewSource.assetIndex : assetIndex;
+  const presentationStory = useMemo(() => projectCanonicalForEditor(presentationProject).project, [presentationProject]);
+  const settingsApplication = useMemo(() => createGalSettingsApplicationV1(presentationProject.settings, "web"), [presentationProject.settings]);
+  const restartRequired = hotUpdate?.kind === "restart-required";
+  const revisionEditing = revisionTarget !== null;
+  const playbackBlocked = restartRequired || projectRunBlocked || revisionEditing || reviewDialogOpen;
+  const handledPlaytestRequest = useRef<number | null>(null);
+  const [reviewSerial, setReviewSerial] = useState<number | null>(null);
+  const startTargetExists = previewStartTargetExists(canonicalProject, playable);
+  useEffect(() => { onContinuityChange?.({ ...previewSource, playable, detailsOpen: runtimeDetailsOpen, revisionTarget }); }, [onContinuityChange, previewSource, playable, runtimeDetailsOpen, revisionTarget]);
   const previewObservation = observeFormalPreview(playable);
   useEffect(() => {
-    if (playableActive) setRuntimeDetailsOpen(true);
-  }, [playableActive]);
+    if (playable.status === "error") setRuntimeDetailsOpen(true);
+  }, [playable.status]);
   useEffect(() => {
     onRouteTraceChange(playableActive ? {
       active: true,
       currentSceneId: playable.sceneId,
       currentStatementId: previewObservation.current?.statementId ?? null,
       visitedSceneIds: playable.visitedSceneIds,
-      visitedEdgeIds: playable.visitedRouteEdgeIds
+      visitedEdgeIds: playable.visitedRouteEdgeIds,
+      ...(playable.reviewSourceHash === null || playable.buildId === null ? {} : { review: {
+        sourceHash: playable.reviewSourceHash, buildId: playable.buildId, status: playable.status, startKind: playable.startTarget?.kind ?? "unknown", reviewSerial,
+        playtestSourceHash: playable.playtestSourceHash, endingId: playable.runtimeState?.terminal.kind === 'ended' ? playable.runtimeState.terminal.endingId : null, endingSceneId: playable.status === 'ended' ? playable.sceneId : null,
+        endingName: playable.endingName ?? null, sceneIds: playable.visitedSceneIds, statementIds: playable.visitedStatementIds, choiceIds: playable.visitedRouteEdgeIds
+      } })
     } : IDLE_RUNTIME_ROUTE_TRACE);
-  }, [onRouteTraceChange, playable.sceneId, playable.visitedRouteEdgeIds, playable.visitedSceneIds, playableActive, previewObservation.current?.statementId]);
+  }, [onRouteTraceChange, playable.sceneId, playable.visitedRouteEdgeIds, playable.visitedSceneIds, playable.visitedStatementIds, playable.reviewSourceHash, playable.buildId, playable.status, playable.startTarget, playable.endingName, playable.playtestSourceHash, playable.runtimeState?.terminal, playableActive, previewObservation.current?.statementId, reviewSerial]);
   const selectedPreset = findPreviewViewportPreset(viewportProfileId);
   const viewport = viewportProfileId === "custom" ? {
     id: "custom" as const,
@@ -2907,7 +3386,7 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
   );
   const previewSceneId = playableActive && playable.sceneId !== null ? playable.sceneId : session.activeSceneId;
   const previewIndex = playableActive ? playable.statementIndex : session.previewIndex;
-  const scene = findScene(session.project, previewSceneId);
+  const scene = findScene(presentationStory, previewSceneId);
   const statement = scene.statements[previewIndex];
   if (statement === undefined) throw new Error(`Preview index is outside scene: ${previewIndex}`);
   const sourceSession = activeSourceSession(session);
@@ -2928,7 +3407,8 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
   );
   const hostCommitPending = previewObservation.pendingEffect !== null || previewObservation.pendingBarrier !== null;
   const committedPreviewIndex = playableActive && hostCommitPending ? previewIndex - 1 : previewIndex;
-  const stagePlan = committedPreviewIndex < 0
+  const formalStagePlan = useMemo(() => deriveFormalPreviewStage(playable, settingsApplication.ui.defaultTextboxTemplate), [playable, settingsApplication.ui.defaultTextboxTemplate]);
+  const stagePlan = playableActive ? formalStagePlan : committedPreviewIndex < 0
     ? derivePreviewStagePlan([], 0, settingsApplication.ui.defaultTextboxTemplate)
     : stageTimeline[committedPreviewIndex] ?? derivePreviewStagePlan([], 0, settingsApplication.ui.defaultTextboxTemplate);
   const dialoguePresentation = deriveDialoguePresentation(scene.statements, committedPreviewIndex, stagePlan.dialogueTemplate);
@@ -2946,8 +3426,13 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
   useEffect(() => {
     if (!playableActive) return;
     const result = updateFormalPreviewProject(canonicalProject, playable);
-    if (result.kind === "unchanged") return;
+    if (result.kind === "unchanged") {
+      setPreviewSource(previous => ({ ...previous, project: canonicalProject, assetIndex }));
+      setHotUpdate(previous => previous?.kind === "restart-required" ? null : previous);
+      return;
+    }
     if (result.kind === "applied") setPlayable(result.state);
+    if (result.kind === "applied") setPreviewSource(previous => ({ ...previous, project: canonicalProject, assetIndex }));
     setHotUpdate(result);
   }, [canonicalProject, playableActive]);
 
@@ -2960,6 +3445,16 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
   }, [settingsApplication.display.designHeight, settingsApplication.display.designWidth]);
 
   useEffect(() => () => webBuild?.dispose(), [webBuild]);
+  const atlasPreview = useMemo(() => new NativeAtlasPreviewSession(), []);
+  useEffect(() => () => atlasPreview.clear(), [atlasPreview]);
+  useEffect(() => {
+    webBuildGeneration.current += 1;
+    webBuildController.current?.abort();
+    setWebBuild(null);
+    setWebBuilding(false);
+    setWebBuildError(null);
+    return () => { webBuildGeneration.current += 1; webBuildController.current?.abort(); };
+  }, [canonicalProject, projectRunBlocked, publicationFormat, includeProductionBundle, includeReviewNotes, includeProductionBundle && includeReviewNotes ? deliveryReviewNotes : null, includeProductionBundle && includeReviewNotes ? reviewNotesError : null, includePlaytestProgress, includeProductionBundle && includePlaytestProgress ? playtestProgress?.completions : null, includeProductionBundle && includePlaytestProgress ? playtestProgress?.error : null]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -2984,7 +3479,8 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
       return () => controller.abort();
     }
     const reader = assetRepository ?? { read: async () => null };
-    void loadPreviewMedia(stagePlan, assetIndex, reader, urlFactory, controller.signal)
+    void loadPreviewMedia(stagePlan, presentationIndex, reader, urlFactory, controller.signal)
+      .then(media => atlasPreview.attach(media, presentationProject, reader, controller.signal))
       .then((media) => {
         if (controller.signal.aborted || generation !== mediaGenerationRef.current) {
           releasePreviewMedia(media, urlFactory);
@@ -3007,7 +3503,7 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
       controller.abort();
       if (owned !== undefined) releasePreviewMedia(owned, urlFactory);
     };
-  }, [assetIndex, assetRepository, stagePlan.resourceKey, urlFactory]);
+  }, [presentationIndex, assetRepository, stagePlan.resourceKey, urlFactory, presentationProject]);
 
   const loadedMedia = mediaView.status === "ready" && mediaView.planKey === stagePlan.resourceKey && mediaView.media.planKey === stagePlan.resourceKey
     ? mediaView.media
@@ -3062,11 +3558,11 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
   }, [session.activeSceneId]);
 
   useEffect(() => {
-    if (!playableActive || playable.sceneId === null) return;
+    if (revisionEditing || playtestRequest !== null || !playableActive || playable.sceneId === null || restartRequired || !session.project.scenes.some(scene => scene.id === playable.sceneId)) return;
     if (session.activeSceneId !== playable.sceneId) {
       dispatch({ type: "select-scene", sceneId: playable.sceneId });
     }
-  }, [dispatch, playable.sceneId, playableActive, session.activeSceneId]);
+  }, [dispatch, playable.sceneId, playableActive, session.activeSceneId, session.project.scenes, restartRequired, revisionEditing, playtestRequest]);
 
   useEffect(() => {
     if (!playableActive || transport.mode !== "playing") return;
@@ -3118,72 +3614,145 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
   };
 
   const beginPlayablePreview = () => {
+    if (projectRunBlocked) return;
+    setReviewSerial(null);
+    onFinishRevision?.();
     transportDispatch({ type: "reset" });
     setHotUpdate(null);
+    setResumed(false);
+    setPreviewSource({ project: canonicalProject, assetIndex });
     setPlayable(startFormalPreview(canonicalProject));
   };
 
   const beginPlayablePreviewFromScene = () => {
+    if (projectRunBlocked) return;
+    setReviewSerial(null);
+    onFinishRevision?.();
     transportDispatch({ type: "reset" });
     setHotUpdate(null);
+    setResumed(false);
+    setPreviewSource({ project: canonicalProject, assetIndex });
     setPlayable(startFormalPreviewFromScene(canonicalProject, session.activeSceneId));
   };
 
   const beginPlayablePreviewFromStatement = () => {
+    if (projectRunBlocked) return;
+    setReviewSerial(null);
+    onFinishRevision?.();
     transportDispatch({ type: "reset" });
     setHotUpdate(null);
+    setResumed(false);
+    setPreviewSource({ project: canonicalProject, assetIndex });
     setPlayable(startFormalPreviewFromStatement(canonicalProject, session.activeSceneId, session.selectedStatementId));
   };
 
   const restartPlayablePreview = () => {
+    if (projectRunBlocked) return;
+    setReviewSerial(null);
+    onFinishRevision?.();
     transportDispatch({ type: "reset" });
     setHotUpdate(null);
-    setPlayable(startFormalPreview(canonicalProject, playable.startTarget ?? { kind: "entry" }));
+    setResumed(false);
+    setPreviewSource({ project: canonicalProject, assetIndex });
+    setPlayable(startFormalPreview(canonicalProject, startTargetExists ? playable.startTarget ?? { kind: "entry" } : { kind: "entry" }));
   };
 
   const exitPlayablePreview = () => {
+    setReviewSerial(null);
+    onFinishRevision?.();
     setHotUpdate(null);
+    setResumed(false);
     setPlayable(createIdleFormalPreviewState());
   };
 
-  const preparePlayableWeb = () => {
-    webBuild?.dispose();
+  useEffect(() => {
+    if (!playtestRequest || projectRunBlocked || handledPlaytestRequest.current === playtestRequest.serial) return;
+    handledPlaytestRequest.current = playtestRequest.serial;
+    transportDispatch({ type: "reset" }); setHotUpdate(null); setResumed(false); setPreviewSource({ project: canonicalProject, assetIndex });
+    const started = startFormalPreview(canonicalProject, playtestRequest.target);
+    setPlayable(started); setReviewSerial(playtestRequest.serial);
+    onPlaytestRequestHandled?.({ serial: playtestRequest.serial, sourceHash: started.reviewSourceHash, started: started.status !== 'error' && started.status !== 'idle' });
+  }, [playtestRequest, projectRunBlocked, canonicalProject, assetIndex, onPlaytestRequestHandled]);
+
+  const preparePlayableWeb = async () => {
+    const directory = publicationFormat !== 'html', websiteOnly = publicationFormat === 'website';
+    if (projectRunBlocked || publicationDirty || webBuilding || !releaseInspection.ready) return;
+    webBuildController.current?.abort();
+    const controller = new AbortController(); webBuildController.current = controller;
+    const generation = ++webBuildGeneration.current;
+    setWebBuild(null);
     setWebBuildError(null);
-    try { setWebBuild(createPlayableWebDownload(session.project)); }
-    catch (error) { setWebBuild(null); setWebBuildError(error instanceof Error ? error.message : String(error)); }
+    setWebBuilding(true); setWebBuildPhase(includeProductionBundle ? "正在保存当前工程…" : "正在打包当前游戏…");
+    try {
+      if (includeProductionBundle && includeReviewNotes && reviewNotesError) throw Error("校订记录尚未完整读取或保存。请在检查页核对或备份原记录，或取消附带校订记录后生成。");
+      if (includeProductionBundle && includePlaytestProgress && playtestProgress?.error) throw Error("试玩进度尚未完整读取或保存。请在检查页重试，或取消附带试玩进度后生成。");
+      if (includeProductionBundle && beforeDeliverySave && !await beforeDeliverySave(controller.signal)) throw Error("工程尚未保存成功，请检查保存状态后重新生成制作交付包。");
+      controller.signal.throwIfAborted();
+      setWebBuildPhase("正在生成游戏文件…");
+      const { default: runtime } = await import("virtual:world-player-export");
+      const reader = assetRepository ?? { read: async () => null };
+      const artifact = directory
+        ? await createFormalWebDirectoryArtifact(canonicalProject, reader, runtime, controller.signal, atlasPreview.verification.verify, websiteOnly ? 'website' : 'local')
+        : await createFormalWebArtifact(canonicalProject, reader, runtime, controller.signal, atlasPreview.verification.verify);
+      const production = includeProductionBundle ? await createWebDeliveryBundle(canonicalProject, assetIndex, reader, artifact, includeReviewNotes ? deliveryReviewNotes : null, controller.signal, label => { if (generation === webBuildGeneration.current) setWebBuildPhase(label); }, includePlaytestProgress ? playtestProgress?.completions ?? [] : null) : null;
+      if (generation !== webBuildGeneration.current) return;
+      const contents = "archive" in artifact ? new Uint8Array(artifact.archive) : artifact.html;
+      const href = URL.createObjectURL(new Blob([contents], { type: directory ? "application/zip" : "text/html;charset=utf-8" }));
+      let productionHref: string | null = null;
+      try { productionHref = production ? URL.createObjectURL(new Blob([new Uint8Array(production.archive)], { type: "application/zip" })) : null; } catch (error) { URL.revokeObjectURL(href); throw error; }
+      setWebBuild({ filename: artifact.filename, byteLength: artifact.byteLength, projectDigest: artifact.projectDigest, optimizationReport: artifact.optimizationReport, directory, websiteOnly, href, ...(production && productionHref ? { production: { href: productionHref, filename: production.filename, byteLength: production.byteLength, notesIncluded: includeReviewNotes, progressIncluded: includePlaytestProgress } } : {}), dispose: () => { URL.revokeObjectURL(href); if (productionHref) URL.revokeObjectURL(productionHref); } });
+    } catch (error) {
+      if (generation === webBuildGeneration.current) {
+        if (error instanceof WebReleaseValidationError) {
+          releaseInspection.receiveBuildFailure(error.findings);
+          setWebBuildError("生成前发现文件或工程问题，请修复左侧清单后重试。");
+        } else setWebBuildError(error instanceof Error ? error.message : String(error));
+      }
+    } finally {
+      if (generation === webBuildGeneration.current) setWebBuilding(false);
+    }
   };
 
+  const playableSceneTitle = presentationProject.scenes.find(item => item.id === playable.sceneId)?.title ?? scene.title;
   const playableStatus = playable.status === "waiting-choice"
     ? `请选择路线 · 已经过 ${playable.visitedSceneIds.length} 个场景`
     : playable.status === "waiting-effect"
-      ? `等待 Effect Host · ${previewObservation.pendingEffect?.descriptorId ?? "未知 Effect"}`
+      ? "演出等待确认 · 请在下方完成或取消"
       : playable.status === "waiting-barrier"
-        ? `等待明确批准 · ${previewObservation.pendingBarrier?.descriptorId ?? "未知 Barrier"}`
+        ? "操作需要确认 · 请查看下方说明"
     : playable.status === "ended"
       ? `流程完成：${playable.endingName ?? "未命名结局"}`
       : playable.status === "error"
         ? `流程中止：${playable.error ?? "未知错误"}`
         : playable.status === "paused"
-          ? `已暂停 · ${scene.title} · ${playable.statementId ?? "光标位置"}`
-          : `试玩中 · ${scene.title} · ${playable.visitedStatementIds.length} 个节点`;
+          ? `已暂停 · ${playableSceneTitle}`
+          : `试玩中 · ${playableSceneTitle} · 已走 ${playable.visitedStatementIds.length} 个步骤`;
   const reconciliationOperationCount = (previewObservation.reconciliation?.compensations.length ?? 0) + (previewObservation.reconciliation?.replayEffects.length ?? 0);
   const historyStatus = previewObservation.history?.transient
-    ? "光标临时状态"
+    ? "正在定位选中步骤"
     : previewObservation.reconciliation === null
-      ? "确定性 checkpoint"
+      ? "当前位置已记录"
       : reconciliationOperationCount === 0
-        ? `${previewObservation.reconciliation.direction} · checkpoint 已恢复`
-        : `${previewObservation.reconciliation.direction} · ${reconciliationOperationCount} 项 Host 协调`;
+        ? "已恢复历史位置"
+        : `已恢复历史位置与演出（${reconciliationOperationCount} 项）`;
 
+  const currentRevisionLocation: PlaytestNoteLocation | null = playable.sceneId && previewObservation.current?.statementId && playable.reviewSourceHash ? { sceneId: playable.sceneId, statementId: previewObservation.current.statementId, sceneTitle: playableSceneTitle, excerpt: String(presentationProject.scripts[playable.sceneId]?.statements.find(item => item.id === previewObservation.current?.statementId)?.text ?? presentationProject.scripts[playable.sceneId]?.statements.find(item => item.id === previewObservation.current?.statementId)?.prompt ?? "").slice(0, 400), sourceHash: playable.reviewSourceHash } : null;
+  const revisionLocationExists = currentRevisionLocation !== null && canonicalProject.scripts[currentRevisionLocation.sceneId]?.statements.some(item => item.id === currentRevisionLocation.statementId) === true;
   const transportStatus = playableActive
     ? "完整流程试玩接管中"
     : transport.mode === "playing"
       ? `运行中 · ${speedProfile.label}`
       : previewStopReasonLabel(transport.stopReason ?? transportBarrier);
   return (
-    <aside className="preview-panel" aria-labelledby="preview-heading">
+    <aside hidden={hidden} className={publicationOnly ? "preview-panel publication-page" : "preview-panel"} aria-labelledby={publicationOnly ? "publication-heading" : "preview-heading"} onKeyDown={event => {
+      if (!focusMode || event.defaultPrevented || event.key !== 'Escape' || event.nativeEvent.isComposing || event.nativeEvent.keyCode === 229 || document.querySelector('dialog[open]') || (event.target as HTMLElement).closest('input,textarea,select,[contenteditable="true"]')) return;
+      event.preventDefault(); event.stopPropagation(); onFocusModeChange?.(false); focusToggle.current?.focus();
+    }}>
+      {!publicationOnly && <>
+      <div className="preview-stage-area">
       <div className="panel-heading">
         <div><p className="eyebrow">LIVE PREVIEW</p><h2 id="preview-heading">即时预览</h2></div>
+        <button ref={focusToggle} id="preview-focus-toggle" type="button" className="preview-focus-toggle" title={focusMode ? '返回原来的编辑布局与校订任务，不重新启动试玩。' : '收起编辑区和任务详情，查看舞台与正文。'} aria-pressed={focusMode} onClick={() => onFocusModeChange?.(!focusMode)}>{focusMode ? '返回编辑布局' : '专注预览'}</button>
         <span className={pendingDraft ? "live-badge is-locked" : inputDirty ? "live-badge is-buffered" : "live-badge"}>
           {pendingDraft ? "LOCKED" : inputDirty ? "BUFFER" : "LIVE"}
         </span>
@@ -3204,6 +3773,7 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
         </select>
         <span>{viewport.width} × {viewport.height}</span>
         <label className="preview-safe-toggle"><input type="checkbox" checked={showSafeArea} onChange={(event) => setShowSafeArea(event.target.checked)} />安全区</label>
+        <label className="preview-safe-toggle" title="只影响本机编辑器预览；会记住选择。"><input type="checkbox" checked={previewMuted} onChange={event => { setPreviewMuted(event.target.checked); storePreviewAudioMuted(event.target.checked); }} />预览静音</label>
       </div>
       {viewportProfileId === "custom" && (
         <div className="preview-custom-size" aria-label="自定义预览尺寸">
@@ -3240,8 +3810,8 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
         </div>
       )}
       <div className="stage-director-strip" role="status" data-stage-director={playableActive ? "locked" : "ready"}>
-        <strong>DIRECTOR · 画布定位</strong>
-        <span>{stageDirectorMessage ?? "先选择角色 Show/Move 演出，再点击画布空白处写入稳定语义坐标"}</span>
+        <strong>舞台定位</strong>
+        <span>{stageDirectorMessage ?? "选中角色演出后，点击舞台设置角色位置。"}</span>
       </div>
       <div className="stage-viewport">
         <div
@@ -3292,6 +3862,7 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
           onPointerDown={placeOnStage}
           style={{
             "--preview-aspect": `${viewport.width} / ${viewport.height}`,
+            "--preview-design-ratio": viewport.width / viewport.height,
             "--gal-font-scale": settingsApplication.text.fontScale,
             "--gal-message-opacity": settingsApplication.text.messageWindowOpacity,
             "--gal-line-height": settingsApplication.text.lineHeight,
@@ -3317,7 +3888,7 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
             pixelWidth={stageSurface.pixelWidth}
             pixelHeight={stageSurface.pixelHeight}
             selectedStatementId={session.selectedStatementId}
-            onSelect={(statementId) => dispatch({ type: "select-statement", statementId })}
+            onSelect={(statementId) => { if (!inputDirty && !playableActive) dispatch({ type: "select-statement", statementId }); }}
             onStagePoint={setLastStagePoint}
             onRuntimeError={reportRuntimeMediaError}
             defaultDurationMilliseconds={settingsApplication.stage.defaultDurationMilliseconds}
@@ -3325,10 +3896,11 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
           />
           <div className="stage-audio-stack" aria-live="polite">
             {loadedMedia?.audio.map((layer) => {
-              const playback = stagePlan.audio.find((candidate) => candidate.bus === layer.bus)?.playback ?? layer.playback;
+              const playback = playbackBlocked || hidden ? "paused" : stagePlan.audio.find((candidate) => candidate.bus === layer.bus)?.playback ?? layer.playback;
               return <PreviewAudioLayer
                 key={`${layer.bus}:${layer.statementId}:${layer.url}`}
                 layer={{ ...layer, playback }}
+                muted={previewMuted}
                 appliedVolume={galAudioGainV1(
                   settingsApplication,
                   (["bgm", "voice", "sfx", "ambient", "ui"].includes(layer.bus) ? layer.bus : "sfx") as GalAudioBusV1,
@@ -3343,33 +3915,45 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
           {loadedMedia !== undefined && mediaErrorCount > 0 && (
             <div className="stage-media-errors" role="status" data-runtime-errors={mediaView.runtimeErrors.length}>
               <strong>安全占位</strong><span>{mediaErrorCount} 项资源未执行</span>
+              <details><summary>查看预览问题</summary><ul>
+                {loadedMedia.errors.map((error, index) => <li key={`load-${index}`}>{error}</li>)}
+                {mediaView.runtimeErrors.map((error, index) => <li key={`decode-${index}`}>{error.statementId}：{error.assetId} · {error.role} 解码失败，请检查原素材。</li>)}
+              </ul></details>
             </div>
           )}
-          <div className="stage-content" key={statement.id} data-testid="preview-step">
+        </div>
+      </div>
+          <PreviewTranscript sceneId={scene.id} statementId={statement.id} template={dialoguePresentation.template} highContrast={settingsApplication.accessibility.highContrast} reduceMotion={settingsApplication.accessibility.reduceMotion} style={{
+            '--gal-font-scale': settingsApplication.text.fontScale,
+            '--gal-line-height': settingsApplication.text.lineHeight,
+            '--gal-letter-spacing': `${settingsApplication.text.letterSpacingEm}em`,
+            '--gal-text-reveal-duration': `${dialogueRevealDuration}ms`
+          } as CSSProperties}>
             {(statement.kind === "dialogue" || statement.kind === "narration") && <div key={`${statement.id}:${dialogueRevealDuration}`} className={`dialogue-presentation dialogue-presentation--${dialoguePresentation.template}`} data-dialogue-template={dialoguePresentation.template}>
               {dialoguePresentation.lines.map((item) => {
-                const character = item.speakerId === undefined ? undefined : findCharacter(session.project.characters, item.speakerId);
+                const character = item.speakerId === undefined ? undefined : findCharacter(presentationStory.characters, item.speakerId);
                 return <div className="dialogue-presentation__line" key={item.statementId}>
                   <span className="speaker-name" style={{ "--speaker-color": character?.color ?? "#8B7CFF" } as CSSProperties}>{character?.displayName ?? (item.speakerId === undefined ? "旁白" : "未知角色")}</span>
                   <p>{item.text}</p>
                 </div>;
               })}
             </div>}
-            {statement.kind === "direction" && <div className="stage-note"><span>演出指令</span><strong>{statement.summary}</strong></div>}
+            {statement.kind === "direction" && <div className="stage-note"><span>演出预览</span><strong>{describeDirection(statement, presentationIndex)}</strong></div>}
             {statement.kind === "wait" && <div className="stage-note"><span>等待</span><strong>{statement.duration} ms</strong></div>}
             {statement.kind === "choice" && (
               <div className="choice-preview" data-choice-layout={settingsApplication.choice.layout}>
                 <strong>{statement.prompt}</strong>
                 {statement.options.map((option, optionIndex) => playable.status === "waiting-choice"
-                  ? <button key={option.id} type="button" onClick={() => setPlayable(selectFormalPreviewChoice(playable, option.id))} aria-label={`选择路线：${option.label}`}>{settingsApplication.choice.showOptionNumbers && <b data-choice-number aria-hidden="true">{optionIndex + 1}</b>}{option.label}</button>
+                  ? <button key={option.id} type="button" disabled={playbackBlocked} onClick={() => setPlayable(selectFormalPreviewChoice(playable, option.id))} aria-label={`选择路线：${option.label}`}>{settingsApplication.choice.showOptionNumbers && <b data-choice-number aria-hidden="true">{optionIndex + 1}</b>}{option.label}</button>
                   : <span key={option.id}>{settingsApplication.choice.showOptionNumbers && <b data-choice-number aria-hidden="true">{optionIndex + 1}</b>}{option.label}</span>)}
               </div>
             )}
             {statement.kind === "end" && <div className="ending-preview"><span>ENDING</span><strong>{statement.endingName}</strong></div>}
-          </div>
-        </div>
+          </PreviewTranscript>
       </div>
-      <div className="preview-control-dock" aria-label="预览核心控制">
+      <div className="preview-session-area">
+      {resumed && playableActive && <p className="preview-resume-notice" role="status" aria-label="试玩接续状态">已接续上次试玩，当前位置、选择和历史均已保留。</p>}
+      <div hidden={playableActive} className="preview-control-dock" aria-label="预览核心控制">
         <div className="preview-transport">
           <button aria-label="上一步" onClick={() => stepPreview(-1)} disabled={playableActive || previewIndex === 0}>←</button>
           <div><strong>{previewIndex + 1} / {scene.statements.length}</strong><small>{statementKindLabel(statement)} · {statement.id}</small></div>
@@ -3407,43 +3991,48 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
       </div>
       <div className={`playable-preview playable-preview--${playable.status}`} aria-label="完整流程试玩">
         <div>
-          <strong>正式 Runtime 试玩</strong>
-          <small>{playableActive ? playableStatus : "Project Compiler → Runtime · 从入口执行到结局"}</small>
+          <strong>{playableActive && playable.startTarget?.kind !== "entry" ? "局部内容试玩" : "完整故事试玩"}</strong>
+          <small>{playableActive ? playableStatus : "从故事开头出发，体验选择与结局。"}</small>
+          {playableActive && playable.startTarget?.kind !== "entry" && <small>从默认变量启动，完整路线仍需从故事入口确认。</small>}
         </div>
         {!playableActive && (
-          <button type="button" onClick={beginPlayablePreview} disabled={pendingDraft || inputDirty}>试玩完整流程</button>
+          <button type="button" onClick={beginPlayablePreview} disabled={projectRunBlocked}>试玩完整流程</button>
         )}
         {(playable.status === "ended" || playable.status === "error") && (
-          <button type="button" onClick={restartPlayablePreview}>重新试玩</button>
+          <button type="button" onClick={restartPlayablePreview} disabled={projectRunBlocked}>重新试玩</button>
         )}
+        {playableActive && currentRevisionLocation && onRevise && <button type="button" disabled={projectRunBlocked || revisionEditing || !revisionLocationExists} onClick={() => onRevise(currentRevisionLocation)}>修改当前内容</button>}
+        {playableActive && currentRevisionLocation && onRecordIssue && <button type="button" disabled={projectRunBlocked || reviewDialogOpen} onClick={() => onRecordIssue(currentRevisionLocation)}>记录问题</button>}
         {playableActive && <button type="button" className="playable-preview__secondary" onClick={exitPlayablePreview}>退出试玩</button>}
       </div>
       {playableActive && playable.status !== "error" && (
         <div className="runtime-debug-actions" aria-label="Runtime 调试控制" role="group">
           <div className="runtime-debug-actions__history">
-            <strong>History {previewObservation.history?.cursor ?? 0}/{previewObservation.history?.length ?? 0}</strong>
+            <strong>试玩记录 {previewObservation.history?.cursor ?? 0}/{previewObservation.history?.length ?? 0}</strong>
             <small>{historyStatus}</small>
           </div>
-          <button type="button" onClick={() => setPlayable(backFormalPreview(playable))} disabled={!previewObservation.history?.canBack} aria-label="Runtime 后退一步">← Back</button>
-          <button type="button" onClick={() => setPlayable(forwardFormalPreview(playable))} disabled={!previewObservation.history?.canForward} aria-label="Runtime 前进一步">Forward →</button>
-          <button type="button" onClick={() => setPlayable(advanceFormalPreview(playable))} disabled={playable.status !== "presenting" && playable.status !== "paused"}>Continue</button>
-          <button type="button" onClick={() => setPlayable(stepOverFormalPreview(playable))} disabled={playable.status !== "presenting" && playable.status !== "paused"}>Step Over</button>
-          <button type="button" onClick={() => setPlayable(runFormalPreviewToStatement(playable, session.activeSceneId, session.selectedStatementId))} disabled={pendingDraft || inputDirty}>Run to Cursor</button>
+          <button type="button" onClick={() => setPlayable(backFormalPreview(playable))} disabled={playbackBlocked || !previewObservation.history?.canBack} aria-label="Runtime 后退一步">← 回退</button>
+          <button type="button" onClick={() => setPlayable(forwardFormalPreview(playable))} disabled={playbackBlocked || !previewObservation.history?.canForward} aria-label="Runtime 前进一步">前进 →</button>
+          <button className="preview-continue-story" type="button" onClick={() => setPlayable(advanceFormalPreview(playable))} disabled={playbackBlocked || playable.status !== "presenting" && playable.status !== "paused"}>继续故事</button>
+          <details className="preview-debug-tools"><summary>更多调试操作</summary><div>
+            <button type="button" onClick={() => setPlayable(stepOverFormalPreview(playable))} disabled={playbackBlocked || playable.status !== "presenting" && playable.status !== "paused"}>执行下一步</button>
+            <button type="button" onClick={() => setPlayable(runFormalPreviewToStatement(playable, session.activeSceneId, session.selectedStatementId))} disabled={playbackBlocked}>运行到选中步骤</button>
+          </div></details>
         </div>
       )}
       {playableActive && (previewObservation.pendingEffect !== null || previewObservation.pendingBarrier !== null || previewObservation.effectHost.operationCount > 0) && (
-        <section className="runtime-effect-host" aria-label="Runtime Effect Host">
+        <details className="preview-effect-details" open={previewObservation.pendingEffect !== null || previewObservation.pendingBarrier !== null}><summary>{previewObservation.pendingEffect !== null ? "演出等待确认" : previewObservation.pendingBarrier !== null ? "操作需要确认" : "演出运行详情"}</summary><section className="runtime-effect-host" aria-label="Runtime Effect Host">
           <header>
             <div><span aria-hidden="true">◆</span><strong>Effect / Stage Host</strong></div>
             <small>{previewObservation.effectHost.activeChannels.length} active · {previewObservation.effectHost.operationCount} operations</small>
           </header>
           {previewObservation.pendingEffect !== null && (
             <div className="runtime-effect-host__request" data-host-state="awaited">
-              <div><strong>等待宿主完成</strong><code>{previewObservation.pendingEffect.descriptorId}</code></div>
+              <div><strong>等待演出完成</strong><code>{previewObservation.pendingEffect.descriptorId}</code></div>
               <p>{previewObservation.pendingEffect.kind} · {previewObservation.pendingEffect.channel} · scope {previewObservation.pendingEffect.cancellationScope}</p>
               <div className="runtime-effect-host__actions">
-                <button type="button" onClick={() => setPlayable(completeFormalPreviewEffect(playable))}>完成 Effect</button>
-                <button type="button" className="is-secondary" onClick={() => setPlayable(cancelFormalPreviewEffect(playable))}>安全取消</button>
+                <button type="button" disabled={playbackBlocked} onClick={() => setPlayable(completeFormalPreviewEffect(playable))}>完成本次演出</button>
+                <button type="button" disabled={playbackBlocked} className="is-secondary" onClick={() => setPlayable(cancelFormalPreviewEffect(playable))}>安全取消</button>
               </div>
             </div>
           )}
@@ -3452,7 +4041,7 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
               <div><strong>不可逆边界</strong><code>{previewObservation.pendingBarrier.descriptorId}</code></div>
               <p>{previewObservation.pendingBarrier.reason}</p>
               <div className="runtime-effect-host__actions">
-                <button type="button" onClick={() => setPlayable(approveFormalPreviewBarrier(playable))}>理解并批准</button>
+                <button type="button" disabled={playbackBlocked} onClick={() => setPlayable(approveFormalPreviewBarrier(playable))}>理解并批准</button>
                 <button type="button" className="is-secondary" onClick={exitPlayablePreview}>拒绝并退出试玩</button>
               </div>
             </div>
@@ -3460,43 +4049,45 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
           {previewObservation.pendingEffect === null && previewObservation.pendingBarrier === null && (
             <p className="runtime-effect-host__settled"><span aria-hidden="true">✓</span> Host 已协调 · last {previewObservation.effectHost.lastOperation ?? "none"}{previewObservation.effectHost.checkpointId === null ? "" : ` · ${previewObservation.effectHost.checkpointId.slice(0, 12)}`}</p>
           )}
-        </section>
+        </section></details>
       )}
       {playableActive && hotUpdate !== null && (
         <section className={`runtime-hot-update runtime-hot-update--${hotUpdate.kind}`} aria-label="Runtime 热更新" aria-live="polite">
           {hotUpdate.kind === "applied" ? (
             <>
-              <header><div><span aria-hidden="true">↻</span><strong>安全热更新已应用</strong></div><small>STATE PRESERVED</small></header>
-              <p>新 IR 已用记录输入重新回放；State、History、分支位置与已执行 Host receipt 保持一致。</p>
-              <code>{hotUpdate.previousBuildId.slice(0, 10)} → {hotUpdate.buildId.slice(0, 10)}</code>
+              <header><div><span aria-hidden="true">↻</span><strong>修改已同步到试玩</strong></div></header>
+              <p>当前位置、历史和已选路线保持不变。</p>
             </>
           ) : (
             <>
-              <header><div><span aria-hidden="true">!</span><strong>需要明确重启试玩</strong></div><small>OLD SESSION PRESERVED</small></header>
-              <p>当前试玩仍运行旧 IR，没有静默迁移或自动重启。</p>
+              <header><div><span aria-hidden="true">!</span><strong>需要明确重启试玩</strong></div></header>
+              <p>当前画面与诊断保留旧构建，已暂停剧情操作；不会把新脚本拼接进旧试玩。</p>
               <ul>{hotUpdate.reasons.map((reason) => <li key={reason}>{reason}</li>)}</ul>
               <div className="runtime-hot-update__actions">
-                <button type="button" onClick={restartPlayablePreview}>以当前启动目标重启</button>
+                {!startTargetExists && <p>原启动场景或语句已删除，请从新的故事入口重新试玩。</p>}
+                <button type="button" onClick={restartPlayablePreview} disabled={projectRunBlocked}>{startTargetExists ? "以当前启动目标重启" : "从故事入口重新试玩"}</button>
                 <button type="button" className="is-secondary" onClick={exitPlayablePreview}>退出试玩并保留编辑</button>
               </div>
             </>
           )}
         </section>
       )}
+      {!playableActive && <details className="preview-run-options"><summary>选择试玩起点</summary>
       {!playableActive && (
         <div className="runtime-start-actions" aria-label="Runtime 启动位置" role="group">
-          <div><strong>Fresh Run</strong><small>变量恢复工程默认值 · 调用栈为空</small></div>
-          <button type="button" onClick={beginPlayablePreviewFromScene} disabled={pendingDraft || inputDirty}>从当前场景运行</button>
-          <button type="button" onClick={beginPlayablePreviewFromStatement} disabled={pendingDraft || inputDirty}>从当前语句运行</button>
+          <div><strong>从指定位置试玩</strong><small>每次开始都会使用工程默认变量</small></div>
+          <button type="button" onClick={beginPlayablePreviewFromScene} disabled={projectRunBlocked}>从当前场景运行</button>
+          <button type="button" onClick={beginPlayablePreviewFromStatement} disabled={projectRunBlocked}>从当前语句运行</button>
         </div>
       )}
+      </details>}
       <details
         className="preview-disclosure preview-disclosure--runtime"
         open={runtimeDetailsOpen}
         onToggle={(event) => setRuntimeDetailsOpen(event.currentTarget.open)}
       >
         <summary>
-          <span><strong>Runtime 诊断</strong><small>变量、调用栈与结构化诊断</small></span>
+          <span><strong>调试详情</strong><small>变量、调用记录与问题定位</small></span>
           <span>r{previewObservation.stateRevision ?? "—"} · h{previewObservation.history?.cursor ?? "—"}/{previewObservation.history?.length ?? "—"}</span>
         </summary>
       <section className={`runtime-inspector runtime-inspector--${playable.status}`} aria-label="Runtime 状态检查器">
@@ -3536,23 +4127,103 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
         </section>
       </section>
       </details>
-      <details className="preview-disclosure preview-disclosure--build">
-        <summary>
-          <span><strong>构建与导出</strong><small>独立、离线、可交付试玩产物</small></span>
-          <span>{webBuild === null ? "按需构建" : `${(webBuild.byteLength / 1024).toFixed(1)} KiB`}</span>
-        </summary>
-      <div className="playable-web-export" aria-label="独立试玩导出">
-        <div><strong>独立试玩产物</strong><small>生成无需编辑器和网络即可运行的单文件 HTML</small></div>
-        <button type="button" onClick={preparePlayableWeb} disabled={pendingDraft || inputDirty}>构建试玩 HTML</button>
-        {webBuild && <a href={webBuild.href} download={webBuild.filename}>下载 {(webBuild.byteLength / 1024).toFixed(1)} KiB</a>}
-        {webBuildError && <p role="alert">{webBuildError}</p>}
       </div>
-      </details>
+      </>}
+      {publicationOnly && <>
+      <header className="publication-heading"><p className="eyebrow">让故事与更多人相遇</p><h2 id="publication-heading">发布游戏</h2><p>完成作品信息，选择导出方式，将你的故事交给玩家。</p></header>
+      <nav className="publication-steps" aria-label="发布流程">
+        {["作品信息", "导出方式", "生成游戏", "试玩与部署"].map((label, index) => <button key={label} type="button" aria-current={publicationStep === index ? "step" : undefined} disabled={publicationDirty && publicationStep !== index} onClick={() => setPublicationStep(index)}><span>{index + 1}</span><strong>{label}</strong></button>)}
+      </nav>
+      {sourcesOpen && <WebAssetSourcesDialog project={canonicalProject} assetIndex={assetIndex} reader={assetRepository} initialAssetId={sourcesOpen.assetId} initialStatus={sourcesOpen.status} onApply={onPublicationChange} onClose={() => setSourcesOpen(null)} onReplace={assetId => {
+        setSourcesOpen(null); onReleaseFix?.({ severity: 'warning', code: 'WEB_ASSET_SOURCE_REPLACE', title: '替换待核对素材', message: '', target: 'assets', assetId }, publicationFormat);
+      }} />}
+      <div className="publication-layout">
+      <div className="publication-main">
+      <section className="publication-step-panel" hidden={publicationStep !== 0} aria-label="作品发布信息">
+        <h3>你的作品</h3><p className="publication-section-intro">这些信息会显示在游戏标题页和安装信息中。</p>
+        <div className="playable-web-export">
+        <WebPublicationSettings project={canonicalProject} onChange={onPublicationChange} onDirtyChange={setPublicationSettingsDirty} reader={assetRepository} />
+        </div>
+        <section className="web-credits-entry" aria-label="作品制作名单"><span className="web-credits-mark"><StudioIcon name="characters" /></span><div><strong>制作名单与致谢</strong><p>{creditsSummary(canonicalProject)}</p></div><button type="button" disabled={publicationSettingsDirty || projectRunBlocked} onClick={() => setCreditsOpen(true)}>编辑制作名单</button></section>
+        {creditsOpen && <WebCreditsDialog project={canonicalProject} onApply={onPublicationChange} onClose={() => setCreditsOpen(false)} />}
+        <WebReleasePreparation project={canonicalProject} review={{ notes: deliveryReviewNotes, completions: playtestProgress?.completions ?? null, notesError: reviewNotesError, progressError: playtestProgress?.error }} onReview={onOpenReviewNotes} onPlaytest={() => onRestartPlaytest?.(publicationFormat)} disabled={projectRunBlocked || publicationDirty || webBuilding} onOpen={target => setSourcesOpen(target ?? {})} />
+        <h3>Web 游戏</h3>
+        <div className="publication-platforms publication-platforms--web">
+          <div className="publication-platform is-selected"><span className="publication-platform__icon" aria-hidden="true">◎</span><strong>Web</strong><span>浏览器游戏</span><small>支持电脑和手机，无需安装。</small><b aria-hidden="true">✓</b></div>
+        </div>
+        <button className="studio-primary publication-next" type="button" disabled={publicationDirty} onClick={() => setPublicationStep(1)}>继续：导出方式 →</button>
+        {publicationDirty && <p className="publication-draft-note">请先应用或放弃上面的作品信息修改。</p>}
+      </section>
+      <section className="publication-step-panel" hidden={publicationStep !== 1} aria-label="选择导出方式">
+        <h3>选择适合你的交付方式</h3><p className="publication-section-intro">都包含当前故事、素材和播放器；按试玩分享、本地排查或网站上传选择。</p>
+        <fieldset className="publication-formats"><legend className="sr-only">游戏导出格式</legend>
+          <label className={publicationFormat === "html" ? "is-selected" : ""}><input type="radio" name="publication-format" value="html" checked={publicationFormat === "html"} onChange={() => setPublicationFormat("html")} /><span><strong>单文件 HTML <em>推荐</em></strong><small>一个文件，下载后直接打开。适合试玩和分享。</small></span></label>
+          <label className={publicationFormat === "directory" ? "is-selected" : ""}><input type="radio" name="publication-format" value="directory" checked={publicationFormat === "directory"} onChange={() => setPublicationFormat("directory")} /><span><strong>网页目录 ZIP</strong><small>素材独立存放，附本地预览与部署核对助手。适合本地试玩和排查。</small></span></label>
+          <label className={publicationFormat === "website" ? "is-selected" : ""}><input type="radio" name="publication-format" value="website" checked={publicationFormat === "website"} onChange={() => setPublicationFormat("website")} /><span><strong>网站上传 ZIP</strong><small>只含网站公开文件，不含本地助手或作者资料。无需安装 Node.js 生成，解压后将内容上传静态网站；不会自动上线。</small></span></label>
+        </fieldset>
+        <section className="production-delivery-options" aria-label="制作交付选项">
+          <label><input type="checkbox" aria-label="同时生成制作交付包" checked={includeProductionBundle} disabled={projectRunBlocked || webBuilding || publicationDirty} onChange={event => setIncludeProductionBundle(event.target.checked)} /><span><strong>同时生成制作交付包</strong><small>先保存当前内容，再把游戏、可编辑工程和交付清单放进一个 ZIP，方便备份与继续制作。</small></span></label>
+          {includeProductionBundle && <fieldset className="production-delivery-materials"><legend>随包附带作者资料</legend>
+            <label><input type="checkbox" aria-label="附带校订记录" checked={includeReviewNotes} disabled={projectRunBlocked || webBuilding || publicationDirty} onChange={event => setIncludeReviewNotes(event.target.checked)} /><span>附带校订记录（{deliveryReviewNotes.length} 条）</span></label>
+            <label><input type="checkbox" aria-label="附带试玩进度" checked={includePlaytestProgress} disabled={projectRunBlocked || webBuilding || publicationDirty || !playtestProgress} onChange={event => setIncludePlaytestProgress(event.target.checked)} /><span>附带试玩进度（{playtestProgress?.completions.length ?? 0} 条）<small>保留当前稿和旧稿的结局到达记录，换浏览器后可以合并。</small></span></label>
+            <small>原始记录放在交付包的 review 文件夹，复核摘要放在 release 清单；玩家游戏不含这些记录。只汇总本次勾选的资料，未附带不等于没有待办。恢复工程后，由你选择是否合并。</small>
+            {includeReviewNotes && reviewNotesError && <p role="alert">校订记录暂不可完整导出，请到检查页核对原记录，或取消附带。</p>}
+            {includePlaytestProgress && playtestProgress?.error && <p role="alert">试玩进度暂不可完整导出，请到检查页重试保存，或取消附带。</p>}
+          </fieldset>}
+        </section>
+        <details className="publication-optimization"><summary>素材优化与高级交付设置</summary>
+        <label><input type="checkbox" aria-label="安全 PNG 无损导出优化" checked={losslessExportEnabled(canonicalProject)} disabled={projectRunBlocked || webBuilding || publicationDirty} onChange={event => onPublicationChange(setLosslessExport(canonicalProject, event.target.checked))} />安全 PNG 无损导出优化（随工程保存）</label>
+        <small>仅重压缩适用 PNG，逐字节验证数据；无收益或失败保留原文件。原素材不修改，不接入 Atlas，也不减少 GPU 内存。</small>
+        <AtlasExportSettings project={canonicalProject} reader={assetRepository} disabled={projectRunBlocked || webBuilding || publicationDirty} onChange={onPublicationChange} />
+        <button type="button" disabled={(!nativeAtlasEnabled(canonicalProject) && !losslessExportEnabled(canonicalProject) && atlasExportGroups(canonicalProject).length === 0) || projectRunBlocked || webBuilding || publicationDirty} onClick={() => onPublicationChange(setNativeAtlas(setAtlasExportGroups(setLosslessExport(canonicalProject, false), []),false))}>恢复原素材导出</button>
+        {webBuild && webBuild.optimizationReport.nativeAtlasGroups.length>0 && <details aria-label="原生 Atlas 交付报告"><summary>原生 Atlas 成本与回退</summary>{webBuild.optimizationReport.nativeAtlasGroups.map(row=><p key={row.groupId}>{row.groupId}：{row.adopted?"采用":"回退"}；{row.detail}；共享交付 {row.payloadBytes} B，图集 RGBA {row.pageRgbaBytes} B，回退解压 {row.fallbackRawBytes} B。</p>)}</details>}
+        {webBuild && webBuild.optimizationReport.atlasGroups.length > 0 && <details aria-label="Atlas 兼容交付报告"><summary>Atlas 兼容交付报告</summary>{webBuild.optimizationReport.atlasGroups.map(group => <p key={group.groupId}>{group.groupId}：{group.status === "adopted" ? "采用兼容普通纹理" : "保留当前素材"}；{group.reason}</p>)}</details>}
+{webBuild && <details aria-label="资源优化交付报告"><summary>资源优化交付报告</summary><p>{webBuild.optimizationReport.mode === "native-atlas" ? "原生 Atlas 绘制与原图回退" : webBuild.optimizationReport.mode === "atlas-compatible" ? "Atlas 兼容普通纹理" : webBuild.optimizationReport.mode === "lossless-png" ? "安全 PNG 优化" : "原素材导出"}：去重资源 {webBuild.optimizationReport.uniqueOriginalBytes} → {webBuild.optimizationReport.uniqueExportBytes} 字节；交付文件 {webBuild.byteLength} 字节。</p><p>{webBuild.optimizationReport.limits}</p><ul>{webBuild.optimizationReport.rows.slice(0, 20).map(row => <li key={row.assetId}>{row.name}：{row.originalBytes} → {row.exportBytes} 字节；{row.reason}</li>)}</ul><small>此处最多展示 20 个素材；完整报告包含在 HTML 或目录 ZIP 中。</small></details>}
+        </details>
+        <div className="publication-step-actions"><button type="button" onClick={() => setPublicationStep(0)}>← 作品信息</button><button className="studio-primary" type="button" onClick={() => setPublicationStep(2)}>继续：生成游戏 →</button></div>
+      </section>
+      <section className="publication-step-panel publication-generation" hidden={publicationStep !== 2} aria-label="生成可运行的游戏">
+        <h3>检查当前作品并生成游戏</h3><p className="publication-section-intro">自动核对故事和源文件，发现问题后可以直接定位修复。</p>
+        <div className="publication-package">
+          <span className="publication-package__mark" aria-hidden="true"><StudioIcon name="publish" /></span><div><strong>{readWebPublication(canonicalProject).name}</strong><span>{readWebPublication(canonicalProject).version} · Web · {publicationFormat === "html" ? "单文件 HTML" : publicationFormat === 'website' ? '网站上传 ZIP' : "网页目录 ZIP"}</span></div>
+        </div>
+        <dl className="publication-inventory"><div><dt>故事场景</dt><dd>{session.project.scenes.length} 个</dd></div><div><dt>创作素材</dt><dd>{assetIndex.assets.length} 项</dd></div><div><dt>运行方式</dt><dd>离线可运行</dd></div></dl>
+        {pendingReviewNotes > 0 && <section className="release-review-notes" aria-label="发布前校订提醒"><StudioIcon name="write" /><div><strong>{pendingReviewNotes} 条试玩问题仍待跟进</strong><p>请确认这些问题是否影响交付；记录不会自动判定作品通过。</p></div><button type="button" disabled={projectRunBlocked || publicationDirty || webBuilding} onClick={onOpenReviewNotes}>查看校订清单</button></section>}
+        <WebReleasePreparation project={canonicalProject} review={{ notes: deliveryReviewNotes, completions: playtestProgress?.completions ?? null, notesError: reviewNotesError, progressError: playtestProgress?.error }} onReview={onOpenReviewNotes} onPlaytest={() => onRestartPlaytest?.(publicationFormat)} disabled={projectRunBlocked || publicationDirty || webBuilding} onOpen={target => setSourcesOpen(target ?? {})} />
+      <WebReleaseReadiness project={canonicalProject} inspection={releaseInspection} blocked={projectRunBlocked || publicationDirty} busy={webBuilding} trace={reviewTrace} progress={playtestProgress} onRestartPreview={() => onRestartPlaytest?.(publicationFormat)} onOpen={finding => { if (finding.target === "publication") setPublicationStep(0); else onReleaseFix?.(finding, publicationFormat); }} onPreview={() => onReleaseReview?.(false, publicationFormat)} onRoutes={() => onReleaseReview?.(true, publicationFormat)} />
+        <div className="publication-step-actions"><button type="button" disabled={webBuilding} onClick={() => setPublicationStep(1)}>← 导出方式</button><button className="studio-primary publication-build" type="button" aria-label={publicationFormat === "html" ? "构建试玩 HTML" : publicationFormat === "website" ? "构建网站上传 ZIP" : "构建目录 ZIP"} onClick={() => void preparePlayableWeb()} disabled={projectRunBlocked || webBuilding || publicationDirty || !releaseInspection.ready}>{webBuilding ? "正在打包游戏…" : releaseInspection.checking ? "正在检查…" : publicationFormat === "website" ? "↗ 生成网站上传包" : "↗ 导出游戏"}</button></div>
+        {webBuilding && <button type="button" onClick={() => { webBuildController.current?.abort(); webBuildGeneration.current++; setWebBuilding(false); setWebBuildError("构建已取消，源工程未改变，可重新构建。"); }}>取消本次构建</button>}
+        {projectRunBlocked && <p className="publication-draft-note" role="status">工程有尚未应用或待修复的内容，请先完成编辑再导出。</p>}
+        {webBuild && <button className="studio-primary publication-next" type="button" onClick={() => setPublicationStep(3)}>继续：试玩与部署 →</button>}
+      </section>
+      <section className="publication-step-panel" hidden={publicationStep !== 3} aria-label="试玩与部署">
+        <WebReleaseGuide format={webBuild ? webBuild.websiteOnly ? "website" : webBuild.directory ? "directory" : "html" : publicationFormat} ready={webBuild !== null} productionReady={webBuild?.production !== undefined} />
+        <WebReleasePreparation project={canonicalProject} review={{ notes: deliveryReviewNotes, completions: playtestProgress?.completions ?? null, notesError: reviewNotesError, progressError: playtestProgress?.error }} onReview={onOpenReviewNotes} onPlaytest={() => onRestartPlaytest?.(publicationFormat)} disabled={projectRunBlocked || publicationDirty || webBuilding} onOpen={target => setSourcesOpen(target ?? {})} />
+        <div className="publication-step-actions"><button type="button" onClick={() => setPublicationStep(2)}>← 生成游戏</button><button type="button" onClick={() => setPublicationStep(1)}>更换导出方式</button></div>
+      </section>
+      </div>
+      <aside className={`publication-result${webBuild ? " is-ready" : ""}`} aria-label="游戏导出结果">
+        <span className="publication-result__icon" aria-hidden="true">{webBuild ? "✓" : webBuilding ? "…" : "↗"}</span>
+        <h3>{webBuild ? webBuild.websiteOnly ? "网站上传包已生成" : "游戏已生成" : webBuilding ? "正在生成游戏" : "等待导出"}</h3>
+        <p>{webBuild ? "可以下载并试玩。文件还未上传到网站。" : webBuilding ? webBuildPhase : "完成左侧步骤，生成属于你的游戏。"}</p>
+        {webBuild && <><div className="publication-file"><span aria-hidden="true">▤</span><strong>{webBuild.filename}</strong></div><dl><div><dt>文件大小</dt><dd>{formatBytes(webBuild.byteLength)}</dd></div><div><dt>格式</dt><dd>{webBuild.websiteOnly ? "网站上传 ZIP（仅公开文件）" : webBuild.directory ? "目录 ZIP（含本地助手）" : "单文件 HTML"}</dd></div></dl>
+          {!publicationDirty && <a className="studio-primary" href={webBuild.href} download={webBuild.filename}>{webBuild.websiteOnly ? '下载网站上传包' : '下载游戏'}</a>}
+          {!publicationDirty && webBuild.production && <a className="production-delivery-download" href={webBuild.production.href} download={webBuild.production.filename}>下载制作交付包</a>}
+          {webBuild.websiteOnly && <p className="production-delivery-summary">上传包已排除本地助手和作者资料。完整解压，把其中内容放到网站目录根层，保持 media 路径；最后更新 sw.js。没有执行上传或上线验收。</p>}
+          {webBuild.production && <p className="production-delivery-summary">作者内部备份：含可编辑工程、游戏和交付清单{webBuild.production.notesIncluded ? "、校订记录" : ""}{webBuild.production.progressIncluded ? "、试玩进度" : ""} · {formatBytes(webBuild.production.byteLength)}。可从首页导入继续制作；不要把整个制作交付包上传玩家网站。{webBuild.websiteOnly ? '包内 game 是同版纯网站文件。' : '网站发布请选择网站上传 ZIP，或用目录包助手生成纯网站目录。'}</p>}
+          {!publicationDirty && !webBuild.directory && <a className="publication-open" href={webBuild.href} target="_blank" rel="noreferrer">▷ 打开试玩</a>}
+          <small>修改工程后，需要重新生成文件。</small>
+        </>}
+        {webBuildError && <p className="publication-error" role="alert">{webBuildError}</p>}
+      </aside>
+      </div>
+      </>}
+      {!publicationOnly && <>
       <div className={`diagnostic-card diagnostic-card--${showBufferedNotice ? "draft" : session.notice.tone}`} aria-live="polite">
         <span className="diagnostic-icon" aria-hidden="true">{showBufferedNotice ? "…" : session.notice.tone === "success" ? "✓" : session.notice.tone === "draft" ? "!" : "×"}</span>
         <div>
           <strong>{showBufferedNotice ? "输入批次尚未提交" : session.notice.title}</strong>
-          <p>{showBufferedNotice ? "Preview 保持最后有效投影；停止输入、失焦或按 Ctrl/Cmd+S 后提交。" : session.notice.detail}</p>
+          <p>{showBufferedNotice ? "预览保持已应用的内容。文字停止输入、失焦或按 Ctrl/Cmd+S 后提交；演出参数请点击应用或放弃修改。" : session.notice.detail}</p>
         </div>
       </div>
       <div className="transaction-strip">
@@ -3564,36 +4235,95 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
           {sourceSession.tombstones.slice(-3).map((item) => <code key={item.statementId}>{item.statementId}</code>)}
         </div>
       )}
+      </>}
     </aside>
   );
 }
 
 export interface AppProps {
+  readonly onOpenProject?: (sceneId?: string, intent?: ProjectStructureIntent, continuity?: StudioContinuity) => void;
+  readonly continuity?: StudioContinuity;
+  readonly preferInitialProject?: boolean;
+  readonly onReturnHome?: () => void;
+  readonly onExportProject?: (project: CanonicalProject) => Promise<void>;
   readonly initialProject?: CanonicalProject;
+  readonly initialSceneId?: string;
+  readonly workspaceReferenceId?: string;
   readonly routeCompiler?: EditorProjectCompilerState;
+  readonly initialDeliveryReview?: string | undefined;
+  readonly initialDeliveryProgress?: string | undefined;
+  readonly onDeliveryProgressConsumed?: () => void;
+  readonly onDeliveryReviewConsumed?: () => void;
   readonly onProjectChange?: (project: StoryProject) => void;
   readonly onProjectSave?: (project: StoryProject) => Promise<void>;
   readonly onCanonicalProjectSave?: (project: CanonicalProject) => Promise<void>;
   readonly onCanonicalProjectChange?: (project: CanonicalProject) => void;
   readonly autosaveDebounceMs?: number;
 }
-export function App({ initialProject, routeCompiler, onProjectChange, onProjectSave, onCanonicalProjectSave, onCanonicalProjectChange, autosaveDebounceMs = AUTOSAVE_DEBOUNCE_MS }: AppProps = {}) {
-  const [session, baseDispatch] = useReducer(reduceStudioSession, initialProject, (project) => project === undefined ? createStudioSession() : createStudioSessionFromCanonical(project));
+export function App({ workspaceReferenceId, initialDeliveryReview, onDeliveryReviewConsumed, initialDeliveryProgress, onDeliveryProgressConsumed, initialProject, initialSceneId, continuity, preferInitialProject = false, routeCompiler, onProjectChange, onProjectSave, onCanonicalProjectSave, onCanonicalProjectChange, onOpenProject, onReturnHome, onExportProject, autosaveDebounceMs = AUTOSAVE_DEBOUNCE_MS }: AppProps = {}) {
+  const [session, baseDispatch] = useReducer(reduceStudioSession, initialProject, (project) => {
+    if (project !== undefined && continuity !== undefined) return resumeStudioSession(project, continuity, initialSceneId);
+    const created = project === undefined ? createStudioSession() : createStudioSessionFromCanonical(project);
+    return initialSceneId !== undefined && created.project.scenes.some(scene=>scene.id===initialSceneId)
+      ? reduceStudioSession(created,{type:"select-scene",sceneId:initialSceneId}) : created;
+  });
   const [canonicalBase, setCanonicalBase] = useState<CanonicalProject>(() => initialProject ?? projectCanonicalFromStory(session.project, "n32-editor-preview"));
   const [assetIndex, setAssetIndex] = useState<AssetIndex>(createAssetIndex);
   const previewCanonicalProject = useMemo(
     () => projectCanonicalWithAssetIndex(projectCanonicalWithStory(canonicalBase, session.project), assetIndex),
     [assetIndex, canonicalBase, session.project]
   );
+  const notesStore = usePlaytestNotes(previewCanonicalProject.manifest.projectId);
+  const noteSourceHash = useMemo(() => routeReviewSourceHash(previewCanonicalProject), [previewCanonicalProject]);
+  const pendingReviewNotes = notesStore.notes.filter(note => noteReviewState(note, noteSourceHash) !== "verified").length;
+  const [noteDialog, setNoteDialog] = useState<{ location: PlaytestNoteLocation; note: PlaytestNote | null } | null>(null);
+  const [noteFileError, setNoteFileError] = useState("");
+  const [incomingReview, setIncomingReview] = useState(initialDeliveryReview ?? null);
+  const [incomingProgress, setIncomingProgress] = useState(initialDeliveryProgress ?? null);
+  const [revisionTarget, setRevisionTarget] = useState<{ sceneId: string; statementId: string } | null>(continuity?.preview?.revisionTarget ?? null);
+  const [playtestRequest, setPlaytestRequest] = useState<PreviewPlaytestRequest | null>(null);
+  const playtestSerial = useRef(0);
   const previewCanonicalProjectRef = useRef(previewCanonicalProject);
   previewCanonicalProjectRef.current = previewCanonicalProject;
   const projectStorageId = initialProject?.manifest.projectId ?? "prj_twilight_broadcast";
   const lifecycleHosted = initialProject !== undefined;
+  const [loadedWorkPosition] = useState(() => loadStudioWorkPosition(workspaceReferenceId, projectStorageId));
+  const [workPositionReady, setWorkPositionReady] = useState(false);
+  const [activeReview, setActiveReview] = useState<ReviewTask | null>(loadedWorkPosition.value?.reviewTask ?? null);
+  const [reviewListView, setReviewListView] = useState<ReviewListView>(loadedWorkPosition.value?.reviewList ?? DEFAULT_REVIEW_LIST);
+  const [reviewRun, setReviewRun] = useState<ReviewRun | null>(null);
+  const receiveReviewStart = useCallback((result: ReviewStartResult) => {
+    setPlaytestRequest(current => current?.serial === result.serial ? null : current);
+    setReviewRun(current => current?.serial === result.serial && current.sourceHash === result.sourceHash ? { ...current, started: result.started } : current);
+    if (result.started && window.innerWidth < 960) requestAnimationFrame(() => document.getElementById('preview-heading')?.closest('aside')?.scrollIntoView?.({ block: 'start' }));
+  }, []);
+  const canonicalVariableDefaults = useMemo(() => Object.fromEntries((initialProject?.variables.variables ?? []).map(item => [String(item.id), JSON.stringify(item.defaultValue)])), [initialProject]);
+  const canonicalVariableTypes = useMemo(() => Object.fromEntries((initialProject?.variables.variables ?? []).map(item => [String(item.id), item.type as "boolean" | "number" | "string"])), [initialProject]);
   const canonicalVariableIds = useMemo(() => initialProject?.variables.variables.flatMap((item) =>
     typeof item.id === "string" ? [item.id] : []) ?? [], [initialProject]);
+  const canonicalVariableNames = useMemo(() => variableOptionLabels(initialProject?.variables.variables ?? []), [initialProject]);
+  const canonicalVariableDisplayNames = useMemo(() => Object.fromEntries((initialProject?.variables.variables ?? []).flatMap(variable => typeof variable.id === "string" ? [[variable.id, typeof variable.name === "string" ? variable.name : variable.id]] : [])), [initialProject]);
   const [mode, setMode] = useState<StudioMode>("sequence");
-  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(loadedWorkPosition.value?.page === "appearance");
+  const [publishOpen, setPublishOpen] = useState(loadedWorkPosition.value?.page === "publish");
+  const [publicationWorkflow, setPublicationWorkflow] = useState<PublicationWorkflow>(() => resumePublicationWorkflow(loadedWorkPosition.value?.publication ?? DEFAULT_PUBLICATION_WORKFLOW));
+  const [releaseReturnFormat, setReleaseReturnFormat] = useState<PublicationWorkflow['format'] | null>(loadedWorkPosition.value?.releaseReturnFormat ?? null);
+  const [pageDirty, setPageDirty] = useState(false);
+  const [textReplaceOpen, setTextReplaceOpen] = useState(false);
+  const [batchAssetOpen, setBatchAssetOpen] = useState(false);
+  const [structureError, setStructureError] = useState<string | null>(null);
+  const [previewOpen, setPreviewOpen] = useState(continuity?.previewOpen ?? loadedWorkPosition.value?.previewOpen ?? true);
+  const [previewFocus, setPreviewFocus] = useState(false);
+  // Launcher releases its handoff when App reports its source; Preview mounts
+  // only after persistence is ready, so retain the initial handoff locally.
+  const [initialPreviewContinuity, releasePreviewContinuity] = useState(continuity?.preview);
+  const previewContinuityRef = useRef(continuity?.preview);
+  const receivePreviewContinuity = useCallback((preview: PreviewContinuity) => { previewContinuityRef.current = preview; releasePreviewContinuity(undefined); }, []);
+  const [scenesOpen, setScenesOpen] = useState(false);
+  const [productionSection, setProductionSection] = useState<"assets" | "localization" | "collections">(loadedWorkPosition.value?.productionSection ?? "assets");
   const [workspaceMode, setWorkspaceMode] = useState<WorkspaceModeId>("writer");
+  const workspaceGrid = useRef<HTMLElement>(null);
+  useEffect(() => { if (workspaceGrid.current) { workspaceGrid.current.scrollTop = 0; workspaceGrid.current.scrollLeft = 0; } }, [workspaceMode, mode, settingsOpen, publishOpen, productionSection]);
   const [experienceLevel, setExperienceLevel] = useState<ExperienceLevelId>("pro");
   const [motionPreference, setMotionPreference] = useState<MotionPreferenceId>(() => {
     try { return loadMotionPreference(globalThis.localStorage); } catch { return "simplified"; }
@@ -3638,6 +4368,13 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
     setSettingsOpen(false);
   }, []);
   const [runtimeRouteTrace, setRuntimeRouteTrace] = useState<RuntimeRouteTrace>(IDLE_RUNTIME_ROUTE_TRACE);
+  const [reviewTrace, setReviewTrace] = useState<RouteReviewTrace | null>(null);
+  const playtestProgress = usePlaytestProgress(previewCanonicalProject, reviewTrace);
+  const receiveRouteTrace = useCallback((trace: RuntimeRouteTrace) => {
+    setRuntimeRouteTrace(trace);
+    if (trace.review !== undefined) setReviewTrace(trace.review);
+    else if (trace.active) setReviewTrace(null); // A failed new build is not the previous run.
+  }, []);
   const [requestedFocusStatementId, setRequestedFocusStatementId] = useState<string | null>(null);
   const [inputDirty, setInputDirty] = useState(false);
   const storageAvailable = typeof globalThis.indexedDB !== "undefined";
@@ -3662,6 +4399,8 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
   );
   const [assetImportState, setAssetImportState] = useState<AssetImportViewState>(IDLE_ASSET_IMPORT);
   const [assetPanelOpen, setAssetPanelOpen] = useState(false);
+  const [initialAssetId, setInitialAssetId] = useState<string | null>(null);
+  const [assetUpdateHistory, setAssetUpdateHistory] = useState<{ before: AssetIndexEntry; after: AssetIndexEntry; undone: boolean } | null>(null);
   const assetRepositoryRef = useRef<IndexedDbAssetRepository | null>(null);
   const assetImportAbortRef = useRef<AbortController | null>(null);
   const dicingAnalysisAbortRef = useRef<AbortController | null>(null);
@@ -3671,14 +4410,16 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
   );
   const storeRef = useRef<IndexedDbProjectFileStore | null>(null);
   const leaseRef = useRef<ProjectWriterLease | null>(null);
-  const leaseOwnerId = useRef(createBrowserWriterLeaseOwnerId());
+  const [leaseOwnerId] = useState(createBrowserWriterLeaseOwnerId);
   const [leaseRetry, setLeaseRetry] = useState(0);
   const storageRevision = useRef(0);
   const persistedSnapshotRef = useRef<ProjectSnapshot | null>(null);
   const saveSerial = useRef(0);
   const saveInFlight = useRef(false);
+  const activeSavePromise = useRef<Promise<boolean> | null>(null);
   const autosaveSuspended = useRef(false);
   const editGeneration = useRef(0);
+  const savedEditGeneration = useRef(0);
   const routeChangedSceneIds = useRef<Set<string> | null>(new Set());
   const sessionRef = useRef(session);
   sessionRef.current = session;
@@ -3692,6 +4433,8 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
   const [backupPanelOpen, setBackupPanelOpen] = useState(false);
   const [backups, setBackups] = useState<readonly ProjectBackup[]>([]);
   const [backupsLoading, setBackupsLoading] = useState(false);
+  usePageLeaveGuard(inputDirty || pageDirty || pendingDraftSceneIds(session).length > 0 || assetStatus === 'importing' ||
+    editGeneration.current !== savedEditGeneration.current || ['dirty', 'saving', 'autosaving'].includes(persistence.status));
 
   const restoreSessionAndContext = useCallback((snapshot: ProjectSnapshot, restoredSession: StudioSession) => {
     const resolution = restoreWorkspaceContext(snapshot, restoredSession);
@@ -3704,13 +4447,33 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
   }, []);
 
   useEffect(() => {
+    if (workPositionReady || ['loading', 'migrating', 'blocked', 'readonly', 'conflict', 'unavailable'].includes(persistence.status)) return;
+    const last = loadedWorkPosition.value;
+    if (last) {
+      // An explicit scene chosen while managing structure takes precedence.
+      const explicitScene = preferInitialProject && initialSceneId !== undefined;
+      const page = explicitScene ? 'story' : last.page;
+      setPublishOpen(page === 'publish'); setSettingsOpen(page === 'appearance');
+      if (!explicitScene) { setWorkspaceMode(last.workspaceMode); setMode(last.editorView); }
+      if (page === 'assets') { setWorkspaceMode('production'); setMode('sequence'); }
+      else if (page === 'checks') { setWorkspaceMode('debug-qa'); setMode('flow'); }
+      else if (page === 'story' && ['production', 'debug-qa'].includes(explicitScene ? workspaceModeRef.current : last.workspaceMode)) { setWorkspaceMode('writer'); setMode('sequence'); }
+      if (!explicitScene) {
+        const restored = resumeWorkSelection(sessionRef.current, last);
+        baseDispatch({ type: 'restore-session', session: restored }); setRequestedFocusStatementId(restored.selectedStatementId);
+      }
+    }
+    setWorkPositionReady(true);
+  }, [persistence.status, workPositionReady, loadedWorkPosition, preferInitialProject, initialSceneId]);
+
+  useEffect(() => {
     if (lifecycleHosted) onProjectChangeRef.current?.(session.project);
   }, [lifecycleHosted, session.project]);
 
   useEffect(() => {
     if (!backupPanelOpen) return;
     const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setBackupPanelOpen(false);
+      if (!event.isComposing && event.keyCode !== 229 && event.key === "Escape") setBackupPanelOpen(false);
     };
     globalThis.addEventListener("keydown", closeOnEscape);
     return () => globalThis.removeEventListener("keydown", closeOnEscape);
@@ -3718,13 +4481,19 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
   useEffect(() => {
     if (!assetPanelOpen) return;
     const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && assetImportAbortRef.current === null) setAssetPanelOpen(false);
+      if (!event.isComposing && event.keyCode !== 229 && event.key === "Escape" && assetImportAbortRef.current === null) setAssetPanelOpen(false);
     };
     globalThis.addEventListener("keydown", closeOnEscape);
     return () => globalThis.removeEventListener("keydown", closeOnEscape);
   }, [assetPanelOpen]);
-  const commandSerial = useRef(0);
-  const entitySerial = useRef(0);
+  const commandSerial = useRef(continuity?.commandSerial ?? 0);
+  const entitySerial = useRef(continuity?.entitySerial ?? 0);
+  const markStoryEdited = (sceneIds: readonly string[]) => {
+    for (const id of sceneIds) routeChangedSceneIds.current?.add(id);
+    editGeneration.current += 1;
+    setEditVersion(value => value + 1);
+    setPersistence(current => ['unavailable', 'conflict', 'readonly', 'blocked', 'loading', 'migrating', 'saving', 'autosaving', 'degraded'].includes(current.status) ? current : { status: 'dirty', revision: current.revision, ...(current.backupCount === undefined ? {} : { backupCount: current.backupCount }) });
+  };
   const dispatch = (action: StudioAction) => {
     const editsStory = [
       "edit-script", "patch-dialogue", "patch-direction", "patch-directions", "insert-dialogue", "insert-direction", "duplicate-direction", "delete-dialogue",
@@ -3733,25 +4502,18 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
     if (editsStory) crossViewSyncAudit.begin(action.type, sessionRef.current.selectedStatementId, activeSourceSession(sessionRef.current).revision);
     baseDispatch(action);
     if (editsStory) {
-      routeChangedSceneIds.current?.add(sessionRef.current.activeSceneId);
-      editGeneration.current += 1;
-      setEditVersion((value) => value + 1);
-      setPersistence((current) => current.status === "unavailable" || current.status === "conflict" ||
-        current.status === "readonly" || current.status === "blocked" || current.status === "loading" ||
-        current.status === "migrating"
-        ? current
-        : current.status === "saving" || current.status === "autosaving"
-          ? current
-          : current.status === "degraded"
-            ? current
-            : {
-                status: "dirty",
-                revision: current.revision,
-                ...(current.backupCount === undefined ? {} : { backupCount: current.backupCount })
-              });
+      markStoryEdited(action.type === 'undo' || action.type === 'redo' ? studioHistorySceneIds(sessionRef.current, action.type) : [sessionRef.current.activeSceneId]);
     }
   };
   const createCommandId = () => `cmd_ui_${++commandSerial.current}`;
+  const commitTextAction = (action: Extract<StudioAction, { type: 'replace-project-text' | 'undo' | 'redo' }>): string | null => {
+    if (inputDirty || pageDirty || pendingDraftSceneIds(sessionRef.current).length) return '请先应用或处理当前草稿。';
+    const current = sessionRef.current, next = reduceStudioSession(current, action);
+    if (next.notice.tone === 'error') return next.notice.detail;
+    const sceneIds = action.type === 'replace-project-text' ? [...new Set(action.plan.matches.map(row => row.sceneId))] : studioHistorySceneIds(current, action.type);
+    crossViewSyncAudit.begin(action.type, current.selectedStatementId, activeSourceSession(current).revision);
+    baseDispatch({ type: 'restore-session', session: next }); markStoryEdited(sceneIds); return null;
+  };
   const createEntityId = (prefix: string) => {
     const used = new Set<string>();
     for (const scene of sessionRef.current.project.scenes) {
@@ -3812,15 +4574,18 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
   const deleteRouteGroupFromMap=(groupId:string)=>applyRouteLayoutMutation(deleteRouteGroup(previewCanonicalProject,createCommandId(),groupId));
   const assignRouteSceneGroupFromMap=(sceneId:string,groupId?:string)=>applyRouteLayoutMutation(assignRouteSceneGroup(previewCanonicalProject,createCommandId(),sceneId,groupId));
   const setRouteViewportFromMap=(x:number,y:number,zoom:number)=>applyRouteLayoutMutation(setRouteViewport(previewCanonicalProject,createCommandId(),x,y,zoom));
-  const applySettingsProject = (project: CanonicalProject) => {
+  const applyCanonicalProjectMutation = (project: CanonicalProject, detail: string) => {
     setCanonicalBase(project);
     onCanonicalProjectChange?.(project);
     editGeneration.current += 1;
     setEditVersion((value) => value + 1);
-    setPersistence((current) => current.status === "unavailable" || current.status === "conflict" || current.status === "readonly" || current.status === "blocked" || current.status === "loading" || current.status === "migrating"
+    // A newer metadata edit must not expose save/leave controls before the active
+    // transaction settles. Its generation will leave the newer content dirty.
+    setPersistence((current) => current.status === "unavailable" || current.status === "conflict" || current.status === "readonly" || current.status === "blocked" || current.status === "loading" || current.status === "migrating" || current.status === "saving" || current.status === "autosaving"
       ? current
-      : { status: "dirty", revision: current.revision, ...(current.backupCount === undefined ? {} : { backupCount: current.backupCount }), detail: "设置 ChangeSet 已进入 Canonical Project，等待保存。" });
+      : { status: "dirty", revision: current.revision, ...(current.backupCount === undefined ? {} : { backupCount: current.backupCount }), detail });
   };
+  const applySettingsProject = (project: CanonicalProject) => applyCanonicalProjectMutation(project, "设置 ChangeSet 已进入 Canonical Project，等待保存。");
 
   useEffect(() => {
     if (!storageAvailable) return;
@@ -3853,7 +4618,7 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
 
     const start = async () => {
       const acquisition = await store.acquire(
-        leaseOwnerId.current,
+        leaseOwnerId,
         Date.now(),
         WRITER_LEASE_TTL_MS
       );
@@ -3875,6 +4640,7 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
         return;
       }
 
+      rememberBrowserWriterLeaseOwnerId(acquisition.lease.ownerId);
       leaseRef.current = acquisition.lease;
       store.activateWriterLease(acquisition.lease);
       assetRepository.activateWriterLease(acquisition.lease);
@@ -3987,15 +4753,26 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
             "项目已恢复，但备份索引需要检查。";
         }
         if (cancelled) return;
-        const restored = restoreSessionAndContext(
-          snapshot,
-          restoreStudioSession(snapshot, sessionRef.current.project)
-        );
+        // Explicit ZIP imports and structure returns own the fresh source. An older
+        // local snapshot of the same Project ID must not replace the imported text.
+        // Ordinary reopen/recovery keeps the existing snapshot restoration contract.
+        let contextSnapshot = snapshot;
+        let restoredSource: StudioSession;
+        if (preferInitialProject && lifecycleHosted) {
+          if (snapshot.projectId !== sessionRef.current.project.id) throw new Error("本地快照属于其他工程，无法合并。");
+          restoredSource = sessionRef.current;
+          const context = restoreWorkspaceContext(snapshot, restoredSource).context;
+          if (initialSceneId !== undefined && context.sceneId !== initialSceneId) {
+            contextSnapshot = persistWorkspaceContext(snapshot, { ...context, sceneId: restoredSource.activeSceneId, statementId: restoredSource.selectedStatementId });
+          }
+        } else restoredSource = restoreStudioSession(snapshot, sessionRef.current.project);
+        const restored = restoreSessionAndContext(contextSnapshot, restoredSource);
         persistedSnapshotRef.current = snapshot;
         storageRevision.current = snapshot.storageRevision;
         baseDispatch({ type: "restore-session", session: restored });
+        if (!preferInitialProject || !lifecycleHosted) savedEditGeneration.current = editGeneration.current;
         setPersistence({
-          status: "restored",
+          status: preferInitialProject && lifecycleHosted ? "dirty" : "restored",
           revision: snapshot.storageRevision,
           backupCount,
           schemaVersion: CURRENT_PROJECT_SCHEMA_VERSION,
@@ -4110,7 +4887,7 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
     const store = storeRef.current;
     const assetRepository = assetRepositoryRef.current;
     if (store === null || inputDirty || saveInFlight.current ||
-        (reason === "auto" && autosaveSuspended.current)) return;
+        (reason === "auto" && autosaveSuspended.current)) return Promise.resolve(false);
     const currentSnapshot = persistedSnapshotRef.current;
     const projectAtSaveStart = sessionRef.current.project;
     const canonicalProjectAtSaveStart = previewCanonicalProjectRef.current;
@@ -4122,7 +4899,7 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
         errorCode: "UNAVAILABLE",
         detail: "资源备份协调器不可用；为避免创建缺少资源保护根的备份，本次保存未执行。"
       }));
-      return;
+      return Promise.resolve(false);
     }
     saveInFlight.current = true;
     if (reason === "manual") autosaveSuspended.current = false;
@@ -4150,7 +4927,7 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
           currentSnapshot.storageRevision,
           nowMs
         );
-    void stageBackup.then((staged) => {
+    const saveTask = stageBackup.then((staged) => {
       if (staged !== null) setAssetLifecycle(staged.manifest);
       return saveProjectWithBackups(store, snapshot, {
         transactionId,
@@ -4159,10 +4936,12 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
         nowMs
       });
     }).then(async () => {
-      if (onCanonicalProjectSaveRef.current !== undefined) await onCanonicalProjectSaveRef.current(canonicalProjectAtSaveStart);
-      else await onProjectSaveRef.current?.(projectAtSaveStart);
+      // The local snapshot has committed even when saving the canonical workspace fails.
+      // Retrying must use that committed storage revision to avoid a stale-write error.
       persistedSnapshotRef.current = snapshot;
       storageRevision.current = nextRevision;
+      if (onCanonicalProjectSaveRef.current !== undefined) await onCanonicalProjectSaveRef.current(canonicalProjectAtSaveStart);
+      else await onProjectSaveRef.current?.(projectAtSaveStart);
       let verifiedBackups = backups;
       let backupWarning: string | undefined;
       try {
@@ -4183,6 +4962,7 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
       }
       const backupCount = verifiedBackups.length;
       const changedDuringSave = editGeneration.current !== generation;
+      savedEditGeneration.current = generation;
       setPersistence({
         status: changedDuringSave ? "dirty" : reason === "auto" ? "autosaved" : "saved",
         revision: nextRevision,
@@ -4192,12 +4972,16 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
           : `${reason === "auto" ? "自动" : "手动"}保存已校验；保留 ${backupCount}/${BACKUP_POLICY.retention} 个轮换备份。`),
         ...(backupWarning === undefined ? {} : { errorCode: "CORRUPT_BACKUP" })
       });
+      return !changedDuringSave;
     }).catch((error: unknown) => {
-      if (handleBlockingStoreFailure(error, store, reason === "auto" ? "自动保存" : "手动保存")) return;
+      if (handleBlockingStoreFailure(error, store, reason === "auto" ? "自动保存" : "手动保存")) return false;
       setPersistence(persistenceFailure(error, storageRevision.current));
+      return false;
     }).finally(() => {
-      saveInFlight.current = false;
+      saveInFlight.current = false; activeSavePromise.current = null;
     });
+    activeSavePromise.current = saveTask;
+    return saveTask;
   };
 
   useEffect(() => {
@@ -4275,6 +5059,7 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
       persistedSnapshotRef.current = result.snapshot;
       storageRevision.current = result.snapshot.storageRevision;
       editGeneration.current += 1;
+      savedEditGeneration.current = editGeneration.current;
       baseDispatch({ type: "restore-session", session: restored });
       const items = await loadProjectBackups(store, BACKUP_POLICY);
       const reconciliation = await assetRepository.reconcileBackupSnapshots(items);
@@ -4311,10 +5096,71 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
     }
     setAssetPanelOpen(false);
   };
-  const importAssetFile = (
+  const publishAssetUpdate = (result: IndexedDbAssetImportResult) => {
+    assetIndexRef.current = result.index;
+    setAssetIndex(result.index);
+    setAssetLifecycle(result.lifecycle);
+    applyCanonicalProjectMutation(projectCanonicalWithAssetIndex(
+      projectCanonicalWithStory(previewCanonicalProjectRef.current, sessionRef.current.project), result.index
+    ), "资源更新已进入工程，请保存以保持剧情与资源备份一致。");
+  };
+  const importSkinToProject = async (plan: SkinImportPlan, signal: AbortSignal): Promise<CanonicalProject> => {
+    if (activeSavePromise.current) await activeSavePromise.current;
+    signal.throwIfAborted();
+    const repository = assetRepositoryRef.current, current = previewCanonicalProjectRef.current;
+    if (!repository || assetImportAbortRef.current) throw Error("当前没有素材写入权或另一个导入尚未完成，请稍后重试。");
+    if (current.manifest.projectId !== plan.baseProjectId || JSON.stringify(current.assets) !== plan.baseAssets || JSON.stringify(current.ui.preservedFields?.webPlayerAppearance ?? null) !== plan.baseAppearance) throw Error("工程素材或外观已变化，请重新检查并预览皮肤；没有覆盖新版本。");
+    // Validate credits/references before starting the single fenced asset transaction.
+    const candidate = applySkinImportPlan({ ...current, assets: plan.previewProject.assets }, plan);
+    const controller = new AbortController(), abort = () => controller.abort(); signal.addEventListener("abort", abort, { once: true });
+    assetImportAbortRef.current = controller; setAssetStatus("importing");
+    try {
+      const result = await repository.importNewAssets(plan.inputs, { expectedIndexRevision: assetIndexRef.current.indexRevision, maxBytes: WEB_ASSET_IMPORT_MAX_BYTES, signal: controller.signal });
+      const next = projectCanonicalWithAssetIndex(candidate, result.index);
+      assetIndexRef.current = result.index; setAssetIndex(result.index); setAssetLifecycle(result.lifecycle); setAssetUpdateHistory(null); setAssetStatus("success");
+      // A completed transaction is success even if a late cancel arrives afterwards.
+      applyCanonicalProjectMutation(next, "皮肤、素材与来源已一起进入工程，请保存到本机。");
+      return next;
+    } catch (error) {
+      setAssetStatus("ready");
+      if (error instanceof AssetBlobError && ["LEASE_REQUIRED", "LEASE_LOST"].includes(error.code)) {
+        repository.activateWriterLease(null); assetRepositoryRef.current = null; storeRef.current?.activateWriterLease(null); storeRef.current = null; leaseRef.current = null;
+        setPersistence({ status: "conflict", revision: storageRevision.current, detail: "导入期间编辑权失效，素材批次已回滚，请恢复编辑权后重试。", errorCode: error.code });
+      }
+      throw error;
+    } finally { signal.removeEventListener("abort", abort); if (assetImportAbortRef.current === controller) assetImportAbortRef.current = null; }
+  };
+  const updateAssetMetadata = async (entry: AssetIndexEntry, historyDirection?: "undo" | "redo") => {
+    const repository = assetRepositoryRef.current;
+    if (repository === null || assetImportAbortRef.current !== null) return;
+    const current = assetIndexRef.current.assets.find((asset) => asset.assetId === entry.assetId);
+    if (current === undefined) return;
+    const expected = historyDirection === undefined ? current : historyDirection === "undo" ? assetUpdateHistory?.after : assetUpdateHistory?.before;
+    if (expected === undefined || JSON.stringify(current) !== JSON.stringify(expected)) {
+      setAssetImportState({ phase: "error", progress: 0, detail: "资源已发生其他变化，请重新选择资源；未覆盖新版本。" }); return;
+    }
+    const controller = new AbortController();
+    assetImportAbortRef.current = controller;
+    setAssetStatus("importing");
+    setAssetImportState({ phase: "committing", progress: 0.5, detail: "正在验证旧文件并原子更新资源…" });
+    try {
+      const result = await republishAssetEntry(repository, entry, assetIndexRef.current.indexRevision, controller.signal);
+      publishAssetUpdate(result);
+      setAssetUpdateHistory(historyDirection === undefined ? { before: current, after: result.entry, undone: false } : (history) => history === null ? null : { ...history, undone: historyDirection === "undo" });
+      setAssetStatus("success");
+      setAssetImportState({ phase: "success", progress: 1, detail: `${historyDirection === "undo" ? "已撤销" : historyDirection === "redo" ? "已重做" : "名称已更新"} · ${entry.assetId} · 稳定 ID 与剧情引用保持不变。` });
+    } catch (error) {
+      setAssetStatus("ready");
+      setAssetImportState({ phase: "error", progress: 0, detail: error instanceof Error ? error.message : "资源更新失败，原版本未覆盖。" });
+    } finally {
+      if (assetImportAbortRef.current === controller) assetImportAbortRef.current = null;
+    }
+  };
+  const importAssetFile = async (
     file: File,
-    metadata: Omit<AssetImportInput, "bytes" | "mimeType">
-  ) => {
+    metadata: Omit<AssetImportInput, "bytes" | "mimeType">,
+    newOnly = false
+  ): Promise<BatchAssetResult> => {
     const repository = assetRepositoryRef.current;
     if (repository === null || assetImportAbortRef.current !== null) {
       setAssetStatus("error");
@@ -4324,13 +5170,18 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
         detail: "当前窗口没有有效的资源写入权；请重新获取编辑权后再试。",
         errorCode: "LEASE_REQUIRED"
       });
-      return;
+      return { status: 'error', halt: true, message: '当前没有素材写入权，请恢复工程编辑权后重试。' };
+    }
+    const previousEntry = assetIndexRef.current.assets.find((entry) => entry.assetId === metadata.assetId);
+    if (newOnly && previousEntry) return { status: 'error', message: '这个素材标识已存在，本项未覆盖。请重新选择文件生成新条目。' };
+    if (previousEntry !== undefined && previousEntry.kind !== metadata.kind) {
+      setAssetImportState({ phase: "error", progress: 0, detail: "替换文件必须保留原资源类型；不同用途请导入为新资源，再修改演出引用。" }); return { status: 'error', message: '替换文件必须保留原资源类型。' };
     }
     const controller = new AbortController();
     assetImportAbortRef.current = controller;
     setAssetStatus("importing");
     setAssetImportState({ phase: "reading", progress: 0, detail: `正在读取 ${file.name}…` });
-    void readAssetFile(file, {
+    return readAssetFile(file, {
       maxBytes: WEB_ASSET_IMPORT_MAX_BYTES,
       signal: controller.signal,
       onProgress: (progress) => setAssetImportState({
@@ -4342,6 +5193,7 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
       const declaredMimeType = (file.type || "application/octet-stream").toLowerCase();
       setAssetImportState({ phase: "inspecting", progress: 0.8, detail: "正在隔离 Worker 中核对文件签名、结构与媒体预算…" });
       const inspected = await inspectAssetBytes(bytes, declaredMimeType, metadata.kind, controller.signal);
+      if (newOnly && assetIndexRef.current.assets.some(entry => entry.assetId === metadata.assetId)) throw Error('素材已发生变化，本项没有覆盖已有文件。请重新选择文件。');
       setAssetImportState({
         phase: "committing",
         progress: 0.88,
@@ -4367,14 +5219,8 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
             : "正在提交 writer-fenced IndexedDB 事务…"
         })
       });
-      setAssetIndex(result.index);
-      const canonicalWithAssets = projectCanonicalWithAssetIndex(
-        projectCanonicalWithStory(canonicalBase, sessionRef.current.project),
-        result.index
-      );
-      setCanonicalBase(canonicalWithAssets);
-      onCanonicalProjectChange?.(canonicalWithAssets);
-      setAssetLifecycle(result.lifecycle);
+      publishAssetUpdate(result);
+      setAssetUpdateHistory(previousEntry === undefined ? null : { before: previousEntry, after: result.entry, undone: false });
       setAssetStatus("success");
       setAssetImportState({
         phase: "success",
@@ -4383,6 +5229,7 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
           ? `媒体检查通过并复用相同 SHA-256 Blob；${result.entry.assetId} 已写入 Index r${result.index.indexRevision}。`
           : `媒体检查通过；新 Blob 与 ${result.entry.assetId} 已原子写入 Index r${result.index.indexRevision}。`
       });
+      return { status: 'success' as const, message: result.blobStatus === 'existing' ? '已导入，复用相同文件内容。' : '已通过媒体检查并导入。' };
     }).catch((error: unknown) => {
       const code = error instanceof AssetBlobError ? error.code : undefined;
       const wasCancelled = code === "CANCELLED" || controller.signal.aborted;
@@ -4409,6 +5256,7 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
           errorCode: code
         });
       }
+      return { status: wasCancelled ? 'cancelled' as const : 'error' as const, halt: fatal, message: wasCancelled ? '本项已停止，未完成的写入不计为导入成功。' : batchImportError(code, error instanceof Error ? error.message : '导入失败，请重试。') };
     }).finally(() => {
       if (assetImportAbortRef.current === controller) assetImportAbortRef.current = null;
     });
@@ -4755,13 +5603,17 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
     }
   };
 
-  if (persistence.status === "loading" || persistence.status === "migrating") {
+  const studioPage: StudioPage = publishOpen ? "publish" : settingsOpen ? "appearance" : workspaceMode === "production" ? "assets" : workspaceMode === "debug-qa" ? "checks" : "story";
+  const workPosition = useRememberStudioWorkPosition({ schemaVersion: 1, projectId: projectStorageId, referenceId: workspaceReferenceId ?? '', page: studioPage, workspaceMode, editorView: mode, sceneId: session.activeSceneId, statementId: session.selectedStatementId, productionSection, previewOpen, publication: publicationWorkflow, releaseReturnFormat, reviewTask: activeReview, reviewList: reviewListView }, workspaceReferenceId !== undefined && workPositionReady && !['loading', 'migrating', 'blocked', 'readonly', 'conflict', 'unavailable'].includes(persistence.status), loadedWorkPosition.error);
+
+  const restoringWorkPosition = workspaceReferenceId !== undefined && !workPositionReady && !["unavailable", "blocked", "readonly", "conflict"].includes(persistence.status);
+  if (persistence.status === "loading" || persistence.status === "migrating" || restoringWorkPosition) {
     return (
       <div className="startup-gate" role="status" aria-live="polite">
         <span className="startup-gate__orb" aria-hidden="true" />
-        <p className="eyebrow">{persistence.status === "migrating" ? "SAFE SCHEMA MIGRATION" : "SINGLE-WRITER STARTUP"}</p>
-        <h1>{persistence.status === "migrating" ? "正在安全升级项目格式…" : "正在获取安全编辑权…"}</h1>
-        <p>{persistence.detail ?? "取得带 fencing token 的写入租约后，再检查版本、WAL 与 SHA-256 完整性。"}</p>
+        <p className="eyebrow">{restoringWorkPosition && persistence.status !== "loading" && persistence.status !== "migrating" ? "继续制作" : persistence.status === "migrating" ? "SAFE SCHEMA MIGRATION" : "SINGLE-WRITER STARTUP"}</p>
+        <h1>{persistence.status === "migrating" ? "正在安全升级项目格式…" : restoringWorkPosition && persistence.status !== "loading" ? "正在恢复工作位置…" : "正在获取安全编辑权…"}</h1>
+        <p>{restoringWorkPosition && persistence.status !== "loading" && persistence.status !== "migrating" ? "正在找回上次的页面、场景和导出选择。" : persistence.detail ?? "取得带 fencing token 的写入租约后，再检查版本、WAL 与 SHA-256 完整性。"}</p>
       </div>
     );
   }
@@ -4811,10 +5663,95 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
 
   const workspaceContext = createWorkspaceContext(session, workspaceMode, mode, experienceLevel);
   const contextProjection = workspaceContextProjection(workspaceContext);
+  const openStudioPage = (page: StudioPage) => {
+    if (page === "publish" && !publishOpen) {
+      setPublicationWorkflow(current => releaseReturnFormat === null ? resumePublicationWorkflow(current) : { ...current, step: 2, format: releaseReturnFormat });
+      setReleaseReturnFormat(null);
+    }
+    setSettingsOpen(page === "appearance"); setPublishOpen(page === "publish"); setScenesOpen(false);
+    if (page === "assets") selectWorkspaceMode("production");
+    else if (page === "checks") selectWorkspaceMode("debug-qa");
+    else if (page === "story" && (workspaceMode === "production" || workspaceMode === "debug-qa")) selectWorkspaceMode("writer");
+  };
+  const openReleaseFix = (finding: WebReleaseFinding, format: PublicationWorkflow['format']) => {
+    setReleaseReturnFormat(format);
+    openStudioPage(finding.target === "publication" ? "publish" : finding.target);
+    if (finding.target === "assets") {
+      setProductionSection("assets"); setInitialAssetId(finding.assetId ?? null); setAssetPanelOpen(true);
+    } else if (finding.target === "story" && finding.sceneId !== undefined) {
+      const scene = session.project.scenes.find(scene => scene.id === finding.sceneId);
+      if (scene) {
+        if (scene.statements.some(statement => statement.id === finding.statementId)) {
+          setRequestedFocusStatementId(finding.statementId!);
+          dispatch({ type: "select-project-result", sceneId: scene.id, statementId: finding.statementId! });
+        } else dispatch({ type: "select-scene", sceneId: scene.id });
+        setWorkspaceMode("writer"); setMode(pendingDraftSceneIds(session).includes(scene.id) ? "script" : "sequence");
+      }
+    }
+  };
+  const openReleaseReview = (route: boolean, format: PublicationWorkflow['format']) => {
+    setReleaseReturnFormat(format); openStudioPage("story");
+    setWorkspaceMode(route ? "flow" : "writer"); setMode(route ? "flow" : "sequence"); setPreviewOpen(!route);
+  };
+  const restartWorkPlaytest = () => {
+    setRevisionTarget(null); openStudioPage('story'); setWorkspaceMode('writer'); setMode('sequence'); setPreviewOpen(true);
+    setPlaytestRequest({ serial: ++playtestSerial.current, target: { kind: 'entry' } });
+  };
+  const openProjectStructure = async (intent?: ProjectStructureIntent) => {
+    setStructureError(null);
+    if (!await saveToLocal()) throw new Error("当前内容尚未保存成功，请检查保存状态后重试。");
+    onOpenProject?.(sessionRef.current.activeSceneId, intent, {
+      session: sessionRef.current, commandSerial: commandSerial.current, entitySerial: entitySerial.current,
+      preview: previewContinuityRef.current, previewOpen
+    });
+  };
+  const createStoryEntity = (kind: Exclude<EntityKind, "chapter">) => {
+    void openProjectStructure({ create: kind }).catch(reason => setStructureError(reason instanceof Error ? reason.message : String(reason)));
+  };
+  const openRevision = (location: PlaytestNoteLocation, noteId?: string) => {
+    if (inputDirty || pageDirty || pendingDraftSceneIds(session).length) return;
+    const matching = notesStore.notes.filter(note => note.sceneId === location.sceneId && note.statementId === location.statementId && noteReviewState(note, noteSourceHash) !== 'verified');
+    const selected = noteId ?? matching.find(note => note.id === activeReview?.noteId)?.id ?? (matching.length === 1 ? matching[0]!.id : undefined);
+    const selectedNote = notesStore.notes.find(note => note.id === selected);
+    setActiveReview(selectedNote ? { noteId: selectedNote.id, phase: 'editing', range: activeReview?.noteId === selectedNote.id ? activeReview.range ?? defaultReviewRange(selectedNote) : defaultReviewRange(selectedNote) } : null); setReviewRun(null); setNoteFileError(''); setStructureError(null);
+    const target = session.project.scenes.find(scene => scene.id === location.sceneId)?.statements.find(item => item.id === location.statementId);
+    if (!target) { setRevisionTarget(null); if (selected) openStudioPage("story"); else setStructureError("原内容已删除，校订记录仍保留。"); return; }
+    setRevisionTarget({ sceneId: location.sceneId, statementId: location.statementId }); openStudioPage("story"); setSettingsOpen(false); setPublishOpen(false); setWorkspaceMode(target.kind === "direction" ? "director" : "writer"); setMode("sequence"); setPreviewOpen(false);
+    setRequestedFocusStatementId(location.statementId); dispatch({ type: "select-project-result", sceneId: location.sceneId, statementId: location.statementId });
+  };
+  const reviewBlocked = inputDirty || pageDirty || pendingDraftSceneIds(session).length > 0;
+  const activeReviewNote = notesStore.notes.find(note => note.id === activeReview?.noteId);
+  const nextReview = activeReview ? nextPendingReview(notesStore.notes, activeReview.noteId, noteSourceHash) : null;
+  const reviewCanConfirm = !!activeReviewNote && canConfirmReview(previewCanonicalProject, activeReviewNote, reviewRun, reviewTrace, noteSourceHash);
+  const reviewRunCurrent = !!activeReviewNote && reviewRunIsCurrent(previewCanonicalProject, activeReviewNote, reviewRun, reviewTrace, noteSourceHash);
+  const startNoteReview = (note: PlaytestNote, markFixed = false, range: ReviewRange = defaultReviewRange(note)) => {
+    if (reviewBlocked) return;
+    if (!reviewLocationExists(previewCanonicalProject, note)) { setNoteFileError('原内容已删除，记录仍保留。'); return; }
+    const updated = markFixed && note.status === 'open' ? { ...note, status: 'fixed' as const, updatedAt: Math.max(Date.now(), note.updatedAt), checkedSourceHash: null } : note;
+    if (updated !== note && !notesStore.commit(notesStore.notes.map(item => item.id === note.id ? updated : item))) return;
+    const serial = ++playtestSerial.current;
+    setActiveReview({ noteId: note.id, phase: 'retesting', range }); setReviewRun({ serial, noteId: note.id, noteSignature: reviewNoteSignature(updated), sourceHash: noteSourceHash, started: false, range }); setReviewTrace(null); setNoteFileError('');
+    setRevisionTarget(null); openStudioPage('story'); setWorkspaceMode('writer'); setMode('sequence'); setPreviewOpen(true);
+    setPlaytestRequest({ serial, target: range === 'entry' ? { kind: 'entry' } : range === 'scene' ? { kind: 'scene', sceneId: note.sceneId } : { kind: 'statement', sceneId: note.sceneId, statementId: note.statementId } });
+  };
+  const confirmNoteReview = () => {
+    if (reviewBlocked || !activeReviewNote || !canConfirmReview(previewCanonicalProjectRef.current, activeReviewNote, reviewRun, reviewTrace)) { setNoteFileError('本次复测尚未到达问题位置或内容已变化，请重新复测后再确认。'); return; }
+    const updated: PlaytestNote = { ...activeReviewNote, status: 'verified', checkedSourceHash: noteSourceHash, updatedAt: Math.max(Date.now(), activeReviewNote.updatedAt) };
+    if (notesStore.commit(notesStore.notes.map(note => note.id === updated.id ? updated : note))) { setReviewRun(null); setNoteFileError(''); }
+  };
+  const resumeRevisionPreview = () => { setRevisionTarget(null); openStudioPage('story'); setWorkspaceMode('writer'); setMode('sequence'); setPreviewOpen(true); requestAnimationFrame(() => document.getElementById('preview-heading')?.closest('aside')?.scrollIntoView?.({ block: 'start' })); };
+
+  const exportNotes = () => { try { const url = URL.createObjectURL(new Blob([writePlaytestNotes(previewCanonicalProject.manifest.projectId, notesStore.notes)], { type: "application/json" })); const link = document.createElement("a"); link.href = url; link.download = "playtest-notes.worldreview"; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); setNoteFileError(""); } catch (error) { setNoteFileError((error as Error).message); } };
+  const importNotes = async (file: File) => { try { if (file.size > 2 * 1024 * 1024) throw Error("记录文件超过 2 MB。"); const imported = readPlaytestNotes(await file.text(), previewCanonicalProject.manifest.projectId); if (notesStore.commit(mergePlaytestNotes(notesStore.notes, imported))) setNoteFileError(""); } catch (error) { setNoteFileError((error as Error).message); } };
   return (
     <div
       className="app-shell"
       data-workspace-mode={workspaceMode}
+      data-studio-page={studioPage}
+      data-source-revision={activeSourceSession(session).revision}
+      data-preview-open={previewOpen}
+      data-preview-focus={previewFocus && previewOpen && studioPage === 'story'}
+      data-scenes-open={scenesOpen}
       data-editor-view={mode}
       data-experience-level={experienceLevel}
       data-motion-preference={motionPreference}
@@ -4843,6 +5780,9 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
       data-testid="workspace-shell"
     >
       <WorkspaceHeader
+        {...(onOpenProject === undefined ? {} : { onOpenProject: () => openProjectStructure() })}
+        {...(onReturnHome === undefined ? {} : { onReturnHome: async () => { if (!await saveToLocal()) throw new Error("项目尚未保存成功，请检查保存状态后重试。"); onReturnHome(); } })}
+        {...(onExportProject === undefined ? {} : { onExportProject: async () => { if (!await saveToLocal()) throw new Error("项目尚未保存成功，请检查保存状态后重试。"); await onExportProject(previewCanonicalProjectRef.current); } })}
         mode={mode}
         workspaceMode={workspaceMode}
         experienceLevel={experienceLevel}
@@ -4850,21 +5790,71 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
         effectiveMotion={effectiveMotion}
         systemReducedMotion={systemReducedMotion}
         session={session}
-        inputDirty={inputDirty}
-        onModeChange={(nextMode) => { setSettingsOpen(false); setMode(nextMode); }}
-        onWorkspaceModeChange={selectWorkspaceMode}
+        inputDirty={inputDirty || pageDirty}
+        onModeChange={(nextMode) => { if (inputDirty) return; setSettingsOpen(false); setMode(nextMode); }}
+        onWorkspaceModeChange={(next) => { if (inputDirty) return; setPublishOpen(false); selectWorkspaceMode(next); }}
         onExperienceLevelChange={setExperienceLevel}
         onMotionPreferenceChange={setMotionPreference}
         persistence={persistence}
         onSave={() => saveToLocal("manual")}
         onOpenBackups={openBackups}
         settingsOpen={settingsOpen}
-        onOpenSettings={() => setSettingsOpen((value) => !value)}
+        onOpenSettings={() => { setPublishOpen(false); setSettingsOpen((value) => !value); }}
         dispatch={dispatch}
       />
-      <main className="workspace-grid" data-workspace-mode={workspaceMode} data-settings-open={settingsOpen}>
-        {settingsOpen ? <>
+      {workPosition.error && <div className="work-position-notice" role="status"><span>{workPosition.error}</span><button type="button" onClick={workPosition.retry}>重新记住当前位置</button></div>}
+      <StudioNavigation page={studioPage} disabled={inputDirty || pageDirty} onChange={openStudioPage} />
+      {releaseReturnFormat !== null && studioPage !== "publish" && <div className="release-return" role="region" aria-label="作品生成返回入口"><StudioIcon name="publish" /><span>修复或试玩完成后，继续生成作品。</span><button type="button" disabled={inputDirty || pageDirty || assetPanelOpen} onClick={() => openStudioPage("publish")}>返回生成游戏<StudioIcon name="arrow" /></button></div>}
+      {revisionTarget !== null && activeReview === null && <div className="playtest-revision-return" role="region" aria-label="校订返回试玩"><StudioIcon name="write" /><span>正在校订 · {session.project.scenes.find(scene => scene.id === revisionTarget.sceneId)?.title ?? "原场景"}。完成修改后可返回试玩。</span><button type="button" disabled={inputDirty || pageDirty || assetPanelOpen || pendingDraftSceneIds(session).length > 0} onClick={resumeRevisionPreview}>返回试玩</button></div>}
+      {studioPage === 'story' && activeReview && <PlaytestReviewTask
+        task={activeReview} note={activeReviewNote} project={previewCanonicalProject} sourceHash={noteSourceHash}
+        blocked={reviewBlocked} canConfirm={reviewCanConfirm} runCurrent={reviewRunCurrent}
+        canResume={revisionTarget !== null && previewContinuityRef.current?.playable.status !== 'idle' && previewContinuityRef.current !== undefined}
+        hasNext={nextReview !== null} error={notesStore.error || noteFileError}
+        onRangeChange={range => { if (!reviewBlocked) { setActiveReview({ ...activeReview, range, phase: 'editing' }); setReviewRun(null); setNoteFileError(''); } }}
+        onEdit={() => { if (activeReviewNote) openRevision(activeReviewNote, activeReviewNote.id); }}
+        onShowPreview={() => { setPreviewOpen(true); setPreviewFocus(true); requestAnimationFrame(() => document.getElementById('preview-focus-toggle')?.focus()); }}
+        onReplay={() => { if (activeReviewNote) startNoteReview(activeReviewNote, true, activeReview.range ?? defaultReviewRange(activeReviewNote)); }}
+        onConfirm={confirmNoteReview} onNext={() => { if (nextReview) openRevision(nextReview, nextReview.id); }}
+        onList={() => { setRevisionTarget(null); openStudioPage('checks'); }} onResume={resumeRevisionPreview}
+        onClose={() => { setActiveReview(null); setReviewRun(null); setRevisionTarget(null); setNoteFileError(''); }}
+      />}
+      {incomingProgress !== null && <div className="delivery-progress-restore"><PlaytestProgressRestore raw={incomingProgress} project={previewCanonicalProject} progress={playtestProgress} disabled={inputDirty || pageDirty} fromBundle onClose={() => { setIncomingProgress(null); onDeliveryProgressConsumed?.(); }} onMerged={() => { setIncomingProgress(null); onDeliveryProgressConsumed?.(); openStudioPage("checks"); }} /></div>}
+      {incomingReview !== null && <section className="delivery-review-restore" aria-label="交付包校订记录"><div><strong>这个制作交付包附带校订记录</strong><p>源工程已恢复。可以合并到本机清单；内容相同的记录不会重复，不同版本不会覆盖。</p></div><button type="button" disabled={inputDirty || pageDirty} onClick={() => { try { const notes = readPlaytestNotes(incomingReview, previewCanonicalProject.manifest.projectId); if (notesStore.commit(mergePlaytestNotes(notesStore.notes, notes))) { setIncomingReview(null); setNoteFileError(""); onDeliveryReviewConsumed?.(); openStudioPage("checks"); } } catch (error) { setNoteFileError((error as Error).message); } }}>合并校订记录</button><button type="button" onClick={() => { setIncomingReview(null); setNoteFileError(""); onDeliveryReviewConsumed?.(); }}>保留本机记录</button>{(noteFileError || notesStore.error) && <p role="alert">{noteFileError || notesStore.error}</p>}</section>}
+      {noteDialog && <PlaytestNoteDialog key={noteDialog.note?.id ?? "new"} location={noteDialog.location} note={noteDialog.note} error={notesStore.error || noteFileError} onClose={() => setNoteDialog(null)} onSave={(text, category) => { if (noteDialog.note && JSON.stringify(notesStore.notes.find(item => item.id === noteDialog.note?.id)) !== JSON.stringify(noteDialog.note)) { setNoteFileError("此记录已在其他窗口修改或删除，请重新核对；当前输入仍保留。"); return; } const now = Math.max(Date.now(), noteDialog.note?.updatedAt ?? 0); const note: PlaytestNote = noteDialog.note ? { ...noteDialog.note, text, category, updatedAt: now, ...(text !== noteDialog.note.text || category !== noteDialog.note.category ? { status: "open" as const, checkedSourceHash: null } : {}) } : { ...noteDialog.location, id: crypto.randomUUID(), text, category, status: "open", checkedSourceHash: null, createdAt: now, updatedAt: now }; if (notesStore.commit(noteDialog.note ? notesStore.notes.map(item => item.id === note.id ? note : item) : [...notesStore.notes, note])) setNoteDialog(null); }} />}
+      {pageDirty && <p className="workspace-draft-hint" role="status">有尚未应用的修改，请先应用或放弃，再离开此页面。</p>}
+      {structureError && <p className="workspace-draft-hint" role="alert">{structureError}</p>}
+      {studioPage === "story" && <nav className="studio-context-nav" aria-label="故事工作区">
+        <button type="button" disabled={inputDirty || pageDirty || pendingDraftSceneIds(session).length > 0} onClick={() => setTextReplaceOpen(true)}><StudioIcon name="search" />查找替换</button>
+        {onOpenProject && <StoryCreateMenu disabled={inputDirty || pageDirty || pendingDraftSceneIds(session).length > 0 || ["loading", "saving", "autosaving", "unavailable"].includes(persistence.status)} onCreate={kind => openProjectStructure({ create: kind })} />}
+        <button type="button" className="scene-toggle" aria-pressed={scenesOpen} onClick={() => setScenesOpen(!scenesOpen)}>场景列表</button>
+        {([['writer', 'sequence', '写作'], ['director', 'sequence', '演出'], ['flow', 'flow', '路线'], ['writer', 'script', '脚本']] as const).map(([workspace, view, label]) => <button type="button" key={label} aria-current={workspaceMode === workspace && mode === view ? "page" : undefined} disabled={inputDirty} onClick={() => { selectWorkspaceMode(workspace); setMode(view); if (view === "flow") setPreviewOpen(false); }}><StudioIcon name={label === "写作" ? "write" : label === "演出" ? "director" : label === "路线" ? "route" : "script"} />{label}</button>)}
+        <button type="button" className="preview-toggle" aria-pressed={previewOpen} onClick={() => { const opening = !previewOpen; setPreviewOpen(opening); if (window.innerWidth < 960) { if (opening) requestAnimationFrame(() => document.getElementById("preview-heading")?.closest("aside")?.scrollIntoView({ block: "start" })); else if (workspaceGrid.current) workspaceGrid.current.scrollTop = 0; } }}>{previewOpen ? "收起预览" : "打开预览"}</button>
+      </nav>}
+      {textReplaceOpen && <TextReplaceDialog session={session} onApply={plan => commitTextAction({ type: 'replace-project-text', commandId: createCommandId(), plan })} onHistory={direction => commitTextAction({ type: direction })} onLocate={row => { setTextReplaceOpen(false); openStudioPage('story'); setWorkspaceMode('writer'); setMode('sequence'); setPreviewOpen(false); setRequestedFocusStatementId(row.statementId); dispatch({ type: 'select-project-result', sceneId: row.sceneId, statementId: row.statementId }); }} onClose={() => setTextReplaceOpen(false)} />}
+      {studioPage === "assets" && <nav className="studio-context-nav" aria-label="素材工作区">{([['assets', '素材库'], ['localization', '翻译与配音'], ['collections', '附加内容']] as const).map(([value, label]) => <button type="button" key={value} aria-current={productionSection === value ? "page" : undefined} onClick={() => setProductionSection(value)}>{label}</button>)}</nav>}
+      {pendingDraftSceneIds(session).length > 0 && <section aria-label="待修复脚本草稿" className="diagnostic-card diagnostic-card--draft project-draft-notice">
+        <p>工程有 {pendingDraftSceneIds(session).length} 个未提交的脚本草稿。请先修复或丢弃，再运行、调试或构建游戏；本地保存会保留草稿，其他场景仍可编辑。</p>
+        {pendingDraftSceneIds(session).map((sceneId) => <button key={sceneId} type="button" disabled={inputDirty} onClick={() => {
+          dispatch({ type: "select-scene", sceneId }); setSettingsOpen(false); setWorkspaceMode("writer"); setMode("script");
+        }}>修复草稿：{session.project.scenes.find((scene) => scene.id === sceneId)?.title ?? sceneId}</button>)}
+      </section>}
+      {experienceLevel === "beginner" && <nav className="author-task-navigation" aria-label="创作任务">
+        <span>当前场景：{session.project.scenes.find((scene) => scene.id === session.activeSceneId)?.title}</span>
+        <button type="button" disabled={inputDirty} onClick={() => { setSettingsOpen(false); setWorkspaceMode("writer"); setMode("sequence"); }}>继续写作</button>
+        <button type="button" disabled={inputDirty} onClick={() => setAssetPanelOpen(true)}>管理素材</button>
+        <button type="button" disabled={inputDirty} onClick={() => selectWorkspaceMode("flow")}>查看分支走向</button>
+        <button type="button" disabled={inputDirty} onClick={() => selectWorkspaceMode("debug-qa")}>检查与修复问题</button>
+        <button type="button" disabled={inputDirty} onClick={() => { setSettingsOpen(false); setWorkspaceMode("writer"); setMode("script"); }}>编辑脚本</button>
+        <small>{inputDirty ? "请先提交或放弃当前输入，再切换任务或保存。" : "写作页可试玩完整流程；顶部保存到本机。备份或迁移工程请使用左上角项目菜单中的导出工程 ZIP。"}</small>
+      </nav>}
+      <main ref={workspaceGrid} className="workspace-grid" data-workspace-mode={workspaceMode} data-settings-open={settingsOpen}>
+        {publishOpen ? <PreviewPanel publicationOnly beforeDeliverySave={async signal => { if (activeSavePromise.current) await activeSavePromise.current; if (signal.aborted) return false; return saveToLocal("manual"); }} deliveryReviewNotes={notesStore.notes} reviewNotesError={notesStore.error} pendingReviewNotes={pendingReviewNotes} onOpenReviewNotes={() => { setReleaseReturnFormat(publicationWorkflow.format); openStudioPage("checks"); }} publicationWorkflow={publicationWorkflow} onPublicationWorkflowChange={setPublicationWorkflow} reviewTrace={reviewTrace} playtestProgress={playtestProgress} onRestartPlaytest={format => { setReleaseReturnFormat(format); restartWorkPlaytest(); }} onReleaseFix={openReleaseFix} onReleaseReview={openReleaseReview} onDraftChange={setPageDirty} session={session} dispatch={dispatch} createCommandId={createCommandId} inputDirty={inputDirty} assetIndex={assetIndex} assetRepository={assetRepositoryRef.current} canonicalProject={previewCanonicalProject} onRouteTraceChange={receiveRouteTrace} onPublicationChange={applySettingsProject} /> : settingsOpen ? <>
           <SettingsWorkspace
+            onImportSkin={importSkinToProject}
+            assetReader={assetRepositoryRef.current}
+            onOpenAssets={() => setAssetPanelOpen(true)}
+            onDraftChange={setPageDirty}
             project={previewCanonicalProject}
             saveStatus={persistence.status}
             {...(persistence.detail === undefined ? {} : { saveDetail: persistence.detail })}
@@ -4872,21 +5862,29 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
             onSave={() => saveToLocal("manual")}
             onClose={() => setSettingsOpen(false)}
           />
-          <PreviewPanel session={session} dispatch={dispatch} createCommandId={createCommandId} inputDirty={inputDirty} assetIndex={assetIndex} assetRepository={assetRepositoryRef.current} canonicalProject={previewCanonicalProject} onRouteTraceChange={setRuntimeRouteTrace} />
         </> : workspaceMode === "production" ? (
           <ProductionWorkspace
+            onBatchImport={() => setBatchAssetOpen(true)}
+            section={productionSection}
+            reader={assetRepositoryRef.current}
+            onOpenAsset={(id) => { setInitialAssetId(id); setAssetPanelOpen(true); }}
+            project={previewCanonicalProject}
             index={assetIndex}
             lifecycle={assetLifecycle}
             dicingReport={dicingReport}
             storageStatus={assetStatus}
-            onOpenPipeline={() => setAssetPanelOpen(true)}
+            onOpenPipeline={() => { setInitialAssetId(null); setAssetPanelOpen(true); }}
+            onProjectChange={(project) => applyCanonicalProjectMutation(project, "本地化变更已进入 Canonical Project，等待保存。")}
           />
         ) : workspaceMode === "debug-qa" ? (
+          <div className="playtest-checks-workspace"><PlaytestProgressPanel project={previewCanonicalProject} progress={playtestProgress} trace={reviewTrace} blocked={inputDirty || pageDirty || pendingDraftSceneIds(session).length > 0} onStart={restartWorkPlaytest} onRoutes={() => { openStudioPage("story"); setWorkspaceMode("flow"); setMode("flow"); setPreviewOpen(false); }} /><PlaytestReviewBoard project={previewCanonicalProject} notes={notesStore.notes} sourceHash={noteSourceHash} blocked={inputDirty || pageDirty || pendingDraftSceneIds(session).length > 0} error={notesStore.error || noteFileError} view={reviewListView} onViewChange={setReviewListView} {...(activeReview ? { focusNoteId: activeReview.noteId } : {})} onOpen={note => openRevision(note, note.id)} onReplay={note => startNoteReview(note)} onEdit={note => { setNoteFileError(""); setNoteDialog({ location: note, note }); }} onStatus={(note, status) => notesStore.commit(notesStore.notes.map(item => item.id === note.id ? { ...item, status, updatedAt: Math.max(Date.now(), item.updatedAt), checkedSourceHash: status === "verified" ? noteSourceHash : null } : item))} onDelete={note => notesStore.commit(notesStore.notes.filter(item => item.id !== note.id))} onExport={exportNotes} onImport={file => void importNotes(file)} />
           <DebugQaWorkspace
             project={previewCanonicalProject}
+            runBlocked={inputDirty || pendingDraftSceneIds(session).length > 0}
             diagnostics={session.diagnostics}
             selectedSceneId={session.activeSceneId}
             selectedStatementId={session.selectedStatementId}
+            onProjectChange={(project) => applyCanonicalProjectMutation(project, "QA 诊断抑制已进入 Canonical Project，等待保存。")}
             onOpenSource={(sceneId, statementId) => {
               if (statementId === undefined) dispatch({ type: "select-scene", sceneId });
               else {
@@ -4894,9 +5892,10 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
                 dispatch({ type: "select-project-result", sceneId, statementId });
               }
               setWorkspaceMode("writer");
-              setMode("sequence");
+              setMode(pendingDraftSceneIds(session).includes(sceneId) ? "script" : "sequence");
             }}
           />
+          </div>
         ) : workspaceMode === "mobile-focus" ? (
           <MobileFocusWorkspace
             session={session}
@@ -4906,19 +5905,23 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
           />
         ) : <>
           <SceneRail
+          disabled={inputDirty}
+          onSelectScene={() => setScenesOpen(false)}
           session={session}
           dispatch={dispatch}
           assetIndex={assetIndex}
           assetStatus={assetStatus}
           onOpenAssets={() => setAssetPanelOpen(true)}
           onGlobalJump={(match) => {
+            if (inputDirty) { setStructureError("请先应用或放弃当前输入，再切换场景。"); return; }
+            setScenesOpen(false);
             setMode("sequence");
             setRequestedFocusStatementId(match.statementId);
             dispatch({ type: "select-project-result", sceneId: match.sceneId, statementId: match.statementId });
           }}
         />
         {mode === "sequence" ? (
-          <SequenceView session={session} dispatch={dispatch} createCommandId={createCommandId} createEntityId={createEntityId} onInputDirtyChange={setInputDirty} assetIndex={assetIndex} variableIds={canonicalVariableIds} requestedFocusStatementId={requestedFocusStatementId} onRequestedFocusHandled={() => setRequestedFocusStatementId(null)} runtimeRouteTrace={runtimeRouteTrace} />
+          <SequenceView editingShortcutsEnabled={!previewFocus || !previewOpen} canonicalProject={previewCanonicalProject} onMotionProjectChange={project => applyCanonicalProjectMutation(project, "动效预设已更新，等待保存工程。")} inputDirty={inputDirty} assetReader={assetRepositoryRef.current} {...(onOpenProject ? { onCreateEntity: createStoryEntity } : {})} stageExpanded={workspaceMode === "director"} session={session} dispatch={dispatch} createCommandId={createCommandId} createEntityId={createEntityId} onInputDirtyChange={setInputDirty} assetIndex={assetIndex} variableDefaults={canonicalVariableDefaults} variableTypes={canonicalVariableTypes} variableIds={canonicalVariableIds} variableNames={canonicalVariableNames} variableDisplayNames={canonicalVariableDisplayNames} requestedFocusStatementId={requestedFocusStatementId} onRequestedFocusHandled={() => setRequestedFocusStatementId(null)} runtimeRouteTrace={runtimeRouteTrace} />
         ) : mode === "script" ? (
           <ScriptView session={session} dispatch={dispatch} createCommandId={createCommandId} inputDirty={inputDirty} onInputDirtyChange={setInputDirty} />
         ) : (
@@ -4927,6 +5930,8 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
             dispatch={dispatch}
             canonicalProject={previewCanonicalProject}
             runtimeRouteTrace={runtimeRouteTrace}
+            reviewTrace={reviewTrace}
+            reviewBlocked={inputDirty || pendingDraftSceneIds(session).length > 0}
             {...(routeCompiler===undefined?{}:{routeCompiler})}
             hasLocalChanges={editGeneration.current > 0}
             {...(routeChangedSceneIds.current===null?{}:{trustedChangedSceneIds:[...routeChangedSceneIds.current]})}
@@ -4939,10 +5944,10 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
             onDeleteGroup={deleteRouteGroupFromMap}
             onAssignGroup={assignRouteSceneGroupFromMap}
             onSetViewport={setRouteViewportFromMap}
-            onOpenSequence={(sceneId, statementId) => {if(statementId===undefined){dispatch({type:"select-scene",sceneId});}else{setRequestedFocusStatementId(statementId);dispatch({type:"select-project-result",sceneId,statementId});}setMode("sequence");}}
+            onOpenSequence={(sceneId, statementId) => {if(statementId===undefined){dispatch({type:"select-scene",sceneId});}else{setRequestedFocusStatementId(statementId);dispatch({type:"select-project-result",sceneId,statementId});}setWorkspaceMode("writer");setMode("sequence");}}
           />
         )}
-          <PreviewPanel session={session} dispatch={dispatch} createCommandId={createCommandId} inputDirty={inputDirty} assetIndex={assetIndex} assetRepository={assetRepositoryRef.current} canonicalProject={previewCanonicalProject} onRouteTraceChange={setRuntimeRouteTrace} />
+          {<PreviewPanel focusMode={previewFocus} onFocusModeChange={setPreviewFocus} revisionTarget={revisionTarget} onRevise={openRevision} onRecordIssue={location => { setNoteFileError(""); setNoteDialog({ location, note: null }); }} onFinishRevision={() => { setRevisionTarget(null); setReviewRun(null); }} reviewDialogOpen={noteDialog !== null || textReplaceOpen} playtestRequest={playtestRequest} onPlaytestRequestHandled={receiveReviewStart} hidden={!previewOpen} continuity={initialPreviewContinuity ?? previewContinuityRef.current} onContinuityChange={receivePreviewContinuity} session={session} dispatch={dispatch} createCommandId={createCommandId} inputDirty={inputDirty} assetIndex={assetIndex} assetRepository={assetRepositoryRef.current} canonicalProject={previewCanonicalProject} onRouteTraceChange={receiveRouteTrace} onPublicationChange={applySettingsProject} />}
         </>}
       </main>
       <footer className="workspace-footer">
@@ -4984,8 +5989,20 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
           </section>
         </div>
       )}
+      {batchAssetOpen && <BatchAssetImportDialog index={assetIndex} ready={['ready', 'success', 'cancelled'].includes(assetStatus)} phase={assetImportState.phase === 'reading' ? '正在读取文件…' : assetImportState.phase === 'inspecting' ? '正在检查文件是否完整、能否使用…' : assetImportState.phase === 'committing' ? '正在保存这项素材…' : '正在准备下一项…'} createId={fileName => canonicalAssetId(fileName, ++assetFileSerial.current)} onImport={(file, metadata) => importAssetFile(file, metadata, true)} onCancel={cancelAssetImport} onClose={() => setBatchAssetOpen(false)} onInspect={assetId => { setBatchAssetOpen(false); setInitialAssetId(assetId); setAssetPanelOpen(true); }} />}
       {assetPanelOpen && (
         <AssetVaultDialog
+          reader={assetRepositoryRef.current}
+          initialAssetId={initialAssetId}
+          experienceLevel={experienceLevel}
+          onCheckSource={(entry) => assetRepositoryRef.current === null ? Promise.resolve("资源仓库不可用，请重新打开工程后重试。") : checkAssetSource(assetRepositoryRef.current, entry)}
+          project={session.project}
+          onOpenUsage={(sceneId, statementId) => { closeAssetPanel(); dispatch({ type: "select-project-result", sceneId, statementId }); setRequestedFocusStatementId(statementId); setWorkspaceMode("writer"); setMode(pendingDraftSceneIds(session).includes(sceneId) ? "script" : "sequence"); }}
+          onRename={(entry, name) => void updateAssetMetadata({ ...entry, displayName: name })}
+          canUndoAsset={assetUpdateHistory !== null && !assetUpdateHistory.undone}
+          canRedoAsset={assetUpdateHistory !== null && assetUpdateHistory.undone}
+          onUndoAsset={() => { if (assetUpdateHistory) void updateAssetMetadata(assetUpdateHistory.before, "undo"); }}
+          onRedoAsset={() => { if (assetUpdateHistory) void updateAssetMetadata(assetUpdateHistory.after, "redo"); }}
           index={assetIndex}
           lifecycle={assetLifecycle}
           gcLocked={!assetBackupAuditReady || unlinkedAssetBackupIds.length > 0}

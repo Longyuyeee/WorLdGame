@@ -1,6 +1,9 @@
+import { packPlayerStorageRecord, unpackPlayerStorageRecord, readPlayerStorageMetadata, PlayerStorageWriteQueue } from "./player-storage-packing";
+import { canonicalPlayerDataStringifyV1 } from "@world-studio/player-core";
+
 export const WORLD_PLAYER_SAVE_STORE_VERSION = "3.0.0" as const;
 export const WORLD_PLAYER_SAVE_DATABASE_NAME = "world-player-saves";
-export const WORLD_PLAYER_SAVE_DATABASE_VERSION = 3;
+export const WORLD_PLAYER_SAVE_DATABASE_VERSION = 4;
 export const WORLD_PLAYER_SAVE_STORE_NAME = "save-slots";
 export const WORLD_PLAYER_SAVE_PREVIEW_STORE_NAME = "save-previews";
 export const WORLD_PLAYER_RECOVERY_STORE_NAME = "recovery-sessions";
@@ -60,6 +63,7 @@ export interface WorldPlayerSaveSlotV2 extends WorldPlayerSaveSlotSourceV2 {
 export type WorldPlayerSaveKindV3 = WorldPlayerSaveKindV2 | "checkpoint";
 
 export interface WorldPlayerSaveSlotSourceV3 extends WorldPlayerSaveSlotSourceV1 {
+  readonly readingExcerpt?: string;
   readonly kind: WorldPlayerSaveKindV3;
   readonly chapterId: string | null;
   readonly chapterTitle: string | null;
@@ -77,13 +81,31 @@ export interface WorldPlayerSaveSlotV3 extends WorldPlayerSaveSlotSourceV3 {
   readonly migratedFromSchemaVersion: 1 | 2 | null;
 }
 
+/** Display metadata only; a summary is never an accepted Runtime save. */
+export type WorldPlayerSaveSummaryV3 = Omit<WorldPlayerSaveSlotV3, "serializedSessionSave">;
+
+export function worldPlayerSaveSummaryV3(slot: WorldPlayerSaveSlotV3): WorldPlayerSaveSummaryV3 {
+  const { serializedSessionSave: _serialized, ...summary } = slot;
+  return summary;
+}
+
 export interface WorldPlayerSaveStoreV3 {
   readonly version: typeof WORLD_PLAYER_SAVE_STORE_VERSION;
   readonly backend: string;
+  /** Optional negative host capability; does not change the save-file format. */
+  readonly previewStorage?: 'unknown' | 'unavailable';
   list(projectId: string): Promise<readonly WorldPlayerSaveSlotV3[]>;
+  listSummaries?(projectId: string): Promise<readonly WorldPlayerSaveSummaryV3[]>;
   read(projectId: string, slotId: string): Promise<WorldPlayerSaveSlotV3 | null>;
   readPreview(projectId: string, slotId: string): Promise<Blob | null>;
   write(slot: WorldPlayerSaveSlotV1 | WorldPlayerSaveSlotV2 | WorldPlayerSaveSlotV3, preview?: Blob): Promise<void>;
+  /** Atomic comparison and replacement, required for manual saves and backup imports.
+   * null expects an absent slot; false means no write. Legacy hosts keep reads and quick/auto saves. */
+  writeIfUnchanged?(slot: WorldPlayerSaveSlotV3, expected: WorldPlayerSaveSummaryV3 | null, preview?: Blob): Promise<boolean>;
+}
+
+export async function listWorldPlayerSaveSummariesV3(store: WorldPlayerSaveStoreV3, projectId: string): Promise<readonly WorldPlayerSaveSummaryV3[]> {
+  return store.listSummaries === undefined ? (await store.list(projectId)).map(worldPlayerSaveSummaryV3) : store.listSummaries(projectId);
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -102,20 +124,27 @@ function validNullableId(value: unknown): value is string | null {
   return value === null || validId(value);
 }
 
-function validCommonSlot(value: Record<string, unknown>): boolean {
+function validCommonMetadata(value: Record<string, unknown>): boolean {
   return validId(value.slotId) && validId(value.projectId) && typeof value.buildId === "string" && hashPattern.test(value.buildId) &&
     Number.isSafeInteger(value.savedAtEpochMilliseconds) && (value.savedAtEpochMilliseconds as number) >= 0 && (value.savedAtEpochMilliseconds as number) <= 8_640_000_000_000_000 &&
     typeof value.title === "string" && value.title.length > 0 && value.title.length <= 256 &&
     typeof value.sceneId === "string" && value.sceneId.length > 0 && value.sceneId.length <= 256 &&
     typeof value.presentationKind === "string" && value.presentationKind.length > 0 && value.presentationKind.length <= 64 &&
     typeof value.runtimeStateHash === "string" && hashPattern.test(value.runtimeStateHash) &&
-    typeof value.sessionArtifactHash === "string" && hashPattern.test(value.sessionArtifactHash) &&
-    typeof value.serializedSessionSave === "string" && new TextEncoder().encode(value.serializedSessionSave).length <= MAX_SERIALIZED_SESSION_SAVE_BYTES;
+    typeof value.sessionArtifactHash === "string" && hashPattern.test(value.sessionArtifactHash);
+}
+
+function validPayload(value: Record<string, unknown>): boolean {
+  return typeof value.serializedSessionSave === "string" && new TextEncoder().encode(value.serializedSessionSave).length <= MAX_SERIALIZED_SESSION_SAVE_BYTES;
 }
 
 function validSlotV1(value: unknown): value is WorldPlayerSaveSlotV1 {
   if (!isRecord(value) || !hasExactKeys(value, slotV1Keys)) return false;
-  return value.schemaVersion === 1 && value.format === "world.player-save-slot" && value.kind === "manual" && value.previewImage === null && validCommonSlot(value);
+  return validPayload(value) && validV1Fields(value);
+}
+
+function validV1Fields(value: Record<string, unknown>): boolean {
+  return value.schemaVersion === 1 && value.format === "world.player-save-slot" && value.kind === "manual" && value.previewImage === null && validCommonMetadata(value);
 }
 
 function validPreviewMetadata(value: unknown): value is WorldPlayerSavePreviewV2 {
@@ -132,7 +161,11 @@ function validPreviewMetadata(value: unknown): value is WorldPlayerSavePreviewV2
 }
 
 function validSlotV2(value: unknown): value is WorldPlayerSaveSlotV2 {
-  if (!isRecord(value) || !hasExactKeys(value, slotV2Keys) || !validCommonSlot(value)) return false;
+  return isRecord(value) && hasExactKeys(value, slotV2Keys) && validPayload(value) && validV2Fields(value);
+}
+
+function validV2Fields(value: Record<string, unknown>): boolean {
+  if (!validCommonMetadata(value)) return false;
   const validSlotIdentity = value.kind === "manual" && /^manual-(?:[1-9]|1[0-2])$/u.test(String(value.slotId)) ||
     value.kind === "auto" && /^auto-[1-5]$/u.test(String(value.slotId)) || value.kind === "quick" && value.slotId === "quick-1";
   return value.schemaVersion === 2 && value.format === "world.player-save-slot" && validSlotIdentity &&
@@ -143,7 +176,17 @@ function validSlotV2(value: unknown): value is WorldPlayerSaveSlotV2 {
 }
 
 function validSlotV3(value: unknown): value is WorldPlayerSaveSlotV3 {
-  if (!isRecord(value) || !hasExactKeys(value, slotV3Keys) || !validCommonSlot(value)) return false;
+  return isRecord(value) && hasExactKeys(value, "readingExcerpt" in value ? [...slotV3Keys, "readingExcerpt"] : slotV3Keys) && validPayload(value) && validV3Fields(value);
+}
+
+export function readWorldPlayerSaveSlotV3(value: unknown): WorldPlayerSaveSlotV3 {
+  if (!validSlotV3(value)) throw new TypeError("WORLD_PLAYER_SAVE_CORRUPT");
+  return value;
+}
+
+function validV3Fields(value: Record<string, unknown>): boolean {
+  if (!validCommonMetadata(value)) return false;
+  if ("readingExcerpt" in value && (typeof value.readingExcerpt !== "string" || value.readingExcerpt.length === 0 || Array.from(value.readingExcerpt).length > 160)) return false;
   const kind = value.kind;
   const validSlotIdentity = kind === "manual" && /^manual-(?:[1-9]|1[0-2])$/u.test(String(value.slotId)) ||
     kind === "auto" && /^auto-[1-5]$/u.test(String(value.slotId)) || kind === "quick" && value.slotId === "quick-1" ||
@@ -198,6 +241,41 @@ function key(projectId: string, slotId: string): string {
   return `${projectId}\0${slotId}`;
 }
 
+function normalizeSummary(record: unknown): WorldPlayerSaveSummaryV3 {
+  const value = readPlayerStorageMetadata(record);
+  const fields = (keys: readonly string[]) => hasExactKeys(value, keys.filter(name => name !== "serializedSessionSave"));
+  if (fields("readingExcerpt" in value ? [...slotV3Keys, "readingExcerpt"] : slotV3Keys) && validV3Fields(value)) return value as unknown as WorldPlayerSaveSummaryV3;
+  if (fields(slotV2Keys) && validV2Fields(value)) return { ...value, schemaVersion: 3, checkpointStepId: null, migratedFromSchemaVersion: 2 } as unknown as WorldPlayerSaveSummaryV3;
+  if (fields(slotV1Keys) && validV1Fields(value)) {
+    const { previewImage: _preview, ...metadata } = value;
+    return { ...metadata, schemaVersion: 3, chapterId: null, chapterTitle: null, sceneTitle: value.sceneId,
+      route: null, customMetadata: {}, preview: { status: "unavailable", reason: "legacy-v1" }, checkpointStepId: null,
+      migratedFromSchemaVersion: 1 } as unknown as WorldPlayerSaveSummaryV3;
+  }
+  throw new TypeError("WORLD_PLAYER_SAVE_CORRUPT");
+}
+
+async function projectRecords(database: IDBDatabase, projectId: string): Promise<readonly { readonly recordKey: IDBValidKey; readonly record: unknown }[]> {
+  if (!validId(projectId)) throw new TypeError("WORLD_PLAYER_SAVE_ID_INVALID");
+  const transaction = database.transaction(WORLD_PLAYER_SAVE_STORE_NAME, "readonly");
+  const done = transactionDone(transaction);
+  const store = transaction.objectStore(WORLD_PLAYER_SAVE_STORE_NAME);
+  // Other projects' payloads must never be cloned or decoded just to list this one.
+  const records = new Promise<readonly { recordKey: IDBValidKey; record: unknown }[]>((resolve, reject) => {
+    const request = store.getAllKeys();
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => {
+      const selected = request.result.filter(recordKey => typeof recordKey === "string" && recordKey.startsWith(`${projectId}\0`));
+      Promise.all(selected.map(async recordKey => ({ recordKey, record: await requestResult(store.get(recordKey)) }))).then(resolve, reject);
+    };
+  });
+  return (await Promise.all([records, done]))[0];
+}
+
+function checkedRecordIdentity(slot: WorldPlayerSaveSummaryV3, projectId: string, recordKey: IDBValidKey): void {
+  if (slot.projectId !== projectId || key(slot.projectId, slot.slotId) !== recordKey) throw new TypeError("WORLD_PLAYER_SAVE_CORRUPT");
+}
+
 function requestResult<T>(request: IDBRequest<T>): Promise<T> {
   return new Promise((resolve, reject) => {
     request.addEventListener("success", () => resolve(request.result), { once: true });
@@ -250,6 +328,10 @@ export class IndexedDbWorldPlayerSaveStoreV3 implements WorldPlayerSaveStoreV3 {
   readonly backend = "indexeddb";
   private readonly database: Promise<IDBDatabase>;
   private readonly subtle: SubtleCrypto;
+  private readonly writes = new PlayerStorageWriteQueue();
+  private previewBlobsUnsupported = false;
+  private previewBlobsSupported = false;
+  get previewStorage(): 'unknown' | 'unavailable' { return this.previewBlobsUnsupported ? 'unavailable' : 'unknown'; }
 
   constructor(factory: IDBFactory = indexedDB, subtle: SubtleCrypto = crypto.subtle) {
     this.database = openDatabase(factory);
@@ -257,13 +339,23 @@ export class IndexedDbWorldPlayerSaveStoreV3 implements WorldPlayerSaveStoreV3 {
   }
 
   async list(projectId: string): Promise<readonly WorldPlayerSaveSlotV3[]> {
-    if (!validId(projectId)) throw new TypeError("WORLD_PLAYER_SAVE_ID_INVALID");
-    const database = await this.database;
-    const transaction = database.transaction(WORLD_PLAYER_SAVE_STORE_NAME, "readonly");
-    const done = transactionDone(transaction);
-    const records = await requestResult(transaction.objectStore(WORLD_PLAYER_SAVE_STORE_NAME).getAll());
-    await done;
-    return records.map(normalizeSlot).filter((slot) => slot.projectId === projectId).sort((left, right) => left.slotId.localeCompare(right.slotId));
+    const records = await projectRecords(await this.database, projectId);
+    // Decode sequentially: listing many long saves must not inflate them all at once.
+    const slots: WorldPlayerSaveSlotV3[] = [];
+    for (const { recordKey, record } of records) {
+      const slot = normalizeSlot(await unpackPlayerStorageRecord(record, this.subtle));
+      checkedRecordIdentity(slot, projectId, recordKey); slots.push(slot);
+    }
+    return slots.sort((left, right) => left.slotId.localeCompare(right.slotId));
+  }
+
+  async listSummaries(projectId: string): Promise<readonly WorldPlayerSaveSummaryV3[]> {
+    const records = await projectRecords(await this.database, projectId);
+    return records.map(({ recordKey, record }) => {
+      const summary = normalizeSummary(record);
+      checkedRecordIdentity(summary, projectId, recordKey);
+      return summary;
+    }).sort((left, right) => left.slotId.localeCompare(right.slotId));
   }
 
   async read(projectId: string, slotId: string): Promise<WorldPlayerSaveSlotV3 | null> {
@@ -273,7 +365,7 @@ export class IndexedDbWorldPlayerSaveStoreV3 implements WorldPlayerSaveStoreV3 {
     const record = await requestResult(transaction.objectStore(WORLD_PLAYER_SAVE_STORE_NAME).get(key(projectId, slotId)));
     await done;
     if (record === undefined) return null;
-    const slot = normalizeSlot(record);
+    const slot = normalizeSlot(await unpackPlayerStorageRecord(record, this.subtle));
     if (slot.projectId !== projectId || slot.slotId !== slotId) throw new TypeError("WORLD_PLAYER_SAVE_CORRUPT");
     return slot;
   }
@@ -290,7 +382,7 @@ export class IndexedDbWorldPlayerSaveStoreV3 implements WorldPlayerSaveStoreV3 {
     await done;
     if (metadataRecord === undefined && record === undefined) return null;
     if (metadataRecord === undefined) throw new TypeError("WORLD_PLAYER_SAVE_CORRUPT");
-    const slot = normalizeSlot(metadataRecord);
+    const slot = normalizeSummary(metadataRecord);
     if (slot.projectId !== projectId || slot.slotId !== slotId) throw new TypeError("WORLD_PLAYER_SAVE_CORRUPT");
     if (slot.preview.status === "unavailable") {
       if (record !== undefined) throw new TypeError("WORLD_PLAYER_SAVE_CORRUPT");
@@ -308,18 +400,106 @@ export class IndexedDbWorldPlayerSaveStoreV3 implements WorldPlayerSaveStoreV3 {
   }
 
   async write(slot: WorldPlayerSaveSlotV1 | WorldPlayerSaveSlotV2 | WorldPlayerSaveSlotV3, preview?: Blob): Promise<void> {
-    const checked = checkedWrite(slot);
-    if (!validPreviewBlobShape(checked, preview)) throw new TypeError("WORLD_PLAYER_SAVE_PREVIEW_INVALID");
-    if (checked.preview.status === "available" && preview !== undefined && await worldPlayerSavePreviewSha256V1(preview, this.subtle) !== checked.preview.sha256) {
-      throw new TypeError("WORLD_PLAYER_SAVE_PREVIEW_INVALID");
-    }
-    const database = await this.database;
-    const transaction = database.transaction([WORLD_PLAYER_SAVE_STORE_NAME, WORLD_PLAYER_SAVE_PREVIEW_STORE_NAME], "readwrite", { durability: "strict" });
-    const done = transactionDone(transaction);
-    const recordKey = key(checked.projectId, checked.slotId);
-    transaction.objectStore(WORLD_PLAYER_SAVE_STORE_NAME).put(checked, recordKey);
-    if (preview === undefined) transaction.objectStore(WORLD_PLAYER_SAVE_PREVIEW_STORE_NAME).delete(recordKey);
-    else transaction.objectStore(WORLD_PLAYER_SAVE_PREVIEW_STORE_NAME).put(preview, recordKey);
-    await done;
+    await this.writeRecord(slot, preview);
   }
+
+  async writeIfUnchanged(slot: WorldPlayerSaveSlotV3, expected: WorldPlayerSaveSummaryV3 | null, preview?: Blob): Promise<boolean> {
+    if (expected !== null && (expected.projectId !== slot.projectId || expected.slotId !== slot.slotId)) throw new TypeError("WORLD_PLAYER_SAVE_EXPECTATION_INVALID");
+    return this.writeRecord(slot, preview, expected);
+  }
+
+  private async writeRecord(slot: WorldPlayerSaveSlotV1 | WorldPlayerSaveSlotV2 | WorldPlayerSaveSlotV3, preview?: Blob, expected?: WorldPlayerSaveSummaryV3 | null): Promise<boolean> {
+    const checked = structuredClone(checkedWrite(slot));
+    const expectation = expected === undefined ? undefined : structuredClone(expected);
+    return this.writes.run(async () => {
+      if (!validPreviewBlobShape(checked, preview)) throw new TypeError("WORLD_PLAYER_SAVE_PREVIEW_INVALID");
+      if (checked.preview.status === "available" && preview !== undefined && await worldPlayerSavePreviewSha256V1(preview, this.subtle) !== checked.preview.sha256) {
+        throw new TypeError("WORLD_PLAYER_SAVE_PREVIEW_INVALID");
+      }
+      const database = await this.database;
+      const recordKey = key(checked.projectId, checked.slotId);
+      const commit = async (value: WorldPlayerSaveSlotV3, image: Blob | undefined): Promise<boolean> => {
+        const packed = await packPlayerStorageRecord(value, this.subtle);
+        const transaction = database.transaction([WORLD_PLAYER_SAVE_STORE_NAME, WORLD_PLAYER_SAVE_PREVIEW_STORE_NAME], "readwrite", { durability: "strict" });
+        // Request errors bubble before rollback has finished. Only final
+        // completion/abort may release this transaction or start a retry.
+        const done = new Promise<void>((resolve, reject) => {
+          transaction.addEventListener('complete', () => resolve(), { once: true });
+          transaction.addEventListener('abort', () => reject(transaction.error ?? new Error('WORLD_PLAYER_SAVE_IO_FAILURE')), { once: true });
+        });
+        transaction.addEventListener('error', event => {
+          // Own rollback once, rather than race the failed request's implicit
+          // abort (some WebKit hosts otherwise never deliver the final event).
+          event.preventDefault();
+          try { transaction.abort(); } catch { /* Already aborting/inactive. */ }
+        });
+        let previewFailure: unknown;
+        try {
+          if (expectation !== undefined) {
+            const record = await requestResult(transaction.objectStore(WORLD_PLAYER_SAVE_STORE_NAME).get(recordKey));
+            const actual = record === undefined ? null : normalizeSummary(record);
+            if (canonicalPlayerDataStringifyV1(actual) !== canonicalPlayerDataStringifyV1(expectation)) { await done; return false; }
+          }
+          transaction.objectStore(WORLD_PLAYER_SAVE_STORE_NAME).put(packed, recordKey);
+          if (image === undefined) transaction.objectStore(WORLD_PLAYER_SAVE_PREVIEW_STORE_NAME).delete(recordKey);
+          else {
+            try {
+              const request = transaction.objectStore(WORLD_PLAYER_SAVE_PREVIEW_STORE_NAME).put(image, recordKey);
+              request.addEventListener('error', () => { previewFailure = request.error; }, { once: true });
+            } catch (error) { previewFailure = error; throw error; }
+          }
+          await done;
+          return true;
+        } catch (error) {
+          try { transaction.abort(); } catch { /* A request failure may have aborted it already. */ }
+          await done.catch(() => undefined);
+          if (image && isRecord(previewFailure) && ['UnknownError', 'DataCloneError'].includes(String(previewFailure.name))) throw new PreviewBlobStorageError();
+          throw error;
+        }
+      };
+      const withoutPreview: WorldPlayerSaveSlotV3 = { ...checked, preview: { status: 'unavailable', reason: 'capture-unavailable' } };
+      if (this.previewBlobsUnsupported && preview) return commit(withoutPreview, undefined);
+      if (preview && !this.previewBlobsSupported) {
+        // Probe in one store, with no slot metadata at risk. Windows WebKit
+        // can fail Blob preparation without finishing a multi-store abort.
+        if (await probePreviewBlobStorage(database, preview)) this.previewBlobsSupported = true;
+        else {
+          const written = await commit(withoutPreview, undefined);
+          if (written) this.previewBlobsUnsupported = true;
+          return written;
+        }
+      }
+      try { return await commit(checked, preview); }
+      catch (error) {
+        if (!(error instanceof PreviewBlobStorageError)) throw error;
+        // The first transaction is fully aborted. Retry only optional Blob
+        // rejection, with the same CAS expectation checked again atomically.
+        const written = await commit(withoutPreview, undefined);
+        if (written) this.previewBlobsUnsupported = true;
+        return written;
+      }
+    });
+  }
+}
+
+class PreviewBlobStorageError extends Error {}
+
+/** A reserved, non-slot key is always rolled back, even on supported hosts. */
+function probePreviewBlobStorage(database: IDBDatabase, preview: Blob): Promise<boolean> {
+  return new Promise((resolve, reject) => {
+    const transaction = database.transaction(WORLD_PLAYER_SAVE_PREVIEW_STORE_NAME, 'readwrite');
+    let supported = false, failure: unknown;
+    transaction.addEventListener('complete', () => reject(new Error('WORLD_PLAYER_SAVE_PREVIEW_PROBE_NOT_ABORTED')), { once: true });
+    transaction.addEventListener('abort', () => {
+      if (supported && failure === undefined) resolve(true);
+      else if (isRecord(failure) && ['UnknownError', 'DataCloneError'].includes(String(failure.name))) resolve(false);
+      else reject(failure ?? transaction.error ?? new Error('WORLD_PLAYER_SAVE_IO_FAILURE'));
+    }, { once: true });
+    try {
+      const request = transaction.objectStore(WORLD_PLAYER_SAVE_PREVIEW_STORE_NAME).put(preview, '\0preview-capability');
+      request.addEventListener('success', () => { supported = true; transaction.abort(); }, { once: true });
+      // Let a single-store request finish its natural abort before continuing.
+      request.addEventListener('error', () => { failure = request.error; }, { once: true });
+    } catch (error) { failure = error; transaction.abort(); }
+  });
 }

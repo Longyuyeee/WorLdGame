@@ -1,0 +1,27 @@
+{
+  "passed": true,
+  "browser": "155.0.8059.41",
+  "checks": [
+    "capture/cancel creates only local notes; stable origin/excerpt; direct editing guards drafts, keeps 1/1 history; cross-scene note editing returns to the original route",
+    "fixing and manual verification are distinct; exact-location replay is labelled partial; editing story makes a verified record pending; real light/dark and 390px board",
+    "portable record export/import retains identity and status; foreign project and conflicting duplicate refuse atomically; home/reload/reopen retains notes",
+    "release shows pending review reminders; revised source ZIP and real HTML contain the new text and no private notes; exported local HTML plays the short branch to its ending"
+  ],
+  "errors": [],
+  "artifacts": {
+    "review-notes.worldreview": {
+      "byteLength": 753,
+      "sha256": "e6f59bed9fb749dfd3b9b25606444a4567e4f6e6a3c93e618dda505621d86ac8"
+    },
+    "revised-source.zip": {
+      "byteLength": 6938,
+      "sha256": "8239202398b7c4afa9cdc21e8b0dda7e8be6455b51547e5733a31c70f7ffc179"
+    },
+    "singleHtml": {
+      "byteLength": 593641,
+      "sha256": "60573d96055b7e089767d9faa1eca5ae26773af3ae5d97c00bd5bb4ad4b20764"
+    }
+  },
+  "scope": "Short branch-authoring fixture; not Rain 1.5.4 full routes, human reading or device acceptance",
+  "notesStorage": "project-scoped localStorage plus a separate portable file; never a player save or embedded source ZIP"
+}

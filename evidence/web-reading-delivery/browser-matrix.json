@@ -1,0 +1,134 @@
+{
+  "passed": true,
+  "workChecks": 7,
+  "verifiedExportReused": true,
+  "verifiedBrowserReportsReused": true,
+  "reports": [
+    {
+      "name": "chromium.json",
+      "checks": 11,
+      "browser": "151.0.7922.34",
+      "artifactSha256": "e342827d80a0bd18944cc84655437ded37f25f901d81b4bf4229fd9d97080510"
+    },
+    {
+      "name": "firefox.json",
+      "checks": 11,
+      "browser": "153.0",
+      "artifactSha256": "e342827d80a0bd18944cc84655437ded37f25f901d81b4bf4229fd9d97080510"
+    },
+    {
+      "name": "webkit-website.json",
+      "checks": 11,
+      "browser": "26.5",
+      "artifactSha256": "6c54de35ed7dd3ba2a507c83204faeb479cfdc56c2b11921ad785c271a138676"
+    },
+    {
+      "name": "chromium-file.json",
+      "checks": 11,
+      "browser": "151.0.7922.34",
+      "artifactSha256": "e342827d80a0bd18944cc84655437ded37f25f901d81b4bf4229fd9d97080510"
+    },
+    {
+      "name": "webkit-inline-fallback.json",
+      "checks": 1,
+      "browser": "26.5",
+      "artifactSha256": "e342827d80a0bd18944cc84655437ded37f25f901d81b4bf4229fd9d97080510"
+    },
+    {
+      "name": "history/chromium.json",
+      "checks": 7,
+      "browser": "151.0.7922.34",
+      "artifactSha256": "e342827d80a0bd18944cc84655437ded37f25f901d81b4bf4229fd9d97080510"
+    },
+    {
+      "name": "load/chromium.json",
+      "checks": 5,
+      "browser": "151.0.7922.34",
+      "artifactSha256": "e342827d80a0bd18944cc84655437ded37f25f901d81b4bf4229fd9d97080510"
+    },
+    {
+      "name": "reading-resume/chromium.json",
+      "checks": 9,
+      "browser": "151.0.7922.34",
+      "artifactSha256": "e342827d80a0bd18944cc84655437ded37f25f901d81b4bf4229fd9d97080510"
+    },
+    {
+      "name": "history/firefox.json",
+      "checks": 7,
+      "browser": "153.0",
+      "artifactSha256": "e342827d80a0bd18944cc84655437ded37f25f901d81b4bf4229fd9d97080510"
+    },
+    {
+      "name": "load/firefox.json",
+      "checks": 5,
+      "browser": "153.0",
+      "artifactSha256": "e342827d80a0bd18944cc84655437ded37f25f901d81b4bf4229fd9d97080510"
+    },
+    {
+      "name": "reading-resume/firefox.json",
+      "checks": 9,
+      "browser": "153.0",
+      "artifactSha256": "e342827d80a0bd18944cc84655437ded37f25f901d81b4bf4229fd9d97080510"
+    },
+    {
+      "name": "history/webkit.json",
+      "checks": 7,
+      "browser": "26.5",
+      "artifactSha256": "e342827d80a0bd18944cc84655437ded37f25f901d81b4bf4229fd9d97080510"
+    },
+    {
+      "name": "load/webkit.json",
+      "checks": 5,
+      "browser": "26.5",
+      "artifactSha256": "e342827d80a0bd18944cc84655437ded37f25f901d81b4bf4229fd9d97080510"
+    },
+    {
+      "name": "reading-resume/webkit.json",
+      "checks": 9,
+      "browser": "26.5",
+      "artifactSha256": "e342827d80a0bd18944cc84655437ded37f25f901d81b4bf4229fd9d97080510"
+    }
+  ],
+  "artifact": {
+    "passed": true,
+    "unchangedPayloadAndAll26Media": true,
+    "sameContentVersion": "1.10.0",
+    "unchangedNotesPending": 23,
+    "sourceAndNotes": "evidence/web-story-arrival-and-night",
+    "websiteFiles": 37,
+    "artifacts": {
+      "html": {
+        "bytes": 46784758,
+        "sha256": "e342827d80a0bd18944cc84655437ded37f25f901d81b4bf4229fd9d97080510"
+      },
+      "website": {
+        "bytes": 35371207,
+        "sha256": "6c54de35ed7dd3ba2a507c83204faeb479cfdc56c2b11921ad785c271a138676"
+      }
+    }
+  },
+  "retained": [
+    {
+      "file": "evidence/web-voice-reading-continuity/before-rain-stops.html",
+      "sha256": "c6569ac9b41370d3a5d8eb54906214047e3908644a23d8c50fe2d160b4972a3b"
+    },
+    {
+      "file": "evidence/web-voice-reading-continuity/before-rain-stops-website.zip",
+      "sha256": "200805c96327f3a05f2659c49b06b6d510558189ab05d4d471120f9af139cb4e"
+    },
+    {
+      "file": "evidence/web-story-arrival-and-night/before-rain-stops-project.zip",
+      "sha256": "331a1b404ee39b89680a6a7a2c0d22dd7279b3b87ab9b60d4b5fe1a253baf5e8"
+    },
+    {
+      "file": "evidence/web-story-arrival-and-night/before-rain-stops.worldreview",
+      "sha256": "e773a566c2095f72b45d25c858f0028f20162480443978039c218d1e52c5bdc5"
+    }
+  ],
+  "inlineWebKitAudioAccepted": false,
+  "inlineWebKitSilentFallback": true,
+  "temporaryGamesRemoved": true,
+  "publiclyDeployed": false,
+  "contentVersion": "1.10.0",
+  "technicalBaseline": "S0.41"
+}

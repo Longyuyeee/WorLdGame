@@ -1,12 +1,14 @@
-import { IDBFactory } from "fake-indexeddb";
+import { IDBFactory, IDBObjectStore } from "fake-indexeddb";
 import { Blob as NodeBlob } from "node:buffer";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
   IndexedDbWorldPlayerSaveStoreV3,
   WORLD_PLAYER_SAVE_DATABASE_VERSION,
   createWorldPlayerSaveSlotV1,
   createWorldPlayerSaveSlotV2,
   createWorldPlayerSaveSlotV3,
+  worldPlayerSavePreviewSha256V1,
+  worldPlayerSaveSummaryV3,
   type WorldPlayerSaveSlotSourceV1,
   type WorldPlayerSaveSlotSourceV2,
   type WorldPlayerSaveSlotSourceV3
@@ -81,6 +83,90 @@ function sourceV2(overrides: Partial<WorldPlayerSaveSlotSourceV2> = {}): WorldPl
 function sourceV3(overrides: Partial<WorldPlayerSaveSlotSourceV3> = {}): WorldPlayerSaveSlotSourceV3 {
   return { ...sourceV2(), checkpointStepId: null, ...overrides };
 }
+
+describe('optional preview Blob storage rejection', () => {
+  async function candidate() {
+    const blob = new NodeBlob(['original-preview'], { type: 'image/png' }) as unknown as Blob;
+    const slot = createWorldPlayerSaveSlotV3(sourceV3({ savedAtEpochMilliseconds: 1_788_000_000_100, preview: { status: 'available', mimeType: 'image/png', width: 2, height: 2, byteLength: blob.size, sha256: await worldPlayerSavePreviewSha256V1(blob) } }));
+    return { blob, slot };
+  }
+  it('rolls back the reserved probe key and probes a supported adapter only once', async () => {
+    const factory = new IDBFactory(), store = new IndexedDbWorldPlayerSaveStoreV3(factory), { blob, slot } = await candidate();
+    const previewKeys: IDBValidKey[] = [], put = IDBObjectStore.prototype.put;
+    const spy = vi.spyOn(IDBObjectStore.prototype, 'put').mockImplementation(function (this: IDBObjectStore, value, key) { if (this.name === 'save-previews') previewKeys.push(key!); return put.call(this, value, key); });
+    try { await store.write(slot, blob); await store.write({ ...slot, savedAtEpochMilliseconds: slot.savedAtEpochMilliseconds + 1 }, blob); }
+    finally { spy.mockRestore(); }
+    expect(previewKeys.filter(key => key === '\0preview-capability')).toHaveLength(1);
+    const database = await new Promise<IDBDatabase>(resolve => { const request = factory.open('world-player-saves'); request.onsuccess = () => resolve(request.result); });
+    try { const keys = await new Promise<IDBValidKey[]>(resolve => { const request = database.transaction('save-previews').objectStore('save-previews').getAllKeys(); request.onsuccess = () => resolve(request.result); }); expect(keys).toEqual([slot.projectId + '\0' + slot.slotId]); expect(await store.readPreview(slot.projectId, slot.slotId)).not.toBeNull(); }
+    finally { database.close(); }
+  });
+  it.each(['UnknownError', 'DataCloneError'])('preserves exact progress without optional Blob on %s and remains readable by another adapter', async name => {
+    const factory = new IDBFactory(), store = new IndexedDbWorldPlayerSaveStoreV3(factory), { blob, slot } = await candidate();
+    const originalPut = IDBObjectStore.prototype.put;
+    const spy = vi.spyOn(IDBObjectStore.prototype, 'put').mockImplementation(function (this: IDBObjectStore, value, key) { if (this.name === 'save-previews') throw new DOMException('Blob unavailable', name); return originalPut.call(this, value, key); });
+    try {
+      await store.write(slot, blob); expect(store.previewStorage).toBe('unavailable');
+      const reopened = new IndexedDbWorldPlayerSaveStoreV3(factory), read = await reopened.read(slot.projectId, slot.slotId);
+      expect(read).toEqual({ ...slot, preview: { status: 'unavailable', reason: 'capture-unavailable' } }); expect(await reopened.readPreview(slot.projectId, slot.slotId)).toBeNull();
+      expect(slot.preview.status).toBe('available'); // caller and original backup are not mutated
+    } finally { spy.mockRestore(); }
+  });
+  it('rechecks compare-and-swap and rejects stale import after a preview-free commit', async () => {
+    const store = new IndexedDbWorldPlayerSaveStoreV3(new IDBFactory()), { blob, slot } = await candidate();
+    const old = createWorldPlayerSaveSlotV3(sourceV3()); await store.write(old);
+    const put = IDBObjectStore.prototype.put, spy = vi.spyOn(IDBObjectStore.prototype, 'put').mockImplementation(function (this: IDBObjectStore, value, key) { if (this.name === 'save-previews') throw new DOMException('Blob', 'DataCloneError'); return put.call(this, value, key); });
+    try { expect(await store.writeIfUnchanged(slot, worldPlayerSaveSummaryV3(old), blob)).toBe(true); expect(await store.writeIfUnchanged(slot, worldPlayerSaveSummaryV3(old), blob)).toBe(false); expect((await store.read(old.projectId, old.slotId))?.preview.status).toBe('unavailable'); }
+    finally { spy.mockRestore(); }
+  });
+  it('waits for the isolated probe rollback after an asynchronous preview failure', async () => {
+    const factory = new IDBFactory(), store = new IndexedDbWorldPlayerSaveStoreV3(factory), { blob, slot } = await candidate();
+    const old = { ...slot, savedAtEpochMilliseconds: slot.savedAtEpochMilliseconds - 100 }; await store.write(old, blob);
+    const put = IDBObjectStore.prototype.put, add = IDBObjectStore.prototype.add;
+    const spy = vi.spyOn(IDBObjectStore.prototype, 'put').mockImplementation(function (this: IDBObjectStore, value, key) {
+      if (this.name !== 'save-previews') return put.call(this, value, key);
+      // A duplicate add supplies a real asynchronous failed IDBRequest.
+      const request = add.call(this, value, old.projectId + '\0' + old.slotId);
+      request.addEventListener('error', () => { Object.defineProperty(request, 'error', { value: new DOMException('Blob', 'UnknownError') }); });
+      return request;
+    });
+    try { await store.write(slot, blob); expect(await store.read(slot.projectId, slot.slotId)).toEqual({ ...slot, preview: { status: 'unavailable', reason: 'capture-unavailable' } }); expect(await store.readPreview(slot.projectId, slot.slotId)).toBeNull(); }
+    finally { spy.mockRestore(); }
+  });
+  it.each(['QuotaExceededError', 'AbortError'])('does not downgrade %s or replace an existing slot', async name => {
+    const store = new IndexedDbWorldPlayerSaveStoreV3(new IDBFactory()), { blob, slot } = await candidate(), old = createWorldPlayerSaveSlotV3(sourceV3()); await store.write(old);
+    const put = IDBObjectStore.prototype.put, spy = vi.spyOn(IDBObjectStore.prototype, 'put').mockImplementation(function (this: IDBObjectStore, value, key) { if (this.name === 'save-previews') throw new DOMException('Storage failure', name); return put.call(this, value, key); });
+    try { await expect(store.write(slot, blob)).rejects.toMatchObject({ name }); expect(await store.read(old.projectId, old.slotId)).toEqual(old); expect(store.previewStorage).toBe('unknown'); }
+    finally { spy.mockRestore(); }
+  });
+  it('does not overwrite a concurrent change committed between Blob rejection and preview-free retry', async () => {
+    const factory = new IDBFactory(), store = new IndexedDbWorldPlayerSaveStoreV3(factory), { blob, slot } = await candidate(), old = createWorldPlayerSaveSlotV3(sourceV3()); await store.write(old);
+    const database = await new Promise<IDBDatabase>((resolve, reject) => { const request = factory.open('world-player-saves', WORLD_PLAYER_SAVE_DATABASE_VERSION); request.onsuccess = () => resolve(request.result); request.onerror = () => reject(request.error); });
+    const external = createWorldPlayerSaveSlotV3(sourceV3({ savedAtEpochMilliseconds: 1_788_000_000_200 }));
+    let completed!: () => void; const changed = new Promise<void>(resolve => { completed = resolve; });
+    const put = IDBObjectStore.prototype.put, spy = vi.spyOn(IDBObjectStore.prototype, 'put').mockImplementation(function (this: IDBObjectStore, value, key) {
+      if (this.name === 'save-previews') {
+        this.transaction.addEventListener('abort', () => { const next = database.transaction('save-slots', 'readwrite'); next.objectStore('save-slots').put(external, external.projectId + '\0' + external.slotId); next.oncomplete = completed; }, { once: true });
+        throw new DOMException('Blob', 'DataCloneError');
+      }
+      return put.call(this, value, key);
+    });
+    try { expect(await store.writeIfUnchanged(slot, worldPlayerSaveSummaryV3(old), blob)).toBe(false); await changed; expect(await store.read(old.projectId, old.slotId)).toEqual(external); }
+    finally { spy.mockRestore(); database.close(); }
+  });
+  it('does not retry a metadata failure as a thumbnail failure', async () => {
+    const store = new IndexedDbWorldPlayerSaveStoreV3(new IDBFactory()), { blob, slot } = await candidate(), old = createWorldPlayerSaveSlotV3(sourceV3()); await store.write(old);
+    const put = IDBObjectStore.prototype.put, spy = vi.spyOn(IDBObjectStore.prototype, 'put').mockImplementation(function (this: IDBObjectStore, value, key) { if (this.name === 'save-slots') throw new DOMException('Metadata', 'UnknownError'); return put.call(this, value, key); });
+    try { await expect(store.write(slot, blob)).rejects.toMatchObject({ name: 'UnknownError' }); expect(await store.read(old.projectId, old.slotId)).toEqual(old); expect(store.previewStorage).toBe('unknown'); }
+    finally { spy.mockRestore(); }
+  });
+  it('leaves the old record intact if the preview-free retry also fails', async () => {
+    const store = new IndexedDbWorldPlayerSaveStoreV3(new IDBFactory()), { blob, slot } = await candidate(), old = createWorldPlayerSaveSlotV3(sourceV3()); await store.write(old); let writes = 0;
+    const put = IDBObjectStore.prototype.put, spy = vi.spyOn(IDBObjectStore.prototype, 'put').mockImplementation(function (this: IDBObjectStore, value, key) { if (this.name === 'save-previews') throw new DOMException('Blob', 'DataCloneError'); if (this.name === 'save-slots' && ++writes === 1) throw new DOMException('Full', 'QuotaExceededError'); return put.call(this, value, key); });
+    try { await expect(store.write(slot, blob)).rejects.toMatchObject({ name: 'QuotaExceededError' }); expect(await store.read(old.projectId, old.slotId)).toEqual(old); expect(store.previewStorage).toBe('unknown'); }
+    finally { spy.mockRestore(); }
+  });
+});
 
 describe("N52-E3a Web Player Save Store", () => {
   it("strictly reads v1 as normalized v3 and only replaces it after a successful copy-on-write commit", async () => {

@@ -1,0 +1,111 @@
+{
+  "title": "雨后的约定 · 条件剧情",
+  "sourceProject": "rainy-promise-media.zip",
+  "authoredThroughUi": true,
+  "initialRule": "variable_2dfaec55003346b9 >= 2",
+  "changedRule": "variable_2dfaec55003346b9 == 0",
+  "before": [
+    {
+      "route": "去海边",
+      "expectedValue": "2",
+      "actualValue": "2",
+      "expectedEnding": "新的约定结局",
+      "actualEnding": "新的约定结局"
+    },
+    {
+      "route": "去书店",
+      "expectedValue": "0",
+      "actualValue": "0",
+      "expectedEnding": "平常的告别",
+      "actualEnding": "平常的告别"
+    }
+  ],
+  "reopened": [
+    {
+      "route": "去海边",
+      "expectedValue": "2",
+      "actualValue": "2",
+      "expectedEnding": "平常的告别",
+      "actualEnding": "平常的告别"
+    },
+    {
+      "route": "去书店",
+      "expectedValue": "0",
+      "actualValue": "0",
+      "expectedEnding": "新的约定结局",
+      "actualEnding": "新的约定结局"
+    }
+  ],
+  "flowBefore": [
+    {
+      "text": "Start→去海边 · 修改→海边",
+      "edit": "修改连接：去海边 · stmt_ui_7"
+    },
+    {
+      "text": "Start→去书店 · 修改→书店",
+      "edit": "修改连接：去书店 · stmt_ui_7"
+    },
+    {
+      "text": "海边→调用 · 修改→问候",
+      "edit": "修改连接：调用 · stmt_ui_16"
+    },
+    {
+      "text": "海边→跳转 · 修改→重逢",
+      "edit": "修改连接：跳转 · stmt_ui_18"
+    },
+    {
+      "text": "书店→调用 · 修改→问候",
+      "edit": "修改连接：调用 · stmt_ui_22"
+    },
+    {
+      "text": "书店→跳转 · 修改→重逢",
+      "edit": "修改连接：跳转 · stmt_ui_24"
+    },
+    {
+      "text": "重逢→条件成立 · 修改→新的约定",
+      "edit": "修改连接：条件成立 · stmt_ui_26"
+    },
+    {
+      "text": "问候→调用 · 修改→回应",
+      "edit": "修改连接：调用 · stmt_ui_10"
+    }
+  ],
+  "flowReopened": [
+    {
+      "text": "Start→去海边 · 修改→海边",
+      "edit": "修改连接：去海边 · stmt_ui_7"
+    },
+    {
+      "text": "Start→去书店 · 修改→书店",
+      "edit": "修改连接：去书店 · stmt_ui_7"
+    },
+    {
+      "text": "海边→调用 · 修改→问候",
+      "edit": "修改连接：调用 · stmt_ui_16"
+    },
+    {
+      "text": "海边→跳转 · 修改→重逢",
+      "edit": "修改连接：跳转 · stmt_ui_18"
+    },
+    {
+      "text": "书店→调用 · 修改→问候",
+      "edit": "修改连接：调用 · stmt_ui_22"
+    },
+    {
+      "text": "书店→跳转 · 修改→重逢",
+      "edit": "修改连接：跳转 · stmt_ui_24"
+    },
+    {
+      "text": "重逢→条件成立 · 修改→新的约定",
+      "edit": "修改连接：条件成立 · stmt_ui_26"
+    },
+    {
+      "text": "问候→调用 · 修改→回应",
+      "edit": "修改连接：调用 · stmt_ui_10"
+    }
+  ],
+  "editedFromFlow": true,
+  "localBranchDirectionsVerified": true,
+  "sharedNestedCallsFromBothRoutes": true,
+  "exceptions": []
+}

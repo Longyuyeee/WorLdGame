@@ -1,0 +1,17 @@
+{
+  "checks": [
+    {
+      "name": "eight-real-editor-review-notes",
+      "detail": {
+        "importMs": 1230.2123000000001,
+        "humanAcceptance": false
+      }
+    },
+    {
+      "name": "editor-applied-five-texts-five-backgrounds-two-audio-cues-and-version",
+      "detail": {}
+    }
+  ],
+  "errors": [],
+  "failure": "RangeError: Maximum call stack size exceeded\n    at String.match (<anonymous>)\n    at payload (file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/audit-rain-story-refinement.mjs:52:43)\n    at auditArtifacts (file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/audit-rain-story-refinement.mjs:53:16)\n    at async file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-story-refinement.mjs:131:43"
+}

@@ -1,0 +1,36 @@
+{
+  "passed": true,
+  "browser": "151.0.7922.34",
+  "checks": [
+    {
+      "name": "baseline-promise-rejection",
+      "detail": {
+        "text": "进去读吧。我想先把今天的话说完。",
+        "deadline": 1940,
+        "before": "06a2114ecdb8dd78c27df1894a8714e79c27790bb772a52cea099ffe5233e815",
+        "after": "06a2114ecdb8dd78c27df1894a8714e79c27790bb772a52cea099ffe5233e815",
+        "auto": "waiting-voice",
+        "retry": false,
+        "injectedPlayRejection": true,
+        "invalidVoiceUrlForNativeDecodeError": false,
+        "nativeErrorEventInjected": false
+      }
+    },
+    {
+      "name": "baseline-retry-owner",
+      "detail": {
+        "text": "进去读吧。我想先把今天的话说完。",
+        "deadline": 1940,
+        "before": "06a2114ecdb8dd78c27df1894a8714e79c27790bb772a52cea099ffe5233e815",
+        "after": "d09ca954d2e5ffbba4cb746bc979063134da93d617f9b2875f6d15d94cd21ae4",
+        "auto": "waiting",
+        "retry": true,
+        "injectedPlayRejection": false,
+        "invalidVoiceUrlForNativeDecodeError": true,
+        "nativeErrorEventInjected": false
+      }
+    }
+  ],
+  "errors": [],
+  "scope": "Original #384 HTML in Chromium with explicit playback-boundary faults at one voice: rejected play Promise or invalid WAV causing native decode error, then slowed native retry. No synthetic native error/ended events. Not an author run, full route, human listening, physical device or public deployment."
+}

@@ -1,0 +1,162 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "name": "all-nine-scenes-and-one-paragraph-edited",
+      "detail": {
+        "scenes": [
+          "灯下的回信",
+          "车窗与海",
+          "车站的雨",
+          "再一次见面",
+          "雨后的天明",
+          "留下",
+          "站台前的约定",
+          "远行",
+          "候车室的旧信"
+        ],
+        "scene": "灯下的回信",
+        "statementId": "stmt_ui_119"
+      }
+    }
+  ],
+  "timings": [
+    {
+      "name": "cold-import-1.6.0",
+      "elapsedMs": 1634.0999999996275,
+      "longTasks": [
+        {
+          "start": 119.5,
+          "duration": 864
+        },
+        {
+          "start": 994.1999999992549,
+          "duration": 530
+        }
+      ]
+    },
+    {
+      "name": "switch-scene:灯下的回信",
+      "elapsedMs": 380.5,
+      "longTasks": [
+        {
+          "start": 1811.5,
+          "duration": 55
+        },
+        {
+          "start": 1998.699999999255,
+          "duration": 78
+        }
+      ]
+    },
+    {
+      "name": "switch-scene:车窗与海",
+      "elapsedMs": 297.5,
+      "longTasks": [
+        {
+          "start": 2297.5,
+          "duration": 79
+        }
+      ]
+    },
+    {
+      "name": "switch-scene:车站的雨",
+      "elapsedMs": 299.59999999962747,
+      "longTasks": [
+        {
+          "start": 2588.9000000003725,
+          "duration": 82
+        },
+        {
+          "start": 2676.4000000003725,
+          "duration": 55
+        }
+      ]
+    },
+    {
+      "name": "switch-scene:再一次见面",
+      "elapsedMs": 331.3999999985099,
+      "longTasks": [
+        {
+          "start": 2896.699999999255,
+          "duration": 100
+        },
+        {
+          "start": 2999,
+          "duration": 52
+        }
+      ]
+    },
+    {
+      "name": "switch-scene:雨后的天明",
+      "elapsedMs": 300.80000000074506,
+      "longTasks": [
+        {
+          "start": 3222.699999999255,
+          "duration": 79
+        },
+        {
+          "start": 3305.800000000745,
+          "duration": 55
+        }
+      ]
+    },
+    {
+      "name": "switch-scene:留下",
+      "elapsedMs": 282.30000000074506,
+      "longTasks": [
+        {
+          "start": 3522.199999999255,
+          "duration": 81
+        }
+      ]
+    },
+    {
+      "name": "switch-scene:站台前的约定",
+      "elapsedMs": 314.19999999925494,
+      "longTasks": [
+        {
+          "start": 3810.4000000003725,
+          "duration": 85
+        },
+        {
+          "start": 3897.4000000003725,
+          "duration": 62
+        }
+      ]
+    },
+    {
+      "name": "switch-scene:远行",
+      "elapsedMs": 281.90000000037253,
+      "longTasks": [
+        {
+          "start": 4122.4000000003725,
+          "duration": 81
+        }
+      ]
+    },
+    {
+      "name": "switch-scene:候车室的旧信",
+      "elapsedMs": 281.80000000074506,
+      "longTasks": [
+        {
+          "start": 4406.5,
+          "duration": 74
+        },
+        {
+          "start": 4484,
+          "duration": 56
+        }
+      ]
+    },
+    {
+      "name": "edit-narration",
+      "elapsedMs": 299.40000000037253,
+      "longTasks": []
+    }
+  ],
+  "errors": [],
+  "browser": "151.0.7922.34",
+  "physicalPhone": false,
+  "statisticalBenchmark": false
+}

@@ -1,0 +1,74 @@
+{
+  "passed": false,
+  "baseline": false,
+  "checks": [
+    {
+      "engine": "chromium",
+      "nativeClock": true,
+      "saved": true,
+      "notices": {
+        "toast": {
+          "x": 14,
+          "y": 68,
+          "width": 102,
+          "height": 25.59375
+        },
+        "boxes": {
+          ".player-reading-caption": {
+            "x": 14,
+            "y": 802,
+            "width": 180,
+            "height": 18
+          },
+          ".player-dialogue": {
+            "x": 14,
+            "y": 295.375,
+            "width": 362,
+            "height": 476.625
+          },
+          ".player-compact-toolbar": {
+            "x": 65.015625,
+            "y": 12,
+            "width": 310.984375,
+            "height": 44
+          }
+        }
+      }
+    },
+    {
+      "engine": "firefox",
+      "nativeClock": true,
+      "saved": true,
+      "notices": {
+        "toast": {
+          "x": 14,
+          "y": 68,
+          "width": 102,
+          "height": 25.599998474121094
+        },
+        "boxes": {
+          ".player-reading-caption": {
+            "x": 14,
+            "y": 802,
+            "width": 180,
+            "height": 18
+          },
+          ".player-dialogue": {
+            "x": 14,
+            "y": 295.3666687011719,
+            "width": 362,
+            "height": 476.6333312988281
+          },
+          ".player-compact-toolbar": {
+            "x": 65.01667022705078,
+            "y": 12,
+            "width": 310.9833297729492,
+            "height": 44
+          }
+        }
+      }
+    }
+  ],
+  "errors": [],
+  "error": "Error: Save failed: {\"operations\":[{\"source\":\"IDB.put\",\"error\":\"UnknownError: Error preparing Blob/File data to be stored in object store\"},{\"source\":\"IDB.put\",\"error\":\"UnknownError: Error preparing Blob/File data to be stored in object store\"},{\"source\":\"IDB.put\",\"error\":\"UnknownError: Error preparing Blob/File data to be stored in object store\"},{\"source\":\"IDB.put\",\"error\":\"UnknownError: Error preparing Blob/File data to be stored in object store\"}],\"blobs\":{\"memoryBlob\":\"UnknownError: Error preparing Blob/File data to be stored in object store\",\"canvasBlob\":\"UnknownError: Error preparing Blob/File data to be stored in object store\",\"copiedCanvasBlob\":\"UnknownError: Error preparing Blob/File data to be stored in object store\",\"bytes\":\"ok\"},\"foreground\":\"{\\\"active\\\":0,\\\"peakActive\\\":1,\\\"started\\\":2,\\\"completed\\\":2,\\\"cancelled\\\":0,\\\"fallback\\\":0,\\\"failed\\\":0}\"} 存读档\n保存进度\n返回故事 ×\n写入失败，原存档保持不变\n保存进度\n读取进度\n\n选择一个手动或快速槽位保存当前故事。已有存档需要确认覆盖。\n\n手动\n自动\n快速\n检查点\n备份\n快速存档\n空槽位\n在这里保存当前故事进度\n保存"
+}

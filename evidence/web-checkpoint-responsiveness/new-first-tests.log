@@ -1,0 +1,105 @@
+
+ RUN  v4.1.10 E:/Project/AIProject/ClaudeProject/WorLdGame
+
+ ❯ packages/runtime/src/history-presentation.test.ts (5 tests | 5 failed) 13ms
+   × matches every ordered step, checkpoint hash, effects and complete saved bytes 7ms
+   × checks each old checkpoint once and hashes every newly appended checkpoint 1ms
+   × revalidates old checkpoints on the next action and rejects invalid step bounds 1ms
+   × preserves partial internal steps at a budget or recorded-future boundary 1ms
+   × stops at an awaited effect and accepts its input only on the first following step 1ms
+ ❯ packages/player-core/src/deferred-checkpoint.test.ts (3 tests | 3 failed) 18ms
+   × defers exact checkpoint prefixes without including later internal checkpoints or displayed text 11ms
+   × also defers checkpoints encountered by automatic playback 2ms
+   × clears pending candidates on navigation/load and retains the host policy after restart 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 8 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/player-core/src/deferred-checkpoint.test.ts > defers exact checkpoint prefixes without including later internal checkpoints or displayed text
+ FAIL  packages/player-core/src/deferred-checkpoint.test.ts > also defers checkpoints encountered by automatic playback
+ FAIL  packages/player-core/src/deferred-checkpoint.test.ts > clears pending candidates on navigation/load and retains the host policy after restart
+ProjectDomainError: Duplicate stable ID: before
+ ❯ fail packages/project-domain/src/codec.ts:10:109
+
+ ❯ visit packages/project-domain/src/codec.ts:120:882
+ ❯ packages/project-domain/src/codec.ts:120:622
+ ❯ visit packages/project-domain/src/codec.ts:120:608
+ ❯ visit packages/project-domain/src/codec.ts:120:1137
+ ❯ validateEntityIds packages/project-domain/src/codec.ts:120:1160
+ ❯ loadProject packages/project-domain/src/codec.ts:115:3
+ ❯ migrateS0Project packages/project-domain/src/migration.ts:45:51
+ ❯ fixture packages/player-core/src/deferred-checkpoint.test.ts:7:28
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/8]⎯
+
+ FAIL  packages/runtime/src/history-presentation.test.ts > matches every ordered step, checkpoint hash, effects and complete saved bytes
+Error: fixture
+ ❯ fixture packages/runtime/src/history-presentation.test.ts:13:123
+     11|     { instructionId: 'after', opcode: 'narration', operands: { textId:…
+     12|   ] }] };
+     13|   const created = api.createRuntimeState(program, { buildId: 'build', …
+       |                                                                                                                           ^
+     14|   let history = api.createRuntimeHistorySessionV1(program, created.sta…
+     15|   for (let index = 0; index < count; index++) history = api.advanceRun…
+ ❯ packages/runtime/src/history-presentation.test.ts:30:32
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/8]⎯
+
+ FAIL  packages/runtime/src/history-presentation.test.ts > checks each old checkpoint once and hashes every newly appended checkpoint
+Error: fixture
+ ❯ fixture packages/runtime/src/history-presentation.test.ts:13:123
+     11|     { instructionId: 'after', opcode: 'narration', operands: { textId:…
+     12|   ] }] };
+     13|   const created = api.createRuntimeState(program, { buildId: 'build', …
+       |                                                                                                                           ^
+     14|   let history = api.createRuntimeHistorySessionV1(program, created.sta…
+     15|   for (let index = 0; index < count; index++) history = api.advanceRun…
+ ❯ packages/runtime/src/history-presentation.test.ts:37:32
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/8]⎯
+
+ FAIL  packages/runtime/src/history-presentation.test.ts > revalidates old checkpoints on the next action and rejects invalid step bounds
+Error: fixture
+ ❯ fixture packages/runtime/src/history-presentation.test.ts:13:123
+     11|     { instructionId: 'after', opcode: 'narration', operands: { textId:…
+     12|   ] }] };
+     13|   const created = api.createRuntimeState(program, { buildId: 'build', …
+       |                                                                                                                           ^
+     14|   let history = api.createRuntimeHistorySessionV1(program, created.sta…
+     15|   for (let index = 0; index < count; index++) history = api.advanceRun…
+ ❯ packages/runtime/src/history-presentation.test.ts:42:32
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/8]⎯
+
+ FAIL  packages/runtime/src/history-presentation.test.ts > preserves partial internal steps at a budget or recorded-future boundary
+Error: fixture
+ ❯ fixture packages/runtime/src/history-presentation.test.ts:13:123
+     11|     { instructionId: 'after', opcode: 'narration', operands: { textId:…
+     12|   ] }] };
+     13|   const created = api.createRuntimeState(program, { buildId: 'build', …
+       |                                                                                                                           ^
+     14|   let history = api.createRuntimeHistorySessionV1(program, created.sta…
+     15|   for (let index = 0; index < count; index++) history = api.advanceRun…
+ ❯ packages/runtime/src/history-presentation.test.ts:49:32
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/8]⎯
+
+ FAIL  packages/runtime/src/history-presentation.test.ts > stops at an awaited effect and accepts its input only on the first following step
+Error: fixture
+ ❯ fixture packages/runtime/src/history-presentation.test.ts:13:123
+     11|     { instructionId: 'after', opcode: 'narration', operands: { textId:…
+     12|   ] }] };
+     13|   const created = api.createRuntimeState(program, { buildId: 'build', …
+       |                                                                                                                           ^
+     14|   let history = api.createRuntimeHistorySessionV1(program, created.sta…
+     15|   for (let index = 0; index < count; index++) history = api.advanceRun…
+ ❯ packages/runtime/src/history-presentation.test.ts:56:29
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/8]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  8 failed (8)
+   Start at  12:52:32
+   Duration  8.07s (transform 1.51s, setup 1.07s, import 3.08s, tests 31ms, environment 3.00s)
+
+JSON report written to E:/Project/AIProject/ClaudeProject/WorLdGame/evidence/web-checkpoint-responsiveness/new-first-tests.json

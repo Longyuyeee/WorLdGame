@@ -1,0 +1,16 @@
+{
+  "passed": true,
+  "baseline": true,
+  "browser": "151.0.7922.34",
+  "build": {
+    "/assets/index-RGbFkHMW.js": "b4e787932f7760da23b29fd75e4cdca7aefdedfa393c2f8bda80719325f0f95b",
+    "/assets/index-DNbmjF5j.css": "67271527adceeeb5cdc822f62bb23802fa266c60b28c48c2be0620e5fae1832d"
+  },
+  "checks": [
+    {
+      "name": "actual-source-review-has-no-current-audio-or-image-preview",
+      "selected": "林远·合成语音04"
+    }
+  ],
+  "errors": []
+}

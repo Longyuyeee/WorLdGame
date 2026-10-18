@@ -1,0 +1,24 @@
+{
+  "passed": true,
+  "nodeVersion": "v22.12.0",
+  "platform": "win32",
+  "records": [
+    {
+      "mode": "fetch-forbidden-5061",
+      "port": 5061,
+      "status": null,
+      "error": "TypeError: fetch failed",
+      "cause": "Error: bad port",
+      "hits": 0
+    },
+    {
+      "mode": "existing-safe-loopback-helper",
+      "port": 40718,
+      "status": 302,
+      "error": null,
+      "cause": null,
+      "hits": 1
+    }
+  ],
+  "scope": "Controlled local reproduction of a fetch-forbidden ephemeral-port failure, followed by the existing safe helper. The first failed TAP did not retain its chosen port, so this does not identify that original port or prove every NETWORK_ERROR has this cause."
+}

@@ -1,0 +1,413 @@
+{
+  "totals": {
+    "cssAnimations": 0,
+    "detachedDialogueButtons": 1,
+    "detachedDialogueTextNodes": 1,
+    "detachedIndicators": 1
+  },
+  "nativeCounts": [
+    [
+      "InternalNode detached=0",
+      1430
+    ],
+    [
+      "system / ExternalStringData detached=0",
+      528
+    ],
+    [
+      "EventListener detached=0",
+      169
+    ],
+    [
+      "V8EventListener detached=0",
+      155
+    ],
+    [
+      "TaskAttributionTiming detached=0",
+      55
+    ],
+    [
+      "PerformanceLongTaskTiming detached=0",
+      55
+    ],
+    [
+      "Text detached=0",
+      40
+    ],
+    [
+      "V8EventHandlerNonNull detached=0",
+      14
+    ],
+    [
+      "ShadowRoot detached=0",
+      9
+    ],
+    [
+      "Text detached=1",
+      8
+    ],
+    [
+      "<span pseudo=\"-internal-option-label-container\" aria-hidden=\"true\"> detached=0",
+      7
+    ],
+    [
+      "<slot pseudo=\"-internal-option-slot\"> detached=0",
+      7
+    ],
+    [
+      "CSSStyleDeclaration detached=0",
+      5
+    ],
+    [
+      "<span aria-hidden=\"true\"> detached=1",
+      5
+    ],
+    [
+      "Text detached=2",
+      5
+    ],
+    [
+      "<span> detached=1",
+      5
+    ],
+    [
+      "DOMStringMap detached=0",
+      3
+    ],
+    [
+      "HTMLOptionsCollection detached=0",
+      2
+    ],
+    [
+      "MessagePort detached=0",
+      2
+    ],
+    [
+      "<label> detached=1",
+      2
+    ],
+    [
+      "IDBDatabase detached=0",
+      2
+    ],
+    [
+      "IDBOpenDBRequest detached=0",
+      2
+    ],
+    [
+      "DOMTokenList detached=0",
+      2
+    ],
+    [
+      "CSSStyleSheet detached=0",
+      2
+    ],
+    [
+      "<div pseudo=\"-internal-select-autofill-preview-text\"> detached=0",
+      2
+    ],
+    [
+      "<div pseudo=\"-internal-select-autofill-preview\" popover=\"manual\"> detached=0",
+      2
+    ],
+    [
+      "<div pseudo=\"picker(select)\" popover=\"auto\"> detached=0",
+      2
+    ],
+    [
+      "<slot id=\"select-popover-options\"> detached=0",
+      2
+    ],
+    [
+      "<slot pseudo=\"-internal-select-button-slot\"> detached=0",
+      2
+    ],
+    [
+      "<div aria-hidden=\"true\" pseudo=\"-internal-select-inner-element\"> detached=0",
+      2
+    ],
+    [
+      "PerformancePaintTiming detached=0",
+      2
+    ],
+    [
+      "VisibilityStateEntry detached=0",
+      2
+    ],
+    [
+      "Navigator detached=0",
+      1
+    ],
+    [
+      "<button type=\"button\" aria-label=\"自动播放\" aria-pressed=\"false\" disabled=\"\"> detached=1",
+      1
+    ],
+    [
+      "<button type=\"button\" aria-label=\"快进已读\" aria-pressed=\"false\" disabled=\"\"> detached=1",
+      1
+    ],
+    [
+      "<button type=\"button\" aria-label=\"快进全部\" aria-pressed=\"false\" disabled=\"\"> detached=1",
+      1
+    ],
+    [
+      "<option value=\"toggle\"> detached=1",
+      1
+    ],
+    [
+      "<option value=\"hold\"> detached=1",
+      1
+    ],
+    [
+      "<select aria-label=\"快进激活方式\"> detached=1",
+      1
+    ],
+    [
+      "<option value=\"5\"> detached=1",
+      1
+    ],
+    [
+      "<option value=\"10\"> detached=1",
+      1
+    ],
+    [
+      "<option value=\"20\"> detached=1",
+      1
+    ],
+    [
+      "<option value=\"40\"> detached=1",
+      1
+    ],
+    [
+      "<option value=\"instant\"> detached=1",
+      1
+    ],
+    [
+      "<select aria-label=\"快进速度\"> detached=1",
+      1
+    ],
+    [
+      "<span aria-live=\"polite\"> detached=1",
+      1
+    ],
+    [
+      "<div class=\"player-playback-controls\" aria-label=\"播放控制\"> detached=1",
+      1
+    ],
+    [
+      "<button type=\"button\" disabled=\"\"> detached=1",
+      1
+    ],
+    [
+      "<button type=\"button\"> detached=1",
+      1
+    ],
+    [
+      "<div class=\"player-save__quick-controls\" aria-label=\"快速存读档\"> detached=1",
+      1
+    ]
+  ],
+  "paths": [
+    [
+      {
+        "node": "54641:synthetic:C++ Persistent roots",
+        "edge": 3,
+        "edgeType": "element"
+      },
+      {
+        "node": "54483:native:InternalNode",
+        "edge": "blink::CSSImageGeneratorValue::CSSImageGeneratorValue(ClassType)@..\\..\\third_party\\blink\\renderer\\core\\css\\css_image_generator_value.cc:75",
+        "edgeType": "internal"
+      },
+      {
+        "node": "54484:native:InternalNode",
+        "edge": 1,
+        "edgeType": "element"
+      },
+      {
+        "node": "53023:native:InternalNode",
+        "edge": 1,
+        "edgeType": "element"
+      },
+      {
+        "node": "53026:native:InternalNode",
+        "edge": 7,
+        "edgeType": "element"
+      },
+      {
+        "node": "54153:native:InternalNode",
+        "edge": 3,
+        "edgeType": "element"
+      },
+      {
+        "node": "54154:native:InternalNode",
+        "edge": 1,
+        "edgeType": "element"
+      },
+      {
+        "node": "54150:native:InternalNode",
+        "edge": 1,
+        "edgeType": "element"
+      },
+      {
+        "node": "53563:native:InternalNode",
+        "edge": 4,
+        "edgeType": "element"
+      },
+      {
+        "node": "53565:native:InternalNode",
+        "edge": 2,
+        "edgeType": "element"
+      },
+      {
+        "node": "54413:native:InternalNode",
+        "edge": 1,
+        "edgeType": "element"
+      },
+      {
+        "node": "12800:native:<span class=\"player-brand__effect\">",
+        "edge": 3,
+        "edgeType": "element"
+      }
+    ],
+    [
+      {
+        "node": "54641:synthetic:C++ Persistent roots",
+        "edge": 3,
+        "edgeType": "element"
+      },
+      {
+        "node": "54483:native:InternalNode",
+        "edge": "blink::CSSImageGeneratorValue::CSSImageGeneratorValue(ClassType)@..\\..\\third_party\\blink\\renderer\\core\\css\\css_image_generator_value.cc:75",
+        "edgeType": "internal"
+      },
+      {
+        "node": "54484:native:InternalNode",
+        "edge": 1,
+        "edgeType": "element"
+      },
+      {
+        "node": "53023:native:InternalNode",
+        "edge": 1,
+        "edgeType": "element"
+      },
+      {
+        "node": "53026:native:InternalNode",
+        "edge": 7,
+        "edgeType": "element"
+      },
+      {
+        "node": "54153:native:InternalNode",
+        "edge": 3,
+        "edgeType": "element"
+      },
+      {
+        "node": "54154:native:InternalNode",
+        "edge": 1,
+        "edgeType": "element"
+      },
+      {
+        "node": "54150:native:InternalNode",
+        "edge": 1,
+        "edgeType": "element"
+      },
+      {
+        "node": "53563:native:InternalNode",
+        "edge": 4,
+        "edgeType": "element"
+      },
+      {
+        "node": "53565:native:InternalNode",
+        "edge": 2,
+        "edgeType": "element"
+      },
+      {
+        "node": "54413:native:InternalNode",
+        "edge": 1,
+        "edgeType": "element"
+      },
+      {
+        "node": "12800:native:<span class=\"player-brand__effect\">",
+        "edge": 3,
+        "edgeType": "element"
+      },
+      {
+        "node": "12808:native:Text",
+        "edge": 5,
+        "edgeType": "element"
+      }
+    ],
+    [
+      {
+        "node": "54641:synthetic:C++ Persistent roots",
+        "edge": 3,
+        "edgeType": "element"
+      },
+      {
+        "node": "54483:native:InternalNode",
+        "edge": "blink::CSSImageGeneratorValue::CSSImageGeneratorValue(ClassType)@..\\..\\third_party\\blink\\renderer\\core\\css\\css_image_generator_value.cc:75",
+        "edgeType": "internal"
+      },
+      {
+        "node": "54484:native:InternalNode",
+        "edge": 1,
+        "edgeType": "element"
+      },
+      {
+        "node": "53023:native:InternalNode",
+        "edge": 1,
+        "edgeType": "element"
+      },
+      {
+        "node": "53026:native:InternalNode",
+        "edge": 7,
+        "edgeType": "element"
+      },
+      {
+        "node": "54153:native:InternalNode",
+        "edge": 3,
+        "edgeType": "element"
+      },
+      {
+        "node": "54154:native:InternalNode",
+        "edge": 1,
+        "edgeType": "element"
+      },
+      {
+        "node": "54150:native:InternalNode",
+        "edge": 1,
+        "edgeType": "element"
+      },
+      {
+        "node": "53563:native:InternalNode",
+        "edge": 4,
+        "edgeType": "element"
+      },
+      {
+        "node": "53565:native:InternalNode",
+        "edge": 2,
+        "edgeType": "element"
+      },
+      {
+        "node": "54413:native:InternalNode",
+        "edge": 1,
+        "edgeType": "element"
+      },
+      {
+        "node": "12800:native:<span class=\"player-brand__effect\">",
+        "edge": 3,
+        "edgeType": "element"
+      },
+      {
+        "node": "12808:native:Text",
+        "edge": 5,
+        "edgeType": "element"
+      },
+      {
+        "node": "12811:native:Text",
+        "edge": 7,
+        "edgeType": "element"
+      }
+    ]
+  ]
+}

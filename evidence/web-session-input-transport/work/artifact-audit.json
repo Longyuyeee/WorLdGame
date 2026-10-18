@@ -1,0 +1,18 @@
+{
+  "passed": true,
+  "unchangedPayloadAndAll26Media": true,
+  "sameContentVersion": "1.10.0",
+  "unchangedNotesPending": 23,
+  "sourceAndNotes": "evidence/web-story-arrival-and-night",
+  "websiteFiles": 37,
+  "artifacts": {
+    "html": {
+      "bytes": 46752597,
+      "sha256": "172302c18705ed3dd162c11a7295acb2c06ef12200c9b67480efe6bc5216bae9"
+    },
+    "website": {
+      "bytes": 35339046,
+      "sha256": "a2f413d9797572fcfedea8cc12ff604353f630b8749e0bf441b8648740a324a9"
+    }
+  }
+}

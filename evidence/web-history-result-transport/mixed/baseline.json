@@ -1,0 +1,1940 @@
+{
+  "passed": true,
+  "baselineCommit": "9951317bbae8e7f1f2d58d227ad4815ab3e6f9d9",
+  "label": "baseline",
+  "bundleHash": "24741dbc4001bcdacefe6d3b87bcd13607a2da2913bfbaa39b80d17ee75f276b",
+  "cssHash": "25a3edbfb4b4962557fe47f56d84441169ed97bb0a2314d01e873e5a28e1b98f",
+  "fixtureSourceHash": "872050d975375dac14b0c5c3cb999747c6f8a4385067558da2280e225019c817",
+  "frozenSourcesHash": "550e83abe1a7a29288e356ccaf007e381b834a66887fe50bc6a51c7ec24a0273",
+  "head": "9951317bbae8e7f1f2d58d227ad4815ab3e6f9d9",
+  "browser": "151.0.7922.34",
+  "medians": [
+    {
+      "count": 120,
+      "name": "quick-save",
+      "wallMs": 96.80000000074506
+    },
+    {
+      "count": 120,
+      "name": "advance",
+      "wallMs": 68.90000000223517
+    },
+    {
+      "count": 120,
+      "name": "quick-load",
+      "wallMs": 179.39999999850988
+    },
+    {
+      "count": 480,
+      "name": "quick-save",
+      "wallMs": 258.30000000074506
+    },
+    {
+      "count": 480,
+      "name": "advance",
+      "wallMs": 129.70000000298023
+    },
+    {
+      "count": 480,
+      "name": "quick-load",
+      "wallMs": 328.1000000014901
+    },
+    {
+      "count": 960,
+      "name": "quick-save",
+      "wallMs": 544.6999999992549
+    },
+    {
+      "count": 960,
+      "name": "advance",
+      "wallMs": 251.89999999850988
+    },
+    {
+      "count": 960,
+      "name": "quick-load",
+      "wallMs": 684.8000000007451
+    }
+  ],
+  "rows": [
+    {
+      "count": 120,
+      "round": 0,
+      "before": {
+        "hash": "d49398e47d5f63b61b103a5ec60bafa1898b0deea50191763c2659266cdba919",
+        "cursor": 120,
+        "length": 120,
+        "text": "长篇第 114 句：保存与恢复不能丢失历史。"
+      },
+      "advanced": {
+        "hash": "0c473de8a0347ea40c7866e0ea80d9cebd0f20363c67260f0e67bf36c156e8d0",
+        "cursor": 121,
+        "length": 121,
+        "text": "长篇第 115 句：保存与恢复不能丢失历史。"
+      },
+      "loaded": {
+        "hash": "529a3985ebcad44b77b4b5c1501ebccc1e0699cdfd2cccd0294239f9e7eb2766",
+        "cursor": 120,
+        "length": 120,
+        "text": "长篇第 114 句：保存与恢复不能丢失历史。"
+      },
+      "slot": {
+        "bytes": 291927,
+        "sha256": "ee691dcd4676b6c63f92c70d89d45df04d60701477e2a15f6d099a089991b872",
+        "sessionArtifactHash": "987d013edd32341def0833e37b4723d47466302891e899b99b5fdcf33ea1418b",
+        "runtimeStateHash": "d49398e47d5f63b61b103a5ec60bafa1898b0deea50191763c2659266cdba919"
+      }
+    },
+    {
+      "count": 120,
+      "round": 1,
+      "before": {
+        "hash": "529a3985ebcad44b77b4b5c1501ebccc1e0699cdfd2cccd0294239f9e7eb2766",
+        "cursor": 120,
+        "length": 120,
+        "text": "长篇第 114 句：保存与恢复不能丢失历史。"
+      },
+      "advanced": {
+        "hash": "0c473de8a0347ea40c7866e0ea80d9cebd0f20363c67260f0e67bf36c156e8d0",
+        "cursor": 121,
+        "length": 121,
+        "text": "长篇第 115 句：保存与恢复不能丢失历史。"
+      },
+      "loaded": {
+        "hash": "529a3985ebcad44b77b4b5c1501ebccc1e0699cdfd2cccd0294239f9e7eb2766",
+        "cursor": 120,
+        "length": 120,
+        "text": "长篇第 114 句：保存与恢复不能丢失历史。"
+      },
+      "slot": {
+        "bytes": 291938,
+        "sha256": "042a24bf2c6b2d01cbd5fb72af14eb3ab52e3ef32726733db04940ef12f9e4ff",
+        "sessionArtifactHash": "91f3e91d4491dd1883d1b3e6e6dcff6c86254e4e28265146d95b15ef177315b3",
+        "runtimeStateHash": "529a3985ebcad44b77b4b5c1501ebccc1e0699cdfd2cccd0294239f9e7eb2766"
+      }
+    },
+    {
+      "count": 120,
+      "round": 2,
+      "before": {
+        "hash": "529a3985ebcad44b77b4b5c1501ebccc1e0699cdfd2cccd0294239f9e7eb2766",
+        "cursor": 120,
+        "length": 120,
+        "text": "长篇第 114 句：保存与恢复不能丢失历史。"
+      },
+      "advanced": {
+        "hash": "0c473de8a0347ea40c7866e0ea80d9cebd0f20363c67260f0e67bf36c156e8d0",
+        "cursor": 121,
+        "length": 121,
+        "text": "长篇第 115 句：保存与恢复不能丢失历史。"
+      },
+      "loaded": {
+        "hash": "529a3985ebcad44b77b4b5c1501ebccc1e0699cdfd2cccd0294239f9e7eb2766",
+        "cursor": 120,
+        "length": 120,
+        "text": "长篇第 114 句：保存与恢复不能丢失历史。"
+      },
+      "slot": {
+        "bytes": 291938,
+        "sha256": "042a24bf2c6b2d01cbd5fb72af14eb3ab52e3ef32726733db04940ef12f9e4ff",
+        "sessionArtifactHash": "91f3e91d4491dd1883d1b3e6e6dcff6c86254e4e28265146d95b15ef177315b3",
+        "runtimeStateHash": "529a3985ebcad44b77b4b5c1501ebccc1e0699cdfd2cccd0294239f9e7eb2766"
+      }
+    },
+    {
+      "count": 480,
+      "round": 0,
+      "before": {
+        "hash": "d6afc7347bcb21e54f9a09db9227d28140862dfff6fb0e0bfb1c37fc20a8ebd1",
+        "cursor": 480,
+        "length": 480,
+        "text": "长篇第 469 句：保存与恢复不能丢失历史。"
+      },
+      "advanced": {
+        "hash": "812b21234b7aafa7810425030f49a9c757431b2e4f69fba93d4a986bad79fb09",
+        "cursor": 481,
+        "length": 481,
+        "text": "长篇第 470 句：保存与恢复不能丢失历史。"
+      },
+      "loaded": {
+        "hash": "0bfdd1c2abcced37322c2f34b9412d310658428d445169e5e4354110b5426b7f",
+        "cursor": 480,
+        "length": 480,
+        "text": "长篇第 469 句：保存与恢复不能丢失历史。"
+      },
+      "slot": {
+        "bytes": 2082168,
+        "sha256": "7d23c4c19b19aa72992c39312b1c236652eae235babe8ca6a264d56320a547b3",
+        "sessionArtifactHash": "ea4d26f541867ba1679a415f9002c52b5a6086bb976dd5f8dbf385a25d251f72",
+        "runtimeStateHash": "d6afc7347bcb21e54f9a09db9227d28140862dfff6fb0e0bfb1c37fc20a8ebd1"
+      }
+    },
+    {
+      "count": 480,
+      "round": 1,
+      "before": {
+        "hash": "0bfdd1c2abcced37322c2f34b9412d310658428d445169e5e4354110b5426b7f",
+        "cursor": 480,
+        "length": 480,
+        "text": "长篇第 469 句：保存与恢复不能丢失历史。"
+      },
+      "advanced": {
+        "hash": "812b21234b7aafa7810425030f49a9c757431b2e4f69fba93d4a986bad79fb09",
+        "cursor": 481,
+        "length": 481,
+        "text": "长篇第 470 句：保存与恢复不能丢失历史。"
+      },
+      "loaded": {
+        "hash": "0bfdd1c2abcced37322c2f34b9412d310658428d445169e5e4354110b5426b7f",
+        "cursor": 480,
+        "length": 480,
+        "text": "长篇第 469 句：保存与恢复不能丢失历史。"
+      },
+      "slot": {
+        "bytes": 2082179,
+        "sha256": "929e41841f25386c6d22272ae14ade2339155483dafb92dda8ecbc9297e8df11",
+        "sessionArtifactHash": "804ba2c007bd6fa5ea5edc9e79d5af42d6f2ae7026e83a6f95b35dc3df6dd5c6",
+        "runtimeStateHash": "0bfdd1c2abcced37322c2f34b9412d310658428d445169e5e4354110b5426b7f"
+      }
+    },
+    {
+      "count": 480,
+      "round": 2,
+      "before": {
+        "hash": "0bfdd1c2abcced37322c2f34b9412d310658428d445169e5e4354110b5426b7f",
+        "cursor": 480,
+        "length": 480,
+        "text": "长篇第 469 句：保存与恢复不能丢失历史。"
+      },
+      "advanced": {
+        "hash": "812b21234b7aafa7810425030f49a9c757431b2e4f69fba93d4a986bad79fb09",
+        "cursor": 481,
+        "length": 481,
+        "text": "长篇第 470 句：保存与恢复不能丢失历史。"
+      },
+      "loaded": {
+        "hash": "0bfdd1c2abcced37322c2f34b9412d310658428d445169e5e4354110b5426b7f",
+        "cursor": 480,
+        "length": 480,
+        "text": "长篇第 469 句：保存与恢复不能丢失历史。"
+      },
+      "slot": {
+        "bytes": 2082179,
+        "sha256": "929e41841f25386c6d22272ae14ade2339155483dafb92dda8ecbc9297e8df11",
+        "sessionArtifactHash": "804ba2c007bd6fa5ea5edc9e79d5af42d6f2ae7026e83a6f95b35dc3df6dd5c6",
+        "runtimeStateHash": "0bfdd1c2abcced37322c2f34b9412d310658428d445169e5e4354110b5426b7f"
+      }
+    },
+    {
+      "count": 960,
+      "round": 0,
+      "before": {
+        "hash": "696adbb094416b35db5ffcb995ff2497fdb6936b9f1d6676f952973e21254b2e",
+        "cursor": 960,
+        "length": 960,
+        "text": "长篇第 939 句：保存与恢复不能丢失历史。"
+      },
+      "advanced": {
+        "hash": "474f14d90db16c7a6dc34f96a4a752ca3defaa50fa248f35ab0694bcd04f0c63",
+        "cursor": 961,
+        "length": 961,
+        "text": "长篇第 940 句：保存与恢复不能丢失历史。"
+      },
+      "loaded": {
+        "hash": "4d4613a5123a5afe069f1f49daf7a6d3756ad7a127372fe193b5eead9d5f4e45",
+        "cursor": 960,
+        "length": 960,
+        "text": "长篇第 939 句：保存与恢复不能丢失历史。"
+      },
+      "slot": {
+        "bytes": 6641612,
+        "sha256": "af2eb3760df5613a08f320455794b0ef5425a8186ba71619b51e1885ab1b708b",
+        "sessionArtifactHash": "78953c1106dbd0e9b8f815c535ad415c88a8ce9af4724c512aced1aff8406c40",
+        "runtimeStateHash": "696adbb094416b35db5ffcb995ff2497fdb6936b9f1d6676f952973e21254b2e"
+      }
+    },
+    {
+      "count": 960,
+      "round": 1,
+      "before": {
+        "hash": "4d4613a5123a5afe069f1f49daf7a6d3756ad7a127372fe193b5eead9d5f4e45",
+        "cursor": 960,
+        "length": 960,
+        "text": "长篇第 939 句：保存与恢复不能丢失历史。"
+      },
+      "advanced": {
+        "hash": "474f14d90db16c7a6dc34f96a4a752ca3defaa50fa248f35ab0694bcd04f0c63",
+        "cursor": 961,
+        "length": 961,
+        "text": "长篇第 940 句：保存与恢复不能丢失历史。"
+      },
+      "loaded": {
+        "hash": "4d4613a5123a5afe069f1f49daf7a6d3756ad7a127372fe193b5eead9d5f4e45",
+        "cursor": 960,
+        "length": 960,
+        "text": "长篇第 939 句：保存与恢复不能丢失历史。"
+      },
+      "slot": {
+        "bytes": 6641623,
+        "sha256": "e133e052ce79de05c6b29bc2e67abd853c248b4445f43491380b30da67213c18",
+        "sessionArtifactHash": "167d15a66d92f6e6d4fd2bb73db18aa4ef3ce7d877f7a5b54e97dd1b196d0635",
+        "runtimeStateHash": "4d4613a5123a5afe069f1f49daf7a6d3756ad7a127372fe193b5eead9d5f4e45"
+      }
+    },
+    {
+      "count": 960,
+      "round": 2,
+      "before": {
+        "hash": "4d4613a5123a5afe069f1f49daf7a6d3756ad7a127372fe193b5eead9d5f4e45",
+        "cursor": 960,
+        "length": 960,
+        "text": "长篇第 939 句：保存与恢复不能丢失历史。"
+      },
+      "advanced": {
+        "hash": "474f14d90db16c7a6dc34f96a4a752ca3defaa50fa248f35ab0694bcd04f0c63",
+        "cursor": 961,
+        "length": 961,
+        "text": "长篇第 940 句：保存与恢复不能丢失历史。"
+      },
+      "loaded": {
+        "hash": "4d4613a5123a5afe069f1f49daf7a6d3756ad7a127372fe193b5eead9d5f4e45",
+        "cursor": 960,
+        "length": 960,
+        "text": "长篇第 939 句：保存与恢复不能丢失历史。"
+      },
+      "slot": {
+        "bytes": 6641623,
+        "sha256": "e133e052ce79de05c6b29bc2e67abd853c248b4445f43491380b30da67213c18",
+        "sessionArtifactHash": "167d15a66d92f6e6d4fd2bb73db18aa4ef3ce7d877f7a5b54e97dd1b196d0635",
+        "runtimeStateHash": "4d4613a5123a5afe069f1f49daf7a6d3756ad7a127372fe193b5eead9d5f4e45"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "count": 120,
+      "round": 0,
+      "name": "quick-save",
+      "start": 5030.39999999851,
+      "end": 5133.89999999851,
+      "wallMs": 103.5,
+      "longTasks": [],
+      "maximumHeartbeatGapMs": 32.30000000074506,
+      "posts": [
+        {
+          "worker": 2,
+          "id": 2,
+          "kind": "save",
+          "start": 5068.599999997765,
+          "synchronousMs": 0.6000000014901161,
+          "previousSynchronousMs": 0.30000000074505806,
+          "arrived": 5092.5,
+          "replyEncoding": "plain",
+          "packedCheckpoints": 0
+        }
+      ],
+      "frames": []
+    },
+    {
+      "count": 120,
+      "round": 0,
+      "name": "advance",
+      "start": 5214.29999999702,
+      "end": 5283.199999999255,
+      "wallMs": 68.90000000223517,
+      "cpu": [
+        {
+          "location": "(idle) ",
+          "sampledMs": 51.24099999999999
+        },
+        {
+          "location": "(program) ",
+          "sampledMs": 47.645
+        },
+        {
+          "location": "../packages/runtime/src/canonical.ts:59 jr",
+          "sampledMs": 2.5629999999999997
+        },
+        {
+          "location": "../packages/runtime/src/sha256.ts:10 zr",
+          "sampledMs": 2.12
+        },
+        {
+          "location": "isElementHiddenForAria ",
+          "sampledMs": 1.52
+        },
+        {
+          "location": "transaction ",
+          "sampledMs": 1.117
+        },
+        {
+          "location": "removeEventListener ",
+          "sampledMs": 1.082
+        },
+        {
+          "location": "../node_modules/react-dom/cjs/react-dom-client.production.js:9843 ml",
+          "sampledMs": 1.055
+        },
+        {
+          "location": " ",
+          "sampledMs": 1.043
+        },
+        {
+          "location": "../apps/player-shell/src/player-recovery-store.ts:127 write",
+          "sampledMs": 1.036
+        },
+        {
+          "location": "../node_modules/react-dom/cjs/react-dom-client.production.js:4557 Ao",
+          "sampledMs": 0.986
+        },
+        {
+          "location": "../node_modules/react-dom/cjs/react-dom-client.production.js:4333 ho",
+          "sampledMs": 0.089
+        }
+      ],
+      "longTasks": [],
+      "maximumHeartbeatGapMs": 51.099999997764826,
+      "posts": [
+        {
+          "worker": 1,
+          "id": 116,
+          "kind": "recovery",
+          "start": 5244.099999997765,
+          "synchronousMs": 0.5,
+          "previousSynchronousMs": 0.5,
+          "arrived": 5257.699999999255,
+          "replyEncoding": "plain",
+          "packedCheckpoints": 0
+        }
+      ],
+      "frames": [
+        {
+          "hash": "0c473de8a0347ea40c7866e0ea80d9cebd0f20363c67260f0e67bf36c156e8d0",
+          "changed": 5244.099999997765,
+          "frame": 5249.29999999702
+        }
+      ],
+      "recoveryThroughDurable": {
+        "elapsedMs": 78.30000000074506,
+        "posts": [
+          {
+            "worker": 1,
+            "id": 116,
+            "kind": "recovery",
+            "start": 5244.099999997765,
+            "synchronousMs": 0.5,
+            "previousSynchronousMs": 0.5,
+            "arrived": 5257.699999999255,
+            "replyEncoding": "plain",
+            "packedCheckpoints": 0
+          }
+        ],
+        "frames": [
+          {
+            "hash": "0c473de8a0347ea40c7866e0ea80d9cebd0f20363c67260f0e67bf36c156e8d0",
+            "changed": 5244.099999997765,
+            "frame": 5249.29999999702
+          }
+        ]
+      }
+    },
+    {
+      "count": 120,
+      "round": 0,
+      "name": "quick-load",
+      "start": 5340,
+      "end": 5536.199999999255,
+      "wallMs": 196.19999999925494,
+      "longTasks": [],
+      "maximumHeartbeatGapMs": 27,
+      "posts": [
+        {
+          "worker": 2,
+          "id": 3,
+          "kind": "load",
+          "start": 5468.89999999851,
+          "synchronousMs": 0.5,
+          "previousSynchronousMs": 0.6000000014901161,
+          "arrived": 5498.29999999702,
+          "replyEncoding": "plain",
+          "packedCheckpoints": 0
+        },
+        {
+          "worker": 1,
+          "id": 117,
+          "kind": "recovery",
+          "start": 5502.5,
+          "synchronousMs": 0.7999999970197678,
+          "previousSynchronousMs": 0.5,
+          "arrived": 5518.89999999851,
+          "replyEncoding": "plain",
+          "packedCheckpoints": 0
+        }
+      ],
+      "frames": [
+        {
+          "hash": "529a3985ebcad44b77b4b5c1501ebccc1e0699cdfd2cccd0294239f9e7eb2766",
+          "changed": 5502.5,
+          "frame": 5508
+        }
+      ]
+    },
+    {
+      "count": 120,
+      "round": 1,
+      "name": "quick-save",
+      "start": 5588.29999999702,
+      "end": 5683.39999999851,
+      "wallMs": 95.10000000149012,
+      "longTasks": [],
+      "maximumHeartbeatGapMs": 28.600000001490116,
+      "posts": [
+        {
+          "worker": 2,
+          "id": 4,
+          "kind": "save",
+          "start": 5632,
+          "synchronousMs": 0.7999999970197678,
+          "previousSynchronousMs": 0.5,
+          "arrived": 5650.199999999255,
+          "replyEncoding": "plain",
+          "packedCheckpoints": 0
+        }
+      ],
+      "frames": []
+    },
+    {
+      "count": 120,
+      "round": 1,
+      "name": "advance",
+      "start": 5740.099999997765,
+      "end": 5800.29999999702,
+      "wallMs": 60.19999999925494,
+      "cpu": [
+        {
+          "location": "(idle) ",
+          "sampledMs": 40.78999999999999
+        },
+        {
+          "location": "(program) ",
+          "sampledMs": 23.322000000000003
+        },
+        {
+          "location": "../packages/runtime/src/canonical.ts:59 jr",
+          "sampledMs": 3.205
+        },
+        {
+          "location": " ",
+          "sampledMs": 2.224
+        },
+        {
+          "location": "../packages/runtime/src/sha256.ts:10 zr",
+          "sampledMs": 1.786
+        },
+        {
+          "location": "getGamepads ",
+          "sampledMs": 1.314
+        },
+        {
+          "location": "removeEventListener ",
+          "sampledMs": 1.083
+        },
+        {
+          "location": "postMessage ",
+          "sampledMs": 1.077
+        },
+        {
+          "location": "../apps/player-shell/src/use-player-skin-fonts.ts:7 Gf",
+          "sampledMs": 1.055
+        },
+        {
+          "location": "decode ",
+          "sampledMs": 1.043
+        },
+        {
+          "location": "elementsFromPoint ",
+          "sampledMs": 1.042
+        },
+        {
+          "location": "encode ",
+          "sampledMs": 1.037
+        },
+        {
+          "location": "../packages/runtime/src/history.ts:176 wa",
+          "sampledMs": 0.989
+        },
+        {
+          "location": "../packages/runtime/src/history.ts:102 _a",
+          "sampledMs": 0.378
+        },
+        {
+          "location": "../packages/runtime/src/runtime.ts:46 ",
+          "sampledMs": 0.103
+        },
+        {
+          "location": "../packages/runtime/src/runtime.ts:117 Ei",
+          "sampledMs": 0.047
+        },
+        {
+          "location": "../packages/runtime/src/history.ts:279 ",
+          "sampledMs": 0.047
+        },
+        {
+          "location": "../packages/runtime/src/runtime.ts:45 vi",
+          "sampledMs": 0.033
+        },
+        {
+          "location": "../packages/runtime/src/runtime.ts:60 xi",
+          "sampledMs": 0.016
+        }
+      ],
+      "longTasks": [],
+      "maximumHeartbeatGapMs": 29.800000000745058,
+      "posts": [
+        {
+          "worker": 1,
+          "id": 118,
+          "kind": "recovery",
+          "start": 5775.699999999255,
+          "synchronousMs": 0.8999999985098839,
+          "previousSynchronousMs": 0.7999999970197678,
+          "arrived": 5790,
+          "replyEncoding": "plain",
+          "packedCheckpoints": 0
+        }
+      ],
+      "frames": [
+        {
+          "hash": "0c473de8a0347ea40c7866e0ea80d9cebd0f20363c67260f0e67bf36c156e8d0",
+          "changed": 5775.699999999255,
+          "frame": 5784.699999999255
+        }
+      ],
+      "recoveryThroughDurable": {
+        "elapsedMs": 68.69999999925494,
+        "posts": [
+          {
+            "worker": 1,
+            "id": 118,
+            "kind": "recovery",
+            "start": 5775.699999999255,
+            "synchronousMs": 0.8999999985098839,
+            "previousSynchronousMs": 0.7999999970197678,
+            "arrived": 5790,
+            "replyEncoding": "plain",
+            "packedCheckpoints": 0
+          }
+        ],
+        "frames": [
+          {
+            "hash": "0c473de8a0347ea40c7866e0ea80d9cebd0f20363c67260f0e67bf36c156e8d0",
+            "changed": 5775.699999999255,
+            "frame": 5784.699999999255
+          }
+        ]
+      }
+    },
+    {
+      "count": 120,
+      "round": 1,
+      "name": "quick-load",
+      "start": 5856.199999999255,
+      "end": 6035.599999997765,
+      "wallMs": 179.39999999850988,
+      "longTasks": [],
+      "maximumHeartbeatGapMs": 20.100000001490116,
+      "posts": [
+        {
+          "worker": 2,
+          "id": 5,
+          "kind": "load",
+          "start": 5968.599999997765,
+          "synchronousMs": 0.5,
+          "previousSynchronousMs": 0.7999999970197678,
+          "arrived": 5995.599999997765,
+          "replyEncoding": "plain",
+          "packedCheckpoints": 0
+        },
+        {
+          "worker": 1,
+          "id": 119,
+          "kind": "recovery",
+          "start": 5998.39999999851,
+          "synchronousMs": 0.6999999992549419,
+          "previousSynchronousMs": 0.8999999985098839,
+          "arrived": 6013,
+          "replyEncoding": "plain",
+          "packedCheckpoints": 0
+        }
+      ],
+      "frames": [
+        {
+          "hash": "529a3985ebcad44b77b4b5c1501ebccc1e0699cdfd2cccd0294239f9e7eb2766",
+          "changed": 5998.39999999851,
+          "frame": 6011.699999999255
+        }
+      ]
+    },
+    {
+      "count": 120,
+      "round": 2,
+      "name": "quick-save",
+      "start": 6088.29999999702,
+      "end": 6185.099999997765,
+      "wallMs": 96.80000000074506,
+      "longTasks": [],
+      "maximumHeartbeatGapMs": 30,
+      "posts": [
+        {
+          "worker": 2,
+          "id": 6,
+          "kind": "save",
+          "start": 6129.5,
+          "synchronousMs": 1.199999999254942,
+          "previousSynchronousMs": 0.5,
+          "arrived": 6147.5,
+          "replyEncoding": "plain",
+          "packedCheckpoints": 0
+        }
+      ],
+      "frames": []
+    },
+    {
+      "count": 120,
+      "round": 2,
+      "name": "advance",
+      "start": 6251.89999999851,
+      "end": 6333.29999999702,
+      "wallMs": 81.39999999850988,
+      "cpu": [
+        {
+          "location": "(idle) ",
+          "sampledMs": 63.43699999999999
+        },
+        {
+          "location": "(program) ",
+          "sampledMs": 39.131
+        },
+        {
+          "location": "../packages/runtime/src/sha256.ts:10 zr",
+          "sampledMs": 4.23
+        },
+        {
+          "location": "../packages/runtime/src/canonical.ts:81 ",
+          "sampledMs": 1.27
+        },
+        {
+          "location": "getAnimations ",
+          "sampledMs": 1.085
+        },
+        {
+          "location": "encode ",
+          "sampledMs": 1.051
+        },
+        {
+          "location": "../packages/runtime/src/hash.ts:19 Zr",
+          "sampledMs": 1.048
+        },
+        {
+          "location": "query ",
+          "sampledMs": 1.036
+        }
+      ],
+      "longTasks": [],
+      "maximumHeartbeatGapMs": 47,
+      "posts": [
+        {
+          "worker": 1,
+          "id": 120,
+          "kind": "recovery",
+          "start": 6295.699999999255,
+          "synchronousMs": 0.8000000007450581,
+          "previousSynchronousMs": 0.6999999992549419,
+          "arrived": 6309.199999999255,
+          "replyEncoding": "plain",
+          "packedCheckpoints": 0
+        }
+      ],
+      "frames": [
+        {
+          "hash": "0c473de8a0347ea40c7866e0ea80d9cebd0f20363c67260f0e67bf36c156e8d0",
+          "changed": 6295.599999997765,
+          "frame": 6300.39999999851
+        }
+      ],
+      "recoveryThroughDurable": {
+        "elapsedMs": 90.10000000149012,
+        "posts": [
+          {
+            "worker": 1,
+            "id": 120,
+            "kind": "recovery",
+            "start": 6295.699999999255,
+            "synchronousMs": 0.8000000007450581,
+            "previousSynchronousMs": 0.6999999992549419,
+            "arrived": 6309.199999999255,
+            "replyEncoding": "plain",
+            "packedCheckpoints": 0
+          }
+        ],
+        "frames": [
+          {
+            "hash": "0c473de8a0347ea40c7866e0ea80d9cebd0f20363c67260f0e67bf36c156e8d0",
+            "changed": 6295.599999997765,
+            "frame": 6300.39999999851
+          }
+        ]
+      }
+    },
+    {
+      "count": 120,
+      "round": 2,
+      "name": "quick-load",
+      "start": 6387.89999999851,
+      "end": 6550.5,
+      "wallMs": 162.60000000149012,
+      "longTasks": [],
+      "maximumHeartbeatGapMs": 21.5,
+      "posts": [
+        {
+          "worker": 2,
+          "id": 7,
+          "kind": "load",
+          "start": 6484.5,
+          "synchronousMs": 0.7999999970197678,
+          "previousSynchronousMs": 1.199999999254942,
+          "arrived": 6508.39999999851,
+          "replyEncoding": "plain",
+          "packedCheckpoints": 0
+        },
+        {
+          "worker": 1,
+          "id": 121,
+          "kind": "recovery",
+          "start": 6511.099999997765,
+          "synchronousMs": 0.6999999992549419,
+          "previousSynchronousMs": 0.8000000007450581,
+          "arrived": 6525.099999997765,
+          "replyEncoding": "plain",
+          "packedCheckpoints": 0
+        }
+      ],
+      "frames": [
+        {
+          "hash": "529a3985ebcad44b77b4b5c1501ebccc1e0699cdfd2cccd0294239f9e7eb2766",
+          "changed": 6511.099999997765,
+          "frame": 6523.599999997765
+        }
+      ]
+    },
+    {
+      "count": 480,
+      "round": 0,
+      "name": "quick-save",
+      "start": 29973.199999999255,
+      "end": 30232.79999999702,
+      "wallMs": 259.5999999977648,
+      "longTasks": [],
+      "maximumHeartbeatGapMs": 32,
+      "posts": [
+        {
+          "worker": 3,
+          "id": 8,
+          "kind": "save",
+          "start": 30018.599999997765,
+          "synchronousMs": 5.699999999254942,
+          "previousSynchronousMs": 0,
+          "arrived": 30152.5,
+          "replyEncoding": "plain",
+          "packedCheckpoints": 0
+        }
+      ],
+      "frames": []
+    },
+    {
+      "count": 480,
+      "round": 0,
+      "name": "advance",
+      "start": 30296.89999999851,
+      "end": 30449.39999999851,
+      "wallMs": 152.5,
+      "cpu": [
+        {
+          "location": "(idle) ",
+          "sampledMs": 120.77900000000004
+        },
+        {
+          "location": "(program) ",
+          "sampledMs": 25.676
+        },
+        {
+          "location": "postMessage ",
+          "sampledMs": 14.861
+        },
+        {
+          "location": " ",
+          "sampledMs": 8.321
+        },
+        {
+          "location": "getGamepads ",
+          "sampledMs": 2.769
+        },
+        {
+          "location": "setAttribute ",
+          "sampledMs": 1.156
+        },
+        {
+          "location": "elementsFromPoint ",
+          "sampledMs": 1.117
+        },
+        {
+          "location": "../apps/player-shell/src/PlayerShell.tsx:1020 ",
+          "sampledMs": 1.081
+        },
+        {
+          "location": "../node_modules/react-dom/cjs/react-dom-client.production.js:11524 Iu",
+          "sampledMs": 0.611
+        },
+        {
+          "location": "../packages/runtime-host/src/host.ts:153 To",
+          "sampledMs": 0.514
+        },
+        {
+          "location": "../node_modules/react-dom/cjs/react-dom-client.production.js:859 bt",
+          "sampledMs": 0.446
+        },
+        {
+          "location": "../apps/player-shell/src/player-presentation-adapter.ts:94 wd",
+          "sampledMs": 0.304
+        },
+        {
+          "location": "../packages/player-core/src/player-core.ts:310 Po",
+          "sampledMs": 0.224
+        }
+      ],
+      "longTasks": [],
+      "maximumHeartbeatGapMs": 29.399999998509884,
+      "posts": [
+        {
+          "worker": 3,
+          "id": 9,
+          "kind": "advance",
+          "start": 30337.599999997765,
+          "synchronousMs": 7.5,
+          "previousSynchronousMs": 5.699999999254942,
+          "arrived": 30409.599999997765,
+          "replyEncoding": "plain",
+          "packedCheckpoints": 0
+        },
+        {
+          "worker": 1,
+          "id": 408,
+          "kind": "recovery",
+          "start": 30431.39999999851,
+          "synchronousMs": 6.699999999254942,
+          "previousSynchronousMs": 6.299999997019768,
+          "arrived": null
+        }
+      ],
+      "frames": [
+        {
+          "hash": "812b21234b7aafa7810425030f49a9c757431b2e4f69fba93d4a986bad79fb09",
+          "changed": 30411.89999999851,
+          "frame": 30415.099999997765
+        }
+      ],
+      "recoveryThroughDurable": {
+        "elapsedMs": 281.5,
+        "posts": [
+          {
+            "worker": 1,
+            "id": 408,
+            "kind": "recovery",
+            "start": 30431.39999999851,
+            "synchronousMs": 6.699999999254942,
+            "previousSynchronousMs": 6.299999997019768,
+            "arrived": 30545.39999999851,
+            "replyEncoding": "plain",
+            "packedCheckpoints": 0
+          }
+        ],
+        "frames": [
+          {
+            "hash": "812b21234b7aafa7810425030f49a9c757431b2e4f69fba93d4a986bad79fb09",
+            "changed": 30411.89999999851,
+            "frame": 30415.099999997765
+          }
+        ]
+      }
+    },
+    {
+      "count": 480,
+      "round": 0,
+      "name": "quick-load",
+      "start": 30620.5,
+      "end": 30983.79999999702,
+      "wallMs": 363.29999999701977,
+      "longTasks": [],
+      "maximumHeartbeatGapMs": 28.899999998509884,
+      "posts": [
+        {
+          "worker": 3,
+          "id": 10,
+          "kind": "load",
+          "start": 30744.39999999851,
+          "synchronousMs": 1.3999999985098839,
+          "previousSynchronousMs": 7.5,
+          "arrived": 30939.699999999255,
+          "replyEncoding": "plain",
+          "packedCheckpoints": 0
+        },
+        {
+          "worker": 1,
+          "id": 409,
+          "kind": "recovery",
+          "start": 30965.89999999851,
+          "synchronousMs": 6.800000000745058,
+          "previousSynchronousMs": 6.699999999254942,
+          "arrived": null
+        }
+      ],
+      "frames": [
+        {
+          "hash": "0bfdd1c2abcced37322c2f34b9412d310658428d445169e5e4354110b5426b7f",
+          "changed": 30942.599999997765,
+          "frame": 30949
+        }
+      ]
+    },
+    {
+      "count": 480,
+      "round": 1,
+      "name": "quick-save",
+      "start": 31157.39999999851,
+      "end": 31415.699999999255,
+      "wallMs": 258.30000000074506,
+      "longTasks": [],
+      "maximumHeartbeatGapMs": 37.599999997764826,
+      "posts": [
+        {
+          "worker": 3,
+          "id": 11,
+          "kind": "save",
+          "start": 31196.699999999255,
+          "synchronousMs": 8.099999997764826,
+          "previousSynchronousMs": 1.3999999985098839,
+          "arrived": 31323.199999999255,
+          "replyEncoding": "plain",
+          "packedCheckpoints": 0
+        }
+      ],
+      "frames": []
+    },
+    {
+      "count": 480,
+      "round": 1,
+      "name": "advance",
+      "start": 31487,
+      "end": 31616.199999999255,
+      "wallMs": 129.19999999925494,
+      "cpu": [
+        {
+          "location": "(idle) ",
+          "sampledMs": 98.18700000000003
+        },
+        {
+          "location": "(program) ",
+          "sampledMs": 38.175
+        },
+        {
+          "location": "postMessage ",
+          "sampledMs": 12.155
+        },
+        {
+          "location": " ",
+          "sampledMs": 8.014
+        },
+        {
+          "location": "../node_modules/react-dom/cjs/react-dom-client.production.js:6115 $s",
+          "sampledMs": 1.513
+        },
+        {
+          "location": "query ",
+          "sampledMs": 1.065
+        },
+        {
+          "location": "../node_modules/react-dom/cjs/react-dom-client.production.js:5081 ts",
+          "sampledMs": 1.052
+        },
+        {
+          "location": "evaluate ",
+          "sampledMs": 1.038
+        },
+        {
+          "location": "../apps/player-shell/src/PlayerShell.tsx:215 Bp",
+          "sampledMs": 0.846
+        },
+        {
+          "location": "../node_modules/react-dom/cjs/react-dom-client.production.js:7955 Pc",
+          "sampledMs": 0.239
+        }
+      ],
+      "longTasks": [],
+      "maximumHeartbeatGapMs": 35.69999999925494,
+      "posts": [
+        {
+          "worker": 3,
+          "id": 12,
+          "kind": "advance",
+          "start": 31518.39999999851,
+          "synchronousMs": 6.699999999254942,
+          "previousSynchronousMs": 8.099999997764826,
+          "arrived": 31581.099999997765,
+          "replyEncoding": "plain",
+          "packedCheckpoints": 0
+        },
+        {
+          "worker": 1,
+          "id": 410,
+          "kind": "recovery",
+          "start": 31599.5,
+          "synchronousMs": 5.799999997019768,
+          "previousSynchronousMs": 6.800000000745058,
+          "arrived": null
+        }
+      ],
+      "frames": [
+        {
+          "hash": "812b21234b7aafa7810425030f49a9c757431b2e4f69fba93d4a986bad79fb09",
+          "changed": 31583,
+          "frame": 31583.89999999851
+        }
+      ],
+      "recoveryThroughDurable": {
+        "elapsedMs": 266.69999999925494,
+        "posts": [
+          {
+            "worker": 1,
+            "id": 410,
+            "kind": "recovery",
+            "start": 31599.5,
+            "synchronousMs": 5.799999997019768,
+            "previousSynchronousMs": 6.800000000745058,
+            "arrived": 31710.79999999702,
+            "replyEncoding": "plain",
+            "packedCheckpoints": 0
+          }
+        ],
+        "frames": [
+          {
+            "hash": "812b21234b7aafa7810425030f49a9c757431b2e4f69fba93d4a986bad79fb09",
+            "changed": 31583,
+            "frame": 31583.89999999851
+          }
+        ]
+      }
+    },
+    {
+      "count": 480,
+      "round": 1,
+      "name": "quick-load",
+      "start": 31804.099999997765,
+      "end": 32132.199999999255,
+      "wallMs": 328.1000000014901,
+      "longTasks": [],
+      "maximumHeartbeatGapMs": 28.600000001490116,
+      "posts": [
+        {
+          "worker": 3,
+          "id": 13,
+          "kind": "load",
+          "start": 31911.099999997765,
+          "synchronousMs": 1.1000000014901161,
+          "previousSynchronousMs": 6.699999999254942,
+          "arrived": 32083.39999999851,
+          "replyEncoding": "plain",
+          "packedCheckpoints": 0
+        },
+        {
+          "worker": 1,
+          "id": 411,
+          "kind": "recovery",
+          "start": 32115.79999999702,
+          "synchronousMs": 5.200000002980232,
+          "previousSynchronousMs": 5.799999997019768,
+          "arrived": null
+        }
+      ],
+      "frames": [
+        {
+          "hash": "0bfdd1c2abcced37322c2f34b9412d310658428d445169e5e4354110b5426b7f",
+          "changed": 32087.099999997765,
+          "frame": 32098.599999997765
+        }
+      ]
+    },
+    {
+      "count": 480,
+      "round": 2,
+      "name": "quick-save",
+      "start": 32319.79999999702,
+      "end": 32549,
+      "wallMs": 229.20000000298023,
+      "longTasks": [],
+      "maximumHeartbeatGapMs": 34,
+      "posts": [
+        {
+          "worker": 3,
+          "id": 14,
+          "kind": "save",
+          "start": 32361.099999997765,
+          "synchronousMs": 5.400000002235174,
+          "previousSynchronousMs": 1.1000000014901161,
+          "arrived": 32476.29999999702,
+          "replyEncoding": "plain",
+          "packedCheckpoints": 0
+        }
+      ],
+      "frames": []
+    },
+    {
+      "count": 480,
+      "round": 2,
+      "name": "advance",
+      "start": 32621.29999999702,
+      "end": 32751,
+      "wallMs": 129.70000000298023,
+      "cpu": [
+        {
+          "location": "(idle) ",
+          "sampledMs": 101.58800000000004
+        },
+        {
+          "location": "(program) ",
+          "sampledMs": 39.635000000000005
+        },
+        {
+          "location": "postMessage ",
+          "sampledMs": 12.408999999999999
+        },
+        {
+          "location": " ",
+          "sampledMs": 6.9110000000000005
+        },
+        {
+          "location": "setAttribute ",
+          "sampledMs": 1.07
+        },
+        {
+          "location": "../node_modules/react-dom/cjs/react-dom-client.production.js:1615 t",
+          "sampledMs": 1.049
+        },
+        {
+          "location": "removeChild ",
+          "sampledMs": 1.043
+        }
+      ],
+      "longTasks": [],
+      "maximumHeartbeatGapMs": 49,
+      "posts": [
+        {
+          "worker": 3,
+          "id": 15,
+          "kind": "advance",
+          "start": 32651.699999999255,
+          "synchronousMs": 6,
+          "previousSynchronousMs": 5.400000002235174,
+          "arrived": 32710,
+          "replyEncoding": "plain",
+          "packedCheckpoints": 0
+        },
+        {
+          "worker": 1,
+          "id": 412,
+          "kind": "recovery",
+          "start": 32733.79999999702,
+          "synchronousMs": 6,
+          "previousSynchronousMs": 5.200000002980232,
+          "arrived": null
+        }
+      ],
+      "frames": [
+        {
+          "hash": "812b21234b7aafa7810425030f49a9c757431b2e4f69fba93d4a986bad79fb09",
+          "changed": 32711.5,
+          "frame": 32715.39999999851
+        }
+      ],
+      "recoveryThroughDurable": {
+        "elapsedMs": 255.40000000223517,
+        "posts": [
+          {
+            "worker": 1,
+            "id": 412,
+            "kind": "recovery",
+            "start": 32733.79999999702,
+            "synchronousMs": 6,
+            "previousSynchronousMs": 5.200000002980232,
+            "arrived": 32836.89999999851,
+            "replyEncoding": "plain",
+            "packedCheckpoints": 0
+          }
+        ],
+        "frames": [
+          {
+            "hash": "812b21234b7aafa7810425030f49a9c757431b2e4f69fba93d4a986bad79fb09",
+            "changed": 32711.5,
+            "frame": 32715.39999999851
+          }
+        ]
+      }
+    },
+    {
+      "count": 480,
+      "round": 2,
+      "name": "quick-load",
+      "start": 32922.099999997765,
+      "end": 33218,
+      "wallMs": 295.9000000022352,
+      "longTasks": [],
+      "maximumHeartbeatGapMs": 25.700000002980232,
+      "posts": [
+        {
+          "worker": 3,
+          "id": 16,
+          "kind": "load",
+          "start": 33025.89999999851,
+          "synchronousMs": 1,
+          "previousSynchronousMs": 6,
+          "arrived": 33173.5,
+          "replyEncoding": "plain",
+          "packedCheckpoints": 0
+        },
+        {
+          "worker": 1,
+          "id": 413,
+          "kind": "recovery",
+          "start": 33198.5,
+          "synchronousMs": 6.199999999254942,
+          "previousSynchronousMs": 6,
+          "arrived": null
+        }
+      ],
+      "frames": [
+        {
+          "hash": "0bfdd1c2abcced37322c2f34b9412d310658428d445169e5e4354110b5426b7f",
+          "changed": 33176.39999999851,
+          "frame": 33181.699999999255
+        }
+      ]
+    },
+    {
+      "count": 960,
+      "round": 0,
+      "name": "quick-save",
+      "start": 115601.19999999925,
+      "end": 116145.89999999851,
+      "wallMs": 544.6999999992549,
+      "longTasks": [
+        {
+          "start": 115990.09999999776,
+          "duration": 57
+        }
+      ],
+      "maximumHeartbeatGapMs": 67.30000000074506,
+      "posts": [
+        {
+          "worker": 3,
+          "id": 487,
+          "kind": "save",
+          "start": 115648,
+          "synchronousMs": 20.599999997764826,
+          "previousSynchronousMs": 18,
+          "arrived": 115991.29999999702,
+          "replyEncoding": "plain",
+          "packedCheckpoints": 0
+        }
+      ],
+      "frames": []
+    },
+    {
+      "count": 960,
+      "round": 0,
+      "name": "advance",
+      "start": 116211.39999999851,
+      "end": 116463.79999999702,
+      "wallMs": 252.39999999850988,
+      "cpu": [
+        {
+          "location": "(idle) ",
+          "sampledMs": 184.91999999999996
+        },
+        {
+          "location": "(program) ",
+          "sampledMs": 36.57900000000001
+        },
+        {
+          "location": "postMessage ",
+          "sampledMs": 35.72
+        },
+        {
+          "location": " ",
+          "sampledMs": 18.782
+        },
+        {
+          "location": "../node_modules/react-dom/cjs/react-dom-client.production.js:11908 nd",
+          "sampledMs": 1.519
+        },
+        {
+          "location": "serialize ",
+          "sampledMs": 1.189
+        },
+        {
+          "location": "removeEventListener ",
+          "sampledMs": 1.081
+        },
+        {
+          "location": "SECTION ",
+          "sampledMs": 1.05
+        },
+        {
+          "location": "../packages/runtime/src/sha256.ts:10 zr",
+          "sampledMs": 1.044
+        }
+      ],
+      "longTasks": [],
+      "maximumHeartbeatGapMs": 39.600000001490116,
+      "posts": [
+        {
+          "worker": 3,
+          "id": 488,
+          "kind": "advance",
+          "start": 116249.09999999776,
+          "synchronousMs": 19.100000001490116,
+          "previousSynchronousMs": 20.599999997764826,
+          "arrived": 116426.39999999851,
+          "replyEncoding": "plain",
+          "packedCheckpoints": 0
+        },
+        {
+          "worker": 1,
+          "id": 676,
+          "kind": "recovery",
+          "start": 116445.19999999925,
+          "synchronousMs": 17.5,
+          "previousSynchronousMs": 17.300000000745058,
+          "arrived": null
+        }
+      ],
+      "frames": [
+        {
+          "hash": "474f14d90db16c7a6dc34f96a4a752ca3defaa50fa248f35ab0694bcd04f0c63",
+          "changed": 116428.59999999776,
+          "frame": 116429.39999999851
+        }
+      ],
+      "recoveryThroughDurable": {
+        "elapsedMs": 735.8999999985099,
+        "posts": [
+          {
+            "worker": 1,
+            "id": 676,
+            "kind": "recovery",
+            "start": 116445.19999999925,
+            "synchronousMs": 17.5,
+            "previousSynchronousMs": 17.300000000745058,
+            "arrived": 116837.59999999776,
+            "replyEncoding": "plain",
+            "packedCheckpoints": 0
+          }
+        ],
+        "frames": [
+          {
+            "hash": "474f14d90db16c7a6dc34f96a4a752ca3defaa50fa248f35ab0694bcd04f0c63",
+            "changed": 116428.59999999776,
+            "frame": 116429.39999999851
+          }
+        ]
+      }
+    },
+    {
+      "count": 960,
+      "round": 0,
+      "name": "quick-load",
+      "start": 117002.59999999776,
+      "end": 117770.59999999776,
+      "wallMs": 768,
+      "longTasks": [],
+      "maximumHeartbeatGapMs": 49.599999997764826,
+      "posts": [
+        {
+          "worker": 3,
+          "id": 489,
+          "kind": "load",
+          "start": 117130.59999999776,
+          "synchronousMs": 2.900000002235174,
+          "previousSynchronousMs": 19.100000001490116,
+          "arrived": 117710.79999999702,
+          "replyEncoding": "plain",
+          "packedCheckpoints": 0
+        },
+        {
+          "worker": 1,
+          "id": 677,
+          "kind": "recovery",
+          "start": 117747,
+          "synchronousMs": 20.399999998509884,
+          "previousSynchronousMs": 17.5,
+          "arrived": null
+        }
+      ],
+      "frames": [
+        {
+          "hash": "4d4613a5123a5afe069f1f49daf7a6d3756ad7a127372fe193b5eead9d5f4e45",
+          "changed": 117714.09999999776,
+          "frame": 117729.69999999925
+        }
+      ]
+    },
+    {
+      "count": 960,
+      "round": 1,
+      "name": "quick-save",
+      "start": 118319,
+      "end": 118861.79999999702,
+      "wallMs": 542.7999999970198,
+      "longTasks": [
+        {
+          "start": 118698.69999999925,
+          "duration": 58
+        }
+      ],
+      "maximumHeartbeatGapMs": 74,
+      "posts": [
+        {
+          "worker": 3,
+          "id": 490,
+          "kind": "save",
+          "start": 118359.79999999702,
+          "synchronousMs": 20.5,
+          "previousSynchronousMs": 2.900000002235174,
+          "arrived": 118701.79999999702,
+          "replyEncoding": "plain",
+          "packedCheckpoints": 0
+        }
+      ],
+      "frames": []
+    },
+    {
+      "count": 960,
+      "round": 1,
+      "name": "advance",
+      "start": 118929,
+      "end": 119180.89999999851,
+      "wallMs": 251.89999999850988,
+      "cpu": [
+        {
+          "location": "(idle) ",
+          "sampledMs": 182.771
+        },
+        {
+          "location": "postMessage ",
+          "sampledMs": 36.832
+        },
+        {
+          "location": "(program) ",
+          "sampledMs": 32.931
+        },
+        {
+          "location": " ",
+          "sampledMs": 22.272000000000002
+        },
+        {
+          "location": "getGamepads ",
+          "sampledMs": 3.1050000000000004
+        },
+        {
+          "location": "../node_modules/react-dom/cjs/react-dom-client.production.js:13577 Fd",
+          "sampledMs": 1.494
+        },
+        {
+          "location": "../node_modules/react-dom/cjs/react-dom-client.production.js:11405 Nu",
+          "sampledMs": 1.06
+        }
+      ],
+      "longTasks": [],
+      "maximumHeartbeatGapMs": 37.599999997764826,
+      "posts": [
+        {
+          "worker": 3,
+          "id": 491,
+          "kind": "advance",
+          "start": 118965.5,
+          "synchronousMs": 19.199999999254942,
+          "previousSynchronousMs": 20.5,
+          "arrived": 119138.19999999925,
+          "replyEncoding": "plain",
+          "packedCheckpoints": 0
+        },
+        {
+          "worker": 1,
+          "id": 678,
+          "kind": "recovery",
+          "start": 119162,
+          "synchronousMs": 17.899999998509884,
+          "previousSynchronousMs": 20.399999998509884,
+          "arrived": null
+        }
+      ],
+      "frames": [
+        {
+          "hash": "474f14d90db16c7a6dc34f96a4a752ca3defaa50fa248f35ab0694bcd04f0c63",
+          "changed": 119140.29999999702,
+          "frame": 119145.89999999851
+        }
+      ],
+      "recoveryThroughDurable": {
+        "elapsedMs": 661.3999999985099,
+        "posts": [
+          {
+            "worker": 1,
+            "id": 678,
+            "kind": "recovery",
+            "start": 119162,
+            "synchronousMs": 17.899999998509884,
+            "previousSynchronousMs": 20.399999998509884,
+            "arrived": 119495.19999999925,
+            "replyEncoding": "plain",
+            "packedCheckpoints": 0
+          }
+        ],
+        "frames": [
+          {
+            "hash": "474f14d90db16c7a6dc34f96a4a752ca3defaa50fa248f35ab0694bcd04f0c63",
+            "changed": 119140.29999999702,
+            "frame": 119145.89999999851
+          }
+        ]
+      }
+    },
+    {
+      "count": 960,
+      "round": 1,
+      "name": "quick-load",
+      "start": 119633.89999999851,
+      "end": 120318.69999999925,
+      "wallMs": 684.8000000007451,
+      "longTasks": [],
+      "maximumHeartbeatGapMs": 42.900000002235174,
+      "posts": [
+        {
+          "worker": 3,
+          "id": 492,
+          "kind": "load",
+          "start": 119762.59999999776,
+          "synchronousMs": 3.5,
+          "previousSynchronousMs": 19.199999999254942,
+          "arrived": 120263.89999999851,
+          "replyEncoding": "plain",
+          "packedCheckpoints": 0
+        },
+        {
+          "worker": 1,
+          "id": 679,
+          "kind": "recovery",
+          "start": 120295.79999999702,
+          "synchronousMs": 17.800000000745058,
+          "previousSynchronousMs": 17.899999998509884,
+          "arrived": null
+        }
+      ],
+      "frames": [
+        {
+          "hash": "4d4613a5123a5afe069f1f49daf7a6d3756ad7a127372fe193b5eead9d5f4e45",
+          "changed": 120268.59999999776,
+          "frame": 120280.09999999776
+        }
+      ]
+    },
+    {
+      "count": 960,
+      "round": 2,
+      "name": "quick-save",
+      "start": 120801.79999999702,
+      "end": 121365.5,
+      "wallMs": 563.7000000029802,
+      "longTasks": [
+        {
+          "start": 121197.69999999925,
+          "duration": 65
+        },
+        {
+          "start": 121265,
+          "duration": 51
+        }
+      ],
+      "maximumHeartbeatGapMs": 68.70000000298023,
+      "posts": [
+        {
+          "worker": 3,
+          "id": 493,
+          "kind": "save",
+          "start": 120843,
+          "synchronousMs": 18.399999998509884,
+          "previousSynchronousMs": 3.5,
+          "arrived": 121200.89999999851,
+          "replyEncoding": "plain",
+          "packedCheckpoints": 0
+        }
+      ],
+      "frames": []
+    },
+    {
+      "count": 960,
+      "round": 2,
+      "name": "advance",
+      "start": 121425.79999999702,
+      "end": 121664.09999999776,
+      "wallMs": 238.30000000074506,
+      "cpu": [
+        {
+          "location": "(idle) ",
+          "sampledMs": 175.534
+        },
+        {
+          "location": "postMessage ",
+          "sampledMs": 35.704
+        },
+        {
+          "location": "(program) ",
+          "sampledMs": 29.445000000000004
+        },
+        {
+          "location": " ",
+          "sampledMs": 18.307000000000002
+        },
+        {
+          "location": "getGamepads ",
+          "sampledMs": 1.073
+        },
+        {
+          "location": "setTimeout ",
+          "sampledMs": 1.062
+        },
+        {
+          "location": "../packages/runtime/src/canonical.ts:59 jr",
+          "sampledMs": 1.054
+        },
+        {
+          "location": "expectHitTarget ",
+          "sampledMs": 1.038
+        },
+        {
+          "location": "getAnimations ",
+          "sampledMs": 0.71
+        },
+        {
+          "location": "../node_modules/react-dom/cjs/react-dom-client.production.js:7955 Pc",
+          "sampledMs": 0.386
+        }
+      ],
+      "longTasks": [],
+      "maximumHeartbeatGapMs": 32.399999998509884,
+      "posts": [
+        {
+          "worker": 3,
+          "id": 494,
+          "kind": "advance",
+          "start": 121447.89999999851,
+          "synchronousMs": 18.699999999254942,
+          "previousSynchronousMs": 18.399999998509884,
+          "arrived": 121615.39999999851,
+          "replyEncoding": "plain",
+          "packedCheckpoints": 0
+        },
+        {
+          "worker": 1,
+          "id": 680,
+          "kind": "recovery",
+          "start": 121644.89999999851,
+          "synchronousMs": 18,
+          "previousSynchronousMs": 17.800000000745058,
+          "arrived": null
+        }
+      ],
+      "frames": [
+        {
+          "hash": "474f14d90db16c7a6dc34f96a4a752ca3defaa50fa248f35ab0694bcd04f0c63",
+          "changed": 121617.5,
+          "frame": 121628.09999999776
+        }
+      ],
+      "recoveryThroughDurable": {
+        "elapsedMs": 640.1000000014901,
+        "posts": [
+          {
+            "worker": 1,
+            "id": 680,
+            "kind": "recovery",
+            "start": 121644.89999999851,
+            "synchronousMs": 18,
+            "previousSynchronousMs": 17.800000000745058,
+            "arrived": 121973.59999999776,
+            "replyEncoding": "plain",
+            "packedCheckpoints": 0
+          }
+        ],
+        "frames": [
+          {
+            "hash": "474f14d90db16c7a6dc34f96a4a752ca3defaa50fa248f35ab0694bcd04f0c63",
+            "changed": 121617.5,
+            "frame": 121628.09999999776
+          }
+        ]
+      }
+    },
+    {
+      "count": 960,
+      "round": 2,
+      "name": "quick-load",
+      "start": 122118,
+      "end": 122800.59999999776,
+      "wallMs": 682.5999999977648,
+      "longTasks": [],
+      "maximumHeartbeatGapMs": 46.29999999701977,
+      "posts": [
+        {
+          "worker": 3,
+          "id": 495,
+          "kind": "load",
+          "start": 122246.59999999776,
+          "synchronousMs": 3.100000001490116,
+          "previousSynchronousMs": 18.699999999254942,
+          "arrived": 122753.89999999851,
+          "replyEncoding": "plain",
+          "packedCheckpoints": 0
+        },
+        {
+          "worker": 1,
+          "id": 681,
+          "kind": "recovery",
+          "start": 122780.89999999851,
+          "synchronousMs": 18.399999998509884,
+          "previousSynchronousMs": 18,
+          "arrived": null
+        }
+      ],
+      "frames": [
+        {
+          "hash": "4d4613a5123a5afe069f1f49daf7a6d3756ad7a127372fe193b5eead9d5f4e45",
+          "changed": 122759.59999999776,
+          "frame": 122765.69999999925
+        }
+      ]
+    }
+  ],
+  "workersBeforePressure": {
+    "created": 3,
+    "live": 2,
+    "peak": 2
+  },
+  "workersAfterPressure": {
+    "created": 4,
+    "live": 0,
+    "peak": 2
+  },
+  "protectedState": {
+    "hash": "4d4613a5123a5afe069f1f49daf7a6d3756ad7a127372fe193b5eead9d5f4e45",
+    "cursor": 64,
+    "length": 64,
+    "text": "长篇第 939 句：保存与恢复不能丢失历史。"
+  },
+  "restored": {
+    "hash": "4d4613a5123a5afe069f1f49daf7a6d3756ad7a127372fe193b5eead9d5f4e45",
+    "cursor": 960,
+    "length": 960,
+    "text": "长篇第 939 句：保存与恢复不能丢失历史。"
+  },
+  "mediaBeforePressure": {
+    "images": [
+      {
+        "asset": "media_sunset",
+        "width": 16,
+        "height": 9
+      },
+      {
+        "asset": "media_actor_sprite",
+        "width": 4,
+        "height": 8
+      },
+      {
+        "asset": "media_actor_sprite",
+        "width": 4,
+        "height": 8
+      }
+    ],
+    "buses": [
+      {
+        "asset": "media_theme",
+        "bus": "bgm",
+        "loop": true
+      },
+      {
+        "asset": "media_theme",
+        "bus": "voice",
+        "loop": false
+      }
+    ],
+    "events": {
+      "playing": 604,
+      "ended": 1,
+      "errors": []
+    }
+  },
+  "mediaAfterRestore": {
+    "images": [
+      {
+        "asset": "media_sunset",
+        "width": 16,
+        "height": 9
+      },
+      {
+        "asset": "media_actor_sprite",
+        "width": 4,
+        "height": 8
+      },
+      {
+        "asset": "media_actor_sprite",
+        "width": 4,
+        "height": 8
+      }
+    ],
+    "buses": [
+      {
+        "asset": "media_theme",
+        "bus": "bgm",
+        "loop": true
+      },
+      {
+        "asset": "media_theme",
+        "bus": "voice",
+        "loop": false
+      }
+    ],
+    "events": {
+      "playing": 3,
+      "ended": 1,
+      "errors": []
+    }
+  },
+  "errors": [],
+  "foregroundSerializer": {
+    "active": 0,
+    "peakActive": 1,
+    "started": 1,
+    "completed": 1,
+    "cancelled": 0,
+    "fallback": 0,
+    "failed": 0
+  },
+  "scope": "Sequential same-machine synthetic text, background, two characters, looping BGM and finite voice, three repeated real UI operations per size; native Worker/IndexedDB. Sender synchronous postMessage is not total copy cost; reply elapsed includes worker/queue/transport. Advance alone CPU sampled. No injected history, forced GC, physical phone or long soak."
+}

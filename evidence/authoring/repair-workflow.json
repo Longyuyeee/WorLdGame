@@ -1,0 +1,26 @@
+{
+  "title": "雨后的约定 · 多视图排错",
+  "sourceProject": "rainy-promise-lifecycle.zip",
+  "authoredThroughUi": true,
+  "editedLine": "海风带走了烦恼，我们仍记得这个约定。",
+  "stageX": 65,
+  "draftLayout": {
+    "right": 363,
+    "width": 390,
+    "buttonHeights": [
+      44
+    ]
+  },
+  "draftSavedAcrossSceneAndReload": true,
+  "staleRunBlocked": true,
+  "qaReturnedToScript": true,
+  "sourceUndoRedo": true,
+  "stageUndoRedo": true,
+  "debugSource": "当前位置scene_9a53aef5b91f4e67 / stmt_ui_11",
+  "debugHistory": true,
+  "runtimeError": "×停止原因运行错误invalid operands for /修复运行错误返回当前源码",
+  "runtimeSourceRepair": true,
+  "exactSourceAfterReopen": true,
+  "ending": "平常的告别",
+  "exceptions": []
+}

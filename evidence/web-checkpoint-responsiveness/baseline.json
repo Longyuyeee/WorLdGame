@@ -1,0 +1,41 @@
+{
+  "passed": true,
+  "label": "baseline",
+  "bundleHash": "35b0f7bc6a5cd98ae6651e6279a39872924c7ae349c0652b593508d383897fa9",
+  "cssHash": "c865aca6a780daeaee2ae5c715ccdc6d3562f081556da4a6ae89e8f40f07eb91",
+  "browser": "151.0.7922.34",
+  "before": "510454728362236684f7e23f4a6074043e7da6bad47fa680f35d5581d3679f80",
+  "after": "9ff905e93cf6220d921aaba0ca5a6c8b2f49b2cd65d6252fdb81941196a636df",
+  "restoredText": "长篇第 240 句：保存与恢复不能丢失历史。",
+  "historyLength": "250",
+  "operations": [
+    {
+      "name": "ordinary-advance-at-239",
+      "wallMs": 74.09999999403954,
+      "longTasks": [],
+      "maximumHeartbeatGapMs": 27.200000002980232
+    },
+    {
+      "name": "eight-cues-and-checkpoint",
+      "wallMs": 396.1000000089407,
+      "longTasks": [
+        {
+          "start": 14496.59999999404,
+          "duration": 278
+        }
+      ],
+      "maximumHeartbeatGapMs": 296.8999999910593
+    }
+  ],
+  "foreground": {
+    "active": 0,
+    "peakActive": 1,
+    "started": 2,
+    "completed": 2,
+    "cancelled": 0,
+    "fallback": 0,
+    "failed": 0
+  },
+  "errors": [],
+  "scope": "240 lines/eight internal textbox cues/one checkpoint; actual UI/Worker/IndexedDB; one local Chromium observation, not physical memory or soak"
+}

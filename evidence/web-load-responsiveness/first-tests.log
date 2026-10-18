@@ -1,0 +1,40 @@
+
+ RUN  v4.1.10 E:/Project/AIProject/ClaudeProject/WorLdGame
+
+ ✓ packages/player-core/src/player-core.test.ts (25 tests) 250ms
+ ✓ apps/player-shell/src/foreground-session-client.test.ts (34 tests) 191ms
+ ✓ packages/player-core/src/web-save-compatibility.test.ts (5 tests) 235ms
+ ✓ packages/player-core/src/deferred-checkpoint.test.ts (3 tests) 63ms
+ ✓ apps/player-shell/src/pooled-session-client.test.ts (8 tests) 78ms
+ ✓ packages/player-core/src/player-replay-entry.test.ts (5 tests) 70ms
+ ❯ apps/player-shell/src/title-load-continuity.test.tsx (2 tests | 2 failed) 449ms
+   × keeps the title and keyboard stable while a recent save is pending: success 320ms
+   × keeps the title and keyboard stable while a recent save is pending: failure 128ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  apps/player-shell/src/title-load-continuity.test.tsx > keeps the title and keyboard stable while a recent save is pending: success
+ FAIL  apps/player-shell/src/title-load-continuity.test.tsx > keeps the title and keyboard stable while a recent save is pending: failure
+Error: expect(element).toHaveAttribute("data-status", "title") // element.getAttribute("data-status") === "title"
+
+Expected the element to have attribute:
+  data-status="title"
+Received:
+  null
+ ❯ apps/player-shell/src/title-load-continuity.test.tsx:30:48
+     28|   expect(screen.getByRole('button', { name: '读取存档' })).toBeDisabled();
+     29|   fireEvent.keyDown(window, { key: 'Enter' }); fireEvent.keyDown(windo…
+     30|   expect(view.container.querySelector('main')).toHaveAttribute('data-s…
+       |                                                ^
+     31|   await act(async () => { data.finish(outcome === 'success' ? data.slo…
+     32|   if (outcome === 'success') {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+
+ Test Files  1 failed | 6 passed (7)
+      Tests  2 failed | 80 passed (82)
+   Start at  13:43:10
+   Duration  12.19s (transform 1.62s, setup 1.24s, import 4.07s, tests 1.33s, environment 4.26s)
+
+JSON report written to E:/Project/AIProject/ClaudeProject/WorLdGame/evidence/web-load-responsiveness/first-tests.json

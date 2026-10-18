@@ -1,0 +1,151 @@
+{
+  "passed": true,
+  "promoted": true,
+  "contentVersion": "1.11.0",
+  "technicalVersion": "S0.41",
+  "artifacts": {
+    "html": {
+      "bytes": 46845174,
+      "sha256": "f21eb61a3a8a1a4aca73d935caccd46ca8bf30d4add24ec2c420f98a9d2d67d0"
+    },
+    "website": {
+      "bytes": 35431623,
+      "sha256": "a5510ba131555d065dc24566e5fa4ac093a0979e2d8fb5aa10982f4a1690651c"
+    }
+  },
+  "sourceAndNotes": "evidence/web-story-plans-and-farewell",
+  "pendingNotes": 25,
+  "retained": [
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops-project.zip",
+      "sha256": "43ef6e1673ed3dffbf705b4f178b2122fc960971eaf47286b33742fa285f0576"
+    },
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops.worldreview",
+      "sha256": "747534249345da6ce337054b4e7f47a1516556beda7079ef7b6d093e590bce8f"
+    },
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops.html",
+      "sha256": "6e5dfb4dfb88b5e210354fbcaeb8ccc4e79d50aa935a1d449f750bde8fc822fa"
+    },
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops-website.zip",
+      "sha256": "25ef0ab90a396f01dcfb09e60f754fb31a82f59aedb8da869b4a199a59e8f19e"
+    },
+    {
+      "file": "evidence/web-collection-reading/before-rain-stops.html",
+      "sha256": "105dc3dfb186df992fa1df887460a76380f5825ed1653fffb47137a9f80bb0bd"
+    },
+    {
+      "file": "evidence/web-collection-reading/before-rain-stops-website.zip",
+      "sha256": "c3661566d08c887b160601ed1535b0caee41d5f7c6a4295bf2511ee041f10518"
+    }
+  ],
+  "fixtures": [
+    {
+      "engine": "chromium",
+      "checks": 5,
+      "identity": {
+        "baselineCommit": null,
+        "sourceHashes": {
+          "apps/player-shell/src/PlayerShell.tsx": "42f89878d0a2d7dbf4d2c3307d2b7516e168d79460b663b68285ce67efa87cfd",
+          "apps/player-shell/src/player-shell.css": "c398184a226fe385ec80cf3ed9df8e7061d20bb12d4bb957286c42f8c3377ec9",
+          "apps/player-shell/src/player-skin.css": "603f209f867f946c8fd2f33fd5eb65187afa529401714613ab7f3fe916f343e7",
+          "apps/player-shell/src/use-replay-reading-return.ts": "50cdc88812e1cc758468beadf415525672756e3a88fbc72a34d6b98f19029a9f"
+        },
+        "codeSha256": "89bd59d5c6c50ee4838b02105944928e4765c44f66c54326590edf9ed6b1cf7d",
+        "cssSha256": "6a0a9dcc7261255d3e12b4ece5fb083c9da54c455f88257b81e8d78d5306e189",
+        "fixtureSha256": "0179722cf23f9046beb7b8eb84bdc74f1a93f781399f48a5a396beff45acd207"
+      }
+    },
+    {
+      "engine": "firefox",
+      "checks": 5,
+      "identity": {
+        "baselineCommit": null,
+        "sourceHashes": {
+          "apps/player-shell/src/PlayerShell.tsx": "42f89878d0a2d7dbf4d2c3307d2b7516e168d79460b663b68285ce67efa87cfd",
+          "apps/player-shell/src/player-shell.css": "c398184a226fe385ec80cf3ed9df8e7061d20bb12d4bb957286c42f8c3377ec9",
+          "apps/player-shell/src/player-skin.css": "603f209f867f946c8fd2f33fd5eb65187afa529401714613ab7f3fe916f343e7",
+          "apps/player-shell/src/use-replay-reading-return.ts": "50cdc88812e1cc758468beadf415525672756e3a88fbc72a34d6b98f19029a9f"
+        },
+        "codeSha256": "89bd59d5c6c50ee4838b02105944928e4765c44f66c54326590edf9ed6b1cf7d",
+        "cssSha256": "6a0a9dcc7261255d3e12b4ece5fb083c9da54c455f88257b81e8d78d5306e189",
+        "fixtureSha256": "0179722cf23f9046beb7b8eb84bdc74f1a93f781399f48a5a396beff45acd207"
+      }
+    },
+    {
+      "engine": "webkit",
+      "checks": 5,
+      "identity": {
+        "baselineCommit": null,
+        "sourceHashes": {
+          "apps/player-shell/src/PlayerShell.tsx": "42f89878d0a2d7dbf4d2c3307d2b7516e168d79460b663b68285ce67efa87cfd",
+          "apps/player-shell/src/player-shell.css": "c398184a226fe385ec80cf3ed9df8e7061d20bb12d4bb957286c42f8c3377ec9",
+          "apps/player-shell/src/player-skin.css": "603f209f867f946c8fd2f33fd5eb65187afa529401714613ab7f3fe916f343e7",
+          "apps/player-shell/src/use-replay-reading-return.ts": "50cdc88812e1cc758468beadf415525672756e3a88fbc72a34d6b98f19029a9f"
+        },
+        "codeSha256": "89bd59d5c6c50ee4838b02105944928e4765c44f66c54326590edf9ed6b1cf7d",
+        "cssSha256": "6a0a9dcc7261255d3e12b4ece5fb083c9da54c455f88257b81e8d78d5306e189",
+        "fixtureSha256": "0179722cf23f9046beb7b8eb84bdc74f1a93f781399f48a5a396beff45acd207"
+      }
+    }
+  ],
+  "browsers": [
+    {
+      "engine": "chromium",
+      "fileMode": false,
+      "checks": 5,
+      "partialReveal": true,
+      "rapidExits": 8
+    },
+    {
+      "engine": "firefox",
+      "fileMode": false,
+      "checks": 5,
+      "partialReveal": true,
+      "rapidExits": 8
+    },
+    {
+      "engine": "webkit",
+      "fileMode": false,
+      "checks": 5,
+      "partialReveal": true,
+      "rapidExits": 8
+    },
+    {
+      "engine": "chromium",
+      "fileMode": true,
+      "checks": 4,
+      "partialReveal": true,
+      "rapidExits": 8
+    }
+  ],
+  "fullMatrixCells": 4,
+  "partialRevealAcceptance": "same-memory-exact-replay-parent",
+  "authorPreviewPolicy": "instant-not-gradual-acceptance",
+  "physicalPhoneAcceptance": "not-accepted",
+  "tests": {
+    "files": 162,
+    "distinctTests": 1539,
+    "newTests": 8,
+    "nodeTests": 128
+  },
+  "engineering": {
+    "typecheck": {
+      "passed": true,
+      "output": ""
+    },
+    "architecture": {
+      "passed": true,
+      "output": "{\n  \"status\": \"PASS\",\n  \"auditedPortableFiles\": 118,\n  \"auditedNodeAdapterFiles\": 4,\n  \"guarantees\": [\n    \"narrative-vm-spike has no UI, DOM, platform-shell, filesystem, process, crypto-provider, wall-clock, or ambient-random dependency\",\n    \"story-core has no UI, DOM, platform-shell, filesystem, or process dependency\",\n    \"story-language has no UI, DOM, platform-shell, filesystem, or process dependency\",\n    \"story-language depends only on story-core\",\n    \"project-compiler is portable and depends only on project-domain/story-language, never the VM spike or platform APIs\",\n    \"runtime is portable and depends only on project-compiler, never the VM spike, editor, filesystem, wall clock, randomness, or platform APIs\",\n    \"runtime-host is portable and depends only on formal runtime, never UI, DOM, shell, filesystem, wall clock, randomness, or platform APIs\",\n    \"player-core is portable and consumes only canonical project, formal Compiler IR, Runtime, and Runtime Host without a parallel StoryStatement interpreter\",\n    \"gal-settings is dependency-free and portable with no UI, DOM, filesystem, process, shell, wall-clock, or ambient-random dependency\",\n    \"route-graph is portable and projects only canonical project and compiler facts through the Project Service boundary\",\n    \"project-persistence has no UI, DOM, platform-shell, filesystem, process, or runtime third-party dependency\",\n    \"project-domain depends only on portable Gal settings and has no UI, DOM, platform-shell, filesystem, process, crypto-provider, or runtime third-party dependency\",\n    \"project-persistence-node is isolated from the web editor and depends only on portable project-domain/project-persistence contracts\",\n    \"editor declares the Gal settings dependency explicitly\",\n    \"editor declares the story-core dependency explicitly\",\n    \"editor declares the story-language dependency explicitly\",\n    \"editor declares the project-persistence dependency explicitly\",\n    \"web editor does not bundle the Node filesystem adapter\",\n    \"VM Web Worker conformance Harness depends only on the portable Spike, formal Runtime, and portable Runtime Host and imports no shell or Node adapter\",\n    \"VM conformance CLI is an isolated Node reference host and depends only on the portable narrative VM\",\n    \"Windows Electron host keeps isolation and sandboxing enabled with the frozen WindowsHostV1 storage bridge\",\n    \"Windows Tauri host exposes only the frozen WindowsHostV1 storage commands and no generic privileged plugin\",\n    \"Windows project grant roots stay native-only and both hosts reject reparse roots and existing reparse path segments\",\n    \"story-core has no runtime third-party dependency\"\n  ]\n}\n"
+    },
+    "history-engineering": {
+      "passed": true,
+      "output": "{\n  \"status\": \"PASS\",\n  \"node\": \"N52-E5b-runtime-history-v2\",\n  \"engineeringStatus\": \"complete\",\n  \"productAcceptance\": \"blocked\",\n  \"continuation\": {\n    \"node\": \"N52-E5c-gal-history-policy-and-player-core-projection\",\n    \"gate\": \"only-after-e5b-exact-head-windows-ci-is-green\"\n  },\n  \"violations\": []\n}\n"
+    }
+  },
+  "pendingMediaPermissions": 26,
+  "approvedMediaPermissions": 0,
+  "scope": "Ready text overrides ink CSS, exact in-memory replay return restores captured fraction with only remaining timer time, and effective personal/system reduction controls skin entrance/hover motion. No replay-time accrual, persistent animation state, protocol change or OS lifecycle claim. Isolated letter/ocean preset native fixtures are distinct from real Editor configuration/save/reopen/immediate previews and unchanged Rain dual exports. Actual pair binds three website engines/local Chromium HTML, partial reading anchors/manual saves/archives, normal replay and four full format/route cells. Desktop muted playback is not natural listening, physical phones/Safari, lock/background/BFCache, native stream stalls, embedded WebKit audio, long soak, rights or authorized HTTPS. Partial reveal after process restart, cold-title intermittency, previous timeouts and long-history/storage costs stay open. Windows/Android productization stays deferred."
+}

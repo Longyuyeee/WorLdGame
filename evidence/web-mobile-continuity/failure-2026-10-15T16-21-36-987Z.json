@@ -1,0 +1,38 @@
+{
+  "checks": [
+    {
+      "name": "exact-unchanged-content-media-notes-and-real-dual-artifacts",
+      "detail": {}
+    },
+    {
+      "name": "chromium-editor-ime-shortcuts-rotation-chinese-save-reopen-and-all-media",
+      "detail": {
+        "nativeComposition": [
+          {
+            "type": "compositionstart",
+            "trusted": true,
+            "composing": null
+          },
+          {
+            "type": "input",
+            "trusted": true,
+            "composing": true
+          },
+          {
+            "type": "input",
+            "trusted": true,
+            "composing": true
+          },
+          {
+            "type": "compositionend",
+            "trusted": false,
+            "composing": null
+          }
+        ],
+        "systemPhoneKeyboard": false
+      }
+    }
+  ],
+  "errors": [],
+  "failure": "TypeError: Cannot read properties of null (reading 'trusted')\n    at playerRoute (file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-mobile-continuity.mjs:164:35)\n    at async file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-mobile-continuity.mjs:213:7"
+}

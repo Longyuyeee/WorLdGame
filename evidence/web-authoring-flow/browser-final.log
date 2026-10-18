@@ -1,0 +1,14 @@
+blank-project guidance creates a character and returns to the original writing scene; dirty Escape preserves input
+{"label":"created 留下","scenes":["车站的雨","留下"],"sceneId":"scene_a2a032dcba444d7d","save":"保存到本机"}
+{"label":"created 远行","scenes":["车站的雨","留下","远行"],"sceneId":"scene_eeee8cfa98624793","save":"保存到本机"}
+create number variable and two ending scenes directly from writing; new scenes enter writing without changing the opening scene
+{"label":"before preview","scenes":["车站的雨","留下","远行"],"sceneId":"scene_02d2fcd244bf03138705","save":"保存到本机"}
+write real dialogue, assign a numeric variable with a valid default, and connect named choices to two authored endings without script editing
+{"label":"after exit preview","scenes":["车站的雨","留下","远行"],"sceneId":"scene_a2a032dcba444d7d","save":"保存到本机"}
+{"label":"selected entry","scenes":["车站的雨","留下","远行"],"sceneId":"scene_02d2fcd244bf03138705","save":"保存到本机"}
+{"label":"reopened","scenes":["车站的雨","留下","远行"],"sceneId":"scene_02d2fcd244bf03138705","save":"已恢复 · s6"}
+preview a complete route, save before returning home, and reopen the original scene with persisted choices
+export standalone HTML; complete both endings on desktop/mobile sizes; quick save and reload restore the same state hash
+export directory ZIP and complete a route through a real local HTTP deployment under /gal/
+structure lists and native creation dialog fit 736/390/320px widths
+{"passed":true,"checks":7,"errors":[]}

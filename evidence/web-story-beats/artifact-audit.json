@@ -1,0 +1,51 @@
+{
+  "passed": true,
+  "story": {
+    "scenes": 9,
+    "narration": 90,
+    "dialogue": 9,
+    "textCharacters": 9672,
+    "revisedNarrations": 9,
+    "revisedVoices": 1,
+    "movedVoiceBlocks": 7,
+    "voiceBeats": 9,
+    "directions": 74,
+    "assets": 25,
+    "unchangedMedia": 24,
+    "existingIdsPreserved": true
+  },
+  "voice": {
+    "durationSeconds": 5.032607709750567,
+    "rms": 0.08287022965004526,
+    "peak": 0.644378662109375,
+    "clippedSamples": 0,
+    "rate": 22050,
+    "channels": 1,
+    "bits": 16,
+    "byteLength": 221984,
+    "sha256": "d2cd20b0b73ee05ee5ae19a1d6f0af29956e492144a3f708747cdc84bb6cd1d8",
+    "humanListeningPassed": false,
+    "releasePermissionConfirmed": false
+  },
+  "canonicalSourceHtmlDirectoryMatch": true,
+  "mediaBytesMatch": true,
+  "notes": {
+    "originalFixedPreserved": 8,
+    "newFixed": 3,
+    "humanVerified": 0
+  },
+  "artifacts": {
+    "source": {
+      "bytes": 31666561,
+      "sha256": "72e90c66be3d17cd8839080b42cae7b94d8ff2ae800bb1af302b42817f4419d1"
+    },
+    "html": {
+      "bytes": 42813707,
+      "sha256": "5a4ffc1d52e511c492a6c73a7fd290bf95b8b1d50317610e28f9c6c5fd3fb574"
+    },
+    "directory": {
+      "bytes": 32311248,
+      "sha256": "e0a147f40b1bff96f9baa700c2fad63400567f52bb1365d79e7d4c853c04b4b0"
+    }
+  }
+}

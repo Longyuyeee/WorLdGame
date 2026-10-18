@@ -1,0 +1,11 @@
+{
+  "passed": false,
+  "checks": [
+    "draft cancel keeps two options; add/remove/reorder apply once; one Undo/Redo restores full option group; only real scenes offered; light/dark and 390px controls fit",
+    "enter selected target, edit its narration with pending-input protection, return to exact original choice",
+    "numeric increase, boolean and quoted Chinese text applied; declared boolean comparison locked to type; complex condition preserved until explicit generation, discard restores it; wrong-type/incomplete expressions show errors without source changes",
+    "actual Editor Runtime follows the generated condition and all three edited options to their distinct endings"
+  ],
+  "errors": [],
+  "failure": "locator.click: Timeout 20000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#statement-card-choice')\u001b[22m\n\n    at select (E:\\Project\\AIProject\\ClaudeProject\\WorLdGame\\tools\\run-web-branch-authoring.mjs:26:62)\n    at E:\\Project\\AIProject\\ClaudeProject\\WorLdGame\\tools\\run-web-branch-authoring.mjs:122:115"
+}

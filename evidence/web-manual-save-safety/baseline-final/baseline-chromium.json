@@ -1,0 +1,60 @@
+{
+  "passed": true,
+  "engine": "chromium",
+  "browser": "151.0.7922.34",
+  "artifacts": {
+    "html": {
+      "bytes": 46808171,
+      "sha256": "9dabe35ec398313913f0e584485ecfd103fde287d3077834f9885e393ef6b981"
+    },
+    "website": {
+      "bytes": 35394620,
+      "sha256": "3d22df92aae0bb1e81e5f1c119856be895172c558143fbe42f8fb3ee42f8c1cd"
+    }
+  },
+  "sourceBackupSha256": "2c0b50617f69ed5f6a1af29ae30aa41588ef1d0b88d87a7828519c66ca7f782b",
+  "checks": [
+    {
+      "name": "frozen-game-overwrites-another-window-after-stale-confirmation",
+      "external": {
+        "slotId": "manual-1",
+        "hash": "c04d22711f179366e27943f8f4a0619af369c7416adeec2a0e30b059f06274c3",
+        "savedAt": 1792286130247,
+        "storedSha256": "c26c66f5e86aadd7cc25a4ab1284ea8a64e2e63d5c9a139507c3fa18c5693e42"
+      },
+      "overwritten": [
+        {
+          "slotId": "manual-1",
+          "hash": "92734b15d85213f16dff5be1b0d4d3b76b4346e94133891f5168b790534a78d8",
+          "savedAt": 1792286130370,
+          "storedSha256": "34b039da9f92a3cae08a85de14c2a1e1f50a39c5cc2d608a72b13b74bbc06799"
+        }
+      ]
+    },
+    {
+      "name": "frozen-game-overwrites-a-slot-filled-after-the-list-was-read",
+      "external": {
+        "slotId": "manual-2",
+        "hash": "c04d22711f179366e27943f8f4a0619af369c7416adeec2a0e30b059f06274c3",
+        "savedAt": 1792286130533,
+        "storedSha256": "c26c66f5e86aadd7cc25a4ab1284ea8a64e2e63d5c9a139507c3fa18c5693e42"
+      },
+      "overwritten": [
+        {
+          "slotId": "manual-1",
+          "hash": "92734b15d85213f16dff5be1b0d4d3b76b4346e94133891f5168b790534a78d8",
+          "savedAt": 1792286130370,
+          "storedSha256": "34b039da9f92a3cae08a85de14c2a1e1f50a39c5cc2d608a72b13b74bbc06799"
+        },
+        {
+          "slotId": "manual-2",
+          "hash": "ae1db2ee1b60050eef3dd18dc56c357a1c0a3e1d611a2df8339026df699d5373",
+          "savedAt": 1792286130636,
+          "storedSha256": "d8495d01334886aab0789d33a4ca80e26479721ff2d400572a47f3c659a7634e"
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "scope": "Actual exported website, two pages sharing real IndexedDB and UI-generated saves; no database writes or storage/playback event injection by the test. Desktop engines and phone-sized windows, not physical phones/Safari, natural listening, system interruption, rights or public deployment acceptance."
+}

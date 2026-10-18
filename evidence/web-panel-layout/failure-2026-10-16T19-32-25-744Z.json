@@ -1,0 +1,9 @@
+{
+  "checks": [
+    "The actual main story authors menu/save/history viewport layouts with isolated content and return regions, real-preview drag/one undo/keyboard, matching desktop/phone geometry, safe action lists and phone-hidden art.",
+    "Save/reopen, source project, portable configuration/skin bytes and both formal exports retain all three layouts without changing story, characters, seven assets or the existing title layout."
+  ],
+  "errors": [],
+  "failure": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\n3 !== 1\n\n    at play (file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-panel-layout.mjs:58:219)\n    at async file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-panel-layout.mjs:105:19",
+  "text": "给明天的回信 · 0.7.0\n\n记住这一句\n阅读选项\n欣赏画面\n菜单 ☰\n保存进度\n返回故事 ×\n手动存档 1已有存档，请再次确认覆盖\n保存进度\n读取进度\n\n选择一个手动或快速槽位保存当前故事。已有存档需要确认覆盖。\n\n手动\n自动\n快速\n检查点\n备份\n手动存档 1\n候车室的来信\n最后一封信\n旧车站将在今晚停用。屋檐下的广播重复着同一条通知：距离末班车出发，还有四十分钟。\n2026/10/17 03:32:40 · 本地时间\n确认覆盖\n手动存档 2\n空槽位\n在这里保存当前故事进度\n保存\n手动存档 3\n空槽位\n在这里保存当前故事进度\n保存\n手动存档 4\n空槽位\n在这里保存当前故事进度\n保存\n手动存档 5\n空槽位\n在这里保存当前故事进度\n保存\n手动存档 6\n空槽位\n在这里保存当前故事进度\n保存\n上一页\n第 1 / 2 页\n下一页\n回到存读档之前\n你三年没有回到这里。背包里的车票已经买好，目的地却让你感到陌生。\n点击继续 →"
+}

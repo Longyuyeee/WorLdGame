@@ -1,4 +1,4 @@
-import { canonicalRuntimeBytes, canonicalRuntimeStringify, utf8Encode } from "./canonical";
+import { canonicalRuntimeBytes, canonicalRuntimeStringify, utf8Encode, withCanonicalRuntimeStringCache } from "./canonical";
 import { runtimeStateHashV1 } from "./hash";
 import { mergeRuntimeMetaProgressV1 } from "./meta-progress";
 import { runRuntime, validateRuntimeEffectIntentV1, validateRuntimeInputStructureV1, validateRuntimeStateStructureV1, validateRuntimeStateV1 } from "./runtime";
@@ -134,7 +134,16 @@ function rebaseMetaProgressAtCursor(session: RuntimeHistorySessionV1, incoming: 
   if (!merged.changed) return result(session);
   const nextCheckpoint = checkpoint({ ...active.state, metaProgress: merged.progress });
   const checkpoints = session.checkpoints.map((item, index) => index === session.cursor ? nextCheckpoint : item);
-  const next = { ...session, checkpoints, entries: rechainEntries(checkpoints, session.entries) };
+  // Only the two adjacent links contain this checkpoint ID. Other canonical
+  // entry payloads are unchanged, including recorded future and old branches.
+  const entries = session.entries.slice();
+  for (const index of [session.cursor - 1, session.cursor]) {
+    const entry = entries[index];
+    if (entry === undefined) continue;
+    const { entryId: _previousId, ...unsigned } = entry;
+    entries[index] = makeEntry({ ...unsigned, beforeCheckpointId: checkpoints[index]!.checkpointId, afterCheckpointId: checkpoints[index + 1]!.checkpointId });
+  }
+  const next = { ...session, checkpoints, entries };
   return result(next);
 }
 
@@ -225,6 +234,34 @@ function validateRuntimeHistorySessionUnsafe(program: RuntimeProgramV1, session:
   return [];
 }
 
+/** Archive old presentation records without retaining their full VM checkpoints.
+ * The caller must durably protect the current session before applying this result.
+ * Recorded future, current State, barriers and accepted-input identities remain authoritative.
+ */
+export function compactRuntimeHistoryV1(program: RuntimeProgramV1, session: RuntimeHistorySessionV1, retainedBackSteps: number): RuntimeHistoryResultV1 {
+  const validation = validateRuntimeHistorySessionV1(program, session);
+  if (validation.length > 0) return result(session, validation);
+  if (!Number.isSafeInteger(retainedBackSteps) || retainedBackSteps < 1) return result(session, [diagnostic("RUNTIME_HISTORY_INVALID", "Rollback window must be a positive integer")]);
+  const cut = Math.max(0, session.cursor - retainedBackSteps);
+  const current = session.checkpoints[session.cursor]!.state;
+  if (cut === 0 || current.pendingEffect !== null || current.pendingBarrier !== null) return result(session);
+  const removed = session.entries.slice(0, cut);
+  const unsigned: Omit<RuntimeHistoryArchiveV2, "archiveId"> = {
+    schemaVersion: 1, branchPointCheckpointId: session.checkpoints[0]!.checkpointId, branchPointHistoryIndex: 0,
+    entries: removed.map((entry, index) => ({ originalEntryId: entry.entryId, originalHistoryIndex: index,
+      input: entry.input, event: entry.event, barriers: entry.barriers, afterStateHash: session.checkpoints[index + 1]!.stateHash }))
+  };
+  const archived = { archiveId: archiveId(unsigned), ...unsigned };
+  const inputTombstones = [...session.inputTombstones];
+  for (const entry of removed) if (entry.input !== null && !inputTombstones.some(input => input.inputId === entry.input!.inputId)) inputTombstones.push(entry.input);
+  const checkpoints = session.checkpoints.slice(cut);
+  const next = { ...session, cursor: session.cursor - cut, checkpoints,
+    entries: rechainEntries(checkpoints, session.entries.slice(cut)), inputTombstones,
+    archives: session.archives.some(archive => archive.archiveId === archived.archiveId) ? session.archives : [...session.archives, archived] };
+  const diagnostics = validateRuntimeHistorySessionV1(program, next);
+  return diagnostics.length > 0 ? result(session, diagnostics) : result(next);
+}
+
 export function normalizeRuntimeHistorySessionSchemaV1(session: RuntimeHistorySessionLegacyV1): RuntimeHistorySessionV1 {
   return { ...session, schemaVersion: RUNTIME_HISTORY_SESSION_SCHEMA_VERSION, archives: [] };
 }
@@ -232,26 +269,39 @@ export function normalizeRuntimeHistorySessionSchemaV1(session: RuntimeHistorySe
 export function validateRuntimeHistorySessionSchemaV1(program: RuntimeProgramV1, session: RuntimeHistorySessionLegacyV1): readonly RuntimeDiagnosticV1[] {
   try {
     if (!record(session) || !exactKeys(session, legacySessionKeys) || session.schemaVersion !== 1) return [diagnostic("RUNTIME_HISTORY_INVALID", "Legacy History Session schema members are missing or unknown")];
-    return validateRuntimeHistorySessionUnsafe(program, normalizeRuntimeHistorySessionSchemaV1(session));
+    return withCanonicalRuntimeStringCache(() => validateRuntimeHistorySessionUnsafe(program, normalizeRuntimeHistorySessionSchemaV1(session)));
   } catch {
     return [diagnostic("RUNTIME_HISTORY_INVALID", "Legacy History Session contains malformed or noncanonical data")];
   }
 }
 
 export function validateRuntimeHistorySessionV1(program: RuntimeProgramV1, session: RuntimeHistorySessionV1): readonly RuntimeDiagnosticV1[] {
-  try { return validateRuntimeHistorySessionUnsafe(program, session); }
+  try { return withCanonicalRuntimeStringCache(() => validateRuntimeHistorySessionUnsafe(program, session)); }
   catch { return [diagnostic("RUNTIME_HISTORY_INVALID", "History Session contains malformed or noncanonical data")]; }
 }
 
 export function mergeRuntimeHistoryMetaProgressV1(program: RuntimeProgramV1, session: RuntimeHistorySessionV1, incoming: RuntimeStateV1["metaProgress"]): RuntimeHistoryResultV1 {
   const validation = validateRuntimeHistorySessionV1(program, session);
   if (validation.length > 0) return result(session, validation);
+  return mergeValidatedRuntimeHistoryMetaProgressInternal(session, incoming);
+}
+
+/** Package-internal, synchronous Session Save load continuation only. The loader
+ * has fully validated its locally parsed history and envelope before this call;
+ * no callbacks or async boundary intervene. Incoming progress is still validated
+ * by rebase. Never export a trust token or reuse this precondition across calls.
+ */
+export function mergeValidatedRuntimeHistoryMetaProgressInternal(session: RuntimeHistorySessionV1, incoming: RuntimeStateV1["metaProgress"]): RuntimeHistoryResultV1 {
   return rebaseMetaProgressAtCursor(session, incoming);
 }
 
 export function advanceRuntimeHistoryV1(program: RuntimeProgramV1, session: RuntimeHistorySessionV1, options: RuntimeRunOptionsV1 = {}): RuntimeHistoryResultV1 {
   const validation = validateRuntimeHistorySessionV1(program, session);
   if (validation.length > 0) return result(session, validation);
+  return advanceValidatedHistoryStep(program, session, options);
+}
+
+function advanceValidatedHistoryStep(program: RuntimeProgramV1, session: RuntimeHistorySessionV1, options: RuntimeRunOptionsV1): RuntimeHistoryResultV1 {
   const state = session.checkpoints[session.cursor]!.state;
   if (options.input !== undefined) {
     let conflict: RuntimeDiagnosticV1 | null;
@@ -279,10 +329,42 @@ export function advanceRuntimeHistoryV1(program: RuntimeProgramV1, session: Runt
   return { session: next, state: executed.state, event: executed.event, effects: executed.effects, diagnostics: [], reconciliationRequired: false, reconciliationPlan: null, barrierBlock: null };
 }
 
-/** Commits one already-executed observable Runtime step. Scheduler is its only production caller. */
+export type RuntimeHistoryAdvanceStepV1 = Omit<RuntimeHistoryResultV1, "session"> & { readonly cursor: number };
+export type RuntimeHistoryAdvanceBatchV1 = RuntimeHistoryResultV1 & { readonly steps: readonly RuntimeHistoryAdvanceStepV1[] };
+
+/** One synchronous player action through internal direction/checkpoint events.
+ * Revalidate at every public call. No callbacks, awaits or retained validation
+ * capabilities intervene. Keep step metadata, not quadratic session prefixes.
+ */
+export function advanceRuntimeHistoryToPresentationV1(program: RuntimeProgramV1, session: RuntimeHistorySessionV1, maximumSteps: number, options: RuntimeRunOptionsV1 = {}): RuntimeHistoryAdvanceBatchV1 {
+  const validation = validateRuntimeHistorySessionV1(program, session);
+  if (validation.length > 0) return { ...result(session, validation), steps: [] };
+  if (!Number.isSafeInteger(maximumSteps) || maximumSteps < 1 || maximumSteps > 10_000) return { ...result(session, [diagnostic("RUNTIME_HISTORY_INVALID", "Presentation batch requires 1–10000 steps", session.checkpoints[session.cursor]!.state)]), steps: [] };
+  const steps: RuntimeHistoryAdvanceStepV1[] = [];
+  const { input: _firstInput, ...followingOptions } = options;
+  let current = result(session);
+  for (let index = 0; index < maximumSteps; index++) {
+    current = advanceValidatedHistoryStep(program, current.session, index === 0 ? options : followingOptions);
+    const { session: moved, ...step } = current;
+    steps.push({ ...step, cursor: moved.cursor });
+    if (current.diagnostics.length > 0 || current.state.pendingEffect !== null || current.state.pendingBarrier !== null || current.state.terminal.kind === "ended" || current.event !== null && current.event.kind !== "direction" && current.event.kind !== "checkpoint-reached") break;
+  }
+  return { ...current, steps };
+}
+
+/** Public commit boundary: always revalidate the caller-supplied History chain. */
 export function commitRuntimeHistoryStepV1(program: RuntimeProgramV1, session: RuntimeHistorySessionV1, executed: RuntimeRunResultV1, executedInstructions = executed.executedInstructions): RuntimeHistoryResultV1 {
   const validation = validateRuntimeHistorySessionV1(program, session);
   if (validation.length > 0) return result(session, validation);
+  return commitValidatedRuntimeHistoryStepInternal(program, session, executed, executedInstructions);
+}
+
+/** Package-internal: only the synchronous scheduler may reuse its entry validation.
+ * Never expose through index.ts or retain this precondition across calls/awaits.
+ * Each appended state is still validated and hashed. The scheduler must supply
+ * only its locally executed Runtime steps, never externally provided results.
+ */
+export function commitValidatedRuntimeHistoryStepInternal(program: RuntimeProgramV1, session: RuntimeHistorySessionV1, executed: RuntimeRunResultV1, executedInstructions: number): RuntimeHistoryResultV1 {
   const before = session.checkpoints[session.cursor]!.state;
   if (session.cursor !== session.entries.length) return result(session, [diagnostic("RUNTIME_HISTORY_FORWARD_REQUIRED", "Scheduler cannot commit across recorded future History", before)]);
   if (executed.diagnostics.length > 0 || executed.event === null && executed.barrierRequest === null) return result(session, [diagnostic("RUNTIME_HISTORY_INVALID", "History commit requires one successful observable Runtime step", before)]);
@@ -298,6 +380,11 @@ export function commitRuntimeHistoryStepV1(program: RuntimeProgramV1, session: R
 export function backRuntimeHistoryV1(program: RuntimeProgramV1, session: RuntimeHistorySessionV1): RuntimeHistoryResultV1 {
   const validation = validateRuntimeHistorySessionV1(program, session);
   if (validation.length > 0) return result(session, validation);
+  return backValidatedHistoryStep(program, session);
+}
+
+/** Synchronous operation-local reuse only; never retain validation across calls. */
+function backValidatedHistoryStep(_program: RuntimeProgramV1, session: RuntimeHistorySessionV1): RuntimeHistoryResultV1 {
   const current = session.checkpoints[session.cursor]!.state;
   if (session.cursor === 0) return result(session, [diagnostic("RUNTIME_HISTORY_AT_START", "History is already at its first checkpoint", current)]);
   if (current.pendingEffect !== null) return result(session, [diagnostic("RUNTIME_EFFECT_REQUIRED", `Pending awaited Effect ${current.pendingEffect.effectId} must complete or cancel before Back`, current)]);
@@ -317,6 +404,29 @@ export function backRuntimeHistoryV1(program: RuntimeProgramV1, session: Runtime
   const moved = rebaseMetaProgressAtCursor({ ...session, cursor: session.cursor - 1 }, current.metaProgress);
   if (moved.diagnostics.length > 0) return moved;
   return result(moved.session, [], { ...plan, toCheckpointId: moved.session.checkpoints[moved.session.cursor]!.checkpointId, restoreCheckpointId: moved.session.checkpoints[moved.session.cursor]!.checkpointId });
+}
+
+export type RuntimeHistoryBacktrackResultV1 = RuntimeHistoryResultV1 & {
+  readonly navigationPlans: readonly { readonly cursor: number; readonly plan: RuntimeHistoryReconciliationPlanV1 }[];
+};
+
+/** One user navigation: validate the complete chain once, then perform the same
+ * ordered Back steps without callbacks or asynchronous ownership transfers.
+ * Preserve partial progress and the first barrier/error exactly like repeated
+ * Back, including every checkpoint's monotonic Meta Progress and compensation.
+ */
+export function backRuntimeHistoryToCursorV1(program: RuntimeProgramV1, session: RuntimeHistorySessionV1, targetCursor: number): RuntimeHistoryBacktrackResultV1 {
+  const validation = validateRuntimeHistorySessionV1(program, session);
+  if (validation.length > 0) return { ...result(session, validation), navigationPlans: [] };
+  if (!Number.isSafeInteger(targetCursor) || targetCursor < 0 || targetCursor > session.cursor) return { ...result(session, [diagnostic("RUNTIME_HISTORY_INVALID", "Backward target must be an existing cursor at or before the current position")]), navigationPlans: [] };
+  const navigationPlans: { cursor: number; plan: RuntimeHistoryReconciliationPlanV1 }[] = [];
+  let current = result(session);
+  while (current.session.cursor > targetCursor) {
+    current = backValidatedHistoryStep(program, current.session);
+    if (current.diagnostics.length > 0) break;
+    navigationPlans.push({ cursor: current.session.cursor, plan: current.reconciliationPlan! });
+  }
+  return { ...current, navigationPlans };
 }
 
 export function forwardRuntimeHistoryV1(program: RuntimeProgramV1, session: RuntimeHistorySessionV1): RuntimeHistoryResultV1 {

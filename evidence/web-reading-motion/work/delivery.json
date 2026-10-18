@@ -1,0 +1,7 @@
+{
+  "scope": "Exact Editor export inventory for downstream checks, not final acceptance or promoted delivery",
+  "artifacts": {
+    "html": { "bytes": 46845174, "sha256": "f21eb61a3a8a1a4aca73d935caccd46ca8bf30d4add24ec2c420f98a9d2d67d0" },
+    "website": { "bytes": 35431623, "sha256": "a5510ba131555d065dc24566e5fa4ac093a0979e2d8fb5aa10982f4a1690651c" }
+  }
+}

@@ -1,0 +1,711 @@
+{
+  "passed": true,
+  "baseline": false,
+  "browser": "151.0.7922.34",
+  "checks": [
+    {
+      "name": "actual-editor-two-issues-own-branch-plan-and-rain-authored-with-undo-redo",
+      "detail": {
+        "servedBuild": {
+          "/assets/index-C9B_WXBQ.js": "36354c2df29f5613a09448a9b65a31df631cab7e868f24509ebfb75b2ebef429",
+          "/assets/index-DNbmjF5j.css": "67271527adceeeb5cdc822f62bb23802fa266c60b28c48c2be0620e5fae1832d"
+        }
+      }
+    },
+    {
+      "name": "both-editor-entry-routes-save-reopen-and-exact-source-delta",
+      "detail": {
+        "version": "1.11.0",
+        "scenes": 9,
+        "narration": 90,
+        "dialogue": 9,
+        "direction": 87,
+        "end": 2,
+        "textCharacters": 9772,
+        "revisedNarrations": 1,
+        "addedDirections": 1,
+        "all26MediaAndSourceLedgerUnchanged": true,
+        "allOriginalIdsTargetsAndVoiceBeatsPreserved": true,
+        "previousSaveCompatibility": "not-approved-content-changed"
+      }
+    },
+    {
+      "name": "dual-game-exports-and-private-production-roundtrip-with-25-pending-notes-and-two-entry-receipts",
+      "detail": {}
+    },
+    {
+      "name": "exact-source-notes-public-files-and-26-media-audit",
+      "detail": {
+        "passed": true,
+        "story": {
+          "version": "1.11.0",
+          "scenes": 9,
+          "narration": 90,
+          "dialogue": 9,
+          "direction": 87,
+          "end": 2,
+          "textCharacters": 9772,
+          "revisedNarrations": 1,
+          "addedDirections": 1,
+          "all26MediaAndSourceLedgerUnchanged": true,
+          "allOriginalIdsTargetsAndVoiceBeatsPreserved": true,
+          "previousSaveCompatibility": "not-approved-content-changed"
+        },
+        "notes": {
+          "total": 25,
+          "previousPreserved": 23,
+          "newFixed": 2,
+          "humanVerified": 0
+        },
+        "exactSourceAndBothGameScripts": true,
+        "all26OriginalMediaUnchanged": true,
+        "websiteFilesVerified": 37,
+        "artifacts": {
+          "source": {
+            "bytes": 34475882,
+            "sha256": "43ef6e1673ed3dffbf705b4f178b2122fc960971eaf47286b33742fa285f0576"
+          },
+          "html": {
+            "bytes": 46784955,
+            "sha256": "6e5dfb4dfb88b5e210354fbcaeb8ccc4e79d50aa935a1d449f750bde8fc822fa"
+          },
+          "website": {
+            "bytes": 35371404,
+            "sha256": "25ef0ab90a396f01dcfb09e60f754fb31a82f59aedb8da869b4a199a59e8f19e"
+          },
+          "notes": {
+            "bytes": 22456,
+            "sha256": "747534249345da6ce337054b4e7f47a1516556beda7079ef7b6d093e590bce8f"
+          }
+        }
+      }
+    },
+    {
+      "name": "complete-local-html-route-0-native-voices-and-save-reopen",
+      "detail": {
+        "texts": 66,
+        "voices": 6,
+        "saves": [
+          {
+            "id": "stmt_ui_137",
+            "savedHash": "8fe32cb54f5b7cbcb8abcc1badf35590032b17e56b6859d8c3c0ace0b5358bef",
+            "cursor": "90"
+          }
+        ],
+        "observations": []
+      }
+    },
+    {
+      "name": "complete-offline-phone-website-route-1-native-voices-and-save-reopen",
+      "detail": {
+        "texts": 66,
+        "voices": 6,
+        "saves": [
+          {
+            "id": "stmt_ui_217",
+            "savedHash": "006f81356504152a18eee0ae2ee94d093f32a18b0f94a81ab9755d9cfda94489",
+            "cursor": "88"
+          },
+          {
+            "id": "stmt_ui_246",
+            "savedHash": "0fdb28d2ed59ce1b2eb733556f0f262854150c8f3ad8a5f9a4cb49406bac52d0",
+            "cursor": "118"
+          }
+        ],
+        "observations": [
+          {
+            "id": "stmt_ui_217",
+            "background": "morning_studio",
+            "portraits": [],
+            "ambient": null,
+            "text": "约定见面的日期越来越近。小夏说车票买好了。两人商量先去海边，如果风雨太大，就在附近找家店坐下，把没说完的话接着讲。林远把附近的店和去海边的路线都查了一遍，没有把晴天当成这一次值得见面的前提。他更想给她看那些在工作和生活里一点点增加的东西。"
+          },
+          {
+            "id": "stmt_ui_219",
+            "background": "night_studio",
+            "portraits": [],
+            "ambient": null,
+            "text": "见面前夜，他把房间整理到能够招待客人的程度，没有把未完成的画藏起来。桌边留出一个可以放书的位置，窗户也擦了。他知道小夏会看见他的新生活并没有处处整齐，但这正是他想邀请她来的地方，不是一张经过删改的展示照片。"
+          },
+          {
+            "id": "stmt_ui_234",
+            "background": "station_day",
+            "portraits": [
+              "xia_smile"
+            ],
+            "ambient": 0.1,
+            "text": "吃完早餐，他们先回房间放下行李。午后再到车站时，雨比早晨密了，去海边的列车仍照常开着。风把屋檐边的雨丝吹到脚边，他们看了一会儿，决定按第二个计划回店里坐下。林远没有把改计划当成辜负准备，小夏也没有说去哪里都一样；他们承认想看海，又认真选择今天更舒服的安排。"
+          },
+          {
+            "id": "stmt_ui_242",
+            "background": "sample_station",
+            "portraits": [
+              "xia_thoughtful"
+            ],
+            "ambient": 0.1,
+            "text": "那天晚上，小夏要回去，林远送她到站台。离别仍然会让人难过，理解了怎样联系也不会让车门关上的声音变轻。他们允许自己站一会儿，认真说不舍；但这一次，不舍不需要伪装成生气，出发也不需要伪装成毫不在意。"
+          },
+          {
+            "id": "stmt_ui_244",
+            "background": "sample_station",
+            "portraits": [
+              "xia_thoughtful"
+            ],
+            "ambient": 0.1,
+            "text": "小夏上车前，把那本修好的书留给林远。他给她一张新的明信片，地址已经写好，正文空着。她说知道该写什么，他说也可以晚一点想。空白不再像一封被遗忘的信，而像一个真正留给下一次说话的位置。"
+          },
+          {
+            "id": "stmt_ui_246",
+            "background": "sample_station",
+            "portraits": [],
+            "ambient": 0.06,
+            "text": "列车走后，林远收到她的第一条消息：已经坐好，窗外有灯。他回，正在回家，雨比刚才小了。消息很普通，却把两个人的路线重新连在一起。之后仍然会有很多这样普通的晚上，故事正是在它们里面继续，而不是只停在最郑重的一次决定上。"
+          },
+          {
+            "id": "stmt_ui_248",
+            "background": "night_studio",
+            "portraits": [],
+            "ambient": null,
+            "text": "回到房间，他把画放到窗边，把信收在抽屉最上层。海边的计划还有机会，工作和课程也各自继续。林远没有因为远行失去原来的故事，而是学会了给它新的地址：到了就说，变化就说，想念也可以说。雨停之前没有完成的话，终于有了之后一封又一封的回信。"
+          }
+        ]
+      }
+    },
+    {
+      "name": "actual-1.10-backup-refused-before-slot-write-for-changed-content",
+      "detail": {
+        "message": "这份备份来自未核对的游戏版本，请使用对应版本，或由作者核对兼容后再导入。"
+      }
+    }
+  ],
+  "errors": [],
+  "editorRoutes": [
+    {
+      "branch": 0,
+      "ids": [
+        "stmt_ui_1",
+        "stmt_ui_2",
+        "stmt_ui_3",
+        "stmt_ui_5",
+        "stmt_ui_4",
+        "stmt_ui_7",
+        "stmt_ui_9",
+        "stmt_ui_11",
+        "stmt_ui_13",
+        "stmt_ui_6",
+        "stmt_ui_15",
+        "stmt_ui_17",
+        "stmt_ui_19",
+        "stmt_ui_21",
+        "stmt_ui_8",
+        "stmt_ui_25",
+        "stmt_ui_10",
+        "stmt_ui_23",
+        "stmt_ui_29",
+        "stmt_ui_30",
+        "rain19_waiting_rain",
+        "stmt_ui_31",
+        "stmt_ui_33",
+        "stmt_ui_35",
+        "stmt_ui_37",
+        "stmt_ui_39",
+        "stmt_ui_41",
+        "stmt_ui_12",
+        "stmt_ui_43",
+        "stmt_ui_45",
+        "stmt_ui_14",
+        "stmt_ui_51",
+        "stmt_ui_16",
+        "stmt_ui_47",
+        "stmt_ui_49",
+        "stmt_ui_55",
+        "stmt_ui_57",
+        "stmt_ui_59",
+        "rain19_platform_rain",
+        "stmt_ui_61",
+        "stmt_ui_63",
+        "stmt_ui_65",
+        "stmt_ui_18",
+        "stmt_ui_67",
+        "stmt_ui_69",
+        "stmt_ui_71",
+        "stmt_ui_73",
+        "stmt_ui_75",
+        "stmt_ui_77",
+        "stmt_ui_79",
+        "stmt_ui_20",
+        "stmt_ui_81",
+        "stmt_ui_22",
+        "stmt_ui_83",
+        "stmt_ui_87",
+        "stmt_ui_89",
+        "stmt_ui_91",
+        "stmt_ui_93",
+        "stmt_ui_95",
+        "stmt_ui_97",
+        "stmt_ui_24",
+        "stmt_ui_111",
+        "stmt_ui_112",
+        "stmt_ui_99",
+        "stmt_ui_101",
+        "stmt_ui_103",
+        "stmt_ui_105",
+        "stmt_ui_107",
+        "stmt_ui_109",
+        "stmt_ui_26",
+        "stmt_ui_113",
+        "stmt_ui_28",
+        "stmt_ui_117",
+        "stmt_ui_118",
+        "stmt_ui_119",
+        "stmt_ui_121",
+        "stmt_ui_123",
+        "stmt_ui_125",
+        "stmt_ui_127",
+        "stmt_ui_32",
+        "stmt_ui_129",
+        "stmt_ui_34",
+        "stmt_ui_139",
+        "stmt_ui_36",
+        "stmt_ui_131",
+        "stmt_ui_133",
+        "stmt_ui_135",
+        "rain19_bus_stop",
+        "rain19_farewell_rain",
+        "stmt_ui_137",
+        "stmt_ui_143",
+        "stmt_ui_144",
+        "stmt_ui_145",
+        "stmt_ui_146",
+        "stmt_ui_148",
+        "stmt_ui_150",
+        "stmt_ui_38",
+        "stmt_ui_152",
+        "stmt_ui_46",
+        "stmt_ui_167",
+        "stmt_ui_48",
+        "rain17_montage_exit",
+        "stmt_ui_154",
+        "stmt_ui_156",
+        "stmt_ui_40",
+        "stmt_ui_42",
+        "stmt_ui_158",
+        "stmt_ui_44",
+        "stmt_ui_166",
+        "stmt_ui_160",
+        "stmt_ui_162",
+        "rain18_epilogue_exit",
+        "rain18_epilogue_room",
+        "stmt_ui_164",
+        "stmt_ui_169",
+        "stmt_ui_170",
+        "stmt_ui_171"
+      ],
+      "ending": "ENDING\n同行的约定"
+    },
+    {
+      "branch": 1,
+      "ids": [
+        "stmt_ui_1",
+        "stmt_ui_2",
+        "stmt_ui_3",
+        "stmt_ui_5",
+        "stmt_ui_4",
+        "stmt_ui_7",
+        "stmt_ui_9",
+        "stmt_ui_11",
+        "stmt_ui_13",
+        "stmt_ui_6",
+        "stmt_ui_15",
+        "stmt_ui_17",
+        "stmt_ui_19",
+        "stmt_ui_21",
+        "stmt_ui_8",
+        "stmt_ui_25",
+        "stmt_ui_10",
+        "stmt_ui_23",
+        "stmt_ui_29",
+        "stmt_ui_30",
+        "rain19_waiting_rain",
+        "stmt_ui_31",
+        "stmt_ui_33",
+        "stmt_ui_35",
+        "stmt_ui_37",
+        "stmt_ui_39",
+        "stmt_ui_41",
+        "stmt_ui_12",
+        "stmt_ui_43",
+        "stmt_ui_45",
+        "stmt_ui_14",
+        "stmt_ui_51",
+        "stmt_ui_16",
+        "stmt_ui_47",
+        "stmt_ui_49",
+        "stmt_ui_55",
+        "stmt_ui_57",
+        "stmt_ui_59",
+        "rain19_platform_rain",
+        "stmt_ui_61",
+        "stmt_ui_63",
+        "stmt_ui_65",
+        "stmt_ui_18",
+        "stmt_ui_67",
+        "stmt_ui_69",
+        "stmt_ui_71",
+        "stmt_ui_73",
+        "stmt_ui_75",
+        "stmt_ui_77",
+        "stmt_ui_79",
+        "stmt_ui_20",
+        "stmt_ui_81",
+        "stmt_ui_22",
+        "stmt_ui_83",
+        "stmt_ui_172",
+        "stmt_ui_173",
+        "stmt_ui_174",
+        "stmt_ui_176",
+        "stmt_ui_52",
+        "stmt_ui_196",
+        "stmt_ui_54",
+        "stmt_ui_178",
+        "stmt_ui_50",
+        "stmt_ui_194",
+        "stmt_ui_195",
+        "stmt_ui_180",
+        "stmt_ui_182",
+        "stmt_ui_184",
+        "stmt_ui_186",
+        "stmt_ui_188",
+        "stmt_ui_190",
+        "stmt_ui_192",
+        "stmt_ui_200",
+        "stmt_ui_201",
+        "stmt_ui_202",
+        "stmt_ui_203",
+        "stmt_ui_205",
+        "stmt_ui_207",
+        "stmt_ui_209",
+        "stmt_ui_56",
+        "stmt_ui_211",
+        "stmt_ui_62",
+        "stmt_ui_223",
+        "stmt_ui_64",
+        "stmt_ui_58",
+        "stmt_ui_213",
+        "stmt_ui_215",
+        "stmt_ui_217",
+        "rain110_meeting_eve",
+        "stmt_ui_219",
+        "stmt_ui_60",
+        "stmt_ui_221",
+        "stmt_ui_227",
+        "stmt_ui_228",
+        "stmt_ui_229",
+        "stmt_ui_230",
+        "stmt_ui_66",
+        "rain18_breakfast_rain",
+        "stmt_ui_232",
+        "stmt_ui_80",
+        "rain18_afternoon_station",
+        "stmt_ui_234",
+        "rain18_return_cafe",
+        "rain18_indoor_rain",
+        "stmt_ui_236",
+        "stmt_ui_76",
+        "stmt_ui_250",
+        "stmt_ui_78",
+        "stmt_ui_238",
+        "stmt_ui_240",
+        "stmt_ui_68",
+        "stmt_ui_70",
+        "rain18_departure_rain",
+        "stmt_ui_242",
+        "stmt_ui_244",
+        "stmt_ui_72",
+        "rain111_return_rain",
+        "stmt_ui_246",
+        "stmt_ui_74",
+        "stmt_ui_82",
+        "stmt_ui_248",
+        "stmt_ui_252",
+        "stmt_ui_253",
+        "stmt_ui_254"
+      ],
+      "ending": "ENDING\n远行的约定"
+    }
+  ],
+  "playerRoutes": [
+    {
+      "branch": 0,
+      "ids": [
+        "stmt_ui_5",
+        "stmt_ui_7",
+        "stmt_ui_9",
+        "stmt_ui_11",
+        "stmt_ui_13",
+        "stmt_ui_15",
+        "stmt_ui_17",
+        "stmt_ui_19",
+        "stmt_ui_21",
+        "stmt_ui_25",
+        "stmt_ui_23",
+        "stmt_ui_31",
+        "stmt_ui_33",
+        "stmt_ui_35",
+        "stmt_ui_37",
+        "stmt_ui_39",
+        "stmt_ui_41",
+        "stmt_ui_43",
+        "stmt_ui_45",
+        "stmt_ui_51",
+        "stmt_ui_47",
+        "stmt_ui_49",
+        "stmt_ui_61",
+        "stmt_ui_63",
+        "stmt_ui_65",
+        "stmt_ui_67",
+        "stmt_ui_69",
+        "stmt_ui_71",
+        "stmt_ui_73",
+        "stmt_ui_75",
+        "stmt_ui_77",
+        "stmt_ui_79",
+        "stmt_ui_81",
+        "stmt_ui_91",
+        "stmt_ui_93",
+        "stmt_ui_95",
+        "stmt_ui_97",
+        "stmt_ui_99",
+        "stmt_ui_101",
+        "stmt_ui_103",
+        "stmt_ui_105",
+        "stmt_ui_107",
+        "stmt_ui_109",
+        "stmt_ui_113",
+        "stmt_ui_119",
+        "stmt_ui_121",
+        "stmt_ui_123",
+        "stmt_ui_125",
+        "stmt_ui_127",
+        "stmt_ui_129",
+        "stmt_ui_139",
+        "stmt_ui_131",
+        "stmt_ui_133",
+        "stmt_ui_135",
+        "stmt_ui_137",
+        "stmt_ui_146",
+        "stmt_ui_148",
+        "stmt_ui_150",
+        "stmt_ui_152",
+        "stmt_ui_167",
+        "stmt_ui_154",
+        "stmt_ui_156",
+        "stmt_ui_158",
+        "stmt_ui_160",
+        "stmt_ui_162",
+        "stmt_ui_164"
+      ],
+      "voices": [
+        "stmt_ui_25",
+        "stmt_ui_51",
+        "stmt_ui_81",
+        "stmt_ui_113",
+        "stmt_ui_139",
+        "stmt_ui_167"
+      ],
+      "ending": "故事告一段落\n同行的约定\n\n已达成 1 / 2 个结局\n\n已读、画廊、音乐与结局记录会保留。可以查看收藏，或读取存档探索其他选择。\n\n查看收藏与结局\n读取存档探索其他路线\n回到标题",
+      "observations": [],
+      "saves": [
+        {
+          "id": "stmt_ui_137",
+          "savedHash": "8fe32cb54f5b7cbcb8abcc1badf35590032b17e56b6859d8c3c0ace0b5358bef",
+          "cursor": "90"
+        }
+      ]
+    },
+    {
+      "branch": 1,
+      "ids": [
+        "stmt_ui_5",
+        "stmt_ui_7",
+        "stmt_ui_9",
+        "stmt_ui_11",
+        "stmt_ui_13",
+        "stmt_ui_15",
+        "stmt_ui_17",
+        "stmt_ui_19",
+        "stmt_ui_21",
+        "stmt_ui_25",
+        "stmt_ui_23",
+        "stmt_ui_31",
+        "stmt_ui_33",
+        "stmt_ui_35",
+        "stmt_ui_37",
+        "stmt_ui_39",
+        "stmt_ui_41",
+        "stmt_ui_43",
+        "stmt_ui_45",
+        "stmt_ui_51",
+        "stmt_ui_47",
+        "stmt_ui_49",
+        "stmt_ui_61",
+        "stmt_ui_63",
+        "stmt_ui_65",
+        "stmt_ui_67",
+        "stmt_ui_69",
+        "stmt_ui_71",
+        "stmt_ui_73",
+        "stmt_ui_75",
+        "stmt_ui_77",
+        "stmt_ui_79",
+        "stmt_ui_81",
+        "stmt_ui_174",
+        "stmt_ui_176",
+        "stmt_ui_196",
+        "stmt_ui_178",
+        "stmt_ui_180",
+        "stmt_ui_182",
+        "stmt_ui_184",
+        "stmt_ui_186",
+        "stmt_ui_188",
+        "stmt_ui_190",
+        "stmt_ui_192",
+        "stmt_ui_203",
+        "stmt_ui_205",
+        "stmt_ui_207",
+        "stmt_ui_209",
+        "stmt_ui_211",
+        "stmt_ui_223",
+        "stmt_ui_213",
+        "stmt_ui_215",
+        "stmt_ui_217",
+        "stmt_ui_219",
+        "stmt_ui_221",
+        "stmt_ui_230",
+        "stmt_ui_232",
+        "stmt_ui_234",
+        "stmt_ui_236",
+        "stmt_ui_250",
+        "stmt_ui_238",
+        "stmt_ui_240",
+        "stmt_ui_242",
+        "stmt_ui_244",
+        "stmt_ui_246",
+        "stmt_ui_248"
+      ],
+      "voices": [
+        "stmt_ui_25",
+        "stmt_ui_51",
+        "stmt_ui_81",
+        "stmt_ui_196",
+        "stmt_ui_223",
+        "stmt_ui_250"
+      ],
+      "ending": "故事告一段落\n远行的约定\n\n已达成 1 / 2 个结局\n\n已读、画廊、音乐与结局记录会保留。可以查看收藏，或读取存档探索其他选择。\n\n查看收藏与结局\n读取存档探索其他路线\n回到标题",
+      "observations": [
+        {
+          "id": "stmt_ui_217",
+          "background": "morning_studio",
+          "portraits": [],
+          "ambient": null,
+          "text": "约定见面的日期越来越近。小夏说车票买好了。两人商量先去海边，如果风雨太大，就在附近找家店坐下，把没说完的话接着讲。林远把附近的店和去海边的路线都查了一遍，没有把晴天当成这一次值得见面的前提。他更想给她看那些在工作和生活里一点点增加的东西。"
+        },
+        {
+          "id": "stmt_ui_219",
+          "background": "night_studio",
+          "portraits": [],
+          "ambient": null,
+          "text": "见面前夜，他把房间整理到能够招待客人的程度，没有把未完成的画藏起来。桌边留出一个可以放书的位置，窗户也擦了。他知道小夏会看见他的新生活并没有处处整齐，但这正是他想邀请她来的地方，不是一张经过删改的展示照片。"
+        },
+        {
+          "id": "stmt_ui_234",
+          "background": "station_day",
+          "portraits": [
+            "xia_smile"
+          ],
+          "ambient": 0.1,
+          "text": "吃完早餐，他们先回房间放下行李。午后再到车站时，雨比早晨密了，去海边的列车仍照常开着。风把屋檐边的雨丝吹到脚边，他们看了一会儿，决定按第二个计划回店里坐下。林远没有把改计划当成辜负准备，小夏也没有说去哪里都一样；他们承认想看海，又认真选择今天更舒服的安排。"
+        },
+        {
+          "id": "stmt_ui_242",
+          "background": "sample_station",
+          "portraits": [
+            "xia_thoughtful"
+          ],
+          "ambient": 0.1,
+          "text": "那天晚上，小夏要回去，林远送她到站台。离别仍然会让人难过，理解了怎样联系也不会让车门关上的声音变轻。他们允许自己站一会儿，认真说不舍；但这一次，不舍不需要伪装成生气，出发也不需要伪装成毫不在意。"
+        },
+        {
+          "id": "stmt_ui_244",
+          "background": "sample_station",
+          "portraits": [
+            "xia_thoughtful"
+          ],
+          "ambient": 0.1,
+          "text": "小夏上车前，把那本修好的书留给林远。他给她一张新的明信片，地址已经写好，正文空着。她说知道该写什么，他说也可以晚一点想。空白不再像一封被遗忘的信，而像一个真正留给下一次说话的位置。"
+        },
+        {
+          "id": "stmt_ui_246",
+          "background": "sample_station",
+          "portraits": [],
+          "ambient": 0.06,
+          "text": "列车走后，林远收到她的第一条消息：已经坐好，窗外有灯。他回，正在回家，雨比刚才小了。消息很普通，却把两个人的路线重新连在一起。之后仍然会有很多这样普通的晚上，故事正是在它们里面继续，而不是只停在最郑重的一次决定上。"
+        },
+        {
+          "id": "stmt_ui_248",
+          "background": "night_studio",
+          "portraits": [],
+          "ambient": null,
+          "text": "回到房间，他把画放到窗边，把信收在抽屉最上层。海边的计划还有机会，工作和课程也各自继续。林远没有因为远行失去原来的故事，而是学会了给它新的地址：到了就说，变化就说，想念也可以说。雨停之前没有完成的话，终于有了之后一封又一封的回信。"
+        }
+      ],
+      "saves": [
+        {
+          "id": "stmt_ui_217",
+          "savedHash": "006f81356504152a18eee0ae2ee94d093f32a18b0f94a81ab9755d9cfda94489",
+          "cursor": "88"
+        },
+        {
+          "id": "stmt_ui_246",
+          "savedHash": "0fdb28d2ed59ce1b2eb733556f0f262854150c8f3ad8a5f9a4cb49406bac52d0",
+          "cursor": "118"
+        }
+      ]
+    }
+  ],
+  "productions": [
+    {
+      "format": "html",
+      "bytes": 81331587,
+      "sha256": "0a653082a15a6a30644d7b6f70d99e570d9a32396f66c441898753afaa738635",
+      "pendingNotes": 25,
+      "entryCompletions": 2
+    },
+    {
+      "format": "website",
+      "bytes": 69926010,
+      "sha256": "2e01b14d4c74e2faa7e77c8426b853a39d200ae017855eede0b3262d66026723",
+      "pendingNotes": 25,
+      "entryCompletions": 2
+    }
+  ],
+  "retained": [
+    {
+      "file": "evidence/web-reading-delivery/before-rain-stops.html",
+      "sha256": "e342827d80a0bd18944cc84655437ded37f25f901d81b4bf4229fd9d97080510"
+    },
+    {
+      "file": "evidence/web-reading-delivery/before-rain-stops-website.zip",
+      "sha256": "6c54de35ed7dd3ba2a507c83204faeb479cfdc56c2b11921ad785c271a138676"
+    },
+    {
+      "file": "evidence/web-story-arrival-and-night/before-rain-stops-project.zip",
+      "sha256": "331a1b404ee39b89680a6a7a2c0d22dd7279b3b87ab9b60d4b5fe1a253baf5e8"
+    },
+    {
+      "file": "evidence/web-story-arrival-and-night/before-rain-stops.worldreview",
+      "sha256": "e773a566c2095f72b45d25c858f0028f20162480443978039c218d1e52c5bdc5"
+    }
+  ],
+  "scope": "Actual full-story UI content authoring, two editor entry routes and private package roundtrip; local HTML left route and offline phone-sized website travel route, 66 texts and six muted native voice completions each. Native environment audio state, public save/back/reload/read. Not human approval/listening/natural timing, a complete format/route/engine matrix, physical phone/Safari, old/new service-worker update, licensing, public deployment or long-soak acceptance."
+}

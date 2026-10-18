@@ -76,7 +76,7 @@ describe("N52-E3c1 isolated Player recovery store", () => {
     const recovery = new IndexedDbWorldPlayerRecoveryStoreV1(indexedDb);
     await recovery.write(createWorldPlayerRecoveryRecordV1(source()));
     const database = await new Promise<IDBDatabase>((resolve, reject) => {
-      const request = indexedDb.open("world-player-saves", 3);
+      const request = indexedDb.open("world-player-saves");
       request.onsuccess = () => resolve(request.result);
       request.onerror = () => reject(request.error);
     });

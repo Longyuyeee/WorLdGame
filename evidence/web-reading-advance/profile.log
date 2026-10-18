@@ -1,0 +1,10 @@
+
+> world-studio@0.0.0-s0.41 audit:web-reading-advance:profile
+> node tools/run-web-reading-advance.mjs --profile
+
+PASS baseline: 120 real UI history/save/advance/load
+PASS baseline: 240 real UI history/save/advance/load
+PASS baseline: 480 real UI history/save/advance/load
+PASS current: 120 real UI history/save/advance/load
+PASS current: 240 real UI history/save/advance/load
+PASS current: 480 real UI history/save/advance/load

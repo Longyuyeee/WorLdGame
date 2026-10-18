@@ -1,0 +1,23 @@
+actual literal preview covers three scenes; changing conditions disables stale apply, selecting two rows commits both scenes, dialog fits desktop/390px, modal undo/redo reverses the complete batch
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
++ actual - expected
+
++ '我们踏上远行的列车。'
+- '我们登上远行的列车。'
+     ^
+
+    at sourceEquals (file:///E:/Project/AIProject/ClaudeProject/WorLdGame/tools/run-web-text-replace.mjs:23:45)
+    at async file:///E:/Project/AIProject/ClaudeProject/WorLdGame/tools/run-web-text-replace.mjs:30:635 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: '我们踏上远行的列车。',
+  expected: '我们登上远行的列车。',
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.14.0

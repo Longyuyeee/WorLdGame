@@ -1,0 +1,48 @@
+{
+  "passed": true,
+  "checkedAt": "2026-10-16T17:51:11.912Z",
+  "checks": [
+    "Export actual referenced cover/font bytes; public package excludes internal evidence by default, explicit collaboration package retains it with public license text.",
+    "Create another real project and preview the full package, then cancel: its actual exported source still has zero assets.",
+    "A missing font blocks import until explicitly mapped; system-font fallback previews safely, then a replacement file restores the actual font; the mapping dialog fits 736/390/320px and commits the full skin.",
+    "Save, return home, reload and reopen the new project; retain its own title/tagline and reuse the same content on a second import without duplicate asset entries.",
+    "Actual HTML file:// desktop and directory HTTP phone games load the imported font/style and complete the new project’s ending using ordinary controls, muted."
+  ],
+  "errors": [],
+  "assets": 2,
+  "validatedSiteFiles": 13,
+  "targetEndingCoverage": "1/1 in both formats; independent Player only",
+  "sourceStoryVersion": "0.4.0 unchanged",
+  "editorFullRouteCoverage": "not run",
+  "realDevice": false,
+  "publicDeployment": false,
+  "privateEvidenceInSourceOnly": true,
+  "publicFontLicensePreserved": true,
+  "artifacts": [
+    {
+      "name": "letter-public.worldskin.zip",
+      "bytes": 2656059,
+      "sha256": "5810a2a53d28b14d072c22d71c4998fc720768579448c38e9c4146d104ca20b8"
+    },
+    {
+      "name": "letter-collaboration.worldskin.zip",
+      "bytes": 2656166,
+      "sha256": "f6102fbf045f3acbab091ef156cc3834e8a14dfabe2c525462907074d329dc13"
+    },
+    {
+      "name": "skin-reuse-project.zip",
+      "bytes": 2661929,
+      "sha256": "e1f22b0155e325bd1e8b0ae3bbc0eabd4737142b08a23a35992481ad5a0b4e07"
+    },
+    {
+      "name": "skin-reuse.html",
+      "bytes": 4303026,
+      "sha256": "eb1fd8744fe85766d9cceef26155598077a900c40fe3e591cc088d90aa21f4cc"
+    },
+    {
+      "name": "skin-reuse-web.zip",
+      "bytes": 3470814,
+      "sha256": "c77850454b17c4101d5866841de683ec52896171dbcd1961ed316f52aeb3b283"
+    }
+  ]
+}

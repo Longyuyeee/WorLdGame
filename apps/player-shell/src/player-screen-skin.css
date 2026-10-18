@@ -1,0 +1,36 @@
+/* Opt-in page templates use the same project palette and player controls. */
+.player-shell[data-player-skin="1"] [data-skin-screen] { border: 1px solid var(--skin-border); border-radius: var(--screen-radius); padding: var(--screen-padding); color: var(--skin-text); background: var(--screen-background); font-family: var(--skin-font-ui); font-size: var(--screen-font-size); box-sizing: border-box; }
+.player-shell[data-player-skin="1"] [data-skin-screen]:not([data-skin-screen="ending"]) { position: fixed; inset: calc(max(16px, env(safe-area-inset-top)) + var(--player-viewport-offset, 0px)) max(14px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left)); width: min(var(--screen-width), calc(100vw - max(14px, env(safe-area-inset-left)) - max(14px, env(safe-area-inset-right)))); max-width: calc(100vw - max(14px, env(safe-area-inset-left)) - max(14px, env(safe-area-inset-right))); margin: 0 auto; max-height: calc(100dvh - var(--player-viewport-offset, 0px) - max(16px, env(safe-area-inset-top)) - max(16px, env(safe-area-inset-bottom))); overflow-y: auto; overscroll-behavior: contain; }
+.player-shell[data-player-skin="1"] [data-skin-screen][data-skin-placement="right"]:not([data-skin-screen="ending"]) { left: auto; margin-inline: 0; }
+.player-shell[data-player-skin="1"] [data-skin-screen="menu"] { height: fit-content; }
+.player-shell[data-player-skin="1"] [data-skin-screen="history"] { overflow: hidden; }
+.player-shell[data-player-skin="1"] [data-skin-screen="save"] { height: fit-content; }
+.player-shell[data-player-skin="1"] [data-skin-screen="ending"] { width: min(var(--screen-width), calc(100% - 32px)); max-width: calc(100% - 32px); max-height: min(calc(100dvh - var(--player-viewport-offset, 0px) - 80px), calc((100vw - 40px) / var(--gal-stage-ratio, 1.7778) - 32px), calc(1180px / var(--gal-stage-ratio, 1.7778) - 32px)); overflow-y: auto; }
+.player-shell[data-player-skin="1"] [data-skin-screen="ending"] > span { color: var(--skin-speaker); }
+.player-shell[data-player-skin="1"][data-player-status="ended"]:has([data-skin-screen="ending"]) .player-control-layer:not([data-open="true"]):not(:has([role="dialog"], dialog)) { display: none; }
+.player-shell[data-player-skin="1"] [data-skin-screen="ending"][data-skin-placement="right"] { justify-self: end; margin-right: 16px; }
+.player-shell[data-player-skin="1"] [data-skin-screen] > header { top: calc(0px - var(--screen-padding)); background: var(--player-panel); }
+.player-shell[data-player-skin="1"] [data-skin-screen] :is(button, select, input) { font-family: inherit; font-size: inherit; color: var(--skin-text); background-color: var(--player-panel); border-color: var(--skin-border); }
+.player-shell[data-player-skin="1"] [data-skin-screen] :is(h2, h3, strong, p, label, li, dd, summary) { color: var(--skin-text); }
+.player-shell[data-player-skin="1"] [data-skin-screen] :is(p, label, .player-save-card__scene, .player-history-list__text, .player-credits__text) { font-size: inherit; }
+.player-shell[data-player-skin="1"] [data-skin-screen] :is(small, time, dt, .player-menu-section-title, .player-ending-note, .player-additional-content__intro) { color: var(--skin-muted); }
+.player-shell[data-player-skin="1"] [data-skin-screen] :is(.player-history-list__speaker, .player-credits__studio, .player-additional-content__grid section > span) { color: var(--skin-speaker); }
+.player-shell[data-player-skin="1"] [data-skin-screen] :is(.player-additional-content__grid section, .player-history-list li > button, .player-history-list li > div) { color: var(--skin-text); border-color: var(--skin-border); background: color-mix(in srgb, var(--player-panel) 88%, var(--player-accent) 12%); }
+.player-shell[data-player-skin="1"] [data-skin-screen] .player-primary { color: var(--skin-button-text); background: var(--player-accent); }
+.player-shell[data-player-skin="1"] [data-skin-screen="save"] .player-save-grid { grid-template-columns: repeat(var(--screen-save-columns), minmax(0, 1fr)); }
+.player-shell[data-player-skin="1"] [data-skin-screen="ending"] h2 { font-family: var(--skin-font-title); overflow-wrap: anywhere; }
+.player-shell[data-player-skin="1"] [data-skin-screen="ending"] .player-ending-actions { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.player-shell[data-player-skin="1"] [data-skin-screen="ending"] .player-ending-actions > :is(.player-primary, :last-child) { grid-column: 1 / -1; }
+.player-shell[data-player-skin="1"] [data-skin-screen][data-skin-motion="fade"] { animation: skin-fade var(--skin-motion-duration) ease-out both; }
+.player-shell[data-player-skin="1"] [data-skin-screen][data-skin-motion="rise"] { animation: skin-rise var(--skin-motion-duration) ease-out both; }
+.player-shell[data-player-skin="1"][data-settings-high-contrast="true"] [data-skin-screen] { background: #000; color: #fff; border-color: #fff; }
+.player-shell[data-player-skin="1"][data-settings-high-contrast="true"] [data-skin-screen] :is(h2, h3, p, strong, span, label, small, time, dt, dd, button, select, input) { color: #fff; }
+.player-shell[data-player-skin="1"][data-settings-high-contrast="true"] [data-skin-screen] :is(button, select, input, header) { background: #000; border-color: #fff; }
+.player-shell[data-player-skin="1"][data-settings-reduce-motion="true"] [data-skin-screen] { animation: none; }
+@media (prefers-reduced-motion: reduce) { .player-shell[data-player-skin="1"] [data-skin-screen] { animation: none; } }
+@media (max-width: 640px) {
+  .player-shell[data-player-skin="1"] [data-skin-screen="ending"] .player-ending-actions { grid-template-columns: minmax(0, 1fr); }
+  .player-shell[data-player-skin="1"] [data-skin-screen]:not([data-skin-screen="ending"]) { inset-inline: max(12px, env(safe-area-inset-left)) max(12px, env(safe-area-inset-right)); width: calc(100vw - max(12px, env(safe-area-inset-left)) - max(12px, env(safe-area-inset-right))); max-width: calc(100vw - max(12px, env(safe-area-inset-left)) - max(12px, env(safe-area-inset-right))); margin-inline: 0; padding: min(var(--screen-padding), 22px); }
+  .player-shell[data-player-skin="1"] [data-skin-screen="save"] .player-save-grid { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 640px) and (orientation: portrait) { .player-shell[data-player-skin="1"] [data-skin-screen="ending"] { max-height: calc(100dvh - var(--player-viewport-offset, 0px) - 80px); } }

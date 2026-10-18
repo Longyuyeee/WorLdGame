@@ -1,0 +1,16 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+locator.click: Timeout 15000ms exceeded.
+Call log:
+  - waiting for getByRole('button', { name: '新建项目', exact: true })
+
+    at E:\Project\AIProject\ClaudeProject\WorLdGame\tools\run-web-authoring-flow.mjs:50:65 {
+  log: [
+    "  - waiting for getByRole('button', { name: '新建项目', exact: true })"
+  ],
+  name: 'TimeoutError'
+}
+
+Node.js v24.14.0

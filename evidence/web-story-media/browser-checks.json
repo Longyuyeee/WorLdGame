@@ -1,0 +1,151 @@
+{
+  "passed": true,
+  "checkedAt": "2026-10-13T14:07:32.279Z",
+  "checks": [
+    "import prior editable work, rename protagonist and create six connected writing scenes through ordinary authoring UI",
+    "import all six original media files with inspections; actively audition music and close/release the audio preview",
+    "bulk text: dirty Escape and shortcut isolation, ordered insertion and one-step undo/redo through the writing UI",
+    "author nine scenes with 90 original paragraphs, character lines, six-scene routes, position/volume/loops, transitions and media stops before endings",
+    "writer full preview follows the complete six-scene stay route to its authored ending",
+    "save/reopen all nine scenes, preserve appearance, apply 1.2.0 and audit actual exported source counts",
+    "mid-story quick save / page refresh / load restores exactly the same runtime state and resumes actual audio",
+    "desktop-stay: all six scenes, selected ending, decoded portrait/background, audible music/rain and ending cleanup",
+    "mobile-leave: all six scenes, selected ending, decoded portrait/background, audible music/rain and ending cleanup",
+    "mid-story quick save / page refresh / load restores exactly the same runtime state and resumes actual audio",
+    "http-stay: all six scenes, selected ending, decoded portrait/background, audible music/rain and ending cleanup"
+  ],
+  "errors": [],
+  "story": {
+    "scenes": 9,
+    "paragraphs": 90,
+    "dialogueLines": 9,
+    "textCharacters": 9544,
+    "originalProseCharacters": 9392,
+    "routeProseCharacters": {
+      "stay": 6330,
+      "leave": 6354
+    }
+  },
+  "media": {
+    "volumeChecked": true,
+    "desktop-stay": [
+      {
+        "bus": "ambient",
+        "volume": 0.16000000000000003,
+        "loop": true,
+        "currentTime": 0.013541,
+        "paused": false
+      },
+      {
+        "bus": "bgm",
+        "volume": 0.24,
+        "loop": true,
+        "currentTime": 0.013548,
+        "paused": false
+      }
+    ],
+    "chimePlayed": true,
+    "mobile-leave": [
+      {
+        "bus": "ambient",
+        "volume": 0.16000000000000003,
+        "loop": true,
+        "currentTime": 0.009251,
+        "paused": false
+      },
+      {
+        "bus": "bgm",
+        "volume": 0.24,
+        "loop": true,
+        "currentTime": 0.009254,
+        "paused": false
+      }
+    ],
+    "http-stay": [
+      {
+        "bus": "ambient",
+        "volume": 0.16000000000000003,
+        "loop": true,
+        "currentTime": 0.011964,
+        "paused": false
+      },
+      {
+        "bus": "bgm",
+        "volume": 0.24,
+        "loop": true,
+        "currentTime": 0.011957,
+        "paused": false
+      }
+    ]
+  },
+  "routes": {
+    "desktop-stay": {
+      "observed": [
+        "车站的雨",
+        "候车室的旧信",
+        "站台前的约定",
+        "留下",
+        "灯下的回信",
+        "雨后的天明"
+      ],
+      "paragraphsSeen": 60,
+      "resources": [
+        "sample_station",
+        "xia_letter",
+        "soft_rain",
+        "night_travel_theme",
+        "station_chime",
+        "night_cafe",
+        "coastal_morning"
+      ],
+      "savedAndReloaded": true
+    },
+    "mobile-leave": {
+      "observed": [
+        "车站的雨",
+        "候车室的旧信",
+        "站台前的约定",
+        "远行",
+        "车窗与海",
+        "再一次见面"
+      ],
+      "paragraphsSeen": 60,
+      "resources": [
+        "sample_station",
+        "xia_letter",
+        "soft_rain",
+        "night_travel_theme",
+        "station_chime",
+        "coastal_morning",
+        "night_cafe"
+      ],
+      "savedAndReloaded": false
+    },
+    "http-stay": {
+      "observed": [
+        "车站的雨",
+        "候车室的旧信",
+        "站台前的约定",
+        "留下",
+        "灯下的回信",
+        "雨后的天明"
+      ],
+      "paragraphsSeen": 60,
+      "resources": [
+        "sample_station",
+        "xia_letter",
+        "soft_rain",
+        "night_travel_theme",
+        "station_chime",
+        "night_cafe",
+        "coastal_morning"
+      ],
+      "savedAndReloaded": true
+    }
+  },
+  "localDeployment": true,
+  "publicDeployment": false,
+  "humanReadTimingPassed": false,
+  "physicalDevicePassed": false,
+  "fullLengthWork": false
+}

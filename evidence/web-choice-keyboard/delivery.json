@@ -1,0 +1,64 @@
+{
+  "passed": true,
+  "contentVersion": "1.11.0",
+  "technicalVersion": "S0.41",
+  "promoted": true,
+  "artifacts": {
+    "html": {
+      "bytes": 46786769,
+      "sha256": "1993d4da00f96063f1f25d0cca382f630c874e5d11055f2665f3c73221c11c93"
+    },
+    "website": {
+      "bytes": 35373218,
+      "sha256": "eeec07e8152cc7613886f8d4f85dd0d7936f5677bdfd24856b8441c4452eb92c"
+    }
+  },
+  "sourceAndNotes": "evidence/web-story-plans-and-farewell",
+  "pendingNotes": 25,
+  "retained": [
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops-project.zip",
+      "sha256": "43ef6e1673ed3dffbf705b4f178b2122fc960971eaf47286b33742fa285f0576"
+    },
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops.worldreview",
+      "sha256": "747534249345da6ce337054b4e7f47a1516556beda7079ef7b6d093e590bce8f"
+    },
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops.html",
+      "sha256": "6e5dfb4dfb88b5e210354fbcaeb8ccc4e79d50aa935a1d449f750bde8fc822fa"
+    },
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops-website.zip",
+      "sha256": "25ef0ab90a396f01dcfb09e60f754fb31a82f59aedb8da869b4a199a59e8f19e"
+    },
+    {
+      "file": "evidence/web-reading-press/before-rain-stops.html",
+      "sha256": "62cef5a100e83767bd2d05f4a6a84702335f6cda05d52176480bf51546c775ce"
+    },
+    {
+      "file": "evidence/web-reading-press/before-rain-stops-website.zip",
+      "sha256": "f5df9798de96c6bf29269082ff7748fe500c0e4a0afea60dacd507d410235b89"
+    }
+  ],
+  "browsers": [
+    {
+      "engine": "chromium",
+      "version": "151.0.7922.34",
+      "choiceKeyboardAndGeometryPassed": true,
+      "previousPressProtectionPassed": true
+    },
+    {
+      "engine": "firefox",
+      "version": "153.0",
+      "choiceKeyboardAndGeometryPassed": true,
+      "previousPressProtectionPassed": true
+    },
+    {
+      "engine": "webkit",
+      "version": "26.5",
+      "choiceKeyboardAndGeometryPassed": true,
+      "previousPressProtectionPassed": true
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "baseline": false,
+  "engine": "chromium",
+  "identity": {
+    "baselineCommit": null,
+    "sourceHashes": {
+      "apps/player-shell/src/PlayerShell.tsx": "114f63804d0bde70c3f8343c8f69cc33d1bb35ccf3a7cd1cc43bd3ad2720b68c",
+      "apps/player-shell/src/player-shell.css": "633d00ed24ee5105a890c88718d749eb67e4b4dcad92056223e0c9ec7f5d039a"
+    },
+    "codeSha256": "edabc896ba33453ca089b0e6ce1a83f89d53a23d952678f1103b0e5529455381",
+    "cssSha256": "52bf2e567137644d53b3718e75971f2b4d3deb0100386940fc6d7c2a1a1dc8bc",
+    "fixtureSha256": "aaa376e93fbe61df1b9a08c228264acb080438b13d662e52264f663c28fdb422"
+  },
+  "samples": [],
+  "errors": [
+    "locator.click: Timeout 2000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: '完成动效', exact: true })\u001b[22m\n\n    at E:\\ProjectSave\\GeminiProject\\WorLdGame\\tools\\run-web-collection-covers.mjs:34:64",
+    "欣赏画面\n菜单 ☰\n\n横屏更适合观看演出\n\n存读档\n\n进度已自动保存\n\nActor\nEvery cue must remain ordered.\n\n点击文字继续故事"
+  ],
+  "scope": "Configured catalog covers and long names in an isolated native-browser fixture. Not an authored Rain story export or full-story acceptance."
+}

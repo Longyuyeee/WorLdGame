@@ -1,0 +1,155 @@
+{
+  "passed": true,
+  "engine": "firefox",
+  "browser": "153.0",
+  "artifactSha256": "d63fc9280774f6260ee4a85b6496e08c86666a655f28af7d1b0464015181c864",
+  "realTime": true,
+  "heldPackingBytes": 85121,
+  "checks": [
+    {
+      "name": "pending-recovery-is-discoverable-without-covering-reading",
+      "before": {
+        "hash": "60114e3dca3a8f08d831e6a5fedd11eea2ad31207e22b2891d39f7e2331b19a7",
+        "cursor": "35",
+        "recovery": "error",
+        "text": "列车即将进站的提示亮在屏幕上。小夏站起来，把干燥的纸袋交还给他。他们没有说服彼此选同一条路，却已经知道无论林远今晚走不走，有几个约定都不必再等：回信，见面，还有把没完成的愿望告诉一个真正愿意听的人。"
+      },
+      "durableBefore": [
+        {
+          "hash": "e7d0495dc09ea90f6469376b12be4fe6f2f1b7f154aa0905d0fd0ce478f64fc9",
+          "sceneId": "scene_fff36353633c42d1"
+        }
+      ],
+      "layouts": [
+        {
+          "viewport": {
+            "width": 568,
+            "height": 320
+          },
+          "entrance": {
+            "height": 44,
+            "inViewport": true
+          },
+          "manual": {
+            "height": 44,
+            "inViewport": true
+          }
+        },
+        {
+          "viewport": {
+            "width": 320,
+            "height": 740
+          },
+          "entrance": {
+            "height": 44,
+            "inViewport": true
+          },
+          "manual": {
+            "height": 44,
+            "inViewport": true
+          }
+        },
+        {
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "entrance": {
+            "height": 44,
+            "inViewport": true
+          },
+          "manual": {
+            "height": 44,
+            "inViewport": true
+          }
+        },
+        {
+          "viewport": {
+            "width": 844,
+            "height": 390
+          },
+          "entrance": {
+            "height": 44,
+            "inViewport": true
+          },
+          "manual": {
+            "height": 44,
+            "inViewport": true
+          }
+        },
+        {
+          "viewport": {
+            "width": 1280,
+            "height": 900
+          },
+          "entrance": {
+            "height": 44,
+            "inViewport": true
+          },
+          "manual": {
+            "height": 44,
+            "inViewport": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "one-prioritized-save-entrance-retains-real-media-failure-and-explicit-silence-does-not-clear-recovery",
+      "state": {
+        "hash": "60114e3dca3a8f08d831e6a5fedd11eea2ad31207e22b2891d39f7e2331b19a7",
+        "cursor": "35",
+        "recovery": "error",
+        "text": "列车即将进站的提示亮在屏幕上。小夏站起来，把干燥的纸袋交还给他。他们没有说服彼此选同一条路，却已经知道无论林远今晚走不走，有几个约定都不必再等：回信，见面，还有把没完成的愿望告诉一个真正愿意听的人。"
+      }
+    },
+    {
+      "name": "native-tap-pages-then-advances-during-pending-recovery-without-mutating-the-old-record",
+      "top": 0,
+      "pagedTop": 48,
+      "latest": {
+        "hash": "f68e087437010deacff773f8dc6c896e47b57d824f5ff49dbd945df5359b8acc",
+        "cursor": "40",
+        "recovery": "error",
+        "text": "推开门时，雨已经小了一些。车厢的灯从远处移过来，一节一节停在站台边。林远发现自己不再只是盯着时间：他看见推婴儿车的乘客需要绕开积水，看见值班员把一个打湿的指示牌重新扶正，也看见小夏松开伞柄，等着他把最后的话说完。"
+      }
+    },
+    {
+      "name": "independent-manual-save-protects-the-current-paragraph-without-pretending-recovery-has-finished",
+      "manual": {
+        "hash": "f68e087437010deacff773f8dc6c896e47b57d824f5ff49dbd945df5359b8acc",
+        "slotId": "manual-1",
+        "kind": "manual",
+        "sceneId": "scene_f3c19020bde744aa"
+      },
+      "recoveryBefore": [
+        {
+          "hash": "e7d0495dc09ea90f6469376b12be4fe6f2f1b7f154aa0905d0fd0ce478f64fc9",
+          "sceneId": "scene_fff36353633c42d1"
+        }
+      ]
+    },
+    {
+      "name": "late-success-remains-truthful-and-explicit-retry-plus-reload-restores-the-latest-actual-record",
+      "late": [
+        {
+          "hash": "60114e3dca3a8f08d831e6a5fedd11eea2ad31207e22b2891d39f7e2331b19a7",
+          "sceneId": "scene_fff36353633c42d1"
+        }
+      ],
+      "latest": {
+        "hash": "f68e087437010deacff773f8dc6c896e47b57d824f5ff49dbd945df5359b8acc",
+        "cursor": "40",
+        "recovery": "error",
+        "text": "推开门时，雨已经小了一些。车厢的灯从远处移过来，一节一节停在站台边。林远发现自己不再只是盯着时间：他看见推婴儿车的乘客需要绕开积水，看见值班员把一个打湿的指示牌重新扶正，也看见小夏松开伞柄，等着他把最后的话说完。"
+      },
+      "restored": {
+        "hash": "f68e087437010deacff773f8dc6c896e47b57d824f5ff49dbd945df5359b8acc",
+        "cursor": "40",
+        "recovery": "loaded",
+        "text": "推开门时，雨已经小了一些。车厢的灯从远处移过来，一节一节停在站台边。林远发现自己不再只是盯着时间：他看见推婴儿车的乘客需要绕开积水，看见值班员把一个打湿的指示牌重新扶正，也看见小夏松开伞柄，等着他把最后的话说完。"
+      }
+    }
+  ],
+  "errors": [],
+  "scope": "Actual 1.11 game and real timers; one native session-packing digest delayed before real IndexedDB IO, old records and real manual save checked read-only, native taps/keys/menu/retry/reload. No fabricated narrative/save/worker/transaction or geometry. Not a cure for Firefox controlled-clock compression timing, physical phone/Safari, natural listening/timing, permissions or HTTPS."
+}

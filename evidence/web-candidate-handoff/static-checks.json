@@ -1,0 +1,35 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "name": "typecheck",
+      "status": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "name": "architecture",
+      "status": 0,
+      "stdout": "{\n  \"status\": \"PASS\",\n  \"auditedPortableFiles\": 118,\n  \"auditedNodeAdapterFiles\": 4,\n  \"guarantees\": [\n    \"narrative-vm-spike has no UI, DOM, platform-shell, filesystem, process, crypto-provider, wall-clock, or ambient-random dependency\",\n    \"story-core has no UI, DOM, platform-shell, filesystem, or process dependency\",\n    \"story-language has no UI, DOM, platform-shell, filesystem, or process dependency\",\n    \"story-language depends only on story-core\",\n    \"project-compiler is portable and depends only on project-domain/story-language, never the VM spike or platform APIs\",\n    \"runtime is portable and depends only on project-compiler, never the VM spike, editor, filesystem, wall clock, randomness, or platform APIs\",\n    \"runtime-host is portable and depends only on formal runtime, never UI, DOM, shell, filesystem, wall clock, randomness, or platform APIs\",\n    \"player-core is portable and consumes only canonical project, formal Compiler IR, Runtime, and Runtime Host without a parallel StoryStatement interpreter\",\n    \"gal-settings is dependency-free and portable with no UI, DOM, filesystem, process, shell, wall-clock, or ambient-random dependency\",\n    \"route-graph is portable and projects only canonical project and compiler facts through the Project Service boundary\",\n    \"project-persistence has no UI, DOM, platform-shell, filesystem, process, or runtime third-party dependency\",\n    \"project-domain depends only on portable Gal settings and has no UI, DOM, platform-shell, filesystem, process, crypto-provider, or runtime third-party dependency\",\n    \"project-persistence-node is isolated from the web editor and depends only on portable project-domain/project-persistence contracts\",\n    \"editor declares the Gal settings dependency explicitly\",\n    \"editor declares the story-core dependency explicitly\",\n    \"editor declares the story-language dependency explicitly\",\n    \"editor declares the project-persistence dependency explicitly\",\n    \"web editor does not bundle the Node filesystem adapter\",\n    \"VM Web Worker conformance Harness depends only on the portable Spike, formal Runtime, and portable Runtime Host and imports no shell or Node adapter\",\n    \"VM conformance CLI is an isolated Node reference host and depends only on the portable narrative VM\",\n    \"Windows Electron host keeps isolation and sandboxing enabled with the frozen WindowsHostV1 storage bridge\",\n    \"Windows Tauri host exposes only the frozen WindowsHostV1 storage commands and no generic privileged plugin\",\n    \"Windows project grant roots stay native-only and both hosts reject reparse roots and existing reparse path segments\",\n    \"story-core has no runtime third-party dependency\"\n  ]\n}\n",
+      "stderr": ""
+    }
+  ],
+  "code": [
+    {
+      "file": "tools/run-web-work-continuity-matrix.mjs",
+      "sha256": "9727561fe7c474b9ebc9993f9a1dc77b187c1faa9a07e94b710cfa093e42c110"
+    },
+    {
+      "file": "tools/run-web-work-continuity-matrix.test.mjs",
+      "sha256": "084420b81d98034f764d1027a2564bce5e86bf7eab200e753a3ecb303da7e3cb"
+    },
+    {
+      "file": "tools/audit-web-candidate-handoff.mjs",
+      "sha256": "c551bcd9dddeb8ae3d239725b73d480c82bd93c6938a57eb0400c737f7789719"
+    },
+    {
+      "file": "tools/audit-web-candidate-handoff.test.mjs",
+      "sha256": "22ac925791d5652982ffd7336920f3f351053e577b08da7467548ebdc2718aa3"
+    }
+  ]
+}

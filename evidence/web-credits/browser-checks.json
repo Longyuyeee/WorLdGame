@@ -1,0 +1,25 @@
+{
+  "passed": true,
+  "browser": "155.0.8059.41",
+  "checks": [
+    "real publishing form: ordered contributor edit, invalid link rejection, Escape retains draft, explicit discard, actual local save/reload/home reopen preserves applied credits; desktop and 390px light/dark dialogs fit",
+    "actual HTML and directory production downloads carry applied credits; readable credits.txt matches build-info hash and offline inventory, and editable source is packaged; no private review attached",
+    "downloaded HTML desktop: title/menu/ending credits, links in keyboard focus order, long text/close action fit, source markup displayed as text, closing restores focus and identical story state; short route reaches ending",
+    "downloaded directory 390px: title/menu/ending credits, links in keyboard focus order, long text/close action fit, source markup displayed as text, closing restores focus and identical story state; short route reaches ending",
+    "explicitly clearing credits returns to the optional empty state and invalidates old downloads; no credits are invented for the existing work"
+  ],
+  "errors": [],
+  "artifacts": {
+    "下载游戏": {
+      "filename": "分支创作流程.html",
+      "bytes": 631578,
+      "sha256": "2835fe162b523e9906f23b1bfebc4982e18dbdc24b4a746c87f1cb6499cd5a4f"
+    },
+    "下载制作交付包": {
+      "filename": "分支创作流程-1.0.0-production.zip",
+      "bytes": 673500,
+      "sha256": "a36ba45185c2420f12df0276708501641e59a4e58cf2d80f2d21babcd6190e18"
+    }
+  },
+  "scope": "Short existing fixture with explicitly labelled sample credits, actual UI editing/save/reopen, both production exports and standalone players over local HTTP; not legal permission review, physical device, long Rain route or public deployment."
+}

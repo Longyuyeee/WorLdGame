@@ -1,0 +1,25 @@
+{
+  "passed": true,
+  "browser": "155.0.8059.41",
+  "checks": [
+    "actual entry runs: old left ending, edit narration through revision, new right ending; independent progress download retains two source versions without counting old progress as current",
+    "opt-in directory production bundle has independently chosen notes/progress, exact manifest digests, original editable source, private author records only under review/; changing progress option invalidates generated downloads; 390px options fit",
+    "second isolated browser: full bundle restores source, waits for explicit merge, retains both author prompts across home/reload/reopen; progress and notes merge independently; consumed prompts stay cleared after reload; current 1/2 and old receipt remain distinct, dark mobile fits",
+    "third isolated browser: normal source ZIP has no progress; actual local new-version left run is retained while importing right + old left; cancel writes nothing, repeat merge stays at 2/2 and three receipts; foreign file rejected; merged progress survives reload",
+    "delivery with foreign progress and recomputed correct file inventory/digests is rejected before creating a recent project",
+    "actual delivered game/ HTTP directory independently plays the revised short story to an ending at 390px"
+  ],
+  "errors": [],
+  "artifacts": {
+    "progress": {
+      "bytes": 625,
+      "sha256": "sha256:69dc9348f97bc274b23e4a94bcbe1b770877a70308125fcccb6483b84cc45212"
+    },
+    "delivery": {
+      "bytes": 663487,
+      "sha256": "sha256:2a67a9be584d7bdf795062493269bfc0166e23f4cde0ebe256b1f03a8acdf2b7",
+      "format": "directory"
+    }
+  },
+  "scope": "Short existing project, actual runs and isolated browser storage, portable author handoff; no injected completion receipts. No Rain long route rerun, physical phone, full offline/backup lifecycle, other engine, human acceptance or public deployment."
+}

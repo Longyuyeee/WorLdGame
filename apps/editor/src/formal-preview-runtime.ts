@@ -6,6 +6,7 @@ import {
   createRuntimeSchedulerSessionV1,
   forwardRuntimeHistoryV1,
   createRuntimeState,
+  evaluateRuntimeExpressionV1,
   mapRuntimeDiagnosticsV1,
   scheduleRuntimeBatchV1,
   validateRuntimeStateV1,
@@ -19,6 +20,7 @@ import {
   type RuntimeSchedulerSessionV1,
   type RuntimeStateV1
 } from "@world-studio/runtime";
+import { parseTypedExpression, type ExpressionValueType } from "@world-studio/story-language";
 import type { CanonicalProject, JsonValue } from "@world-studio/project-domain";
 import {
   consumeRuntimePresentationEffectsV1,
@@ -70,6 +72,8 @@ export interface FormalPreviewObservation {
 }
 
 export interface FormalPreviewState {
+  readonly reviewSourceHash: string | null;
+  readonly playtestSourceHash: string | null;
   readonly status: FormalPreviewStatus;
   readonly program: RuntimeProgramV1 | null;
   readonly sourceMap: RuntimeSourceMapV1 | null;
@@ -93,8 +97,27 @@ export interface FormalPreviewState {
   readonly error?: string;
 }
 
+export interface FormalPreviewBreakpoint {
+  readonly sceneId: string;
+  readonly statementId: string;
+}
+
+export interface FormalPreviewWatchDependency {
+  readonly id: string;
+  readonly value: null | boolean | number | string;
+  readonly previousValue: null | boolean | number | string | undefined;
+  readonly changed: boolean;
+  readonly sources: readonly { readonly sceneId: string; readonly statementId: string }[];
+}
+
+export type FormalPreviewWatchInspection =
+  | { readonly status: "ready"; readonly expression: string; readonly value: null | boolean | number | string; readonly valueType: "null" | "boolean" | "number" | "string"; readonly previousValue: null | boolean | number | string | undefined; readonly changed: boolean; readonly dependencies: readonly FormalPreviewWatchDependency[] }
+  | { readonly status: "error" | "unavailable"; readonly expression: string; readonly error: string; readonly dependencies: readonly FormalPreviewWatchDependency[] };
+
 export function createIdleFormalPreviewState(): FormalPreviewState {
   return {
+    reviewSourceHash: null,
+    playtestSourceHash: null,
     status: "idle",
     program: null,
     sourceMap: null,
@@ -283,6 +306,8 @@ export function startFormalPreview(project: CanonicalProject, target: FormalPrev
     ...createIdleFormalPreviewState(),
     status: "presenting",
     program: compiled.artifacts.story,
+    reviewSourceHash: compiled.artifacts.manifest.sourceHash,
+    playtestSourceHash: compiled.artifacts.manifest.sourceHash,
     sourceMap: compiled.artifacts.sourceMap,
     compilerWarnings: compiled.diagnostics.filter((item) => item.severity === "warning"),
     diagnostics: compiled.diagnostics.filter((item) => item.severity === "warning").map(compilerDiagnostic),
@@ -361,6 +386,62 @@ export function observeFormalPreview(state: FormalPreviewState): FormalPreviewOb
       lastOperation: state.effectHost.operations.at(-1)?.kind ?? null,
       checkpointId: state.effectHost.checkpointId
     }
+  };
+}
+
+function watchVariableType(value: null | boolean | number | string): ExpressionValueType {
+  return value === null ? "unknown" : typeof value === "boolean" ? "boolean" : typeof value === "number" ? "number" : "string";
+}
+
+function watchSources(state: FormalPreviewState, variableId: string): readonly { readonly sceneId: string; readonly statementId: string }[] {
+  if (state.program === null || state.sourceMap === null) return [];
+  const instructionIds = new Set(state.program.scenes.flatMap((scene) => scene.instructions
+    .filter((instruction) => instruction.opcode === "set" && instruction.operands.variableId === variableId)
+    .map((instruction) => instruction.instructionId)));
+  const seen = new Set<string>();
+  return state.sourceMap.entries.flatMap((entry) => {
+    const key = `${entry.sceneId}\u0000${entry.statementId}`;
+    if (!instructionIds.has(entry.instructionId) || seen.has(key)) return [];
+    seen.add(key);
+    return [{ sceneId: entry.sceneId, statementId: entry.statementId }];
+  });
+}
+
+/** Combines the official Story parser, Runtime evaluator, History checkpoints, and Source Map for debugger Watch. */
+export function inspectFormalPreviewWatch(state: FormalPreviewState, expression: string): FormalPreviewWatchInspection {
+  const runtime = state.runtimeState;
+  if (runtime === null) return { status: "unavailable", expression, error: "启动正式调试会话后才能求值", dependencies: [] };
+  const symbols = Object.fromEntries(Object.entries(runtime.variables).map(([id, value]) => [id, watchVariableType(value)]));
+  const parsed = parseTypedExpression(expression, symbols);
+  const dependencyIds = [...new Set(parsed.identifiers.map((item) => item.name))];
+  const history = state.historySession;
+  const previousState = history === null
+    ? undefined
+    : hasTransientPosition(state)
+      ? history.checkpoints[history.cursor]?.state
+      : history.cursor > 0
+        ? history.checkpoints[history.cursor - 1]?.state
+        : undefined;
+  const dependencies = dependencyIds.flatMap((id): FormalPreviewWatchDependency[] => id in runtime.variables ? [{
+    id,
+    value: runtime.variables[id]!,
+    previousValue: previousState?.variables[id],
+    changed: previousState !== undefined && !Object.is(previousState.variables[id], runtime.variables[id]),
+    sources: watchSources(state, id)
+  }] : []);
+  if (parsed.issues.length > 0 || parsed.root === null) return { status: "error", expression, error: parsed.issues[0]?.message ?? "Expression is empty", dependencies };
+  const evaluated = evaluateRuntimeExpressionV1(parsed.root, runtime.variables);
+  if (!evaluated.ok) return { status: "error", expression, error: evaluated.message, dependencies };
+  const previous = previousState === undefined ? undefined : evaluateRuntimeExpressionV1(parsed.root, previousState.variables);
+  const previousValue = previous?.ok ? previous.value : undefined;
+  return {
+    status: "ready",
+    expression,
+    value: evaluated.value,
+    valueType: evaluated.valueType,
+    previousValue,
+    changed: previousValue !== undefined && !Object.is(previousValue, evaluated.value),
+    dependencies
   };
 }
 
@@ -516,6 +597,52 @@ export function runFormalPreviewToStatement(state: FormalPreviewState, sceneId: 
     current = { ...current, runtimeState: result.state, historySession: result.session.history, schedulerSession: result.session, currentEvent: event ?? current.currentEvent };
   }
   return controlDiagnostic(current, "PREVIEW_RUN_TO_CURSOR_LIMIT", "运行到光标超过 10,000 条指令安全上限");
+}
+
+export function continueFormalPreviewToBreakpoints(state: FormalPreviewState, breakpoints: readonly FormalPreviewBreakpoint[]): FormalPreviewState {
+  if (state.program === null || state.sourceMap === null || state.historySession === null) return controlDiagnostic(state, "PREVIEW_HISTORY_MISSING", "正式 Preview History 尚未建立");
+  const program = state.program;
+  const sourceMap = state.sourceMap;
+  const targetInstructionIds = new Set(breakpoints.flatMap((breakpoint) => {
+    const source = sourceMap.entries.find((entry) => entry.sceneId === breakpoint.sceneId && entry.statementId === breakpoint.statementId);
+    return source === undefined ? [] : [source.instructionId];
+  }));
+  const currentInstructionId = state.currentEvent?.instructionId ?? sourceAtCursor(state, state.runtimeState!)?.instructionId;
+  if (state.status !== "paused" && currentInstructionId !== undefined && targetInstructionIds.has(currentInstructionId)) return { ...state, status: "paused" };
+
+  let current = state;
+  while (!hasTransientPosition(current) && current.historySession !== null && current.historySession.cursor < current.historySession.entries.length) {
+    current = forwardFormalPreview(current);
+    const instructionId = current.currentEvent?.instructionId ?? (current.runtimeState === null ? undefined : sourceAtCursor(current, current.runtimeState)?.instructionId);
+    if (instructionId !== undefined && targetInstructionIds.has(instructionId)) return { ...current, status: "paused" };
+    if (!["presenting", "paused"].includes(current.status)) return current;
+    if (current.diagnostics.some((item) => item.severity === "error")) return current;
+  }
+
+  let scheduler = current.schedulerSession;
+  if (scheduler === null) {
+    const created = schedulerFromHistory(current, current.historySession!);
+    if (!("schemaVersion" in created)) return created;
+    scheduler = created;
+  }
+  const policy = { ...normalPolicy, mode: "skipAll" as const, skipActivation: "toggle" as const, speed: "instant" as const, instantInstructionBudget: 1 };
+  for (let instruction = 0; instruction < 10_000; instruction += 1) {
+    const cursorInstruction = program.scenes.find((scene) => scene.sceneId === scheduler!.workingState.cursor.sceneId)?.instructions[scheduler!.workingState.cursor.instructionIndex];
+    if (!(instruction === 0 && state.status === "paused") && cursorInstruction !== undefined && targetInstructionIds.has(cursorInstruction.instructionId)) return presentHistory(current, scheduler.history, scheduler, scheduler.workingState, null, null, true);
+    const result = scheduleRuntimeBatchV1(program, scheduler, policy);
+    scheduler = result.session;
+    if (result.diagnostics.length > 0) {
+      const first = result.diagnostics[0]!;
+      return failed({ ...current, runtimeState: result.state, historySession: result.session.history, schedulerSession: result.session }, `${first.code} · ${first.message}`, runtimeDiagnostics(current, result.diagnostics));
+    }
+    const event = result.events.at(-1) ?? null;
+    if (!(instruction === 0 && state.status === "paused") && event !== null && targetInstructionIds.has(event.instructionId)) return presentHistory(current, result.session.history, result.session, result.state, event, null, true, result.effects);
+    if (["input", "effect", "barrier", "terminal"].includes(result.stopReason)) return presentHistory(current, result.session.history, result.session, result.state, event, null, false, result.effects);
+    if (result.stopReason === "resourceUnavailable") return sessionFailure({ ...current, runtimeState: result.state, historySession: result.session.history, schedulerSession: result.session }, "PREVIEW_RESOURCE_UNAVAILABLE", "正式 Runtime 在资源不可用边界停止");
+    if (result.stopReason === "history") return controlDiagnostic({ ...current, runtimeState: result.state, historySession: result.session.history, schedulerSession: result.session }, "PREVIEW_CONTINUE_HISTORY_BLOCKED", "Continue 被 History 边界阻断");
+    current = { ...current, runtimeState: result.state, historySession: result.session.history, schedulerSession: result.session, currentEvent: event ?? current.currentEvent };
+  }
+  return controlDiagnostic(current, "PREVIEW_CONTINUE_LIMIT", "Continue 超过 10,000 条指令安全上限");
 }
 
 export function selectFormalPreviewChoice(state: FormalPreviewState, optionId: string): FormalPreviewState {

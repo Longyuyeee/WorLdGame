@@ -1,0 +1,58 @@
+{
+  "passed": true,
+  "contentVersion": "1.11.0",
+  "technicalVersion": "S0.41",
+  "currentCandidateUnchanged": true,
+  "retained": [
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops-project.zip",
+      "sha256": "43ef6e1673ed3dffbf705b4f178b2122fc960971eaf47286b33742fa285f0576"
+    },
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops.worldreview",
+      "sha256": "747534249345da6ce337054b4e7f47a1516556beda7079ef7b6d093e590bce8f"
+    },
+    {
+      "file": "evidence/web-reading-press/before-rain-stops.html",
+      "sha256": "62cef5a100e83767bd2d05f4a6a84702335f6cda05d52176480bf51546c775ce"
+    },
+    {
+      "file": "evidence/web-reading-press/before-rain-stops-website.zip",
+      "sha256": "f5df9798de96c6bf29269082ff7748fe500c0e4a0afea60dacd507d410235b89"
+    }
+  ],
+  "build": {
+    "/assets/index-k4TZGnhZ.js": "bd00edfe2fa44902b5cdf80733184533c602425543c0070b3c6e7aa8fe1203ee",
+    "/assets/index-DJ92-1xN.css": "12f179587a2464422f8f241b017acc2f6c25b976cfe28b36c754577a4a3f972b"
+  },
+  "tests": {
+    "files": 137,
+    "distinctTests": 1232,
+    "nodeTests": 45,
+    "preservedFirstRunTimeouts": 2
+  },
+  "browsers": [
+    {
+      "engine": "chromium",
+      "version": "151.0.7922.34",
+      "nativePlayback": true,
+      "sourceWorkflowPassed": true
+    },
+    {
+      "engine": "firefox",
+      "version": "153.0",
+      "nativePlayback": true,
+      "sourceWorkflowPassed": true
+    },
+    {
+      "engine": "webkit",
+      "version": "26.5",
+      "nativePlayback": false,
+      "sourceWorkflowPassed": true
+    }
+  ],
+  "pendingMediaPermissions": 26,
+  "approvedMediaPermissions": 0,
+  "pendingHumanNotes": 25,
+  "scope": "Editor source-review workflow and exact file/source associations. Public player candidate retained; not a new story release, full player-route rerun, human listening, physical phone/Safari, licensing or public deployment acceptance."
+}

@@ -1,0 +1,11 @@
+
+> world-studio@0.0.0-s0.41 audit:web-save-updates:browser
+> node tools/run-web-save-updates.mjs
+
+"UI verifies 1.5.1 and 1.5.2, refuses changed source without altering current project; source preserves every story/media entry"
+"actual editor content change invalidates the saved receipt; test-only directory declares no accepted prior versions"
+"original 1.5.2 caches fully and reads its quick save offline"
+"waiting update preserves the old window; activated 1.5.3 restores old recovery/quick saves offline with cached audio and unchanged original slot bytes"
+"continued old session saves to a separate manual slot, refreshes offline at the same progress on a 390px viewport, and keeps the original quick slot"
+"a real content-changing update disables incompatible recovery, rejects old quick load visibly and preserves title state/original slot"
+"current standalone HTML opens as a local file, quick saves, refreshes and loads correctly"

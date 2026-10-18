@@ -22,8 +22,8 @@ const saveStore = await read("apps/player-shell/src/player-save-store.ts");
 for (const [ok, message] of [
   [storyModel.includes('readonly kind: "checkpoint"') && syntaxModel.includes('readonly kind:"checkpoint"'), "formal Story checkpoint is missing"],
   [parser.includes('MALFORMED_CHECKPOINT') && parser.includes('kind:"checkpoint"'), "checkpoint parser fail-closed contract is missing"],
-  [compilerTypes.includes('RUNTIME_IR_VERSION = "1.1.0" as const') && compilerTypes.includes('| "checkpoint"') && compiler.includes('operands = { stepId: id }'), "Compiler IR 1.1 checkpoint lowering is missing"],
-  [runtime.includes('program.irVersion !== "1.0.0" && program.irVersion !== "1.1.0"') && runtime.includes('opcode === "checkpoint"') && runtime.includes('kind: "checkpoint-reached"'), "Runtime dual-read checkpoint event is missing"],
+  [compilerTypes.includes('RUNTIME_IR_VERSION = "1.2.0" as const') && compilerTypes.includes('| "1.1.0"') && compilerTypes.includes('| "checkpoint"') && compiler.includes('operands = { stepId: id }'), "Current Compiler must retain checkpoint lowering and legacy IR types"],
+  [runtime.includes('["1.0.0", "1.1.0", "1.2.0"].includes(program.irVersion)') && runtime.includes('opcode === "checkpoint" && program.irVersion === "1.0.0"') && runtime.includes('kind: "checkpoint-reached"'), "Runtime must retain legacy read and checkpoint event behavior"],
   [player.includes('checkpointSaveCandidates') && player.includes('createRuntimeSessionSaveV1(artifacts.story, historySession)') && player.includes('event?.kind === "checkpoint-reached"'), "Player exact checkpoint candidate is missing"],
   [saveStore.includes('WorldPlayerSaveKindV2 = "manual" | "auto" | "quick"'), "strict Save v2 compatibility baseline is missing"]
 ]) if (!ok) violations.push(message);

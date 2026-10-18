@@ -1,0 +1,141 @@
+{
+  "passed": true,
+  "promoted": true,
+  "contentVersion": "1.11.0",
+  "technicalVersion": "S0.41",
+  "artifacts": {
+    "html": {
+      "bytes": 46844460,
+      "sha256": "105dc3dfb186df992fa1df887460a76380f5825ed1653fffb47137a9f80bb0bd"
+    },
+    "website": {
+      "bytes": 35430909,
+      "sha256": "c3661566d08c887b160601ed1535b0caee41d5f7c6a4295bf2511ee041f10518"
+    }
+  },
+  "sourceAndNotes": "evidence/web-story-plans-and-farewell",
+  "pendingNotes": 25,
+  "retained": [
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops-project.zip",
+      "sha256": "43ef6e1673ed3dffbf705b4f178b2122fc960971eaf47286b33742fa285f0576"
+    },
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops.worldreview",
+      "sha256": "747534249345da6ce337054b4e7f47a1516556beda7079ef7b6d093e590bce8f"
+    },
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops.html",
+      "sha256": "6e5dfb4dfb88b5e210354fbcaeb8ccc4e79d50aa935a1d449f750bde8fc822fa"
+    },
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops-website.zip",
+      "sha256": "25ef0ab90a396f01dcfb09e60f754fb31a82f59aedb8da869b4a199a59e8f19e"
+    },
+    {
+      "file": "evidence/web-replay-recovery/before-rain-stops.html",
+      "sha256": "f7b9ba77c472060ca13c620a1f5fbf129fefd43349b130b2f5d8e043ed491553"
+    },
+    {
+      "file": "evidence/web-replay-recovery/before-rain-stops-website.zip",
+      "sha256": "ed95fd60712015a1c68137e25e8e6f9e0162a7ad0c85a505b0f7bdf807e1c02e"
+    }
+  ],
+  "browsers": [
+    {
+      "engine": "chromium",
+      "fileMode": false,
+      "checks": 5,
+      "viewports": 5
+    },
+    {
+      "engine": "firefox",
+      "fileMode": false,
+      "checks": 5,
+      "viewports": 5
+    },
+    {
+      "engine": "webkit",
+      "fileMode": false,
+      "checks": 5,
+      "viewports": 5
+    },
+    {
+      "engine": "chromium",
+      "fileMode": true,
+      "checks": 5,
+      "viewports": 5
+    }
+  ],
+  "covers": [
+    {
+      "engine": "chromium",
+      "samples": 15,
+      "identity": {
+        "baselineCommit": null,
+        "sourceHashes": {
+          "apps/player-shell/src/PlayerShell.tsx": "114f63804d0bde70c3f8343c8f69cc33d1bb35ccf3a7cd1cc43bd3ad2720b68c",
+          "apps/player-shell/src/player-shell.css": "633d00ed24ee5105a890c88718d749eb67e4b4dcad92056223e0c9ec7f5d039a"
+        },
+        "codeSha256": "edabc896ba33453ca089b0e6ce1a83f89d53a23d952678f1103b0e5529455381",
+        "cssSha256": "52bf2e567137644d53b3718e75971f2b4d3deb0100386940fc6d7c2a1a1dc8bc",
+        "fixtureSha256": "aaa376e93fbe61df1b9a08c228264acb080438b13d662e52264f663c28fdb422"
+      }
+    },
+    {
+      "engine": "firefox",
+      "samples": 15,
+      "identity": {
+        "baselineCommit": null,
+        "sourceHashes": {
+          "apps/player-shell/src/PlayerShell.tsx": "114f63804d0bde70c3f8343c8f69cc33d1bb35ccf3a7cd1cc43bd3ad2720b68c",
+          "apps/player-shell/src/player-shell.css": "633d00ed24ee5105a890c88718d749eb67e4b4dcad92056223e0c9ec7f5d039a"
+        },
+        "codeSha256": "edabc896ba33453ca089b0e6ce1a83f89d53a23d952678f1103b0e5529455381",
+        "cssSha256": "52bf2e567137644d53b3718e75971f2b4d3deb0100386940fc6d7c2a1a1dc8bc",
+        "fixtureSha256": "aaa376e93fbe61df1b9a08c228264acb080438b13d662e52264f663c28fdb422"
+      }
+    },
+    {
+      "engine": "webkit",
+      "samples": 15,
+      "identity": {
+        "baselineCommit": null,
+        "sourceHashes": {
+          "apps/player-shell/src/PlayerShell.tsx": "114f63804d0bde70c3f8343c8f69cc33d1bb35ccf3a7cd1cc43bd3ad2720b68c",
+          "apps/player-shell/src/player-shell.css": "633d00ed24ee5105a890c88718d749eb67e4b4dcad92056223e0c9ec7f5d039a"
+        },
+        "codeSha256": "edabc896ba33453ca089b0e6ce1a83f89d53a23d952678f1103b0e5529455381",
+        "cssSha256": "52bf2e567137644d53b3718e75971f2b4d3deb0100386940fc6d7c2a1a1dc8bc",
+        "fixtureSha256": "aaa376e93fbe61df1b9a08c228264acb080438b13d662e52264f663c28fdb422"
+      }
+    }
+  ],
+  "fullMatrixCells": 4,
+  "catalogAcceptance": "desktop-five-viewport-samples",
+  "embeddedWebKitAudioAcceptance": "not-accepted",
+  "physicalPhoneAcceptance": "not-accepted",
+  "tests": {
+    "files": 161,
+    "distinctTests": 1531,
+    "newTests": 4,
+    "nodeTests": 121
+  },
+  "engineering": {
+    "typecheck": {
+      "passed": true,
+      "output": ""
+    },
+    "architecture": {
+      "passed": true,
+      "output": "{\n  \"status\": \"PASS\",\n  \"auditedPortableFiles\": 118,\n  \"auditedNodeAdapterFiles\": 4,\n  \"guarantees\": [\n    \"narrative-vm-spike has no UI, DOM, platform-shell, filesystem, process, crypto-provider, wall-clock, or ambient-random dependency\",\n    \"story-core has no UI, DOM, platform-shell, filesystem, or process dependency\",\n    \"story-language has no UI, DOM, platform-shell, filesystem, or process dependency\",\n    \"story-language depends only on story-core\",\n    \"project-compiler is portable and depends only on project-domain/story-language, never the VM spike or platform APIs\",\n    \"runtime is portable and depends only on project-compiler, never the VM spike, editor, filesystem, wall clock, randomness, or platform APIs\",\n    \"runtime-host is portable and depends only on formal runtime, never UI, DOM, shell, filesystem, wall clock, randomness, or platform APIs\",\n    \"player-core is portable and consumes only canonical project, formal Compiler IR, Runtime, and Runtime Host without a parallel StoryStatement interpreter\",\n    \"gal-settings is dependency-free and portable with no UI, DOM, filesystem, process, shell, wall-clock, or ambient-random dependency\",\n    \"route-graph is portable and projects only canonical project and compiler facts through the Project Service boundary\",\n    \"project-persistence has no UI, DOM, platform-shell, filesystem, process, or runtime third-party dependency\",\n    \"project-domain depends only on portable Gal settings and has no UI, DOM, platform-shell, filesystem, process, crypto-provider, or runtime third-party dependency\",\n    \"project-persistence-node is isolated from the web editor and depends only on portable project-domain/project-persistence contracts\",\n    \"editor declares the Gal settings dependency explicitly\",\n    \"editor declares the story-core dependency explicitly\",\n    \"editor declares the story-language dependency explicitly\",\n    \"editor declares the project-persistence dependency explicitly\",\n    \"web editor does not bundle the Node filesystem adapter\",\n    \"VM Web Worker conformance Harness depends only on the portable Spike, formal Runtime, and portable Runtime Host and imports no shell or Node adapter\",\n    \"VM conformance CLI is an isolated Node reference host and depends only on the portable narrative VM\",\n    \"Windows Electron host keeps isolation and sandboxing enabled with the frozen WindowsHostV1 storage bridge\",\n    \"Windows Tauri host exposes only the frozen WindowsHostV1 storage commands and no generic privileged plugin\",\n    \"Windows project grant roots stay native-only and both hosts reject reparse roots and existing reparse path segments\",\n    \"story-core has no runtime third-party dependency\"\n  ]\n}\n"
+    },
+    "history-engineering": {
+      "passed": true,
+      "output": "{\n  \"status\": \"PASS\",\n  \"node\": \"N52-E5b-runtime-history-v2\",\n  \"engineeringStatus\": \"complete\",\n  \"productAcceptance\": \"blocked\",\n  \"continuation\": {\n    \"node\": \"N52-E5c-gal-history-policy-and-player-core-projection\",\n    \"gate\": \"only-after-e5b-exact-head-windows-ci-is-green\"\n  },\n  \"violations\": []\n}\n"
+    }
+  },
+  "pendingMediaPermissions": 26,
+  "approvedMediaPermissions": 0,
+  "scope": "Collection browsing, context-correct return, configured covers and long catalog names, exact parent replay return and explicit saved continuation. Rain source and media remain unchanged. Cover variants use a separate HTTP media fixture, not an edited or newly authored Rain work. Actual exported pair binds three website engines/local Chromium HTML, four full route/format cells and existing normal/rapid replay regressions. Desktop muted playback and emulated sizes do not establish natural reading/listening, physical phones/Safari, OS lifecycle, native post-start streaming stall, embedded WebKit audio, long soak, rights or authorized HTTPS. Partial reveal/custom skins, native decode permanent stalls, cold-title intermittency, previous timeouts and long-history/storage costs remain open. Windows/Android productization stays deferred."
+}

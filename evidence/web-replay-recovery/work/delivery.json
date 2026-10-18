@@ -1,0 +1,7 @@
+{
+  "scope": "Exact author export inventory only; not final acceptance or promoted delivery",
+  "artifacts": {
+    "html": { "bytes": 46843422, "sha256": "f7b9ba77c472060ca13c620a1f5fbf129fefd43349b130b2f5d8e043ed491553" },
+    "website": { "bytes": 35429871, "sha256": "ed95fd60712015a1c68137e25e8e6f9e0162a7ad0c85a505b0f7bdf807e1c02e" }
+  }
+}

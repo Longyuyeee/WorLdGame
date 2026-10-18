@@ -1,0 +1,167 @@
+{
+  "passed": true,
+  "browser": "151.0.7922.34",
+  "playOnly": true,
+  "checks": [
+    {
+      "name": "strict-one-paragraph-four-cue-new-image-source-media-notes-and-both-game-audit",
+      "detail": {
+        "version": "1.9.0",
+        "scenes": 9,
+        "narration": 90,
+        "dialogue": 9,
+        "endings": 2,
+        "directions": 85,
+        "revisedNarrations": 1,
+        "addedDirections": 4,
+        "existingIdsAndVoiceBeatsPreserved": true,
+        "unchangedMedia": 25,
+        "addedMedia": 1,
+        "textCharacters": 9751,
+        "oldSaveCompatibility": "not-approved-content-changed"
+      }
+    },
+    {
+      "name": "independent-player-0-full-route-six-voice-beats-stage-audio-save-reopen-and-replay",
+      "detail": {
+        "ending": "故事告一段落\n同行的约定\n\n已达成 1 / 2 个结局\n\n已读、画廊、音乐与结局记录会保留。可以查看收藏，或读取存档探索其他选择。\n\n查看收藏与结局\n读取存档探索其他路线\n回到标题",
+        "texts": 66,
+        "stages": 4
+      }
+    }
+  ],
+  "errors": [],
+  "editorRoutes": [],
+  "playerRoutes": [
+    {
+      "branch": 0,
+      "entry": "html-file",
+      "ending": "故事告一段落\n同行的约定\n\n已达成 1 / 2 个结局\n\n已读、画廊、音乐与结局记录会保留。可以查看收藏，或读取存档探索其他选择。\n\n查看收藏与结局\n读取存档探索其他路线\n回到标题",
+      "ids": [
+        "stmt_ui_5",
+        "stmt_ui_7",
+        "stmt_ui_9",
+        "stmt_ui_11",
+        "stmt_ui_13",
+        "stmt_ui_15",
+        "stmt_ui_17",
+        "stmt_ui_19",
+        "stmt_ui_21",
+        "stmt_ui_25",
+        "stmt_ui_23",
+        "stmt_ui_31",
+        "stmt_ui_33",
+        "stmt_ui_35",
+        "stmt_ui_37",
+        "stmt_ui_39",
+        "stmt_ui_41",
+        "stmt_ui_43",
+        "stmt_ui_45",
+        "stmt_ui_51",
+        "stmt_ui_47",
+        "stmt_ui_49",
+        "stmt_ui_61",
+        "stmt_ui_63",
+        "stmt_ui_65",
+        "stmt_ui_67",
+        "stmt_ui_69",
+        "stmt_ui_71",
+        "stmt_ui_73",
+        "stmt_ui_75",
+        "stmt_ui_77",
+        "stmt_ui_79",
+        "stmt_ui_81",
+        "stmt_ui_91",
+        "stmt_ui_93",
+        "stmt_ui_95",
+        "stmt_ui_97",
+        "stmt_ui_99",
+        "stmt_ui_101",
+        "stmt_ui_103",
+        "stmt_ui_105",
+        "stmt_ui_107",
+        "stmt_ui_109",
+        "stmt_ui_113",
+        "stmt_ui_119",
+        "stmt_ui_121",
+        "stmt_ui_123",
+        "stmt_ui_125",
+        "stmt_ui_127",
+        "stmt_ui_129",
+        "stmt_ui_139",
+        "stmt_ui_131",
+        "stmt_ui_133",
+        "stmt_ui_135",
+        "stmt_ui_137",
+        "stmt_ui_146",
+        "stmt_ui_148",
+        "stmt_ui_150",
+        "stmt_ui_152",
+        "stmt_ui_167",
+        "stmt_ui_154",
+        "stmt_ui_156",
+        "stmt_ui_158",
+        "stmt_ui_160",
+        "stmt_ui_162",
+        "stmt_ui_164"
+      ],
+      "naturallyEndedVoices": 6,
+      "stages": [
+        {
+          "id": "stmt_ui_31",
+          "background": "waiting_room",
+          "portraits": [
+            "xia_thoughtful"
+          ],
+          "ambient": 0.08,
+          "naturalPlaybackMuted": true
+        },
+        {
+          "id": "stmt_ui_61",
+          "background": "sample_station",
+          "portraits": [
+            "xia_thoughtful"
+          ],
+          "ambient": 0.2,
+          "naturalPlaybackMuted": true
+        },
+        {
+          "id": "stmt_ui_137",
+          "background": "bus_stop_night",
+          "portraits": [
+            "xia_smile"
+          ],
+          "ambient": 0.06,
+          "naturalPlaybackMuted": true
+        },
+        {
+          "id": "stmt_ui_146",
+          "background": "morning_studio",
+          "portraits": [],
+          "ambient": null,
+          "naturalPlaybackMuted": true
+        }
+      ],
+      "saves": [
+        {
+          "id": "stmt_ui_137",
+          "savedHash": "203f6e724cd806d01701e76f90a8a3cace44249fc6f80a59475ac4181db078bf",
+          "backedHash": "e2766a21f2cfc2c79e4ab2eaa7922b6688a0ff3fd7d5e450023c20b9f3f76ce0",
+          "loadedHash": "203f6e724cd806d01701e76f90a8a3cace44249fc6f80a59475ac4181db078bf",
+          "cursor": "90",
+          "length": "90"
+        }
+      ],
+      "replayRestoredHash": "3a62dfa8a85c3d254d73830327b6dd6296047adf2cc579e4da2323c3e49c6534",
+      "newUnlockRetainedAfterOldSlotLoad": {
+        "savedHash": "203f6e724cd806d01701e76f90a8a3cace44249fc6f80a59475ac4181db078bf",
+        "mergedHash": "b722c9dcf8a780fe4100e91f5cbe2bfa1f45ddf7c845ae96658edc5bd2283e38",
+        "reachedEndings": 1
+      },
+      "humanListening": false,
+      "physicalPhone": false
+    }
+  ],
+  "productionSnapshots": [],
+  "scope": "Additional complete HTML file route 0 at 390x844, with four stage nodes also viewed at 844x390; muted native voice end, actual saves/reopen and replay. Not a physical phone."
+}

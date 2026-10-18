@@ -1,0 +1,3 @@
+desktop HTML: save/load modes, card metadata, cancel and Escape preserve current story; a real second window replaces the selected slot, stale confirmation refuses without progress change; fresh selection loads new content with Auto off
+title recent-save entry reads the latest actual saved scene; selecting a slot does not write or replace another manual slot
+390px HTTP directory: native save cards and read confirmation fit portrait/landscape; cancellation keeps progress, confirm restores the selected paragraph; automatic saves and the existing backup page remain reachable

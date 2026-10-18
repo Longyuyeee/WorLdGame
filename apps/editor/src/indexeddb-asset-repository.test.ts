@@ -1,5 +1,5 @@
 import { IDBFactory } from "fake-indexeddb";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   auditAssetBlobStore,
   buildLosslessDicingAtlas,
@@ -23,6 +23,8 @@ import {
   normalizeIndexedDbAssetError
 } from "./indexeddb-asset-repository";
 import { IndexedDbProjectFileStore } from "./indexeddb-project-store";
+import { republishAssetEntry } from "./asset-repair";
+afterEach(() => vi.unstubAllGlobals());
 
 async function writableRepository(
   indexedDb = new IDBFactory(),
@@ -39,6 +41,25 @@ async function writableRepository(
   return { indexedDb, files, assets, lease: acquisition.lease };
 }
 
+it("republishes asset metadata and prior content without changing IDs, tags or extension data and rejects stale/leased writes", async () => {
+  const { assets } = await writableRepository();
+  const first = await assets.importAsset({ assetId: "hero", kind: "character", displayName: "旧名称", mimeType: "image/png", bytes: inspectedPngHeader(8, 8, 1), tags: ["lead"], preservedFields: { license: "test" } }, { expectedIndexRevision: 0, maxBytes: 100 });
+  const renamed = await republishAssetEntry(assets, { ...first.entry, displayName: "新名称" }, 1);
+  expect(renamed.entry).toEqual({ ...first.entry, displayName: "新名称" });
+  const replaced = await assets.importAsset({ assetId: "hero", kind: "character", displayName: "新名称", mimeType: "image/png", bytes: inspectedPngHeader(8, 8, 2), tags: renamed.entry.tags, preservedFields: renamed.entry.preservedFields! }, { expectedIndexRevision: 2, maxBytes: 100 });
+  expect(replaced.entry.source.digest).not.toBe(first.entry.source.digest);
+  const undo = await republishAssetEntry(assets, renamed.entry, 3);
+  expect(undo.entry).toEqual(renamed.entry);
+  const redo = await republishAssetEntry(assets, replaced.entry, 4);
+  expect(redo.entry).toEqual(replaced.entry);
+  await expect(republishAssetEntry(assets, first.entry, 1)).rejects.toMatchObject({ code: "STALE_INDEX_REVISION" });
+  const missing = { ...first.entry, source: { ...first.entry.source, digest: createBlobDigest(new Uint8Array([77])) } };
+  await expect(republishAssetEntry(assets, missing, 5)).rejects.toThrow("源文件缺失");
+  assets.activateWriterLease(null);
+  await expect(republishAssetEntry(assets, first.entry, 5)).rejects.toMatchObject({ code: "LEASE_REQUIRED" });
+  expect((await assets.loadIndex()).assets[0]).toEqual(replaced.entry);
+});
+
 function inspectedPngHeader(width: number, height: number, fill: number): Uint8Array {
   const bytes = new Uint8Array(33).fill(fill);
   bytes.set([137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82]);
@@ -50,6 +71,37 @@ function inspectedPngHeader(width: number, height: number, fill: number): Uint8A
 }
 
 describe("IndexedDbAssetRepository", () => {
+  it("publishes an additive skin batch atomically without overwriting existing IDs", async () => {
+    const { assets } = await writableRepository();
+    const inputs = ["one", "two"].map((assetId, i) => ({ assetId, kind: "cg" as const, displayName: assetId, mimeType: "image/png", bytes: inspectedPngHeader(1, 1, i) }));
+    const result = await assets.importNewAssets(inputs, { expectedIndexRevision: 0, maxBytes: 1024 });
+    expect(result.index.assets.map(a => a.assetId)).toEqual(["one", "two"]); expect((await assets.loadIndex()).indexRevision).toBe(2);
+    await expect(assets.importNewAssets(inputs, { expectedIndexRevision: 2, maxBytes: 1024 })).rejects.toMatchObject({ code: "INVALID_ASSET" });
+    expect(await assets.loadIndex()).toEqual(result.index);
+  });
+  it("supports a whole page-art batch beyond eight entries and still rejects an unbounded batch", async () => {
+    const { assets } = await writableRepository(new IDBFactory(), "page_art_batch", () => 55_000);
+    const inputs = Array.from({ length: 24 }, (_, i) => ({ assetId: `page_${i}`, kind: "cg" as const, displayName: `Page ${i}`, mimeType: "image/png", bytes: new Uint8Array([i]) }));
+    const result = await assets.importNewAssets(inputs, { expectedIndexRevision: 0, maxBytes: 1024 });
+    expect(result.index.assets).toHaveLength(24);
+    await expect(assets.importNewAssets([...inputs, { ...inputs[0]!, assetId: "over_limit" }], { expectedIndexRevision: 24, maxBytes: 1024 })).rejects.toMatchObject({ code: "RESOURCE_LIMIT" });
+    expect((await assets.loadIndex()).assets).toHaveLength(24);
+  });
+  it("rolls back every new blob/index entry when a skin batch is cancelled at publication", async () => {
+    const { assets } = await writableRepository(), controller = new AbortController();
+    const inputs = ["one", "two"].map((assetId, i) => ({ assetId, kind: "cg" as const, displayName: assetId, mimeType: "image/png", bytes: inspectedPngHeader(1, 1, i) }));
+    await expect(assets.importNewAssets(inputs, { expectedIndexRevision: 0, maxBytes: 1024, signal: controller.signal, onPhase: () => controller.abort() })).rejects.toMatchObject({ code: "CANCELLED" });
+    expect((await assets.loadIndex()).assets).toEqual([]);
+    for (const input of inputs) expect(await assets.read(createBlobDigest(input.bytes))).toBeNull();
+  });
+  it("rejects stale or lost-writer batches without publishing a partial skin", async () => {
+    const { assets } = await writableRepository();
+    const input = { assetId: "one", kind: "cg" as const, displayName: "one", mimeType: "image/png", bytes: inspectedPngHeader(1, 1, 1) };
+    await expect(assets.importNewAssets([input], { expectedIndexRevision: 5, maxBytes: 1024 })).rejects.toMatchObject({ code: "STALE_INDEX_REVISION" });
+    assets.activateWriterLease(null);
+    await expect(assets.importNewAssets([input], { expectedIndexRevision: 0, maxBytes: 1024 })).rejects.toMatchObject({ code: "LEASE_REQUIRED" });
+    expect((await assets.loadIndex()).assets).toEqual([]);
+  });
   it("passes the shared Blob conformance suite under an active writer lease", async () => {
     const { assets } = await writableRepository();
     const report = await auditAssetBlobStore(assets);
@@ -122,6 +174,18 @@ describe("IndexedDbAssetRepository", () => {
     await expect(assets.replaceFromPortableBundle(index, new Map([[digest, new Uint8Array(bytes.byteLength)]]))).rejects.toMatchObject({ code: "CORRUPT_BLOB" });
     await expect(assets.loadIndex()).resolves.toMatchObject({ indexRevision: 0, assets: [] });
     await expect(assets.list()).resolves.toEqual([]);
+  });
+
+  it('snapshots portable inputs before asynchronous validation so caller mutation cannot corrupt publication', async () => {
+    const { assets } = await writableRepository();
+    // Buffer-like Uint8Array subclasses may implement slice as an alias.
+    const bytes = new (class extends Uint8Array { override slice() { return this.subarray(); } })(new TextEncoder().encode('original verified bytes'));
+    const original = new Uint8Array(bytes), digest = createBlobDigest(bytes);
+    const index = { schemaVersion: 1 as const, indexRevision: 1, assets: [{ assetId: 'original', kind: 'other' as const, displayName: 'Original', source: { digest, byteLength: bytes.length, mimeType: 'application/octet-stream' }, tags: [] }] };
+    let release: () => void = () => {}; const gate = new Promise<void>(resolve => { release = resolve; }); let first = true;
+    vi.stubGlobal('crypto', { subtle: { digest: async (_algorithm: string, input: Uint8Array<ArrayBuffer>) => { const hash = new Uint8Array(createBlobDigest(input).slice(7).match(/../gu)!.map(h => parseInt(h, 16))).buffer; if (first) { first = false; await gate; } return hash; } } });
+    const pending = assets.replaceFromPortableBundle(index, new Map([[digest, bytes]])); bytes.fill(0); release();
+    await expect(pending).resolves.toMatchObject({ createdBlobCount: 1 }); expect(Array.from(await assets.read(digest) ?? [])).toEqual(Array.from(original));
   });
 
   it("aborts both Blob and Index when cancellation arrives between their publication phases", async () => {

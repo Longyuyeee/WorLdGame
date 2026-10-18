@@ -1,0 +1,29 @@
+
+ RUN  v4.1.10 E:/Project/AIProject/ClaudeProject/WorLdGame
+
+ ✓ apps/editor/src/project-home.test.tsx (11 tests) 3698ms
+     ✓ distinguishes same-title workspaces and opens the selected reference without renaming the project  589ms
+     ✓ asks only for a name in a dialog and enters the created project  426ms
+     ✓ protects buffered and committed partial edits from window, scene and full-project navigation  500ms
+     ✓ shows failed partial saves inside the modal and permits deliberate discard and reopen  592ms
+ ✓ apps/editor/src/direction-authoring.test.tsx (10 tests) 4993ms
+   ✓ offers cross-scene actor references without pretending they are active or choosing them automatically  1831ms
+   ✓ searches labels/tags across pages and keeps selection local until submission  1362ms
+   ✓ visual selection protects the draft and discard restores the original actor  534ms
+   ✓ inserts a separate actor by default and allows an explicit portrait replacement  398ms
+   ✓ move/hide chooses an active actor and rejects an empty target  317ms
+ ✓ apps/editor/src/project-import-home.test.tsx (4 tests) 3261ms
+   ✓ shows phase feedback and cancels verification without entering or retaining a busy state; same file can retry  1958ms
+   ✓ does not offer cancellation after writes begin, and clears the leave warning only after completion  561ms
+   ✓ keeps a failed import on the home screen and permits a clean retry  592ms
+ ✓ apps/editor/src/direction-inspector.test.tsx (2 tests) 1622ms
+   ✓ selects media by display name and protects or discards an existing direction draft  1409ms
+ ✓ apps/editor/src/preview-audio-layer.test.tsx (4 tests) 1699ms
+     ✓ starts a playable Blob-backed layer and exposes the real playing state  1239ms
+
+ Test Files  5 passed (5)
+      Tests  31 passed (31)
+   Start at  15:14:52
+   Duration  65.73s (transform 9.37s, setup 13.58s, import 15.68s, tests 15.27s, environment 16.40s)
+
+JSON report written to E:/Project/AIProject/ClaudeProject/WorLdGame/evidence/web-blank-short-story/focused-tests.json

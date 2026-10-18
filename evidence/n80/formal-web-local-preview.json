@@ -1,0 +1,21 @@
+{
+  "date": "2026-10-10",
+  "path": "production Editor ZIP → extract → shipped launcher → occupied port fallback → actual server Range → cache → q stops server → offline reload → ending",
+  "filename": "黄昏广播-web.zip",
+  "bytes": 485567,
+  "mediaCount": 1,
+  "imageDimensions": [
+    16,
+    9
+  ],
+  "extrasPreservedState": true,
+  "reachedEnding": true,
+  "mobileOverflow": 0,
+  "exceptions": [],
+  "localPreview": {
+    "launcher": "start-preview.cmd",
+    "portFallback": true,
+    "gracefulStop": true,
+    "browserAutoOpen": "not exercised (--no-open)"
+  }
+}

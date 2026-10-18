@@ -1,0 +1,20 @@
+{
+  "date": "2026-10-10",
+  "path": "production Editor ZIP → packaged Windows exe → quick save → process exit → moved game folder → restart → quick load → ending",
+  "filename": "黄昏广播-web.zip",
+  "bytes": 486024,
+  "mediaCount": 1,
+  "imageDimensions": [
+    16,
+    9
+  ],
+  "extrasPreservedState": true,
+  "reachedEnding": true,
+  "mobileOverflow": 0,
+  "exceptions": [],
+  "desktop": {
+    "runtimeBundled": true,
+    "saveAfterRestartAndMove": true,
+    "nativeFolderPicker": "not exercised (--game)"
+  }
+}

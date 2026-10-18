@@ -1,0 +1,13 @@
+{
+  "scene": "留下",
+  "statementId": "stmt_ui_113",
+  "assetId": "voice_04",
+  "file": "voice-04-v1.7.wav",
+  "voice": "Microsoft Kangkang",
+  "speaker": "林远",
+  "text": "出发的事明早确认，今晚的回信不用再等。",
+  "method": "Windows System.Speech / rate -1 / mono PCM16 22050 Hz",
+  "replacesFile": "voice-04.wav",
+  "humanListeningPassed": false,
+  "releasePermissionConfirmed": false
+}

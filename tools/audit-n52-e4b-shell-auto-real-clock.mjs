@@ -5,12 +5,14 @@ const root = process.cwd();
 const read = (path) => readFile(join(root, path), "utf8");
 const contract = JSON.parse(await read("config/n52-e4b-shell-auto-real-clock.json"));
 const violations = [];
+if (contract.contract?.voiceTiming !== "actual-ended-event-plus-versioned-tail-concurrent-reading-error-fallback") violations.push("Voice must complete through actual media events, not estimated duration");
 
 if (contract.schemaVersion !== 1 || contract.node !== "N52-E4b-shell-auto-real-clock" || !["candidate", "complete"].includes(contract.engineeringStatus) || contract.productAcceptance !== "blocked") violations.push("E4b identity or gate status drifted");
 if (contract.versions?.playerCore !== "0.5.0" || contract.versions?.playerShell !== "0.6.0-n52" || contract.versions?.playbackPolicy !== "1.0.0") violations.push("E4b recorded version boundary drifted");
 if (contract.contract?.schedulerAuthority !== "runtime-only-through-player-core" || contract.contract?.clockAuthority !== "shell-owned-window-timeout" || contract.contract?.hostSuspend !== "owned-timer-cleared-and-fresh-delay-after-resume") violations.push("E4b scheduler, clock, or suspend ownership drifted");
 
 const shell = await read("apps/player-shell/src/PlayerShell.tsx");
+const clock = await read("apps/player-shell/src/auto-playback-clock.ts");
 const policy = await read("apps/player-shell/src/player-playback-policy.ts");
 const shellTests = await read("apps/player-shell/src/player-shell.test.tsx");
 const policyTests = await read("apps/player-shell/src/player-playback-policy.test.ts");
@@ -19,8 +21,8 @@ for (const token of [
   "schedulePlayerCorePlaybackV1",
   "window.setTimeout",
   'setAutoPlayback("waiting-text")',
-  'setAutoPlayback("waiting-voice-metadata")',
-  "voice.duration - voice.currentTime",
+  "startPlayerAutoClock(voice",
+  '"waiting-voice"',
   'setAutoPlayback("suspended")',
   'aria-label="自动播放"',
   "data-playback-stop-reason"
@@ -36,9 +38,13 @@ for (const token of [
   "realDelay",
   "real Shell timer",
   "real text reveal",
-  "real voice element duration plus tail",
+  "actual voice completion plus tail",
   "Host suspend"
 ]) if (!shellTests.includes(token)) violations.push(`real E4b test evidence is missing: ${token}`);
+for (const token of ['addEventListener("ended"', 'addEventListener("error"', 'removeEventListener("ended"', 'clearTimeout(timer)', 'readingDeadline', 'voiceTailMilliseconds']) {
+  if (!clock.includes(token)) violations.push(`Actual voice completion clock token is missing: ${token}`);
+}
+if (shell.includes("voice.duration - voice.currentTime")) violations.push("Metadata duration cannot authorize Auto completion");
 if (!policyTests.includes("fails closed for an invalid persisted policy fragment")) violations.push("Playback Policy fail-closed tests are missing");
 if (!css.includes(".player-playback-controls") || !css.includes('button[aria-pressed="true"]')) violations.push("Auto control production styling is missing");
 

@@ -1,0 +1,17 @@
+actual literal preview covers three scenes; changing conditions disables stale apply, selecting two rows commits both scenes, dialog fits desktop/390px, modal undo/redo reverses the complete batch
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+locator.click: Timeout 20000ms exceeded.
+Call log:
+  - waiting for getByRole('button', { name: '撤销', exact: true })
+
+    at E:\Project\AIProject\ClaudeProject\WorLdGame\tools\run-web-text-replace.mjs:29:63 {
+  log: [
+    "  - waiting for getByRole('button', { name: '撤销', exact: true })"
+  ],
+  name: 'TimeoutError'
+}
+
+Node.js v24.14.0

@@ -62,6 +62,12 @@ export function markBrowserWriterLeaseOwnerHandoff(ownerId: string): void {
   markWriterLeaseOwnerHandoff(storage, ownerId);
 }
 
+/** Record the owner that actually acquired the lease, including StrictMode's discarded initializer. */
+export function rememberBrowserWriterLeaseOwnerId(ownerId: string): void {
+  if (!SAFE_OWNER.test(ownerId)) return;
+  try { globalThis.sessionStorage?.setItem(OWNER_KEY, ownerId); } catch { /* Storage denial keeps the in-memory owner. */ }
+}
+
 export function createBrowserWriterLeaseOwnerId(): string {
   const navigation = globalThis.performance?.getEntriesByType?.("navigation")[0] as PerformanceNavigationTiming | undefined;
   const random = globalThis.crypto?.randomUUID?.() ?? `${Date.now()}_${Math.random().toString(36).slice(2)}`;

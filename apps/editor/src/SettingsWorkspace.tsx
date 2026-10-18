@@ -1,4 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { PlayerAppearanceSettings } from "./PlayerAppearanceSettings";
+import type { CommitSkinImport } from "./PlayerSkinBundleTools";
+import type { AssetLibraryReader } from "./asset-library-card";
 import {
   GAL_SETTING_DEFINITIONS,
   GAL_SETTINGS_PLATFORMS,
@@ -24,6 +27,10 @@ import {
 export type SettingsSaveStatus = "loading" | "migrating" | "readonly" | "blocked" | "conflict" | "unavailable" | "unsaved" | "dirty" | "saving" | "autosaving" | "saved" | "autosaved" | "restored" | "degraded" | "error";
 
 export interface SettingsWorkspaceProps {
+  readonly onImportSkin?: CommitSkinImport;
+  readonly assetReader?: AssetLibraryReader | null;
+  readonly onOpenAssets?: () => void;
+  readonly onDraftChange?: (dirty: boolean) => void;
   readonly project: CanonicalProject;
   readonly saveStatus: SettingsSaveStatus;
   readonly saveDetail?: string;
@@ -124,17 +131,20 @@ function saveStatusLabel(status: SettingsSaveStatus): string {
   return "设置已接入工程事务";
 }
 
-export function SettingsWorkspace({ project, saveStatus, saveDetail, onProjectChange, onSave, onClose }: SettingsWorkspaceProps) {
+export function SettingsWorkspace({ project, saveStatus, saveDetail, onProjectChange, onSave, onClose, onDraftChange, assetReader = null, onOpenAssets, onImportSkin }: SettingsWorkspaceProps) {
   const [service, setService] = useState<ProjectServiceState>(() => createProjectService(project));
   const [mode, setMode] = useState<GalSettingsCatalogMode>("basic");
   const [layerId, setLayerId] = useState<SettingsLayerId>("project");
-  const [previewPlatform, setPreviewPlatform] = useState<GalSettingsPlatform>("windows");
+  const [previewPlatform, setPreviewPlatform] = useState<GalSettingsPlatform>("web");
   const [query, setQuery] = useState("");
-  const [section, setSection] = useState<"all" | keyof typeof SECTION_LABELS>("all");
+  const [section, setSection] = useState<"all" | keyof typeof SECTION_LABELS>("display");
   const [drafts, setDrafts] = useState<Readonly<Record<string, DraftEdit>>>({});
+  const [appearanceDirty, setAppearanceDirty] = useState(false);
   const [message, setMessage] = useState("选择一项修改；同一分区的关联字段会作为一个原子 ChangeSet 提交。");
   const [errorPath, setErrorPath] = useState<string | null>(null);
   const commandSerial = useRef(0);
+  useEffect(() => { onDraftChange?.(appearanceDirty || Object.keys(drafts).length > 0); }, [appearanceDirty, drafts, onDraftChange]);
+  useEffect(() => () => onDraftChange?.(false), [onDraftChange]);
 
   useEffect(() => {
     if (service.project.manifest.projectId === project.manifest.projectId) return;
@@ -142,6 +152,7 @@ export function SettingsWorkspace({ project, saveStatus, saveDetail, onProjectCh
     setDrafts({});
     setMessage("已切换工程，设置事务从新工程重新开始。");
   }, [project, service.project.manifest.projectId]);
+  useEffect(() => { setService(current => JSON.stringify(current.project.assets) === JSON.stringify(project.assets) ? current : { ...current, project: { ...current.project, assets: project.assets } }); }, [project.assets]);
 
   const activePlatform = layerId === "project" ? previewPlatform : layerId;
   const resolved = useMemo(() => resolveGalSettings(service.project.settings, activePlatform), [activePlatform, service.project.settings]);
@@ -234,19 +245,22 @@ export function SettingsWorkspace({ project, saveStatus, saveDetail, onProjectCh
     <section className="settings-workspace" aria-labelledby="settings-heading">
       <header className="settings-workspace__hero">
         <div>
-          <p className="eyebrow">CANONICAL PROJECT SETTINGS</p>
-          <h2 id="settings-heading">项目设置</h2>
-          <p>编辑默认与平台覆盖值；所有应用、撤销和重做都进入同一 Project Service 事务链。</p>
+          <p className="eyebrow">GAME APPEARANCE</p>
+          <h2 id="settings-heading">游戏外观与体验</h2>
+          <p>设置玩家看到的文字、消息窗、舞台和操作方式。</p>
         </div>
         <div className="settings-workspace__hero-actions">
-          <button type="button" className="settings-secondary" onClick={onClose}>返回创作</button>
-          <button type="button" className="settings-save" onClick={onSave} disabled={["saving", "autosaving", "loading", "readonly", "blocked", "unavailable"].includes(saveStatus)}>保存工程</button>
+          <button type="button" className="settings-secondary" onClick={onClose} disabled={appearanceDirty || Object.keys(drafts).length > 0}>返回创作</button>
+          <button type="button" className="settings-save" onClick={onSave} disabled={appearanceDirty || Object.keys(drafts).length > 0 || ["saving", "autosaving", "loading", "readonly", "blocked", "unavailable"].includes(saveStatus)}>保存工程</button>
         </div>
       </header>
 
+      <PlayerAppearanceSettings key={service.project.manifest.projectId} reader={assetReader} onImportSkin={onImportSkin && !["readonly", "blocked", "conflict", "unavailable"].includes(saveStatus) ? async (plan, signal) => { const next = await onImportSkin(plan, signal); setService(createProjectService(next)); return next; } : undefined} {...(onOpenAssets ? { onOpenAssets } : {})} project={service.project} onDirtyChange={setAppearanceDirty} onChange={next => {
+        setService(createProjectService(next)); onProjectChange(next);
+      }} />
       <div className="settings-command-bar">
         <div className="settings-mode-switch" role="radiogroup" aria-label="设置复杂度">
-          {(["basic", "advanced"] as const).map((candidate) => <button type="button" role="radio" aria-checked={mode === candidate} className={mode === candidate ? "is-active" : ""} key={candidate} onClick={() => setMode(candidate)}>{candidate === "basic" ? "Basic" : "Advanced"}</button>)}
+          {(["basic", "advanced"] as const).map((candidate) => <button type="button" role="radio" aria-checked={mode === candidate} className={mode === candidate ? "is-active" : ""} key={candidate} onClick={() => setMode(candidate)}>{candidate === "basic" ? "基础" : "高级"}</button>)}
         </div>
         <label className="settings-search">
           <span className="sr-only">搜索项目设置</span>
@@ -278,7 +292,7 @@ export function SettingsWorkspace({ project, saveStatus, saveDetail, onProjectCh
 
       <div className="settings-results-summary"><strong>{definitions.length}</strong> 项可见 · {mode === "basic" ? "核心配置" : "全部首批配置"}<span>当前解析平台：{activePlatform}</span></div>
       <div className="settings-sections">
-        {grouped.length === 0 ? <div className="settings-empty" role="status"><strong>没有匹配的设置</strong><span>尝试清除搜索或切换 Advanced。</span></div> : grouped.map((group) => {
+        {grouped.length === 0 ? <div className="settings-empty" role="status"><strong>没有匹配的设置</strong><span>尝试清除搜索或切换高级设置。</span></div> : grouped.map((group) => {
           const pendingCount = group.items.filter((definition) => drafts[draftKey(layerId, definition.path)] !== undefined).length;
           return <section className="settings-section" aria-labelledby={`settings-section-${group.id}`} key={group.id}>
             <header><div><p className="eyebrow">{group.id.toUpperCase()}</p><h3 id={`settings-section-${group.id}`}>{group.label}</h3></div><button type="button" onClick={() => applySection(group.id)} disabled={pendingCount === 0}>应用修改{pendingCount === 0 ? "" : ` · ${pendingCount}`}</button></header>

@@ -1,0 +1,5 @@
+
+> world-studio@0.0.0-s0.41 typecheck
+> tsc -b
+
+apps/player-shell/src/PlayerShell.tsx(1013,22): error TS6133: 'result' is declared but its value is never read.

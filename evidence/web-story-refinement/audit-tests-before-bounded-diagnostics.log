@@ -1,0 +1,46 @@
+TAP version 13
+# Subtest: planned refinement preserves all original identities and assets, and has only the declared story/stage changes
+ok 1 - planned refinement preserves all original identities and assets, and has only the declared story/stage changes
+  ---
+  duration_ms: 22.7315
+  ...
+# Subtest: rejects undeclared prose changes or identity changes rather than silently accepting a partial candidate
+ok 2 - rejects undeclared prose changes or identity changes rather than silently accepting a partial candidate
+  ---
+  duration_ms: 14.997
+  ...
+# <--- Last few GCs --->
+# [46252:000001F965ACB000]     2475 ms: Scavenge (reduce) (interleaved) 4075.2 (4085.9) -> 4075.2 (4078.9) MB, pooled: 0 MB, 1.92 / 0.00 ms  (average mu = 0.427, current mu = 0.240) allocation failure;
+# [46252:000001F965ACB000]     2686 ms: Mark-Compact (reduce) 4102.9 (4106.5) -> 4102.9 (4106.5) MB, pooled: 0 MB, 203.41 / 0.00 ms  (+ 0.0 ms in 0 steps since start of marking, biggest step 0.0 ms, walltime since start of marking 220 ms) (average mu = 0.29
+# <--- JS stacktrace --->
+# FATAL ERROR: Reached heap limit Allocation failed - JavaScript heap out of memory
+# ----- Native stack trace -----
+#  1: 00007FF6DE3FBA4B node::SetCppgcReference+16011
+#  2: 00007FF6DE3653F8 SSL_get_quiet_shutdown+92008
+#  3: 00007FF6DEEF2D81 v8::Isolate::ReportExternalAllocationLimitReached+65
+#  4: 00007FF6DEEDFB86 v8::Function::Experimental_IsNopFunction+2918
+#  5: 00007FF6DED2B830 v8::internal::StrongRootAllocatorBase::StrongRootAllocatorBase+31552
+#  6: 00007FF6DED28887 v8::internal::StrongRootAllocatorBase::StrongRootAllocatorBase+19351
+#  7: 00007FF6DED890EA v8::Locker::IsLocked+6794
+#  8: 00007FF6DEA0F170 v8::internal::Version::GetString+441584
+#  9: 00007FF67EF6D4BA
+# Subtest: tools\\audit-rain-story-refinement.test.mjs
+not ok 1 - tools\\audit-rain-story-refinement.test.mjs
+  ---
+  duration_ms: 3035.9748
+  location: 'E:\\ProjectSave\\GeminiProject\\WorLdGame\\tools\\audit-rain-story-refinement.test.mjs:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 134
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+1..3
+# tests 3
+# suites 0
+# pass 2
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3040.3766

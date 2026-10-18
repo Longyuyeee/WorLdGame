@@ -1,6 +1,10 @@
 import type { PlayerCoreEffectSnapshotV1, PlayerCoreSnapshotV1 } from "@world-studio/player-core";
+import type { NativeAtlasSource } from "./native-atlas";
+import { readStoryMotion, type StoryMotion } from "@world-studio/story-core";
 
 export interface PlayerMediaAssetSourceV1 {
+  readonly canvasSampling?: boolean | undefined;
+  readonly atlas?: NativeAtlasSource | undefined;
   readonly assetId: string;
   readonly displayName: string;
   readonly mimeType: string;
@@ -8,6 +12,8 @@ export interface PlayerMediaAssetSourceV1 {
 }
 
 export interface PlayerStageImageV1 {
+  readonly canvasSampling?: boolean | undefined;
+  readonly atlas?: NativeAtlasSource | undefined;
   readonly assetId: string;
   readonly displayName: string;
   readonly url: string;
@@ -26,6 +32,8 @@ export interface PlayerUiDefaultPolicyV1 {
 }
 
 export interface PlayerStageCharacterV1 extends PlayerStageImageV1 {
+  readonly motion?: StoryMotion;
+  readonly motionKey?: string;
   readonly slot: string;
   readonly x: number;
   readonly y: number;
@@ -56,6 +64,7 @@ export interface PlayerStageVideoV1 {
 }
 
 export interface PlayerStagePresentationV1 {
+  readonly textMotion?: StoryMotion;
   readonly background: PlayerStageImageV1 | null;
   readonly characters: readonly PlayerStageCharacterV1[];
   readonly audio: readonly PlayerStageAudioV1[];
@@ -115,6 +124,8 @@ export function derivePlayerStagePresentationV1(
   let cameraTransform = "translate(0%, 0%) scale(1) rotate(0deg)";
   let textboxTemplate: PlayerStagePresentationV1["textboxTemplate"] = uiPolicy.defaultTextboxTemplate;
   let sceneDescription: string | null = null;
+  let textMotion: StoryMotion | undefined;
+  let legacyTextMotion: StoryMotion | undefined;
 
   for (const effect of snapshot.effects.active) {
     const currentAction = action(effect);
@@ -128,19 +139,21 @@ export function derivePlayerStagePresentationV1(
         const asset = assets.get(assetId);
         if (asset === undefined || (!asset.mimeType.startsWith("image/") && !asset.mimeType.startsWith("video/"))) missing.add(assetId);
         else if (asset.mimeType.startsWith("video/")) video = { assetId, displayName: asset.displayName, url: asset.url, effectId: effect.effectId, awaited: false, status: "ended" };
-        else background = { assetId, displayName: asset.displayName, url: asset.url, transition: text(effect, "transition") ?? "none", durationMilliseconds: duration(effect, policy.defaultDurationMilliseconds), easing: easing(effect, policy.defaultEasing) };
+        else background = { assetId, displayName: asset.displayName, url: asset.url, atlas: asset.atlas, canvasSampling: asset.canvasSampling, transition: text(effect, "transition") ?? "none", durationMilliseconds: duration(effect, policy.defaultDurationMilliseconds), easing: easing(effect, policy.defaultEasing) };
       }
-    } else if (effect.kind.startsWith("show.") && currentAction !== "hide") {
+    } else if (effect.kind.startsWith("show.") && (currentAction !== "hide" || readStoryMotion("show", currentAction, effect.payload)?.kind === "fade-out")) {
       const assetId = text(effect, "asset");
       if (assetId === undefined) continue;
       const asset = assets.get(assetId);
       if (asset === undefined || !asset.mimeType.startsWith("image/")) missing.add(assetId);
       else characters.push({
+        atlas: asset.atlas,
+        canvasSampling: asset.canvasSampling,
         assetId,
         displayName: asset.displayName,
         url: asset.url,
         slot: text(effect, "slot") ?? effect.channel,
-        x: number(effect, "x", 50),
+        x: number(effect, "x", text(effect, "position") === "left" ? 20 : text(effect, "position") === "right" ? 80 : 50),
         y: number(effect, "y", 100),
         scale: number(effect, "scale", 1),
         rotation: number(effect, "rotation", 0),
@@ -149,7 +162,8 @@ export function derivePlayerStagePresentationV1(
         z: number(effect, "z", 0),
         transition: text(effect, "transition") ?? "none",
         durationMilliseconds: duration(effect, policy.defaultDurationMilliseconds),
-        easing: easing(effect, policy.defaultEasing)
+        easing: easing(effect, policy.defaultEasing),
+        ...(readStoryMotion("show", currentAction, effect.payload) ? { motion: readStoryMotion("show", currentAction, effect.payload)!, motionKey: effect.effectId } : {})
       });
     } else if (effect.kind.startsWith("audio.") && currentAction !== "stop") {
       const assetId = text(effect, "asset");
@@ -168,6 +182,8 @@ export function derivePlayerStagePresentationV1(
     } else if (effect.kind.startsWith("camera.")) {
       cameraTransform = `translate(${number(effect, "x", 0)}%, ${number(effect, "y", 0)}%) scale(${number(effect, "zoom", 1)}) rotate(${number(effect, "rotation", 0)}deg)`;
     } else if (effect.kind.startsWith("textbox.")) {
+      if (currentAction === "motion") textMotion = readStoryMotion("textbox", currentAction, effect.payload);
+      else legacyTextMotion = currentAction === "reset" ? undefined : readStoryMotion("textbox", currentAction, effect.payload);
       if (currentAction === "reset") textboxTemplate = uiPolicy.defaultTextboxTemplate;
       else if (currentAction === "set") {
         const template = text(effect, "template");
@@ -187,6 +203,7 @@ export function derivePlayerStagePresentationV1(
   }
 
   return {
+    ...(textMotion ?? legacyTextMotion ? { textMotion: (textMotion ?? legacyTextMotion)! } : {}),
     background,
     characters: characters.sort((left, right) => left.z - right.z || left.slot.localeCompare(right.slot)),
     audio,

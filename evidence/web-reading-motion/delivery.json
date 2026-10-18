@@ -1,0 +1,128 @@
+{
+  "passed": true,
+  "promoted": true,
+  "contentVersion": "1.11.0",
+  "technicalVersion": "S0.41",
+  "artifacts": {
+    "html": {
+      "bytes": 46845174,
+      "sha256": "f21eb61a3a8a1a4aca73d935caccd46ca8bf30d4add24ec2c420f98a9d2d67d0"
+    },
+    "website": {
+      "bytes": 35431623,
+      "sha256": "a5510ba131555d065dc24566e5fa4ac093a0979e2d8fb5aa10982f4a1690651c"
+    }
+  },
+  "sourceAndNotes": "evidence/web-story-plans-and-farewell",
+  "pendingNotes": 25,
+  "retained": [
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops-project.zip",
+      "sha256": "43ef6e1673ed3dffbf705b4f178b2122fc960971eaf47286b33742fa285f0576"
+    },
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops.worldreview",
+      "sha256": "747534249345da6ce337054b4e7f47a1516556beda7079ef7b6d093e590bce8f"
+    },
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops.html",
+      "sha256": "6e5dfb4dfb88b5e210354fbcaeb8ccc4e79d50aa935a1d449f750bde8fc822fa"
+    },
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops-website.zip",
+      "sha256": "25ef0ab90a396f01dcfb09e60f754fb31a82f59aedb8da869b4a199a59e8f19e"
+    },
+    {
+      "file": "evidence/web-collection-reading/before-rain-stops.html",
+      "sha256": "105dc3dfb186df992fa1df887460a76380f5825ed1653fffb47137a9f80bb0bd"
+    },
+    {
+      "file": "evidence/web-collection-reading/before-rain-stops-website.zip",
+      "sha256": "c3661566d08c887b160601ed1535b0caee41d5f7c6a4295bf2511ee041f10518"
+    }
+  ],
+  "fixtures": [
+    {
+      "engine": "chromium",
+      "checks": 5,
+      "identity": {
+        "baselineCommit": null,
+        "sourceHashes": {
+          "apps/player-shell/src/PlayerShell.tsx": "42f89878d0a2d7dbf4d2c3307d2b7516e168d79460b663b68285ce67efa87cfd",
+          "apps/player-shell/src/player-shell.css": "c398184a226fe385ec80cf3ed9df8e7061d20bb12d4bb957286c42f8c3377ec9",
+          "apps/player-shell/src/player-skin.css": "603f209f867f946c8fd2f33fd5eb65187afa529401714613ab7f3fe916f343e7",
+          "apps/player-shell/src/use-replay-reading-return.ts": "50cdc88812e1cc758468beadf415525672756e3a88fbc72a34d6b98f19029a9f"
+        },
+        "codeSha256": "89bd59d5c6c50ee4838b02105944928e4765c44f66c54326590edf9ed6b1cf7d",
+        "cssSha256": "6a0a9dcc7261255d3e12b4ece5fb083c9da54c455f88257b81e8d78d5306e189",
+        "fixtureSha256": "0179722cf23f9046beb7b8eb84bdc74f1a93f781399f48a5a396beff45acd207"
+      }
+    },
+    {
+      "engine": "firefox",
+      "checks": 5,
+      "identity": {
+        "baselineCommit": null,
+        "sourceHashes": {
+          "apps/player-shell/src/PlayerShell.tsx": "42f89878d0a2d7dbf4d2c3307d2b7516e168d79460b663b68285ce67efa87cfd",
+          "apps/player-shell/src/player-shell.css": "c398184a226fe385ec80cf3ed9df8e7061d20bb12d4bb957286c42f8c3377ec9",
+          "apps/player-shell/src/player-skin.css": "603f209f867f946c8fd2f33fd5eb65187afa529401714613ab7f3fe916f343e7",
+          "apps/player-shell/src/use-replay-reading-return.ts": "50cdc88812e1cc758468beadf415525672756e3a88fbc72a34d6b98f19029a9f"
+        },
+        "codeSha256": "89bd59d5c6c50ee4838b02105944928e4765c44f66c54326590edf9ed6b1cf7d",
+        "cssSha256": "6a0a9dcc7261255d3e12b4ece5fb083c9da54c455f88257b81e8d78d5306e189",
+        "fixtureSha256": "0179722cf23f9046beb7b8eb84bdc74f1a93f781399f48a5a396beff45acd207"
+      }
+    },
+    {
+      "engine": "webkit",
+      "checks": 5,
+      "identity": {
+        "baselineCommit": null,
+        "sourceHashes": {
+          "apps/player-shell/src/PlayerShell.tsx": "42f89878d0a2d7dbf4d2c3307d2b7516e168d79460b663b68285ce67efa87cfd",
+          "apps/player-shell/src/player-shell.css": "c398184a226fe385ec80cf3ed9df8e7061d20bb12d4bb957286c42f8c3377ec9",
+          "apps/player-shell/src/player-skin.css": "603f209f867f946c8fd2f33fd5eb65187afa529401714613ab7f3fe916f343e7",
+          "apps/player-shell/src/use-replay-reading-return.ts": "50cdc88812e1cc758468beadf415525672756e3a88fbc72a34d6b98f19029a9f"
+        },
+        "codeSha256": "89bd59d5c6c50ee4838b02105944928e4765c44f66c54326590edf9ed6b1cf7d",
+        "cssSha256": "6a0a9dcc7261255d3e12b4ece5fb083c9da54c455f88257b81e8d78d5306e189",
+        "fixtureSha256": "0179722cf23f9046beb7b8eb84bdc74f1a93f781399f48a5a396beff45acd207"
+      }
+    }
+  ],
+  "browsers": [
+    {
+      "engine": "chromium",
+      "fileMode": false,
+      "checks": 5,
+      "partialReveal": true,
+      "rapidExits": 8
+    },
+    {
+      "engine": "firefox",
+      "fileMode": false,
+      "checks": 5,
+      "partialReveal": true,
+      "rapidExits": 8
+    },
+    {
+      "engine": "webkit",
+      "fileMode": false,
+      "checks": 5,
+      "partialReveal": true,
+      "rapidExits": 8
+    },
+    {
+      "engine": "chromium",
+      "fileMode": true,
+      "checks": 4,
+      "partialReveal": true,
+      "rapidExits": 8
+    }
+  ],
+  "fullMatrixCells": 4,
+  "partialRevealAcceptance": "same-memory-exact-replay-parent",
+  "authorPreviewPolicy": "instant-not-gradual-acceptance",
+  "physicalPhoneAcceptance": "not-accepted"
+}

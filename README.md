@@ -1,12 +1,141 @@
 # WorLd Studio（工作名）产品与开发设计文档
 
+> 当前接续（2026-10-18）：[#419 当前候选交接与跨浏览器完整游玩](docs/419-web-candidate-handoff.md)。纠正展示资料仍指向1.10.0的问题，统一1.12.0候选的工程／校订／玩家文件及旧档入口；本批不改剧情或重复导出。Chromium和Firefox各完成两格式×两路线，原生配音、离线网站重载、HTML真实离开返回及原槽位保持见 #419。当前仍为 **1.12.0候选／S0.41**，28条校订和28项发行条件未人工批准，完整旧新版本离线升级、自然听读、真机／Safari与获准HTTPS仍待验，原生产品化搁置。以下为历史。
+
+> 当前接续（2026-10-18）：[#418 新城市房间与路线画面接续](docs/418-web-story-new-city-rooms.md)。回完整作品逐场核对，新增同布局的新城市日夜背景，纠正远行后仍显示旧家及留下后日谈未换地点的五处画面；正文、选择、原26媒体和九句配音保持。当前 **1.12.0候选／S0.41** 的[工程／游戏／校订记录](evidence/web-story-new-city-rooms)、实际编辑器制作、三引擎路线、双格式矩阵及最终审计见 #418。28条记录和28项发行条件仍待人工确认，#394源及#416原1.11.0游戏保留；新演出不批准旧档兼容。继续实际正文与演出／素材衔接，人工听读、真机及获准公网未关闭，原生产品化搁置。以下为历史。
+
+> 当前接续（2026-10-18）：[#417 发布前复核清单与换机交接](docs/417-web-release-review-and-handoff.md)。把文字／演出问题、当前内容和结局到达记录接入发布准备清单与制作交付包；区分待复核、旧稿、未附带与不完整记录，保留直接校订／从头试玩及返回导出格式的路径。实际作者三引擎、内部／公开文件隔离和最终回归见 #417。仍为 1.11.0 候选／S0.41，#394 可编辑源／25 条未人工批准记录／26 媒体和 [#416 HTML／网站](evidence/web-reading-motion)保持，不重复发布同字节游戏。下一批按逐场清单核对正文、演出和声音；人工／真机／发行依据／获准 HTTPS 仍待验，原生产品化继续搁置。以下为历史。
+
+> 当前接续（2026-10-18）：[#416 文字动效下的全文显示与回想接续](docs/416-web-reading-motion-continuity.md)。修复墨迹皮肤遮挡已显示全文、半显正文退出回想后从零开始，以及减动效下仍发生按钮位移；同段返回保留进度，Auto 继续等待未读内容。新 [HTML](evidence/web-reading-motion/before-rain-stops.html)／[网站 ZIP](evidence/web-reading-motion/before-rain-stops-website.zip)的实际作者／预设／三引擎／本地文件、完整双路线及最终审计见 #416。1,539 项功能和 128 项工具测试通过；仍为 1.11.0 候选／S0.41，#394 源／25 条未人工批准记录／26 媒体及 #415 原游戏保持。下一批回逐场阅读／演出节奏和发布准备；进程间动画、自然听读、真机／许可／公网继续待验。以下为历史。
+
+> 当前接续（2026-10-18）：[#415 收藏列表辨认与原进度返回](docs/415-web-collection-reading-and-return.md)。修复配置封面后的手机列表重叠、收录音乐漏封面，并明确返回标题／结局／正文。新 [HTML](evidence/web-collection-reading/before-rain-stops.html)／[网站 ZIP](evidence/web-collection-reading/before-rain-stops-website.zip)的三引擎五视口、原档与回想／刷新续读、完整双路线及审计见 #415；1,531 项功能和 121 项工具测试通过，失败探针与端口诊断保留。仍为 1.11.0 候选／S0.41，#394 源／25 条未人工批准记录／26 媒体及 #414 原游戏保留；下一批复核可配置动效下的中断返回，再继续逐场节奏与发布准备，人工／真机／许可／公网边界不扩大。以下为历史。
+
+> 当前接续（2026-10-18）：[#414 回想快退的画面恢复与已读正文保持](docs/414-web-replay-image-and-reveal-recovery.md)。实际复现旋转快退时旧图片尚未释放，新画面误入预算故障；展示只对退役解码做一次限时等待，真实超限仍拒绝并可明确重试。已读正文返回后不再重新渐显。新 [HTML](evidence/web-replay-recovery/before-rain-stops.html)／[网站 ZIP](evidence/web-replay-recovery/before-rain-stops-website.zip)的三引擎快退、默认显示、受控恢复、完整路线及最终审计见 #414。1.11.0 候选／S0.41、#394 源／25 条未人工批准记录／26 媒体保持，#413 原游戏保留；实际永久解码停滞、部分渐显精确时刻、真机／自然听读／许可／公网仍未验收。以下为历史。
+
+> 当前接续（2026-10-18）：[#413 双路线存档接续与回想返回阅读](docs/413-web-route-replay-reading-return.md)。修复回想后正文回段首，以及结局键盘返回未恢复 Auto／焦点；真实分歧存档接续两路线，正常回想三引擎／本地 HTML、四视口及两格式×两路线范围见 #413。新 [HTML](evidence/web-route-replay-continuity/before-rain-stops.html)／[网站 ZIP](evidence/web-route-replay-continuity/before-rain-stops-website.zip)仍为 1.11.0 候选／S0.41，#394 源／25 条未人工批准记录／26 媒体保持，#412 原游戏保留。快速未呈现即退出的图片故障、默认渐显复核及人工／真机／许可／公网继续开放，不将正常流程通过扩大为边界验收。以下为历史。
+
+> 当前接续（2026-10-18）：[#412 备份导入前的内容核对与旧档保留](docs/412-web-backup-inspection-and-retention.md)。换浏览器续读前显示完整校验后的正文摘要、可选截图及目标旧档摘要，覆盖前可直接选中并备份旧槽位，之后仍需明确覆盖和读取；不改存档／备份协议。新 [HTML](evidence/web-backup-inspection/before-rain-stops.html)／[网站 ZIP](evidence/web-backup-inspection/before-rain-stops-website.zip)的作者、三引擎／本地文件、四格路线及最终审计见 #412。仍为 1.11.0 候选／S0.41，#394 源／25 条未人工批准记录／26 媒体保持，#411 原游戏保留；整机迁移、自然听读、真机／许可／公网等范围不扩大。以下为历史。
+
+> 当前接续（2026-10-18）：[#411 历史回看的键盘操作和剧情保护](docs/411-web-history-input-boundary.md)。修复历史打开时 Tab 移到背景后退按钮、未经明确选择便改变正文的问题；保留查找、重听、明确行回退和关闭返回，未改剧情或音频框架。新 [HTML](evidence/web-history-input-boundary/before-rain-stops.html)／[网站 ZIP](evidence/web-history-input-boundary/before-rain-stops-website.zip)的作者、三引擎键盘／重听、四格完整路线与最终回归见 #411。仍为 1.11.0 候选／S0.41，#394 源／25 条未人工批准记录／26 媒体保持，#410 原游戏保留；自然听读、真机／Safari、许可及获准 HTTPS 等门槛不变。以下为历史。
+
+> 当前接续（2026-10-18）：[#410 中断与回看后的声音故障恢复](docs/410-web-audio-failure-continuity.md)。修复正文声音失败后，历史重听／宿主暂停／快进覆盖错误状态、丢失重试入口的问题；同 ID 明确换地址也更新原生所有者，不阻断新来源。新 [HTML](evidence/web-audio-failure-continuity/before-rain-stops.html)／[网站 ZIP](evidence/web-audio-failure-continuity/before-rain-stops-website.zip)的作者、完整路线、三引擎故障／健康／等待回归与审计见 #410，初稿与失败探针保留。仍为 1.11.0 候选／S0.41，#394 源／25 条未人工批准记录／26 媒体保持；冻结探针未通过，不计真机后台，人工／许可／公网等边界不变，#409 原游戏保留。以下为历史。
+
+> 当前接续（2026-10-18）：[#409 历史重听的声音等待与恢复](docs/409-web-history-voice-readiness.md)。修复原生 play 先于数据时的“假播放”和无进展后无法重试，保持正文、原槽位和个人设置；新 [HTML](evidence/web-history-voice-readiness/before-rain-stops.html)／[网站 ZIP](evidence/web-history-voice-readiness/before-rain-stops-website.zip)及测试审计见 #409。实际三引擎等待与健康重听分别核对，播放中断流目前仅受控覆盖，失败探针保留。仍为 1.11.0 候选／S0.41，#394 源、25 条未人工批准记录与 26 媒体保持；人工／真机／许可／公网等门槛不变，#408 原游戏保留。以下为历史。
+
+> 当前接续（2026-10-18）：[#408 长篇备份的后台处理与安全接续](docs/408-web-backup-envelope-and-continuation.md)。备份解析、摘要与打包进入可取消后台，保留原格式、完整校验和原子导入；真实旧文件、四份浏览器流程及最后一轮 1,448 项功能／80 项工具测试通过，早期超时报告保留。新 [HTML](evidence/web-backup-envelope/before-rain-stops.html)／[网站 ZIP](evidence/web-backup-envelope/before-rain-stops-website.zip)的实际制作、路线及成本边界见 #408。仍为 1.11.0 候选／S0.41，#394 源、25 条未人工批准记录和 26 媒体保持；真机／自然听读／许可／公网、剩余长篇成本及既有超时调查开放，#407 原游戏保留。以下为历史。
+
+> 当前接续（2026-10-18）：[#407 跨窗口已读合并与段内续读](docs/407-web-reading-meta-continuity.md)。精确解释 #406 的特定状态摘要变化来自正常已读 Meta 合并；修复恢复提示消失和旧存档来源的位置落后，保留段首重读、最新行恢复及只显示不改档的边界。新 [HTML](evidence/web-reading-meta-continuity/before-rain-stops.html)／[网站 ZIP](evidence/web-reading-meta-continuity/before-rain-stops-website.zip)的作者、两完整路线、三引擎真实跨窗口事件及最终回归见 #407。1.11.0 候选／S0.41、#394 源／25 条未人工批准记录及 26 媒体保持，#406 原游戏保留；真机／自然听读／许可／公网及长篇成本等继续开放。以下为历史。
+
+> 当前接续（2026-10-18）：[#406 多窗口手动保存与进度保护](docs/406-web-manual-save-safety.md)。手动保存接入既有原子比较能力，拒绝旧确认和空槽竞争覆盖，冲突后明确核对、另存或重新确认；区分未提交与写入结果不确定，保留隔离外观预览试存档。新 [HTML](evidence/web-manual-save-safety/before-rain-stops.html)／[网站 ZIP](evidence/web-manual-save-safety/before-rain-stops-website.zip)的实际作者、路线、三引擎双窗口竞争及最终回归范围见 #406。1.11.0 候选／S0.41、#394 源／25 条未人工批准记录及 26 媒体保持，#405 旧游戏保留；人工／真机／许可／公网、底层等待和长篇成本继续开放。以下为历史。
+
+> 当前接续（2026-10-18）：[#405 存档列表读取恢复与已写入结果核对](docs/405-web-save-list-recovery-and-verified-slots.md)。未读取／失败的列表不再显示成空槽，支持明确重试与旧结果隔离；保存／导入已写入但列表未刷新分别提示，短横屏保留重要结果，重试成功更新对应旧提示。新 [HTML](evidence/web-save-list-recovery/before-rain-stops.html)／[网站 ZIP](evidence/web-save-list-recovery/before-rain-stops-website.zip)的实际作者、路线、三引擎及最终测试范围见 #405。1.11.0 候选／S0.41、#394 源／25 条未人工批准记录和 26 媒体保持，#404 旧游戏保留；人工／真机／许可／公网及长篇成本等门槛不关闭。以下为历史。
+
+> 当前接续（2026-10-18）：[#404 换设备备份准备与取消接续](docs/404-web-backup-preparation-and-continuation.md)。导出准备／导入前检查可取消、重试并隔离迟到结果，完整检查复用正式 Worker；实际导入写入仍受保护，明确区分未知结果和已写入未刷新。新 [HTML](evidence/web-backup-continuation/before-rain-stops.html)／[网站 ZIP](evidence/web-backup-continuation/before-rain-stops-website.zip)的作者流程、两完整路线、三引擎实际文件接续与测试范围见 #404。1.11.0 候选／S0.41、#394 源／25 条未人工批准记录与 26 媒体保持，#403 旧游戏保留；长篇同步计算、底层写入等待、人工／真机／声音／许可／公网等门槛不关闭。以下为历史。
+
+> 当前接续（2026-10-18）：[#403 声音长时间未就绪时的阅读接续](docs/403-web-audio-readiness-and-continuation.md)。真实配音请求挂起时提供不遮正文的等待反馈，配音等待停止 Auto；支持局部重试、迟到恢复与明确无声继续，健康 BGM、存档与个人音量保持。新 [HTML](evidence/web-audio-readiness/before-rain-stops.html)／[网站 ZIP](evidence/web-audio-readiness/before-rain-stops-website.zip)的制作、路线和原生网络／历史复验范围见 #403。1.11.0 候选／S0.41、#394 源／25 条未人工批准记录与 26 媒体不变；没有关闭 WebKit 内嵌声音、人工／真机／许可／公网等门槛。以下为历史。
+
+> 当前接续（2026-10-18）：[#402 历史语音重听与当前阅读接续](docs/402-web-history-voice-audition.md)。补齐原始要求中的已读主线语音重听，不必回退故事；独立暂停／继续／重试、当前声音归属、静音和关闭接续保持。新 [HTML](evidence/web-history-voice/before-rain-stops.html)／[网站 ZIP](evidence/web-history-voice/before-rain-stops-website.zip)的实际制作、两路线和三引擎四份专项范围见 #402。1.11.0 候选／S0.41、#394 源／25 条人工记录和 26 媒体不变；前方／归档重听、人工／真机／内嵌 WebKit 声音／许可／公网等不宣称完成。以下为历史。
+
+> 当前接续（2026-10-18）：[#401 完整路线矩阵与真实导航续读](docs/401-web-work-continuity-matrix.md)。补齐 Chromium 的 HTML／离线网站 × 两条完整路线，三桌面引擎 × 两格式真实离开／后退后的明确恢复与阅读位置检查；68 项功能复验、64 项工具测试通过。该批是验证工具与证据补齐，未改剧情或播放器、未重导出游戏；1.11.0 候选／S0.41、#394 源及 #400 双游戏保持。未观察到 BFCache 原页保留，人工／真机／声音／许可／公网等剩余范围见 #401。以下为历史。
+
+> 当前接续（2026-10-18）：[#400 保存异常后的连续阅读与进度保护](docs/400-web-progress-recovery.md)。恢复／自动保存／检查点问题不再以浮层拦截阅读，详情沿现有菜单，支持明确手动保存、保留旧恢复点、迟到结果提醒和最新段落重试／刷新恢复；媒体问题合并入口但不互相清除。当前 [HTML](evidence/web-progress-recovery/before-rain-stops.html)／[网站 ZIP](evidence/web-progress-recovery/before-rain-stops-website.zip)，真实计时与 IndexedDB 故障任务、三引擎十五份定向报告和完整作者／路线范围见 #400。1.11.0／S0.41、#394 源／25 条人工记录与 26 媒体保持，#399 原包保留。底层存储／受控时钟等待、WebKit 音频及人工／真机／许可／公网、长期／长篇成本仍开放，原生搁置。以下为历史。
+
+> 当前接续（2026-10-18）：[#399 媒体失败时保持阅读与明确恢复](docs/399-web-reading-media-recovery.md)。普通正文的声音／Canvas 画面失败不再自动浮层遮字，详情收进阅读菜单，明确重试／无声后保留原段落与本段位置；窄屏故障＋无声＋Auto 的操作可达。当前 [HTML](evidence/web-reading-media-recovery/before-rain-stops.html)／[网站 ZIP](evidence/web-reading-media-recovery/before-rain-stops-website.zip)的作者保存重开、完整路线、三引擎与回归范围见 #399。1.11.0／S0.41、#394 源／25 条人工记录及 26 媒体保持，#398 原游戏保留；WebKit 播放、Firefox 受控时钟下的恢复保存超时、人工／真机／许可／公网与长期／长篇成本仍开放，原生搁置。以下为历史。
+
+> 当前接续（2026-10-18）：[#398 分支选择的键盘操作与可读性](docs/398-web-choice-keyboard-and-readability.md)。修复 Enter／空格连读误选路线、焦点选项的方向键／数字键失效和输入来源，补纸色提问对比及不遮挡选项的错误恢复。新 [HTML](evidence/web-choice-keyboard/before-rain-stops.html)／[网站 ZIP](evidence/web-choice-keyboard/before-rain-stops-website.zip)通过实际制作、两条完整路线、同内容旧备份和三引擎定向复验；1,270 项回归范围见 #398。1.11.0／S0.41、#394 源／25 条人工记录和全部 26 媒体保持，#395 旧游戏保留。人工／真机／许可／公网、WebKit 解码和长期／长篇成本仍待验，原生搁置。以下为历史。
+
+> 当前接续（2026-10-18）：[#397 素材试听的等待、停止与重试](docs/397-web-audio-preview-recovery.md)。来源核对／素材库支持显式开始与停止、准备取消与限时、无进展恢复及迟到请求隔离，草稿与发行规则保持。1,249 项回归、45 项 Node 及实际浏览器／保存交付范围见 #397；Chromium／Firefox 有播放时间推进，WebKit Blob 试听仍未过。1.11.0／S0.41、#394 源／25 条人工记录、#395 双游戏和全部 26 媒体保持，不重发无变化的游戏。下一批回完整阅读／演出和真实素材依据；人工／真机／许可／公网、长期与长篇成本待验，原生搁置。以下为历史。
+
+> 当前接续（2026-10-18）：[#396 素材来源核对中的预览与正文上下文](docs/396-web-source-preview-and-context.md)。来源窗口支持按需完整看图、原生试听及已提交演出／相邻原文对照，切换与收起释放预览、失败可重试，保留填写和确认边界。26 项文件／九句配音关联已核对，全部发行条件仍 pending；真实三引擎作者流程和两种制作包恢复范围见 #396，WebKit Blob 试听未通过。1.11.0／S0.41、#394 源／25 条人工记录与 #395 双游戏保持，不重发无变化的剧情；人工／真机／发行／公网、长期与长篇成本仍待验，原生搁置。以下为历史。
+
+> 当前接续（2026-10-18）：[#395 连续阅读的点按归属与误跳保护](docs/395-web-reading-press-ownership.md)。实际复现并修复 Auto 换段期间松手跳过新段，保护菜单／后台返回和拖动取消，正常点按／键盘保持。新的 [HTML](evidence/web-reading-press/before-rain-stops.html)／[网站 ZIP](evidence/web-reading-press/before-rain-stops-website.zip)经实际编辑器保存重开、完整两路线、同内容原备份和三引擎点按复验；1,058 项相关回归通过。源工程及 25 条待人工记录沿 #394，1.11.0／S0.41、26 媒体不变，旧产物保留。人工／真机／发行／公网、WebKit 内嵌音频和长期／长篇成本仍待验，原生搁置。以下为历史。
+
+> 当前接续（2026-10-18）：[#394 远行见面计划与送别雨声](docs/394-web-story-plans-and-farewell.md)。从完整路线纠正远行备用计划借用另一分支、送别后雨声未减弱，实际编辑器制作 1.11.0 内容候选。当前[工程](evidence/web-story-plans-and-farewell/before-rain-stops-project.zip)、[HTML](evidence/web-story-plans-and-farewell/before-rain-stops.html)、[网站 ZIP](evidence/web-story-plans-and-farewell/before-rain-stops-website.zip)和[25 条待人工记录](evidence/web-story-plans-and-farewell/before-rain-stops.worldreview)集中在 web-story-plans-and-farewell；旧 1.10.0 保留，不登记旧档兼容。9,772 字符／87 演出／26 媒体，技术 S0.41；测试与实际范围见 #394。冷开设置有限复核未复现，不登记修复；人工／真机／许可／公网、内嵌音频、长期与长篇成本仍开放，原生搁置。以下为历史。
+
+> 当前接续（2026-10-18）：[#393 完整作品的连续阅读运行候选](docs/393-web-reading-delivery-candidate.md)。#391 的读档取消／重试、#392 的只读历史与人物／选择上下文已进入新的 [HTML 游戏](evidence/web-reading-delivery/before-rain-stops.html)和[网站 ZIP](evidence/web-reading-delivery/before-rain-stops-website.zip)。实际完整两路线、原 1.10.0 备份、三引擎历史／取消读取／段内续读及限定载体的原生语音复验范围见 #393；旧候选保留。1.10.0／S0.41、#384 源／23 条待人工记录和 26 媒体不变。下一批回完整剧情与演出具体问题，人工／真机／许可／公网、WebKit 内嵌音频及长篇成本仍待验，原生搁置。以下为历史。
+
+> 当前接续（2026-10-18）：[#392 完整作品的历史回看与分支上下文](docs/392-web-history-reading-context.md)。实际复现历史正文点击误回退、对白缺人物及已选答案查找缺失，改为只读正文与独立“回到这一句”，补人物／已选项上下文、当前／未来／归档隔离和短横屏可读性；纸色及高对比卡片保持。1,045 项相关回归及实际作品／浏览器范围见 #392。1.10.0／S0.41、#384 源、23 条待人工记录和 26 媒体不变，可下载运行候选仍是 #390，本批临时双导出验证后清理。下一批先统一当前运行候选，纳入 #391–#392 后再更新下载入口；人工／真机／许可／公网、长篇计算与原生搁置保持。以下为历史。
+
+> 当前接续（2026-10-18）：[#391 长篇读档等待、取消与重试](docs/391-web-load-wait-and-cancellation.md)。槽位、最近存档和独立恢复区分本机读取与完整校验，等待可取消、失败可重试；后台／换工程／换存储／卸载及迟到结果不替换当前阅读，取消不影响先行保存。长篇总等待、Worker 完整校验与接收端重建分开实测，不宣布整体提速。实际回归与浏览器范围见 #391；1.10.0／S0.41、#384 源／23 条待人工记录、26 媒体不变，可下载运行候选仍沿 #390，本批临时双导出核对后清理。下一批回完整作品上下文与连读复核；完整校验成本、人工／真机／许可／公网与原生搁置保持。以下为历史。
+
+> 当前接续（2026-10-18）：[#390 语音中断恢复与连续阅读](docs/390-web-voice-reading-continuity.md)。同句读档重新播放当前语音，暂停／返回保留原位置，迟到播放受 Host 保护；菜单支持重听及主动无声阅读，窄屏恢复提示避开正文和面板。本批重新导出当前 HTML／网站，1.10.0 内容、S0.41、#384 源／23 条人工记录及全部 26 媒体保持。精确载体／测试与 Windows WebKit 内嵌音频未通过项见 #390；下一批分开核对长篇读档／重建成本，人工／真机／许可／公网及原生搁置保持。以下为历史。
+
+> 当前接续（2026-10-18）：[#389 完整作品的段内续读与中断恢复](docs/389-web-reading-resume.md)。实际作品刷新／明确读档后可接到本机保留的原文字，旋转、已读知识合并及段首重读保持；辅助缓存损坏不影响正式进度，横屏提示避开正文。范围与证据见 #389。1.10.0／S0.41、源与 23 条人工记录沿 #384、可下载双游戏沿 #386 不变；下一批继续语音与多次中断连读，长篇成本、人工／真机／许可／公网及原生搁置保持。以下为历史。
+
+> 当前接续（2026-10-17）：[#388 长篇自动阅读与快进的可取消调度](docs/388-web-long-playback-advance.md)。按 #387 补 Auto／Skip 的完整后台计算、调度器连续性、主动停止与迟到结果保护，统一计算提示和旧存读档通知优先级；实际测试、比较及未关闭项见 #388，不宣称全部等待提速。完整作品仍 1.10.0／技术 S0.41，源／23 条待人工记录沿 #384、可下载双游戏沿 #386。下一批回完整作品连续阅读与中断续读，继续跟踪长篇剩余成本；人工／真机／许可／公网与原生搁置保持。以下为历史。
+
+> 当前接续（2026-10-17）：[#387 长篇推进与恢复的完整输入传输](docs/387-web-session-input-transport.md)。按 #386／#373 接续长历史复制成本，普通异步推进、保存和后台恢复携带独立完整编码包，接收后仍逐次完整校验；不截短历史、不扩大 Auto／Skip 推进范围。实际比较、回归和用户流程范围见 #387。完整作品源／23 条待人工记录仍沿 #384，当前 HTML／网站仍沿 #386，本批临时双导出核对后清理，不重发相同 1.10.0。下一批核对剩余计算与 Auto／Skip 调度边界，S0.41、人工／真机／发行／公网及原生搁置保持。以下为历史。
+
+> 当前接续（2026-10-17）：[#386 长段落自动阅读与手机存档反馈](docs/386-web-auto-reading-pages.md)。本段翻屏保留 Auto，实际手动推进仍可接管；修复保存提示遮挡和 320px 工具栏换行，补截图存储不兼容时的完整进度保护。测试、实际浏览器证据和边界见 #386。当前 HTML／网站在 evidence/web-auto-reading-pages，1.10.0 源、23 条待人工记录及 26 媒体仍沿 #384 不变。下一批按 #353／#373 核对长篇其他推进路径与成本，不扩装饰或原生；S0.41、人工／真机／发行／公网条件保持。以下为历史。
+
+> 当前接续（2026-10-17）：[#385 自动阅读与语音恢复接续](docs/385-web-auto-voice-continuity.md)。修复 play 请求直接拒绝时 Auto 卡住、重试／恢复声音后沿旧时钟提前翻句；当前音轨失败通知、旧结果清理及新语音等待接通，不改 Core／存档协议。179 项相关回归、18 项工具测试、类型／双构建／架构及七组 Chromium 实际任务通过，范围见 #385。当前 HTML／网站在 evidence/web-auto-voice-continuity，1.10.0 源与 23 条人工记录沿 #384，剧情和全部 26 媒体保持；原 1.10.0 备份已实际恢复。下一批继续长段落／旋转和跨浏览器连读，不扩装饰；S0.41、人工／真机／发行／公网及原生搁置保持。以下为历史。
+
+> 当前接续（2026-10-17）：[#384 人物出场、昼夜与分支表达校订](docs/384-web-story-arrival-and-night.md)。回到完整作品实际内容，修正人物提前出现、夜间背景、修复作业照片含义和选项表达；真实编辑器制作 1.10.0，全部 26 媒体、原 ID／分支／九句配音保持。81 项相关回归、25 项工具测试及作者两路线／独立双格式／旧版保留实际任务通过，范围见 #384。当前工程、双游戏与 23 条待人工复核记录集中在 evidence/web-story-arrival-and-night；不兼容 1.9.0 或更早剧情存档，原版保留。技术 S0.41、人工／真机／发行／公网及原生搁置保持；下一批按真实连读、Auto／历史／中断续读复核，不扩版本管理。以下为历史。
+
+> 当前接续（2026-10-17）：[#383 缓存空间与选择清理](docs/383-web-cache-space-and-selected-cleanup.md)。可查看本游戏各构建的缓存内容大小，只清理已备份且不在使用的版本；保护当前／默认／其他窗口和更新中的游戏，确认时重核，存档不删除。103 项相关回归、18 项工具测试及三版本真实清理／两条完整路线范围见 #383。源工程、26 媒体和 19 条记录沿 #380，HTML 沿 #382，当前网站在 evidence/web-cache-management；作品 1.9.0／技术 S0.41 不变。下一批回完整作品内容、演出与实际交付，人工／真机／发行／公网与原生搁置保持。以下为历史。
+
+> 当前接续（2026-10-17）：[#382 内容更新前备份与旧版接续](docs/382-web-content-update-and-old-version-continuity.md)。备份入口、本版浏览器内链接、新版等待／明确启用与另开窗口接通；旧缓存缺失拒绝混用，修复双窗口版本识别与迟到状态。91 项相关回归、18 项工具测试及实际更新／两条完整路线范围见 #382。当前 HTML／网站在 evidence/web-version-retention，1.9.0 源工程、26 媒体与 19 条记录沿 #380，技术 S0.41 不变。缓存非永久备份，新旧共用槽位需先导出进度；下一批补空间与清理，再回完整作品交付。人工／真机／发行／公网及原生搁置保持。以下为历史。
+
+> 当前接续（2026-10-17）：[#381 离线下载进度、取消与恢复](docs/381-web-offline-download-and-recovery.md)。同版网站支持文件进度、取消、具体失败文件和正确重试，修复取消／错误回包时序，原缓存与存档保持。71 项相关回归、18 项工具测试及真实导出／缓存／完整两路线任务通过，范围见 #381。作品仍 1.9.0，源工程、HTML、19 条记录沿 #380，当前网站 ZIP 在 evidence/web-offline-download；剧情、26 媒体和技术基线 S0.41 不变。下一批处理内容变化更新前的备份／保留原版入口引导，人工／真机／发行／公网及原生搁置范围保持。以下为历史。
+
+> 当前接续（2026-10-17）：[#380 分支记忆与离店送别演出](docs/380-web-story-branch-context.md)。完整作品更新为 1.9.0 内容候选，修正远行路线串用另一分支经历，补夜雨公交站和进出候车室雨声。9,751 字符／85 演出／26 媒体，原 ID、分支、九句配音和旧 25 媒体保持；当前工程、双游戏和 19 条待人工复核记录集中在 evidence/web-story-branch-context。85 项相关回归、25 项工具测试、双构建及实际作者／独立玩家任务通过；旧剧情不兼容，1.8.0 原入口保留。技术基线 S0.41、人工／真机／发行／公网及原生搁置范围保持。以下为历史。
+
+> 当前接续（2026-10-17）：[#379 阅读重排定位与连续阅读](docs/379-web-reading-position.md)。旋转、字号、菜单和主动全屏后保护当前阅读位置，段首／段尾及 Auto 未读等待保持。源工程仍为 #377 的 1.8.0，当前游戏在 evidence/web-reading-position；102 项相关回归、18 项工具测试、三桌面引擎定向任务及 140% 字号独立两路线通过。沿用 #378 信息收纳，不改剧情和媒体；人工、真机、发行与公网条件保持，原生搁置。以下为历史。
+
+> 当前接续（2026-10-17）：[#377 剧情道具与地点演出校订](docs/377-web-story-continuity-candidate.md)。原完整作品推进为独立 1.8.0 候选，五段旁白、七步演出修正照片／信件去向与午后地点／雨声，25 原素材和所有原 ID 保持。105 项相关回归、25 项工具测试及 Chromium 九组实际任务通过，编辑器与独立游戏均合计两结局；旧剧情不兼容，1.7.14 原入口保留。产品技术基线仍 S0.41，16 条人工复核、真机／许可／公网与原生搁置范围保持。以下为历史。
+
+> 当前接续（2026-10-17）：[#376 工程恢复与换机接续](docs/376-web-project-recovery-and-handoff.md)。选错游戏／存档／记录或不完整包时说明用途、恢复位置并允许重选，不改已有工程；有效包继续原完整校验。136 项相关回归、18 项工具测试与三引擎实际恢复／编辑／保存重开通过，原 1.7.14 和 25 素材保持。下一批回原作品具体校订与同版交付，人工／真机／许可／公网及原生搁置保持。以下为历史。
+
+> 当前接续（2026-10-17）：[#375 网站上传包与同版交付](docs/375-web-website-upload-export.md)。可直接导出仅含公开文件的网站 ZIP，无需先安装 Node.js；用途记忆、定位返回、取消和同版制作包说明已接通。实际导出、断网和完整作品范围见 #375；不把生成文件当作上线，人工／真机／许可／公网与原生搁置保持。以下为历史。
+
+> 当前接续（2026-10-17）：[#374 发布前素材问题处理与连续核对](docs/374-web-source-review-workflow.md)。回到完整作品交付主线：发布问题分类直达、跨素材错误定位、应用后连续核对、手机详情切换及保存重开／内部资料隔离。测试与实际作品范围见 #374；长篇剩余成本、人工／真机／许可／公网及原生搁置保持。以下为历史。
+
+> 当前接续（2026-10-17）：[#373 长历史结果的无损回传与读取](docs/373-web-history-result-transport.md)。推进／读档结果无损传输重复进度列表，同包共享完整检查点与中途候选，接收端重建全部历史；不使用旧主线程前缀或校验缓存，输入和存档格式不变。迟到回调直接丢弃，实测、回归和完整作品核对见 #373；仍按 Web 完整作品交付，人工／真机／许可／公网及原生搁置边界保持。以下为历史。
+
+> 当前接续（2026-10-17）：[#372 长历史普通推进与可取消计算](docs/372-web-foreground-story-advance.md)。长历史手动推进复用前台 Worker，等待期间保留当前句，可取消、重试或明确选择兼容模式；菜单、保存、读档和暂停使迟到结果失效。原 Core 完整校验、完整历史和存档格式保持；收益定位为主线程响应，不宣称总等待提速。继续 Web 完整作品交付，人工／真机／许可／公网与原生搁置边界保持。以下为历史。
+
+> 当前接续（2026-10-17）：[#371 连续阅读的正文显示与后台恢复复制](docs/371-web-reading-paint-and-recovery.md)。按上次真实发送成本避让正文渲染，短会话保留快速路径；原 Runtime、存档格式、严格校验和完整历史保持。实测、相关回归、完整作品／旧备份与双格式核验范围见 #371，长任务尚未全部消除。继续普通推进与完整作品交付，不扩装饰或原生；人工、真机、许可与公网仍开放。以下为历史。
+
+> 当前接续（2026-10-17）：[#369 作者预览的舞台与正文阅读](docs/369-web-preview-reading-and-focus.md)。完整作品的舞台与校订正文分离，专注预览保持画幅、状态、音轨与阅读位置，修复手机控件覆盖、演出布局冲突及隐藏写作快捷键。167 项相关回归、六组真实静音流程、类型／双构建／架构通过；编辑器入口两结局 2/2，65 工程条目／25 素材保持，十一条记录仍待人工复核。实际 HTML 与 #368 相同、目录运行内容一致，独立 Player 路线本批未重跑。下一批转 #353 长篇校验／序列化／传输成本，Web 完整作品与发行边界保持。以下为历史。
+
+> 当前接续（2026-10-17）：[#368 完整作品的上下文复测与校订接续](docs/368-web-contextual-playtest-review.md)。回到《雨停之前》1.7.14，补问题位置／场景／故事开头三种复测、真实目标到达保护和前后内容对照，修复手机横屏触控尺寸。88 项相关回归、类型／双构建／架构及六组实际静音流程通过；工程 65 条目和 25 素材保持，编辑器完整入口 2/2，独立双格式各一路合计 2/2，十一条记录仍待人工复核。下一批处理完整作品的可视复核体验和 #353 长篇痛点，发行条件保持。以下为历史。
+
+> 当前接续（2026-10-17）：[#367 附加内容分组布局与试听退出](docs/367-web-additional-content-layout.md)。收藏总览、画廊、音乐、回想和结局收集可独立制作桌面／手机布局，贯通保存复用和双格式；修复试听窄列、退出后继续播放，保留大图关闭与原回想权威。250 项相关回归、五组静音浏览器流程、类型／双构建／架构通过，0.9.0 保持原剧情／角色／七素材，独立两路线合计 2/2。第四项主要页面首批闭环已覆盖，下一批回到完整作品校订、长篇使用痛点和发布交付；完整作品与发行待验范围保持。以下为历史。
+
+> 当前接续（2026-10-17）：[#366 设置名单与结局的布局编辑](docs/366-web-preferences-credits-ending-layout.md)。第四项扩展到玩家设置、制作名单和结局，贯通真实画布、手机、保存重开、带素材复用及双格式游戏；修复布局错位和结局遮住收藏返回。235 项相关回归、五组实际静音流程、类型／双构建／架构通过，0.8.0 保持原剧情、角色与七素材，独立两路线合计 2/2。下一批附加内容分组与子页，Web 完整作品及发行待验范围保持。以下为历史。
+
+> 当前接续（2026-10-17）：[#365 菜单存读档与历史的布局编辑](docs/365-web-menu-save-history-layout.md)。三页内容／返回区可在真实 Player 上编辑，支持手机独立布局、额外组件和原关闭入口保护；覆盖／读取确认、备份和历史查找在缩放后保持，保存复用及双格式游戏贯通。204 项相关回归、五组实际静音流程、根类型／双构建／架构通过，0.7.0 保留原剧情、角色与七素材，独立两路线合计 2/2。下一批扩设置、名单与结局，再接附加内容；Web 完整作品与正式发行待验范围不变。以下为历史。
+
+> 当前接续（2026-10-17）：[#364 真实预览布局编辑与设备可见性](docs/364-web-preview-layout-canvas.md)。标题／阅读可在真实 Player 上选中、拖动、调整尺寸和键盘微调，支持一次撤销、冲突定位／修正及手机隐藏；贯通保存重开、带素材复用和双格式游戏。184 项相关回归、六组实际静音流程、根类型／双构建／架构通过；0.6.0 保留原剧情与七素材，独立 Player 两路线合计 2/2。下一批扩展菜单、存读档和历史的作者布局体验；Web 主线与正式作品／发行待验范围不变。以下为历史。
+
+> 当前接续（2026-10-17）：[#363 标题阅读组件与响应式布局](docs/363-web-title-reading-responsive-layout.md)。标题信息／操作、对白／常用操作可分别定位，每页可添加文字、图片与现有功能按钮；手机独立锚点、冲突保护、撤销、保存重开、带素材复用和双格式导出贯通。171 项相关回归、类型／双构建／118 文件架构和五组实际静音流程通过；主样章 0.5.0 保持原剧情／素材，独立 Player 两路线合计 2/2。第四项仅完成首批闭环，下一批做可视化选择／拖动、冲突定位与手机可见性，再扩其他页；完整作品与发行验收仍保留。以下为历史范围。
+
+> 最新接续（2026-10-17）：[#362 真实存档画面与写作撤销范围](docs/362-web-save-preview-and-undo-boundaries.md)。Web 存档在触发时固定实际画面和正文摘录，排队不混入下一句；失败仍可存读档与备份恢复。明确跨结构撤销边界，修复半批历史残留。186 项相关回归、最终捕获专项、类型／双构建／架构及六组真实静音流程通过；下一批按 #357 第四项推进标题和阅读的自由组件与响应式布局。完整作品、真机与发行验收仍保留。
+
+> 最新接续（2026-10-17）：[#361 九宫格与姓名头像模板](docs/361-web-nine-slice-and-dialogue-identity.md)。按钮、对白窗体、姓名框九宫格与逐角色头像贯通制作、明确角色对应、缺图修复、保存重开和双格式游戏。129 项相关回归、类型/双构建/架构和六组实际静音任务通过；新功能工程 19 项素材，正常双格式各 1/1，原 0.4.0 不重发。#357 第二项首批模板范围完成，下一批按第三项做真实存档缩略图与跨结构撤销；完整作品、真机与发行边界保持。以下为历史。
+
+> 最新接续（2026-10-17）：[#360 页面背景与按钮状态素材](docs/360-web-page-backgrounds-and-button-states.md)。九页背景、四种按钮底图与文字颜色已贯通正式预览、15 项素材跨工程复用、保存重开和双格式游戏；修复触屏按下反馈与对白误套按钮底图。121 项相关回归、类型/双构建/架构及四组真实静音任务通过；新功能小工程各格式单结局 1/1，原 0.4.0 不重发。下一批先补九宫格和姓名框/头像模板，再转缩略图与连续制作。Web 主线不变，以下为历史范围。
+
+> 最新接续（2026-10-17）：[#359 带素材皮肤复用与导入修复](docs/359-web-skin-bundles-and-repair.md)。皮肤可携带所用图片/字体，在另一工程对应、补齐、静音预览、整批导入并保存重开；保留原剧情和作品信息。87 项相关测试、类型/双构建/架构审计与五组实际任务通过，新验证小工程单结局在双格式各 1/1。主样章《给明天的回信》0.4.0 原样保留；下一批先补页面背景、按钮状态等模板素材能力，再做真实缩略图与自由布局。以下为各批历史范围。
+
+> 开发进度与后续方向（2026-10-17）：[#358 剧情动效预设与作者复用](docs/358-web-story-motion-presets.md)。人物/文字动效已接通静音试看、应用、保存重开、跨场景预设和配置往返；样章 0.4.0 保持原正文、路线、外观和七份素材。下一批按 #357 顺序推进带素材皮肤包，再做存档缩略图/创作连续性和自由布局。
+
+> 完整作品接续：《雨停之前》1.10.0 的可编辑工程与 23 条校订记录在 [web-story-arrival-and-night](evidence/web-story-arrival-and-night)，当前 HTML／网站上传包在 [web-auto-reading-pages](evidence/web-auto-reading-pages)，范围见 [#386](docs/386-web-auto-reading-pages.md)。不兼容 1.9.0 或更早剧情存档；原 1.9.0 源工程／记录在 [web-story-branch-context](evidence/web-story-branch-context)、HTML 在 [web-version-retention](evidence/web-version-retention)、网站在 [web-cache-management](evidence/web-cache-management)，全部保留。长篇剩余成本见 [#373](docs/373-web-history-result-transport.md)，外观样章 0.9.0 与历史产物不改写。
+
+> #358 历史判断：基础创作、主要页面模板和首批剧情动效作者流程可用。199 项相关测试、根类型、双构建、便携架构审计及六组实际静音任务通过；当时 HTML file:// 桌面一路和目录 HTTP 手机一路合计独立 Player 两结局，编辑器整部仍 0/2。未计全格式×路线组合、真机/Safari、人工/许可/公网或长篇性能收尾，范围见 #358；不替代顶部当前验证结果。
+
 > 状态：S0.41 保留为 Web 技术证据原型；2026-08-13 起执行产品落地主线，D1、S0、M1 均未通过
-> 文档基线：2026-09-01
-> 当前阶段边界：N40 Route、N41 Sequence、N42 Stage、N43 七工作模式、N50 Player、N51 Gal Settings 与 N52 Engineering 出口已通过；N52 main-target Draft PR #122 已建立且精确候选头 Windows 全门绿色，但尚未合入 `main`。N21/N23 真人仍为 0/1、0/2；N52 Product Acceptance、N60+、Android 实体包、M1 与发布继续阻断。
-> 当前交付边界：只规划到 M1；M2 以后保留为愿景池，不进入当前开发承诺。
+> 文档基线：2026-10-17
+> 当前交付目标：[Web 完整 Gal 作品 #304](docs/304-web-complete-gal-delivery.md)。先完成 Web 编辑器与玩家的完整制作、导出和部署上线流程，Windows／Android 原生版本先搁置；当前验收以一部完整作品的实际创作和上线为主线。
+> 当前进展：1.11.0 内容候选为 9 场景/两结局、9,772 字符/87 演出/26 项素材与来源台账；未批准 1.10.0 或更早剧情存档兼容，原版入口及工程保留。编辑器技术版本与作品版本分别记录，不宣布 Stable。
+> 最新开发记录：[当前状态 #99](docs/99-current-development-status-audit.md)与 [#396 素材来源核对中的预览与正文上下文](docs/396-web-source-preview-and-context.md)。作者核对流程与 26 项素材事实范围在 [web-source-preview](evidence/web-source-preview)；当前双游戏仍在 [web-reading-press](evidence/web-reading-press)，1.11.0 工程／25 条待人工记录沿 [#394](evidence/web-story-plans-and-farewell)，旧产物保留。发行条件未批准，长篇剩余成本保持，不把旧阶段的下一步当作当前接续。
+> 当前开发入口：[用户任务优先路线 #289](docs/289-user-centered-delivery-route.md)。N62-E1–E5 已实现，当前优先贯通正式 Web 游戏导出，玩家路线图后置；下方旧阶段记录保留为历史背景。以真实创作和交付任务推进，只做必要验证，真人测试等功能与整体 UI 就绪。
+> 当前重心：《雨停之前》1.11.0 的完整内容／演出复核与 Web 交付，25 条记录待人工复核；《给明天的回信》0.9.0 保留为外观功能样章。自然阅读／听感、真机／Safari、26 项素材发行条件与实际公网仍待验，不反复扩展无关装饰或导出选项。
+> 当前交付边界：优先交付 Web 完整作品能力。原三端 M1 保留为后续整体范围，Windows／Android 未完成项不阻断本轮 Web 交付；M2 以后保留为愿景池。
 > M1 发布定位：首个可正式公开发布的 Stable 版本，不是功能演示或技术预览。
 > 交付链纠偏：N00–N41 已建立直接面向 `main` 的 [集中整合权威基线](docs/182-n41-consolidated-integration-baseline-audit.md)，Draft PR #61 的 Candidate Windows CI 已绿色；仍未合入 `main`，N41-E2 只能从该 Authority 继续。
 > 产品节奏纠偏：2026-09-01 [产品目标对齐审计](docs/262-product-goal-alignment-and-delivery-correction.md)确认功能语义仍对齐最初 PRD，但开发过程已过度偏向工程证明；从 E5c 起以真实用户任务、预期/实际差异和纵向可操作闭环作为主要完成判据。
+> 当前开发原则：功能和用户任务优先；测试、审计与安全工作只保留能防止真实回归或满足交付所必需的最小范围，不以增加证明材料代替产品推进。功能设计必须先明确谁在什么场景下使用、用户操作路径、可见反馈与失败恢复，再决定实现结构。
 
 WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制作器，而是建立一套兼顾新手、职业编剧、美术、程序、翻译和 QA 的跨平台视觉小说生产系统。
 
@@ -41,17 +170,36 @@ WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制�
 | [质量与发布体系](docs/07-quality-and-release.md) | 测试、性能、可访问性、安全和发布门禁 |
 | [路线图与评审门](docs/08-roadmap.md) | 阶段、里程碑、退出条件与指标 |
 | [当前开发状态审计](docs/99-current-development-status-audit.md) | 当前真实代码、能力、阻断项与下一步 |
+| [Web 阅读与手机体验](docs/309-web-reading-mobile-experience.md) | 1.4.0、成品画幅对照纠偏、手机菜单/长文/Auto、最终验证与接续 |
+| [玩家个人设置与全屏](docs/310-player-personal-settings-and-fullscreen.md) | 1.5.0、字号/文字/音量/偏好、全屏/失败回退、跨引擎与真实边界 |
 | [产品目标对齐与交付节奏纠偏审计](docs/262-product-goal-alignment-and-delivery-correction.md) | 最初需求复核、验证/治理偏移证据、E5 后续纵向交付规则 |
 | [N52-E5d Player History Shell 与 production 用户路径审计](docs/264-n52-e5d-player-history-shell-production-audit.md) | History 页面、活动/旧分支、选行回退、Barrier/Forward 反馈、保存刷新读取及桌面/390×844 真实差异闭环 |
 | [N52-E5e History Engineering 总出口复审](docs/265-n52-e5e-history-engineering-exit-reaudit.md) | 原始需求逐项复核、N52 Engineering 关闭、产品验收/N60 边界与集成接续点 |
 | [N52 main-target 集成候选与真人门就绪审计](docs/266-n52-main-target-integration-candidate-audit.md) | main/N41 Authority 祖先审计、E5e 基线 463 提交的聚合审阅策略、N21/N23 真实 pending 状态与接续顺序 |
+| [N60-E1 正式调试会话审计](docs/267-n60-e1-debugger-session-audit.md) | 正式 Runtime 调试入口、断点/单步/观察器、desktop/mobile 差异修正与 N60-E2 接续点 |
+| [N60-E2 断点集合与运行边界审计](docs/268-n60-e2-breakpoint-boundary-audit.md) | 多断点启停/移除、五类正式停止原因、源码返回、真实差异与 N60-E3 接续点 |
+| [N60-E3 Watch 与变量来源/变化审计](docs/270-n60-e3-debugger-watch-audit.md) | 正式 parser/evaluator/History/Source Map Watch、真实差异、双视口证据与 P0 Story QA 接续点 |
+| [N60-E4 P0 Story QA 产品闭环审计](docs/271-n60-e4-p0-story-qa-product-closure-audit.md) | 五类 Compiler 诊断产品投影、真实故障/正常 Golden、分类筛选、stable 回源与 N60 总出口接续点 |
+| [N60-E5 当前场景调试启动审计](docs/272-n60-e5-scene-debugger-start-audit.md) | Scene Fresh Run 产品缺口、真实预期/实际差异、最小修正与总出口接续点 |
+| [N60-E6 诊断抑制与总出口审计](docs/273-n60-e6-diagnostic-suppression-and-engineering-exit-audit.md) | 必填理由、Canonical 持久化、恢复路径、production 差异与 N60 Engineering 关闭 |
+| [N61-E1 本地化生产入口与状态闭环审计](docs/274-n61-e1-localization-production-audit.md) | Production 源/目标语言、稳定文本键、五种状态、保存重开、过期检测与 N61-E2 接续点 |
+| [N61-E2 CSV/XLSX 翻译交换审计](docs/275-n61-e2-localization-csv-xlsx-exchange-audit.md) | 真实双格式往返、差异预览、错误整批阻断、Canonical 重开与 N61-E3 接续点 |
+| [N61-E3 Runtime 语言切换与回退审计](docs/276-n61-e3-runtime-localization-switch-audit.md) | Compiler catalog 到正式 Player 的即时切换、缺失/过期回退、确定性与重开偏好 |
+| [N61-E4 CJK/Ruby/字体回退审计](docs/277-n61-e4-cjk-ruby-font-fallback-audit.md) | 语义 Ruby、严格 CJK 排版、项目字体失败恢复及真实桌面差异 |
+| [N61-E5 语言媒体与 Voice Asset 映射审计](docs/278-n61-e5-localized-media-voice-mapping-audit.md) | 语言视觉变体、stable-text-ID Voice、播放中即时切换与缺失资源可见回退 |
+| [N61-E6 Production 语言媒体与配音生产审计](docs/279-n61-e6-localized-media-production-audit.md) | 真实资源导入、稳定文本/基础媒体绑定、状态、缺失恢复、保存重开与移动卡片 |
+| [N61-E7 本地化与配音 Engineering 出口审计](docs/280-n61-e7-localization-engineering-exit-audit.md) | 同一 Canonical/Blob 跨 Editor、Compiler、Player 交付，390×844 CJK 证据与 N61 出口结论 |
+| [N61→N62 跨电脑开发交接](docs/281-n61-to-n62-cross-device-handoff.md) | 远端恢复点、真实代码能力、N62-E1 用户路径、测试合同、授权边界与换机命令 |
+| [N62-E1 自动附加内容入口实现审计](docs/282-n62-e1-additional-content-entry-audit.md) | 正式 Player 四类自动摘要、Effect 时点纠偏、返回身份与双视口真实证据 |
+| [N62-E1 Production Browser 闭合与 E2 接续](docs/284-n62-e1-production-browser-closure-and-e2-handoff.md) | 双视口真实浏览器、模态焦点与玩家文案纠偏、E2 唯一接续合同 |
+| [N62-E2 Gallery / Ending 内容体验审计](docs/285-n62-e2-gallery-ending-content-audit.md) | Catalog/Meta 同源列表、防剧透、资源缺失恢复、全屏预览、分层焦点与 E3 接续合同 |
+| [N62-E3 Music Meta 与音乐室审计](docs/286-n62-e3-music-meta-player-audit.md) | audio play 单调收录、兼容 v1 Meta、锁定防剧透、试听/缺失恢复、双视口证据与 E4 接续合同 |
 | [项目归档索引](archive/README.md) | 已被后续权威取代的历史文档、归档标准与测试文件盘点 |
 | [N43-E5 Production 资源生产审计](docs/208-n43-e5-production-workspace-audit.md) | 同一 Asset Index 的生产流水线、批量状态表、手机状态卡、真实资源与保存重开证据 |
 | [N43-E6 Debug & QA 审计](docs/209-n43-e6-debug-qa-workspace-audit.md) | 正式 Compiler/Runtime/Source Map 检查、错误草稿阻断、源码定位、真实浏览器与差异修正 |
 | [N43-E7 Mobile Focus 与 Engineering 出口审计](docs/210-n43-e7-mobile-focus-and-engineering-exit-audit.md) | Canonical 手机专注写作、IME/触控替代、真实窄屏差异修正、七模式 7/7 与出口边界 |
 | [N43→N50 治理检查点](docs/211-n43-n50-governance-checkpoint.md) | RA-N21-009 有界准入、正式 Player Core 同源约束、N51 越界反例与 N50-E1 冻结起点 |
 | [N50-E1 正式 Player Core 审计](docs/212-n50-e1-formal-player-core-audit.md) | Canonical→Compiler→Runtime/Host→Player snapshot、最小共享 Shell、production browser 与差异修正 |
-| [N50-E1 暂停开发与换机交接审计](docs/213-n50-e1-development-handoff-2026-08-26.md) | 暂停头、远端证据、换机迁移边界、恢复命令与后续严格顺序 |
 | [N50-E2 Player Stage/Media 审计](docs/214-n50-e2-player-stage-media-presentation-audit.md) | 正式 Effect snapshot、真实 PNG/WAV adapter、awaited/cancel 生命周期与 production-browser 物理证据 |
 | [N50-E3 Media Parity/Recovery 审计](docs/215-n50-e3-player-media-parity-recovery-audit.md) | Editor↔Player 同源结构差分、多角色/多音轨 channel、缺失媒体恢复与真实移动触控纠偏 |
 | [N50-E4 Player 输入与生命周期审计](docs/216-n50-e4-player-input-lifecycle-audit.md) | 统一 Core intent、键盘/指针/基础手柄协议、Choice 焦点、Ending restart 与工程身份替换 |
@@ -71,7 +219,6 @@ WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制�
 | [N51-E6b Text / Accessibility 应用审计](docs/231-n51-e6b-text-accessibility-entry-contract.md) | schema v3、29/20 字段、文本排版/即时显示、高对比/减动效/降闪烁与双 production-browser 证据 |
 | [N51-E6f Engineering 出口复审](docs/235-n51-e6f-engineering-exit-reaudit.md) | N51 机器出口合同、真实 production/CI、后续所有权与 Product Acceptance 边界 |
 | [N51→N52 治理检查点](docs/236-n51-n52-governance-checkpoint.md) | RA-N21-011 有界准入、N60 越界反例、真实 Runtime/Player 缺口和 N52-E1 冻结起点 |
-| [N52 暂停与接续交接审计](docs/237-n52-development-pause-and-handoff.md) | 暂停提交/CI 真实状态、未开始边界、唯一恢复顺序与 E1 代码接续点 |
 | [N52-E1 History-backed Player Core 审计](docs/238-n52-e1-history-backed-player-core-audit.md) | 正式 History Session、Back/Forward、Host reconciliation、分支截断、移动端纠偏与 production-browser 证据 |
 | [N32-E7 共享 Runtime Host 审计](docs/150-n32-e7-shared-runtime-host-audit.md) | 共享 Host、跨宿主 Golden、验收工程纠偏与实测证据 |
 | [N32 Engineering 出口复审](docs/151-n32-engineering-exit-reaudit.md) | N32 六项实现与 Acceptance 的最新 fail-closed 判定 |
@@ -182,9 +329,8 @@ WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制�
 | [N22 Stage Move 基础过渡审计](docs/109-n22-stage-move-transition.md) | Move 槽位继承、插值、沉降、回退与浏览器证据 |
 | [N22 Stage Hide 基础退出过渡审计](docs/110-n22-stage-hide-transition.md) | Hide/Fade 退出、无障碍失活、回退与视觉证据 |
 | [N22 Stage Show 单语句生命周期审计](docs/111-n22-stage-show-transition-lifecycle.md) | 角色层 Show 入场、下一语句沉降、回退与浏览器证据 |
-| [开发暂停与换机接续审计](docs/112-development-handoff-2026-08-14.md) | N22 候选时点的分支、证据、CI 与接续边界历史快照 |
 | [N22 最小 Stage 与媒体预览退出条件审计](docs/113-n22-exit-condition-audit.md) | 逐项需求对齐、真实 WAV 播放补证、工程门结论与 N23 阻断 |
-| [N21 真人产品验收执行包](docs/114-n21-human-validation-execution-kit.md) | 冻结 20 分钟任务、参与者/主持人边界、结构化证据、通过失败与风险关闭规则 |
+| [N21 真人产品验收执行包](docs/114-n21-human-validation-execution-kit.md) | 冻结任务、参与者/主持人边界、任务结果与实际摩擦证据、通过失败与风险关闭规则（不以耗时判定） |
 | [可运行流程审计与验收顺序纠正](docs/115-playable-flow-order-correction.md) | 真实代码断点、最小可运行流程、N21/N23 重排、逐节点完成定义与剩余缺口 |
 | [N23-E2 空工程可运行闭环审计](docs/116-n23-e2-blank-project-flow-audit.md) | 空工程创作、Canonical 保存桥、资源演出、关闭重开、双路线 Golden 与下一阻断 |
 | [N23-E3 自包含资源工程 ZIP 审计](docs/117-n23-e3-portable-resource-bundle-audit.md) | Canonical 文档、Asset Index 与源 Blob 同包迁移、原子恢复、新工作区运行重开与诚实边界 |

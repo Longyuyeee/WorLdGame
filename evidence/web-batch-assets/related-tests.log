@@ -1,0 +1,945 @@
+
+ RUN  v4.1.10 E:/Project/AIProject/ClaudeProject/WorLdGame
+
+ ❯ apps/editor/src/batch-asset-import-app.test.tsx (3 tests | 1 failed) 4079ms
+   × does not overwrite an existing asset when the same filename is selected in a later batch 2519ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  apps/editor/src/batch-asset-import-app.test.tsx > does not overwrite an existing asset when the same filename is selected in a later batch
+TestingLibraryElementError: Unable to find an accessible element with the role "button" and name "打开素材：Scene"
+
+Here are the accessible roles:
+
+  banner:
+
+  Name "":
+  <header
+    class="workspace-header"
+  />
+
+  Name "":
+  <header
+    class="production-workspace__hero"
+  />
+
+  --------------------------------------------------
+  strong:
+
+  Name "":
+  <strong
+    class="brand-product"
+  />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  --------------------------------------------------
+  paragraph:
+
+  Name "":
+  <p
+    class="eyebrow"
+  />
+
+  Name "":
+  <p />
+
+  Name "":
+  <p
+    class="eyebrow"
+  />
+
+  Name "":
+  <p />
+
+  Name "":
+  <p />
+
+  Name "":
+  <p />
+
+  Name "":
+  <p />
+
+  Name "":
+  <p />
+
+  Name "":
+  <p
+    class="eyebrow"
+  />
+
+  --------------------------------------------------
+  heading:
+
+  Name "黄昏广播":
+  <h1 />
+
+  Name "素材库":
+  <h2
+    id="production-workspace-title"
+  />
+
+  Name "全部素材":
+  <h3
+    id="production-table-title"
+  />
+
+  --------------------------------------------------
+  group:
+
+  Name "":
+  <details
+    class="editor-preferences"
+  />
+
+  Name "编辑器主题":
+  <fieldset
+    class="editor-theme-control"
+  />
+
+  Name "":
+  <details />
+
+  Name "":
+  <details
+    class="production-pipeline-details"
+  />
+
+  Name "":
+  <details
+    class="asset-library-table"
+  />
+
+  --------------------------------------------------
+  button:
+
+  Name "撤销上一步":
+  <button
+    disabled=""
+    type="button"
+  />
+
+  Name "重做上一步":
+  <button
+    disabled=""
+    type="button"
+  />
+
+  Name "清亮":
+  <button
+    aria-pressed="true"
+    type="button"
+  />
+
+  Name "石墨":
+  <button
+    aria-pressed="false"
+    type="button"
+  />
+
+  Name "暖纸":
+  <button
+    aria-pressed="false"
+    type="button"
+  />
+
+  Name "跟随系统":
+  <button
+    aria-pressed="false"
+    type="button"
+  />
+
+  Name "撤销":
+  <button
+    aria-label="撤销"
+    class="icon-button"
+    disabled=""
+  />
+
+  Name "重做":
+  <button
+    aria-label="重做"
+    class="icon-button"
+    disabled=""
+  />
+
+  Name "游戏外观":
+  <button
+    aria-pressed="false"
+    class="settings-open-button"
+    type="button"
+  />
+
+  Name "备份 0/5":
+  <button
+    class="backup-button"
+  />
+
+  Name "保存到本机":
+  <button
+    class="local-save-button local-save-button--dirty"
+    title="资源更新已进入工程，请保存以保持剧情与资源备份一致。"
+  />
+
+  Name "故事":
+  <button
+    data-nav-item="story"
+    type="button"
+  />
+
+  Name "素材":
+  <button
+    aria-current="page"
+    data-nav-item="assets"
+    type="button"
+  />
+
+  Name "游戏外观":
+  <button
+    data-nav-item="appearance"
+    type="button"
+  />
+
+  Name "检查":
+  <button
+    data-nav-item="checks"
+    type="button"
+  />
+
+  Name "发布":
+  <button
+    data-nav-item="publish"
+    type="button"
+  />
+
+  Name "素材库":
+  <button
+    aria-current="page"
+    type="button"
+  />
+
+  Name "翻译与配音":
+  <button
+    type="button"
+  />
+
+  Name "附加内容":
+  <button
+    type="button"
+  />
+
+  Name "批量导入素材":
+  <button
+    class="production-workspace__primary"
+    type="button"
+  />
+
+  Name "导入与管理素材":
+  <button
+    class="production-workspace__primary"
+    type="button"
+  />
+
+  Name "管理素材：Scene":
+  <button
+    aria-label="管理素材：Scene"
+    class="asset-library-card"
+    data-asset-kind="cg"
+    type="button"
+  />
+
+  Name "管理素材：Scene":
+  <button
+    aria-label="管理素材：Scene"
+    class="asset-library-card"
+    data-asset-kind="cg"
+    type="button"
+  />
+
+  --------------------------------------------------
+  radiogroup:
+
+  Name "工作模式":
+  <nav
+    aria-label="工作模式"
+    class="workspace-mode-switcher"
+    role="radiogroup"
+  />
+
+  Name "编辑复杂度":
+  <div
+    aria-label="编辑复杂度"
+    class="experience-switcher"
+    role="radiogroup"
+  />
+
+  Name "动效级别":
+  <div
+    aria-label="动效级别"
+    class="motion-preference__options"
+    role="radiogroup"
+  />
+
+  --------------------------------------------------
+  radio:
+
+  Name "Writer":
+  <button
+    aria-checked="false"
+    class="workspace-mode-button"
+    role="radio"
+    title="对白、叙事与结构化语句"
+    type="button"
+  />
+
+  Name "Director":
+  <button
+    aria-checked="false"
+    class="workspace-mode-button"
+    role="radio"
+    title="舞台、时间线与即时预览"
+    type="button"
+  />
+
+  Name "Flow 模式":
+  <button
+    aria-checked="false"
+    class="workspace-mode-button"
+    role="radio"
+    title="路线、结局与结构诊断"
+    type="button"
+  />
+
+  Name "Production":
+  <button
+    aria-checked="true"
+    class="workspace-mode-button is-active"
+    role="radio"
+    title="资源映射、批量状态与交付流水线"
+    type="button"
+  />
+
+  Name "Debug & QA":
+  <button
+    aria-checked="false"
+    class="workspace-mode-button"
+    role="radio"
+    title="正式 Compiler、Runtime 与源码定位检查"
+    type="button"
+  />
+
+  Name "Mobile Focus":
+  <button
+    aria-checked="false"
+    class="workspace-mode-button"
+    role="radio"
+    title="同一 Canonical 工程的手机专注创作"
+    type="button"
+  />
+
+  Name "Quick Start":
+  <button
+    aria-checked="false"
+    class="workspace-mode-button"
+    role="radio"
+    title="收起项目树，聚焦当前场景"
+    type="button"
+  />
+
+  Name "Beginner":
+  <button
+    aria-checked="false"
+    class="experience-button"
+    role="radio"
+    title="场景、对白、舞台与预览"
+    type="button"
+  />
+
+  Name "Pro":
+  <button
+    aria-checked="true"
+    class="experience-button is-active"
+    role="radio"
+    title="完整结构、批量演出与专业诊断"
+    type="button"
+  />
+
+  Name "完整动效":
+  <button
+    aria-checked="false"
+    aria-label="完整动效"
+    class="motion-preference__button"
+    role="radio"
+    type="button"
+  />
+
+  Name "简化动效":
+  <button
+    aria-checked="true"
+    aria-label="简化动效"
+    class="motion-preference__button is-active"
+    role="radio"
+    type="button"
+  />
+
+  Name "静止动效":
+  <button
+    aria-checked="false"
+    aria-label="静止动效"
+    class="motion-preference__button"
+    role="radio"
+    type="button"
+  />
+
+  --------------------------------------------------
+  status:
+
+  Name "":
+  <output
+    aria-live="polite"
+  />
+
+  Name "统一工作上下文":
+  <output
+    aria-label="统一工作上下文"
+    aria-live="polite"
+    class="workspace-mode-summary"
+  />
+
+  Name "":
+  <output
+    aria-live="polite"
+    class="motion-preference__summary"
+  />
+
+  Name "":
+  <div
+    class="production-workspace__next"
+    role="status"
+  />
+
+  --------------------------------------------------
+  tablist:
+
+  Name "编辑视图":
+  <nav
+    aria-label="编辑视图"
+    class="mode-switcher"
+    role="tablist"
+  />
+
+  --------------------------------------------------
+  tab:
+
+  Name "Sequence":
+  <button
+    aria-selected="true"
+    class="mode-tab is-active"
+    role="tab"
+  />
+
+  Name "Script":
+  <button
+    aria-selected="false"
+    class="mode-tab"
+    role="tab"
+  />
+
+  Name "Flow":
+  <button
+    aria-selected="false"
+    class="mode-tab"
+    role="tab"
+  />
+
+  --------------------------------------------------
+  navigation:
+
+  Name "主要功能":
+  <nav
+    aria-label="主要功能"
+    class="studio-task-nav"
+  />
+
+  Name "素材工作区":
+  <nav
+    aria-label="素材工作区"
+    class="studio-context-nav"
+  />
+
+  --------------------------------------------------
+  main:
+
+  Name "":
+  <main
+    class="workspace-grid"
+    data-settings-open="false"
+    data-workspace-mode="production"
+  />
+
+  --------------------------------------------------
+  region:
+
+  Name "素材库":
+  <section
+    aria-labelledby="production-workspace-title"
+    class="production-workspace view-enter"
+  />
+
+  Name "全部素材":
+  <section
+    aria-labelledby="production-table-title"
+    class="production-table"
+  />
+
+  --------------------------------------------------
+  list:
+
+  Name "资源生产阶段":
+  <ol
+    aria-label="资源生产阶段"
+    class="production-pipeline"
+  />
+
+  --------------------------------------------------
+  listitem:
+
+  Name "":
+  <li
+    data-state="complete"
+  />
+
+  Name "":
+  <li
+    data-state="complete"
+  />
+
+  Name "":
+  <li
+    data-state="current"
+  />
+
+  Name "":
+  <li
+    data-state="current"
+  />
+
+  --------------------------------------------------
+  search:
+
+  Name "":
+  <div
+    class="production-table__filters"
+    role="search"
+  />
+
+  --------------------------------------------------
+  textbox:
+
+  Name "搜索资源":
+  <input
+    placeholder="Asset ID、名称或标签"
+    value=""
+  />
+
+  --------------------------------------------------
+  combobox:
+
+  Name "筛选资源类型":
+  <select />
+
+  --------------------------------------------------
+  option:
+
+  Name "全部类型":
+  <option
+    value="all"
+  />
+
+  Name "背景":
+  <option
+    value="background"
+  />
+
+  Name "角色":
+  <option
+    value="character"
+  />
+
+  Name "CG":
+  <option
+    value="cg"
+  />
+
+  Name "音频":
+  <option
+    value="audio"
+  />
+
+  Name "视频":
+  <option
+    value="video"
+  />
+
+  Name "字体":
+  <option
+    value="font"
+  />
+
+  Name "UI":
+  <option
+    value="ui"
+  />
+
+  Name "其他":
+  <option
+    value="other"
+  />
+
+  --------------------------------------------------
+  table:
+
+  Name "资源映射批量表":
+  <table
+    aria-label="资源映射批量表"
+  />
+
+  --------------------------------------------------
+  rowgroup:
+
+  Name "":
+  <thead />
+
+  Name "":
+  <tbody />
+
+  --------------------------------------------------
+  row:
+
+  Name "Asset ID 名称 类型 媒体检查 源文件 审阅状态":
+  <tr />
+
+  Name "scene Scene CG ✓ 已通过 422 Bimage/png ◇ 待交付审阅":
+  <tr />
+
+  Name "scene_2 Scene CG ✓ 已通过 422 Bimage/png ◇ 待交付审阅":
+  <tr />
+
+  --------------------------------------------------
+  columnheader:
+
+  Name "Asset ID":
+  <th />
+
+  Name "名称":
+  <th />
+
+  Name "类型":
+  <th />
+
+  Name "媒体检查":
+  <th />
+
+  Name "源文件":
+  <th />
+
+  Name "审阅状态":
+  <th />
+
+  --------------------------------------------------
+  cell:
+
+  Name "scene":
+  <td
+    data-label="Asset ID"
+  />
+
+  Name "Scene":
+  <td
+    data-label="名称"
+  />
+
+  Name "CG":
+  <td
+    data-label="类型"
+  />
+
+  Name "✓ 已通过":
+  <td
+    data-label="媒体检查"
+  />
+
+  Name "422 Bimage/png":
+  <td
+    data-label="源文件"
+  />
+
+  Name "◇ 待交付审阅":
+  <td
+    data-label="审阅状态"
+  />
+
+  Name "scene_2":
+  <td
+    data-label="Asset ID"
+  />
+
+  Name "Scene":
+  <td
+    data-label="名称"
+  />
+
+  Name "CG":
+  <td
+    data-label="类型"
+  />
+
+  Name "✓ 已通过":
+  <td
+    data-label="媒体检查"
+  />
+
+  Name "422 Bimage/png":
+  <td
+    data-label="源文件"
+  />
+
+  Name "◇ 待交付审阅":
+  <td
+    data-label="审阅状态"
+  />
+
+  --------------------------------------------------
+  code:
+
+  Name "":
+  <code />
+
+  Name "":
+  <code />
+
+  --------------------------------------------------
+  contentinfo:
+
+  Name "":
+  <footer
+    class="workspace-footer"
+  />
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="app-shell"
+      data-context-restore-status="session"
+      data-context-scene-id="scn_school_gate"
+      data-context-statement-id="stmt_gate_bg"
+      data-editor-view="sequence"
+      data-experience-level="pro"
+      data-inspector-object-id="stmt_gate_bg"
+      data-motion-frame-max=""
+      data-motion-frame-over-budget="0"
+      data-motion-frame-p95=""
+      data-motion-frame-result="idle"
+      data-motion-frame-samples="0"
+      data-motion-frame-status="idle"
+      data-motion-level="simplified"
+      data-motion-preference="simplified"
+      data-preview-open="true"
+      data-runtime-scene-id="scn_school_gate"
+      data-runtime-statement-id="stmt_gate_bg"
+      data-scenes-open="false"
+      data-settings-open="false"
+      data-source-revision="0"
+      data-studio-page="assets"
+      data-sync-audit-action=""
+      data-sync-audit-duration=""
+      data-sync-audit-projected-revision="0"
+      data-sync-audit-result="idle"
+      data-sync-audit-source-revision="0"
+      data-sync-audit-statement-id=""
+      data-sync-audit-status="idle"
+      data-system-reduced-motion="false"
+      data-testid="workspace-shell"
+      data-workspace-mode="production"
+    >
+      <header
+        class="workspace-header"
+      >
+        <div
+          class="brand-lockup"
+        >
+          <span
+            aria-hidden="true"
+            class="brand-mark studio-logo"
+          >
+            W
+          </span>
+          <strong
+            class="brand-product"
+          >
+            WorLd Studio
+          </strong>
+          <div>
+            <p
+              class="eyebrow"
+            >
+              创作工作区
+            </p>
+            <h1>
+              黄昏广播
+            </h1>
+          </div>
+        </div>
+        <details
+          class="editor-preferences"
+        >
+          <summary>
+            <svg
+              aria-hidden="true"
+              class="studio-icon "
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="1.7"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8 M9 3h6l1 3 3 1 2 5-2 5-3 1-1 3H9l-1-3-3-1-2-5 2-5 3-1z"
+              />
+            </svg>
+            <span>
+              编辑器设置
+            </span>
+          </summary>
+          <div
+            class="editor-preferences__panel"
+          >
+            <div
+              class="mobile-history-actions"
+            >
+              <button
+                disabled=""
+                type="button"
+              >
+                撤销上一步
+              </button>
+              <button
+                disabled=""
+                type="button"
+              >
+                重做上一步
+              </button>
+            </div>
+            <fieldset
+              class="editor-theme-control"
+            >
+              <legend>
+                编辑器主题
+              </legend>
+              <p>
+                选择适合你的创作环境。
+              </p>
+              <div>
+                <button
+                  aria-pressed="true"
+                  type="button"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="theme-swatch theme-swatch--light"
+                  />
+                  清亮
+                </button>
+                <button
+                  aria-pressed="false"
+                  type="button"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="theme-swatch theme-swatch--dark"
+                  />
+                  石墨
+                </button>
+                <button
+                  aria-pressed="false"
+                  type="button"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="theme-swatch theme-swatch--paper"
+                  />
+                  暖纸
+                </button>
+                <button
+                  aria-pressed="false"
+                  type="button"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="theme-swatch theme-swatch--system"
+                  />
+                  跟随系统
+                </button>
+              </div>
+            </fieldset>
+            <details>
+              <summary>
+                高级编辑选项
+              </summary>
+              <div
+                class="workspace-navigation"
+              >
+                <nav
+                  aria-label="工作模式"
+                  class="worksp...
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ apps/editor/src/batch-asset-import-app.test.tsx:23:17
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 4 passed (5)
+      Tests  1 failed | 12 passed (13)
+   Start at  17:10:04
+   Duration  26.59s (transform 3.21s, setup 1.05s, import 7.68s, tests 13.08s, environment 3.71s)
+

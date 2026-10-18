@@ -1,0 +1,133 @@
+{
+  "passed": true,
+  "browser": "153.0",
+  "artifactSha256": "1993d4da00f96063f1f25d0cca382f630c874e5d11055f2665f3c73221c11c93",
+  "checks": [
+    {
+      "name": "press-observation",
+      "before": {
+        "hash": "82e2acf507042ca294db18181ea77af0e7eed1889ee86690bac318ce59634412",
+        "cursor": "4",
+        "auto": "waiting",
+        "text": "售票员把窗口里的灯关掉时，雨正沿着站台的屋檐连成一条线。站台上的钟比手机慢了三分钟。林远核对了两次，没有走去询问值班员。他看见玻璃上自己的倒影，才发现他已经穿着这件外套站了很久。行李箱旁挂着新公司的地址，手机里存着一份还没签字的合同；这些东西都能说明他要去哪里，却没有一样能替他解释为什么迟迟不肯往前走。"
+      },
+      "changed": {
+        "hash": "4871c5b2de7ef8c67976d40c9a7269b1601bfc5383c06a2e329b8bce25d011d9",
+        "cursor": "6",
+        "auto": "waiting",
+        "text": "小夏不是来阻止他出发的。她在短信里只说，要把借了半年那本书还给他，顺便把书里的照片也还给他。林远原以为这是一件很容易的事：收下书，认真道谢，等广播响起后挥手。可当她撑着伞从街对面走来，他忽然不记得自己排练过的第一句话是什么了。"
+      },
+      "released": {
+        "hash": "4871c5b2de7ef8c67976d40c9a7269b1601bfc5383c06a2e329b8bce25d011d9",
+        "cursor": "6",
+        "auto": "waiting",
+        "text": "小夏不是来阻止他出发的。她在短信里只说，要把借了半年那本书还给他，顺便把书里的照片也还给他。林远原以为这是一件很容易的事：收下书，认真道谢，等广播响起后挥手。可当她撑着伞从街对面走来，他忽然不记得自己排练过的第一句话是什么了。"
+      }
+    },
+    {
+      "name": "release-of-previous-paragraph-does-not-skip-new-paragraph-or-stop-auto",
+      "before": {
+        "hash": "82e2acf507042ca294db18181ea77af0e7eed1889ee86690bac318ce59634412",
+        "cursor": "4",
+        "auto": "waiting",
+        "text": "售票员把窗口里的灯关掉时，雨正沿着站台的屋檐连成一条线。站台上的钟比手机慢了三分钟。林远核对了两次，没有走去询问值班员。他看见玻璃上自己的倒影，才发现他已经穿着这件外套站了很久。行李箱旁挂着新公司的地址，手机里存着一份还没签字的合同；这些东西都能说明他要去哪里，却没有一样能替他解释为什么迟迟不肯往前走。"
+      },
+      "changed": {
+        "hash": "4871c5b2de7ef8c67976d40c9a7269b1601bfc5383c06a2e329b8bce25d011d9",
+        "cursor": "6",
+        "auto": "waiting",
+        "text": "小夏不是来阻止他出发的。她在短信里只说，要把借了半年那本书还给他，顺便把书里的照片也还给他。林远原以为这是一件很容易的事：收下书，认真道谢，等广播响起后挥手。可当她撑着伞从街对面走来，他忽然不记得自己排练过的第一句话是什么了。"
+      },
+      "released": {
+        "hash": "4871c5b2de7ef8c67976d40c9a7269b1601bfc5383c06a2e329b8bce25d011d9",
+        "cursor": "6",
+        "auto": "waiting",
+        "text": "小夏不是来阻止他出发的。她在短信里只说，要把借了半年那本书还给他，顺便把书里的照片也还给他。林远原以为这是一件很容易的事：收下书，认真道谢，等广播响起后挥手。可当她撑着伞从街对面走来，他忽然不记得自己排练过的第一句话是什么了。"
+      }
+    },
+    {
+      "name": "fresh-native-click-still-advances-and-stops-auto",
+      "released": {
+        "hash": "4871c5b2de7ef8c67976d40c9a7269b1601bfc5383c06a2e329b8bce25d011d9",
+        "cursor": "6",
+        "auto": "waiting",
+        "text": "小夏不是来阻止他出发的。她在短信里只说，要把借了半年那本书还给他，顺便把书里的照片也还给他。林远原以为这是一件很容易的事：收下书，认真道谢，等广播响起后挥手。可当她撑着伞从街对面走来，他忽然不记得自己排练过的第一句话是什么了。"
+      },
+      "takeover": {
+        "hash": "d7d8571f091098fe9976ed54ca524af651a49e909d641cdf07bc2f94c786d66a",
+        "cursor": "7",
+        "auto": "off",
+        "text": "照片上是一片没有拍到人的海。去年他们各自请了半天假，到了车站才知道列车停运，只能在便利店买两杯热饮，坐着听了一下午雨。后来小夏独自去了那片海，把拍下的照片寄给他，背面写着：没到的地方不必作废。林远把它夹进书里，每次搬家都带着，却一次也没有认真回复。"
+      }
+    },
+    {
+      "name": "artwork-return-discards-old-press-but-next-native-click-works",
+      "beforeHide": {
+        "hash": "d7d8571f091098fe9976ed54ca524af651a49e909d641cdf07bc2f94c786d66a",
+        "cursor": "7",
+        "auto": "off",
+        "text": "照片上是一片没有拍到人的海。去年他们各自请了半天假，到了车站才知道列车停运，只能在便利店买两杯热饮，坐着听了一下午雨。后来小夏独自去了那片海，把拍下的照片寄给他，背面写着：没到的地方不必作废。林远把它夹进书里，每次搬家都带着，却一次也没有认真回复。"
+      },
+      "afterNewClick": {
+        "hash": "16f3db0173047ce6678b84f7e10bb546b6564bee758cd85b1344621bfca60ad2",
+        "cursor": "8",
+        "auto": "off",
+        "text": "他想过许多合理的理由。项目赶进度，新工作的面试，还有一张要交房租的账单。生活确实忙，也确实不容易，可那些理由越整齐，他越清楚自己遗漏了什么：他在所有能回答的事情上回答得很快，只有在小夏问他想不想再约一次的时候，总是说等忙完这一阵。"
+      }
+    },
+    {
+      "name": "native-keyboard-still-advances-once",
+      "key": "Space",
+      "before": {
+        "hash": "16f3db0173047ce6678b84f7e10bb546b6564bee758cd85b1344621bfca60ad2",
+        "cursor": "8",
+        "auto": "off",
+        "text": "他想过许多合理的理由。项目赶进度，新工作的面试，还有一张要交房租的账单。生活确实忙，也确实不容易，可那些理由越整齐，他越清楚自己遗漏了什么：他在所有能回答的事情上回答得很快，只有在小夏问他想不想再约一次的时候，总是说等忙完这一阵。"
+      },
+      "after": {
+        "hash": "56dc64bac0c6003c4a4645c1b0fd4b2ebc7a0c3f2da65eecc402432653fade2c",
+        "cursor": "9",
+        "auto": "off",
+        "text": "站台的雨味让他想起那间租了三年的房间。窗边原本留着摆画架的位置，后来堆满了纸箱。他给这次换工作起名叫重新开始，仿佛只要把地址换掉，箱子里那些没画完的东西就会自己展开。小夏知道那些画，却从没催他交一张能被称作作品的结果。"
+      }
+    },
+    {
+      "name": "native-keyboard-still-advances-once",
+      "key": "Enter",
+      "before": {
+        "hash": "56dc64bac0c6003c4a4645c1b0fd4b2ebc7a0c3f2da65eecc402432653fade2c",
+        "cursor": "9",
+        "auto": "off",
+        "text": "站台的雨味让他想起那间租了三年的房间。窗边原本留着摆画架的位置，后来堆满了纸箱。他给这次换工作起名叫重新开始，仿佛只要把地址换掉，箱子里那些没画完的东西就会自己展开。小夏知道那些画，却从没催他交一张能被称作作品的结果。"
+      },
+      "after": {
+        "hash": "17eaca6a3105a9c2519abb89a93ee5aa0e126fab965cd19452500481ffcfe5ad",
+        "cursor": "11",
+        "auto": "off",
+        "text": "“我带了另一件东西。”小夏从包里取出一个没有封口的信封，“本来约好明年再拆，可现在先给你也可以。”她没有把信塞到他手里，只放在他们中间的长椅上。信封被雨气浸得有一点软，林远盯着那个角，突然觉得自己不能再用赶车来结束今天的谈话。"
+      }
+    },
+    {
+      "name": "landscape-native-drag-does-not-flip-and-fresh-touch-tap-pages-within-paragraph",
+      "state": {
+        "hash": "17eaca6a3105a9c2519abb89a93ee5aa0e126fab965cd19452500481ffcfe5ad",
+        "cursor": "11",
+        "auto": "off",
+        "text": "“我带了另一件东西。”小夏从包里取出一个没有封口的信封，“本来约好明年再拆，可现在先给你也可以。”她没有把信塞到他手里，只放在他们中间的长椅上。信封被雨气浸得有一点软，林远盯着那个角，突然觉得自己不能再用赶车来结束今天的谈话。"
+      },
+      "scrollBefore": 0,
+      "scrollAfter": 87
+    },
+    {
+      "name": "phone-rotation-and-native-menu-taps-preserve-current-paragraph",
+      "state": {
+        "hash": "17eaca6a3105a9c2519abb89a93ee5aa0e126fab965cd19452500481ffcfe5ad",
+        "cursor": "11",
+        "auto": "off",
+        "text": "“我带了另一件东西。”小夏从包里取出一个没有封口的信封，“本来约好明年再拆，可现在先给你也可以。”她没有把信塞到他手里，只放在他们中间的长椅上。信封被雨气浸得有一点软，林远盯着那个角，突然觉得自己不能再用赶车来结束今天的谈话。"
+      }
+    }
+  ],
+  "errors": [],
+  "scope": "Actual game HTML, native mouse down/up/drag, keyboard shortcuts and native touch taps in phone-sized windows. Production Auto clock under controlled time; no fabricated pointer/click, DOM geometry or narrative states. Not natural reading timing, physical touch/phone/Safari, background-lock cycle or audio acceptance."
+}

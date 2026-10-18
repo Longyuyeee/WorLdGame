@@ -1,0 +1,5 @@
+{
+  "checks": [],
+  "errors": [],
+  "failure": "AssertionError [ERR_ASSERTION]: {\"left\":0,\"right\":880,\"top\":-62,\"bottom\":906,\"w\":390,\"h\":844,\"scroll\":878,\"client\":878,\"footer\":{\"left\":1,\"right\":879,\"bottom\":905},\"bodyScroll\":14747,\"bodyClient\":785}\n    at fit (file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-batch-assets.mjs:39:10)\n    at async file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-batch-assets.mjs:73:106"
+}

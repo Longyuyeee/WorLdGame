@@ -35,6 +35,57 @@ function routeProject(includeDangling = true): CanonicalProject {
 }
 
 describe("N40 route graph", () => {
+  it("projects call continuations and dynamic returns without inventing return edges", () => {
+    const base = routeProject(false);
+    const project = { ...base, scripts: { ...base.scripts,
+      route_entry: { ...base.scripts.route_entry!, statements: [
+        { id: "call_shared", kind: "call", targetLabel: "route_left" },
+        { id: "after_call", kind: "end", endingName: "继续主线" }
+      ] },
+      route_left: { ...base.scripts.route_left!, statements: [{ id: "return_shared", kind: "return" }] }
+    } };
+    const graph = buildRouteGraph(project);
+    expect(graph.nodes[0]?.facts[0]).toMatchObject({ kind: "call", continuationStatementId: "after_call" });
+    expect(graph.nodes[1]?.facts[0]).toMatchObject({ kind: "return", label: expect.stringContaining("最近一次调用") });
+    expect(graph.edges.map((edge) => edge.id)).toEqual(["call_shared"]);
+    const terminal = { ...project, scripts: { ...project.scripts, route_entry: { ...project.scripts.route_entry, statements: [project.scripts.route_entry.statements[0]!] } } };
+    const terminalFact = buildRouteGraph(terminal).nodes[0]?.facts[0];
+    expect(terminalFact?.continuationStatementId).toBeUndefined();
+    expect(terminalFact?.label).toContain("场景末尾");
+  });
+  it("summarizes compiled conditions using variable names without rewriting literals or precedence", () => {
+    const base = routeProject(false);
+    const project = { ...base, variables: { ...base.variables, variables: [
+      { id: "flag", name: "已赴约", type: "boolean" as const, defaultValue: false, scope: "story" as const }
+    ] }, scripts: { ...base.scripts, route_entry: { ...base.scripts.route_entry!, statements: [
+      { id: "summary_condition", kind: "condition", expression: '!(flag == true) || "flag" == "flag"', targetLabel: "route_left" }
+    ] } } };
+    const graph = buildRouteGraph(project);
+    expect(graph.nodes[0]?.facts[0]?.label).toBe('条件 (!((已赴约 [flag] == true)) || ("flag" == "flag"))；不成立则继续下一步');
+    expect(queryRouteGraphWindow(createRouteGraphIndex(graph), { query: "已赴约" }).nodes.map((node) => node.id)).toEqual(["route_entry"]);
+    const renamed = { ...project, variables: { ...project.variables, variables: project.variables.variables.map((variable) => ({ ...variable, name: "完成约定" })) } };
+    expect(buildRouteGraphFromCompilation(renamed, compileProject(project, "debug")).nodes[0]?.facts[0]?.label).toContain("完成约定 [flag]");
+  });
+  it("projects cross-scene control edges but preserves Compiler local-label precedence", () => {
+    const base = routeProject(false);
+    const project = { ...base, scripts: { ...base.scripts, route_entry: {
+      schemaVersion: 1 as const, sceneId: "route_entry", statements: [
+        { id: "cross_jump", kind: "jump", targetLabel: "route_left" },
+        { id: "cross_call", kind: "call", targetLabel: "route_left" },
+        { id: "cross_condition", kind: "condition", expression: "flag == true", targetLabel: "route_left" }
+      ]
+    } } };
+    expect(buildRouteGraph(project).edges.map((edge) => [edge.id, edge.statementId, edge.label, edge.targetSceneId])).toEqual([
+      ["cross_jump", "cross_jump", "跳转", "route_left"],
+      ["cross_call", "cross_call", "调用", "route_left"],
+      ["cross_condition", "cross_condition", "条件成立", "route_left"]
+    ]);
+    const local = { ...project, scripts: { ...project.scripts, route_entry: {
+      ...project.scripts.route_entry, statements: [...project.scripts.route_entry.statements,
+        { id: "local_label", kind: "label", name: "route_left" }]
+    } } };
+    expect(buildRouteGraph(local).edges).toEqual([]);
+  });
   it("projects a supplied formal Compiler result without owning workspace cache parsing", () => {
     const project = routeProject();
     const compilation = compileProject(project, "debug");

@@ -1,0 +1,13 @@
+{
+  "checks": [
+    {
+      "name": "eight-real-editor-review-notes",
+      "detail": {
+        "importMs": 1259.3310999999999,
+        "humanAcceptance": false
+      }
+    }
+  ],
+  "errors": [],
+  "failure": "locator.selectOption: Timeout 25000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByLabel('演出主资源', { exact: true })\u001b[22m\n\u001b[2m    - locator resolved to <select aria-label=\"演出主资源\">…</select>\u001b[22m\n\u001b[2m  - attempting select option action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible and enabled\u001b[22m\n\u001b[2m      - element is not visible\u001b[22m\n\u001b[2m    - retrying select option action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible and enabled\u001b[22m\n\u001b[2m      - element is not visible\u001b[22m\n\u001b[2m    - retrying select option action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    48 × waiting for element to be visible and enabled\u001b[22m\n\u001b[2m       - element is not visible\u001b[22m\n\u001b[2m     - retrying select option action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n\n    at E:\\ProjectSave\\GeminiProject\\WorLdGame\\tools\\run-web-story-refinement.mjs:111:19"
+}

@@ -1,0 +1,26 @@
+{
+  "passed": true,
+  "browser": "155.0.8059.41",
+  "checks": [
+    {
+      "replayed": false,
+      "limitation": "Rain authored replay has no safe scene entrance in current History; disabled guidance checked, actual replay not claimed"
+    },
+    "desktop HTML: first full route unlocks one ending, real gallery image and music remain available; replay availability is checked without changing the ending hash/cursor; title and refresh retain collection without loading a story save; missing route contexts are explained and disabled",
+    "desktop HTML: a fresh execution reaches the other ending and unions both route collections; reading the older opening save keeps both endings; another reload still shows both",
+    "390px HTTP directory: full other route reaches ending; portrait and 844x390 ending card fit; collection and refreshed title persist one ending in the independent browser storage; replay guidance opens native read mode"
+  ],
+  "errors": [],
+  "exports": {
+    "rain.html": {
+      "bytes": 32820741,
+      "sha256": "b9c459f4d4dfbf5fcd4aa664df6c9a4dfe45487ebabf3d8bd18f0f07232faefc"
+    },
+    "rain-web.zip": {
+      "bytes": 24809720,
+      "sha256": "5fa777eb4ccd7cefe83947af341ca10485910e043783693e3a493d888a8e2366"
+    }
+  },
+  "artifactsRetained": false,
+  "scope": "Rain 1.5.4 real UI exports; desktop both branches sequentially, mobile one branch; manual fast reading, no human text/voice acceptance, physical phone, service-worker lifecycle, cross-version collection migration or public deployment"
+}

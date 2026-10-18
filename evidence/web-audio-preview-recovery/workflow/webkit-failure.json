@@ -1,0 +1,59 @@
+{
+  "passed": false,
+  "error": "TimeoutError: page.waitForFunction: Timeout 30000ms exceeded.",
+  "stack": "page.waitForFunction: Timeout 30000ms exceeded.\n    at E:\\ProjectSave\\GeminiProject\\WorLdGame\\tools\\run-web-source-preview.mjs:82:52",
+  "checks": [
+    {
+      "name": "current-voice-revision-exact-source-line-no-autoplay-and-native-playback",
+      "sourceUrl": "blob:http://127.0.0.1:5195/e08f7f3c-59ab-4508-a907-88e7ab3cc8b8",
+      "state": {
+        "paused": true,
+        "time": 0,
+        "url": "blob:http://127.0.0.1:5195/e08f7f3c-59ab-4508-a907-88e7ab3cc8b8"
+      },
+      "nativePlayback": false,
+      "physicalDevice": false,
+      "naturalListeningApproved": false
+    },
+    {
+      "name": "selection-stops-native-audio-and-current-image-has-exact-file-digest-three-viewports",
+      "digest": "sha256:db56676dcd83122d0f0442173693870abb9f6df05d732d510f9915ccea963fc6",
+      "images": [
+        {
+          "viewport": {
+            "width": 320,
+            "height": 740
+          },
+          "media": {
+            "width": 232,
+            "height": 220,
+            "fullyVisible": true
+          }
+        },
+        {
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "media": {
+            "width": 302,
+            "height": 220,
+            "fullyVisible": true
+          }
+        },
+        {
+          "viewport": {
+            "width": 844,
+            "height": 390
+          },
+          "media": {
+            "width": 485.359375,
+            "height": 117,
+            "fullyVisible": true
+          }
+        }
+      ]
+    }
+  ],
+  "errors": []
+}

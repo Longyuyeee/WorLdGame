@@ -1,0 +1,19 @@
+real publishing form: ordered contributor edit, invalid link rejection, Escape retains draft, explicit discard, actual local save/reload/home reopen preserves applied credits; desktop and 390px light/dark dialogs fit
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+
+  assert.ok(Object.keys(unzipSync(files['source/project.zip'])).some(name => name.endsWith('manifest.json')))
+
+    at file:///E:/Project/AIProject/ClaudeProject/WorLdGame/tools/run-web-credits.mjs:35:466 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v24.14.0

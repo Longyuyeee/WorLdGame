@@ -1,0 +1,193 @@
+{
+  "passed": true,
+  "engine": "webkit",
+  "browser": "26.5",
+  "artifacts": {
+    "html": {
+      "bytes": 46805155,
+      "sha256": "4ec4627786f7992311e19d1da87ad56ebae84db0650fd3d4d5f5396d644f9d34"
+    },
+    "website": {
+      "bytes": 35391604,
+      "sha256": "accdd45bc3726151a0487ffd474b878f1047196b5957cc741848e7db61f941fb"
+    }
+  },
+  "checks": [
+    {
+      "name": "long-file-preparation-retains-four-viewport-cancel-and-close-actions",
+      "layouts": [
+        {
+          "viewport": {
+            "width": 320,
+            "height": 740
+          },
+          "controls": [
+            {
+              "name": "取消备份准备",
+              "height": 45.1875,
+              "inViewport": true
+            },
+            {
+              "name": "关闭存读档",
+              "height": 44,
+              "inViewport": true
+            }
+          ]
+        },
+        {
+          "viewport": {
+            "width": 568,
+            "height": 320
+          },
+          "controls": [
+            {
+              "name": "取消备份准备",
+              "height": 45.1875,
+              "inViewport": true
+            },
+            {
+              "name": "关闭存读档",
+              "height": 44,
+              "inViewport": true
+            }
+          ]
+        },
+        {
+          "viewport": {
+            "width": 844,
+            "height": 390
+          },
+          "controls": [
+            {
+              "name": "取消备份准备",
+              "height": 45.1875,
+              "inViewport": true
+            },
+            {
+              "name": "关闭存读档",
+              "height": 44,
+              "inViewport": true
+            }
+          ]
+        },
+        {
+          "viewport": {
+            "width": 1280,
+            "height": 900
+          },
+          "controls": [
+            {
+              "name": "取消备份准备",
+              "height": 45.1875,
+              "inViewport": true
+            },
+            {
+              "name": "关闭存读档",
+              "height": 44,
+              "inViewport": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "escape-cancels-native-file-preparation-and-ignores-its-late-real-bytes-without-writing",
+      "events": [
+        {
+          "trusted": true,
+          "bytes": 64571
+        }
+      ],
+      "before": {
+        "status": "title",
+        "hash": "none",
+        "cursor": "0",
+        "save": "idle",
+        "auto": "off"
+      },
+      "after": {
+        "status": "title",
+        "hash": "none",
+        "cursor": "0",
+        "save": "idle",
+        "auto": "off"
+      }
+    },
+    {
+      "name": "same-file-retry-uses-native-session-worker-full-validation-and-imports-only-after-explicit-action",
+      "workerBefore": {},
+      "workerAfter": {
+        "active": 0,
+        "peakActive": 1,
+        "started": 1,
+        "completed": 1,
+        "cancelled": 0,
+        "fallback": 0,
+        "failed": 0
+      },
+      "saved": [
+        {
+          "slotId": "manual-1",
+          "hash": "92734b15d85213f16dff5be1b0d4d3b76b4346e94133891f5168b790534a78d8",
+          "savedAt": 1792280752230,
+          "bytes": 38242,
+          "storedSha256": "34b039da9f92a3cae08a85de14c2a1e1f50a39c5cc2d608a72b13b74bbc06799"
+        }
+      ],
+      "actualSourceBackupSha256": "bd882800bb2d8bf8b29b315eb8812364c1994f4e80c4d1b25930d3c92b06d6a2"
+    },
+    {
+      "name": "canceled-export-discards-late-real-crypto-result-and-never-downloads-a-retired-file",
+      "savedUnchanged": true,
+      "downloads": 0
+    },
+    {
+      "name": "explicit-retry-downloads-an-exact-schema-one-portable-slot-backup-with-original-slot-bytes-kept",
+      "portable": {
+        "file": "webkit-slot-backup.worldsave",
+        "bytes": 43111,
+        "sha256": "a62201871a36ac32c79fcd33528a13315d4f52665d9c26b7364f36dd9e3422c6",
+        "origin": "slot",
+        "savedHash": "92734b15d85213f16dff5be1b0d4d3b76b4346e94133891f5168b790534a78d8"
+      }
+    },
+    {
+      "name": "actual-downloaded-file-imports-and-explicitly-restores-the-same-progress-in-a-clean-device-context",
+      "portable": {
+        "file": "webkit-slot-backup.worldsave",
+        "bytes": 43111,
+        "sha256": "a62201871a36ac32c79fcd33528a13315d4f52665d9c26b7364f36dd9e3422c6",
+        "origin": "slot",
+        "savedHash": "92734b15d85213f16dff5be1b0d4d3b76b4346e94133891f5168b790534a78d8"
+      },
+      "restored": {
+        "status": "presenting",
+        "hash": "92734b15d85213f16dff5be1b0d4d3b76b4346e94133891f5168b790534a78d8",
+        "cursor": "16",
+        "save": "loaded",
+        "auto": "off"
+      }
+    },
+    {
+      "name": "current-progress-export-uses-the-real-captured-story-without-overwriting-the-existing-manual-slot",
+      "current": {
+        "file": "webkit-current-progress.worldsave",
+        "bytes": 47414,
+        "sha256": "f72387b21177f1d23592ccf4909cb74df5644b6254dc7914809e2dd603d8eece",
+        "origin": "current",
+        "savedHash": "92734b15d85213f16dff5be1b0d4d3b76b4346e94133891f5168b790534a78d8"
+      },
+      "manual": [
+        {
+          "slotId": "manual-1",
+          "hash": "92734b15d85213f16dff5be1b0d4d3b76b4346e94133891f5168b790534a78d8",
+          "savedAt": 1792280752230,
+          "bytes": 38242,
+          "storedSha256": "34b039da9f92a3cae08a85de14c2a1e1f50a39c5cc2d608a72b13b74bbc06799"
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "scope": "Actual exported game and actual original same-content backup. Controlled delays retain native file bytes/start or actual Web Crypto results, never replace a validated save or write fake database state. Not OS file-system failure, human reading/listening, physical phone/Safari/background/lock, public deployment, rights or long soak."
+}

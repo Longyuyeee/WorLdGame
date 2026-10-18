@@ -1,0 +1,85 @@
+{
+  "status": "PASS",
+  "authorityBranch": "codex/m1-integration-n41-governance",
+  "baselineStatus": "authoritative",
+  "integratedThrough": "N41",
+  "pullRequest": 61,
+  "requiredAncestors": [
+    {
+      "node": "N00",
+      "commit": "58b52bbba38270d19d143d0cc4a13a3805ecba9a"
+    },
+    {
+      "node": "N01",
+      "commit": "e74153910c64f6af671e1354bd6b908c5a3e4f34"
+    },
+    {
+      "node": "N10",
+      "commit": "20d1864dba56eee1de8a97052e08da060e8f7db0"
+    },
+    {
+      "node": "N11",
+      "commit": "89e9ab626299d34875a2fab0aa541df0b58a67bc"
+    },
+    {
+      "node": "N12",
+      "commit": "9be24f731aa3712456ec84ab411223f835d8cc06"
+    },
+    {
+      "node": "N13",
+      "commit": "a0a72038d725bc8bfce29847dabdb462f635b62c"
+    },
+    {
+      "node": "N20",
+      "commit": "43d066a362cf6e7741e8b27ec3189dc444ce17ff"
+    },
+    {
+      "node": "N21",
+      "commit": "67bfe55833f89e7413982e33e250d9fd6f235687"
+    },
+    {
+      "node": "RA-N21-001",
+      "commit": "2862cc75e81f247b9dcac2ae74586b875875e2d7"
+    },
+    {
+      "node": "N22",
+      "commit": "b86de83dbed2654d3b12b1095077694ac837807a"
+    },
+    {
+      "node": "N23",
+      "commit": "5150465226c8adbdd61d5fc494a31e6b1a4c7fdc"
+    },
+    {
+      "node": "N30",
+      "commit": "63e0886968f6124518fae736f3bd7da0b61e3674"
+    },
+    {
+      "node": "N31",
+      "commit": "f8d3c727db58bf6a27ae1cb940bba1a4dd291230"
+    },
+    {
+      "node": "RA-N21-004",
+      "commit": "d82575649e686bd1043bf37acfcb0d80213a43dc"
+    },
+    {
+      "node": "N32",
+      "commit": "3b0b426e9804f9ed3842d05abd01171e9393655b"
+    },
+    {
+      "node": "RA-N21-005",
+      "commit": "64252bf432a0efc4a580a6d5b7225e6cd91ce3cd"
+    },
+    {
+      "node": "N40",
+      "commit": "60b5aae5b55caaff61e2361e7a0b7a528e031e71"
+    },
+    {
+      "node": "RA-N21-006",
+      "commit": "ca064660c1b688a093bce3809a4b4b71b6d81268"
+    },
+    {
+      "node": "N41",
+      "commit": "11bf31313edcc380ff9db03e3286b710e0a65679"
+    }
+  ]
+}

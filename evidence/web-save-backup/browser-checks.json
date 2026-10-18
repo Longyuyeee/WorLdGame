@@ -1,0 +1,61 @@
+{
+  "passed": true,
+  "checkedAt": "2026-10-14T04:11:47.881Z",
+  "browser": "155.0.8059.41",
+  "version": "1.5.4",
+  "checks": [
+    "UI version 1.5.4, legacy source verification and all three exports; source story/media entries unchanged",
+    "real 1.5.3 quick save is retained and exported by 1.5.4; current progress exports offline without writing a synthetic manual slot",
+    "isolated browser context and different HTTP origin imports a verified older session into an empty manual slot; story changes only after explicit load, with native cached-source audio",
+    "target refreshes offline and reexports the identical canonical session bytes/history from the imported manual slot",
+    "cancelled overwrite leaves original bytes; a second real UI window changes the slot after review and atomic import rejects the stale confirmation",
+    "fresh explicit overwrite succeeds without automatic story switch; corrupted and correctly resealed other-work files leave current progress and target slot intact",
+    "single-file HTML imports the portable verified-version backup at a local file URL, then refreshes and reads it"
+  ],
+  "artifacts": {
+    "before-rain-stops-project.zip": {
+      "byteLength": 24180701,
+      "sha256": "b4f28f77b1ee2cd0bf35793c6b33ade5197a6469d352c4e386bca4930ec9ea4e"
+    },
+    "before-rain-stops.html": {
+      "byteLength": 32799709,
+      "sha256": "4118fa3d448adeaf872adfe03d2b7a8d7a6c3bc17c69e4d37c4497199024c24e"
+    },
+    "before-rain-stops-web.zip": {
+      "byteLength": 24788688,
+      "sha256": "d253dcdab678e5c4162b123f44b9a4cfbf9c8b1015c5188d0861b72360f9cb5e"
+    }
+  },
+  "backups": {
+    "legacy-quick.worldsave": {
+      "byteLength": 15465,
+      "sha256": "3180fe3bef0b2f7e7438515042d18d7e0783ee4ddd3ee1766f8d06b1a159fd12"
+    },
+    "current-progress.worldsave": {
+      "byteLength": 20272,
+      "sha256": "95f4b5854d60bd627ffde23e7deed68538c1330a6e00fdd5524c309091241768"
+    },
+    "recovered-progress.worldsave": {
+      "byteLength": 20269,
+      "sha256": "af8c85967bea95dc84bf0df8f0c939c073f9648ed1ab38014b62121ec1ddd8f9"
+    },
+    "later-progress.worldsave": {
+      "byteLength": 22700,
+      "sha256": "3bb61d4bfff023ee7e3e7fbd581df4d393f51897586908e6a7f550046e23ab1d"
+    }
+  },
+  "previousVersions": [
+    "1.5.1",
+    "1.5.2",
+    "1.5.3"
+  ],
+  "actualLegacySaveVersion": "1.5.3",
+  "crossOrigin": true,
+  "isolatedContexts": true,
+  "canonicalSessionBytesPreserved": true,
+  "errors": [],
+  "publicDeployment": false,
+  "physicalDevicePassed": false,
+  "completeRoutesRerun": false,
+  "previousRouteEvidence": "evidence/web-player-entry/browser-checks.json"
+}

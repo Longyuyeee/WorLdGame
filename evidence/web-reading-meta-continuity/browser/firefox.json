@@ -1,0 +1,346 @@
+{
+  "passed": true,
+  "engine": "firefox",
+  "browser": "153.0",
+  "artifacts": {
+    "html": {
+      "bytes": 46811136,
+      "sha256": "d8fc175fc672e3f53b488b2c3ac6da03924bc029e31042be5f9c7259b5cecec8"
+    },
+    "website": {
+      "bytes": 35397585,
+      "sha256": "8dfb434a6e8e503c8a02bb10d3fb4d953489fbbd51ff16f992f5ddf05fa4383c"
+    }
+  },
+  "checks": [
+    {
+      "name": "native-cross-window-read-merge-keeps-restored-notice-position-and-story",
+      "before": {
+        "hash": "82e2acf507042ca294db18181ea77af0e7eed1889ee86690bac318ce59634412",
+        "cursor": "4",
+        "length": "4",
+        "restored": "true",
+        "auto": "off",
+        "status": "presenting"
+      },
+      "after": {
+        "hash": "311c5f813d23d16456c6942ea102a62e42a48e7598c898bd82cc59fd0e5b0224",
+        "cursor": "4",
+        "length": "4",
+        "restored": "true",
+        "auto": "off",
+        "status": "presenting"
+      },
+      "original": {
+        "projectId": "project_a983033c0f7180355c93",
+        "buildId": "e1de8f8e2a345cbc8157a90ec454c0699538bb807fbd90c984a5927110e2995a",
+        "hash": "82e2acf507042ca294db18181ea77af0e7eed1889ee86690bac318ce59634412",
+        "savedAt": 1792299254378,
+        "storedSha256": "74d56960893156335a3949b26664751931030aa2572b80bf8170a15b37a0f52a"
+      },
+      "beforeGeometry": {
+        "top": 100,
+        "height": 238,
+        "total": 998,
+        "text": "售票员把窗口里的灯关掉时，雨正沿着站台的屋檐连成一条线。站台上的钟比手机慢了三分钟。林远核对了两次，没有走去询问值班员。他看见玻璃上自己的倒影，才发现他已经穿着这件外套站了很久。行李箱旁挂着新公司的地址，手机里存着一份还没签字的合同；这些东西都能说明他要去哪里，却没有一样能替他解释为什么迟迟不肯往前走。"
+      },
+      "afterGeometry": {
+        "top": 100,
+        "height": 238,
+        "total": 998,
+        "text": "售票员把窗口里的灯关掉时，雨正沿着站台的屋檐连成一条线。站台上的钟比手机慢了三分钟。林远核对了两次，没有走去询问值班员。他看见玻璃上自己的倒影，才发现他已经穿着这件外套站了很久。行李箱旁挂着新公司的地址，手机里存着一份还没签字的合同；这些东西都能说明他要去哪里，却没有一样能替他解释为什么迟迟不肯往前走。"
+      },
+      "events": [
+        {
+          "trusted": true,
+          "local": true,
+          "readTexts": 2
+        }
+      ]
+    },
+    {
+      "name": "explicit-restart-updates-the-saved-source-mark-without-writing-a-story-slot",
+      "layouts": [
+        {
+          "viewport": {
+            "width": 320,
+            "height": 568
+          },
+          "box": {
+            "x": 25.799999237060547,
+            "y": 118,
+            "width": 106.00000381469727,
+            "height": 44
+          }
+        },
+        {
+          "viewport": {
+            "width": 568,
+            "height": 320
+          },
+          "box": {
+            "x": 281,
+            "y": 267,
+            "width": 83,
+            "height": 44
+          }
+        },
+        {
+          "viewport": {
+            "width": 844,
+            "height": 390
+          },
+          "box": {
+            "x": 557,
+            "y": 337,
+            "width": 83,
+            "height": 44
+          }
+        },
+        {
+          "viewport": {
+            "width": 1280,
+            "height": 900
+          },
+          "box": {
+            "x": 980.8833618164062,
+            "y": 208.11666870117188,
+            "width": 105.99993896484375,
+            "height": 44
+          }
+        }
+      ],
+      "original": {
+        "projectId": "project_a983033c0f7180355c93",
+        "buildId": "e1de8f8e2a345cbc8157a90ec454c0699538bb807fbd90c984a5927110e2995a",
+        "hash": "82e2acf507042ca294db18181ea77af0e7eed1889ee86690bac318ce59634412",
+        "savedAt": 1792299254378,
+        "storedSha256": "74d56960893156335a3949b26664751931030aa2572b80bf8170a15b37a0f52a"
+      },
+      "marks": [
+        {
+          "projectId": "project_a983033c0f7180355c93",
+          "buildId": "e1de8f8e2a345cbc8157a90ec454c0699538bb807fbd90c984a5927110e2995a",
+          "runtimeStateHash": "311c5f813d23d16456c6942ea102a62e42a48e7598c898bd82cc59fd0e5b0224",
+          "locale": "und",
+          "textHash": "18ee08932a0c7c7bb28afbc5260866edb8107dd653bd6bd1f3c5f487e315e964",
+          "anchor": {
+            "kind": "start"
+          }
+        },
+        {
+          "projectId": "project_a983033c0f7180355c93",
+          "buildId": "e1de8f8e2a345cbc8157a90ec454c0699538bb807fbd90c984a5927110e2995a",
+          "runtimeStateHash": "82e2acf507042ca294db18181ea77af0e7eed1889ee86690bac318ce59634412",
+          "locale": "und",
+          "textHash": "18ee08932a0c7c7bb28afbc5260866edb8107dd653bd6bd1f3c5f487e315e964",
+          "anchor": {
+            "kind": "start"
+          }
+        },
+        {
+          "projectId": "project_a983033c0f7180355c93",
+          "buildId": "e1de8f8e2a345cbc8157a90ec454c0699538bb807fbd90c984a5927110e2995a",
+          "runtimeStateHash": "4871c5b2de7ef8c67976d40c9a7269b1601bfc5383c06a2e329b8bce25d011d9",
+          "locale": "und",
+          "textHash": "b2cda520b795c45b40db05680ce18b0e55a689d04284c1b25badd832b6bb0c6b",
+          "anchor": {
+            "kind": "start"
+          }
+        }
+      ]
+    },
+    {
+      "name": "reopen-explicit-read-honors-restarted-paragraph-and-retains-the-original-slot",
+      "state": {
+        "hash": "311c5f813d23d16456c6942ea102a62e42a48e7598c898bd82cc59fd0e5b0224",
+        "cursor": "4",
+        "length": "4",
+        "restored": "false",
+        "auto": "off",
+        "status": "presenting"
+      },
+      "original": {
+        "projectId": "project_a983033c0f7180355c93",
+        "buildId": "e1de8f8e2a345cbc8157a90ec454c0699538bb807fbd90c984a5927110e2995a",
+        "hash": "82e2acf507042ca294db18181ea77af0e7eed1889ee86690bac318ce59634412",
+        "savedAt": 1792299254378,
+        "storedSha256": "74d56960893156335a3949b26664751931030aa2572b80bf8170a15b37a0f52a"
+      }
+    },
+    {
+      "name": "next-after-paragraph-restart-scrolls-unread-prose-instead-of-skipping-the-story",
+      "state": {
+        "hash": "311c5f813d23d16456c6942ea102a62e42a48e7598c898bd82cc59fd0e5b0224",
+        "cursor": "4",
+        "length": "4",
+        "restored": "false",
+        "auto": "off",
+        "status": "presenting"
+      },
+      "geometry": {
+        "top": 190,
+        "height": 238,
+        "total": 998,
+        "text": "售票员把窗口里的灯关掉时，雨正沿着站台的屋檐连成一条线。站台上的钟比手机慢了三分钟。林远核对了两次，没有走去询问值班员。他看见玻璃上自己的倒影，才发现他已经穿着这件外套站了很久。行李箱旁挂着新公司的地址，手机里存着一份还没签字的合同；这些东西都能说明他要去哪里，却没有一样能替他解释为什么迟迟不肯往前走。"
+      },
+      "original": {
+        "projectId": "project_a983033c0f7180355c93",
+        "buildId": "e1de8f8e2a345cbc8157a90ec454c0699538bb807fbd90c984a5927110e2995a",
+        "hash": "82e2acf507042ca294db18181ea77af0e7eed1889ee86690bac318ce59634412",
+        "savedAt": 1792299254378,
+        "storedSha256": "74d56960893156335a3949b26664751931030aa2572b80bf8170a15b37a0f52a"
+      }
+    },
+    {
+      "name": "later-reading-updates-the-pre-merge-saved-hash-before-any-explicit-load",
+      "before": {
+        "hash": "82e2acf507042ca294db18181ea77af0e7eed1889ee86690bac318ce59634412",
+        "cursor": "4",
+        "length": "4",
+        "restored": "false",
+        "auto": "off",
+        "status": "presenting"
+      },
+      "after": {
+        "hash": "311c5f813d23d16456c6942ea102a62e42a48e7598c898bd82cc59fd0e5b0224",
+        "cursor": "4",
+        "length": "4",
+        "restored": "false",
+        "auto": "off",
+        "status": "presenting"
+      },
+      "original": {
+        "projectId": "project_a983033c0f7180355c93",
+        "buildId": "e1de8f8e2a345cbc8157a90ec454c0699538bb807fbd90c984a5927110e2995a",
+        "hash": "82e2acf507042ca294db18181ea77af0e7eed1889ee86690bac318ce59634412",
+        "savedAt": 1792299258042,
+        "storedSha256": "74d56960893156335a3949b26664751931030aa2572b80bf8170a15b37a0f52a"
+      },
+      "beforeMark": {
+        "projectId": "project_a983033c0f7180355c93",
+        "buildId": "e1de8f8e2a345cbc8157a90ec454c0699538bb807fbd90c984a5927110e2995a",
+        "runtimeStateHash": "82e2acf507042ca294db18181ea77af0e7eed1889ee86690bac318ce59634412",
+        "locale": "und",
+        "textHash": "18ee08932a0c7c7bb28afbc5260866edb8107dd653bd6bd1f3c5f487e315e964",
+        "anchor": {
+          "kind": "text",
+          "offset": 16,
+          "inset": 22.25
+        }
+      },
+      "currentMark": {
+        "projectId": "project_a983033c0f7180355c93",
+        "buildId": "e1de8f8e2a345cbc8157a90ec454c0699538bb807fbd90c984a5927110e2995a",
+        "runtimeStateHash": "311c5f813d23d16456c6942ea102a62e42a48e7598c898bd82cc59fd0e5b0224",
+        "locale": "und",
+        "textHash": "18ee08932a0c7c7bb28afbc5260866edb8107dd653bd6bd1f3c5f487e315e964",
+        "anchor": {
+          "kind": "text",
+          "offset": 40,
+          "inset": 5.95001220703125
+        }
+      },
+      "savedMark": {
+        "projectId": "project_a983033c0f7180355c93",
+        "buildId": "e1de8f8e2a345cbc8157a90ec454c0699538bb807fbd90c984a5927110e2995a",
+        "runtimeStateHash": "82e2acf507042ca294db18181ea77af0e7eed1889ee86690bac318ce59634412",
+        "locale": "und",
+        "textHash": "18ee08932a0c7c7bb28afbc5260866edb8107dd653bd6bd1f3c5f487e315e964",
+        "anchor": {
+          "kind": "text",
+          "offset": 40,
+          "inset": 5.95001220703125
+        }
+      },
+      "marks": [
+        {
+          "projectId": "project_a983033c0f7180355c93",
+          "buildId": "e1de8f8e2a345cbc8157a90ec454c0699538bb807fbd90c984a5927110e2995a",
+          "runtimeStateHash": "311c5f813d23d16456c6942ea102a62e42a48e7598c898bd82cc59fd0e5b0224",
+          "locale": "und",
+          "textHash": "18ee08932a0c7c7bb28afbc5260866edb8107dd653bd6bd1f3c5f487e315e964",
+          "anchor": {
+            "kind": "text",
+            "offset": 40,
+            "inset": 5.95001220703125
+          }
+        },
+        {
+          "projectId": "project_a983033c0f7180355c93",
+          "buildId": "e1de8f8e2a345cbc8157a90ec454c0699538bb807fbd90c984a5927110e2995a",
+          "runtimeStateHash": "82e2acf507042ca294db18181ea77af0e7eed1889ee86690bac318ce59634412",
+          "locale": "und",
+          "textHash": "18ee08932a0c7c7bb28afbc5260866edb8107dd653bd6bd1f3c5f487e315e964",
+          "anchor": {
+            "kind": "text",
+            "offset": 40,
+            "inset": 5.95001220703125
+          }
+        },
+        {
+          "projectId": "project_a983033c0f7180355c93",
+          "buildId": "e1de8f8e2a345cbc8157a90ec454c0699538bb807fbd90c984a5927110e2995a",
+          "runtimeStateHash": "4871c5b2de7ef8c67976d40c9a7269b1601bfc5383c06a2e329b8bce25d011d9",
+          "locale": "und",
+          "textHash": "b2cda520b795c45b40db05680ce18b0e55a689d04284c1b25badd832b6bb0c6b",
+          "anchor": {
+            "kind": "start"
+          }
+        }
+      ],
+      "events": [
+        {
+          "trusted": true,
+          "local": true,
+          "readTexts": 2
+        }
+      ]
+    },
+    {
+      "name": "reopen-old-saved-hash-restores-the-latest-optional-position-without-changing-the-story",
+      "top": 260,
+      "restored": {
+        "top": 260,
+        "height": 238,
+        "total": 998,
+        "text": "售票员把窗口里的灯关掉时，雨正沿着站台的屋檐连成一条线。站台上的钟比手机慢了三分钟。林远核对了两次，没有走去询问值班员。他看见玻璃上自己的倒影，才发现他已经穿着这件外套站了很久。行李箱旁挂着新公司的地址，手机里存着一份还没签字的合同；这些东西都能说明他要去哪里，却没有一样能替他解释为什么迟迟不肯往前走。"
+      },
+      "original": {
+        "projectId": "project_a983033c0f7180355c93",
+        "buildId": "e1de8f8e2a345cbc8157a90ec454c0699538bb807fbd90c984a5927110e2995a",
+        "hash": "82e2acf507042ca294db18181ea77af0e7eed1889ee86690bac318ce59634412",
+        "savedAt": 1792299258042,
+        "storedSha256": "74d56960893156335a3949b26664751931030aa2572b80bf8170a15b37a0f52a"
+      },
+      "state": {
+        "hash": "311c5f813d23d16456c6942ea102a62e42a48e7598c898bd82cc59fd0e5b0224",
+        "cursor": "4",
+        "length": "4",
+        "restored": "true",
+        "auto": "off",
+        "status": "presenting"
+      }
+    },
+    {
+      "name": "dismissal-only-hides-the-notice-and-never-erases-the-position-or-original-save",
+      "state": {
+        "hash": "311c5f813d23d16456c6942ea102a62e42a48e7598c898bd82cc59fd0e5b0224",
+        "cursor": "4",
+        "length": "4",
+        "restored": "true",
+        "auto": "off",
+        "status": "presenting"
+      },
+      "original": {
+        "projectId": "project_a983033c0f7180355c93",
+        "buildId": "e1de8f8e2a345cbc8157a90ec454c0699538bb807fbd90c984a5927110e2995a",
+        "hash": "82e2acf507042ca294db18181ea77af0e7eed1889ee86690bac318ce59634412",
+        "savedAt": 1792299258042,
+        "storedSha256": "74d56960893156335a3949b26664751931030aa2572b80bf8170a15b37a0f52a"
+      }
+    }
+  ],
+  "errors": [],
+  "scope": "Actual exported website and two real pages: UI-generated save, real long prose at user font settings, browser scrolling, native localStorage storage events from normal reading. Test only observes storage and readonly IndexedDB payload digests; no database/cache writes or event injection. Phone-sized windows and desktop engines, not physical phones/Safari, natural listening, system interruption, rights/public HTTPS or long-soak acceptance."
+}

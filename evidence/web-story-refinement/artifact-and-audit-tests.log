@@ -1,0 +1,72 @@
+
+> world-studio@0.0.0-s0.41 audit:web-story-refinement
+> node --test tools/audit-rain-story-refinement.test.mjs && node tools/audit-rain-story-refinement.mjs
+
+TAP version 13
+# Subtest: planned refinement preserves all original identities and assets, and has only the declared story/stage changes
+ok 1 - planned refinement preserves all original identities and assets, and has only the declared story/stage changes
+  ---
+  duration_ms: 41.1809
+  ...
+# Subtest: rejects undeclared prose changes or identity changes rather than silently accepting a partial candidate
+ok 2 - rejects undeclared prose changes or identity changes rather than silently accepting a partial candidate
+  ---
+  duration_ms: 50.2753
+  ...
+# Subtest: rejects moved rain stop cues and changed original blob bytes
+ok 3 - rejects moved rain stop cues and changed original blob bytes
+  ---
+  duration_ms: 40.0315
+  ...
+# Subtest: new day/night backgrounds are actual wide PNGs with traceable, non-overwriting edit targets
+ok 4 - new day/night backgrounds are actual wide PNGs with traceable, non-overwriting edit targets
+  ---
+  duration_ms: 10.2306
+  ...
+# Subtest: large inline games use bounded delimiter parsing, not a recursive payload regex
+ok 5 - large inline games use bounded delimiter parsing, not a recursive payload regex
+  ---
+  duration_ms: 18.5748
+  ...
+1..5
+# tests 5
+# suites 0
+# pass 5
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 236.4118
+{
+  "passed": true,
+  "story": {
+    "scenes": 9,
+    "narration": 90,
+    "dialogue": 9,
+    "textCharacters": 9662,
+    "changedText": 5,
+    "changedBackgrounds": 5,
+    "addedAudioCues": 2,
+    "directions": 73,
+    "assets": 25,
+    "originalBlobsPreserved": 22,
+    "stableOriginalIdsPreserved": true
+  },
+  "canonicalSourceHtmlDirectoryMatch": true,
+  "mediaBytesMatch": true,
+  "buildInfoFilesVerified": 35,
+  "artifacts": {
+    "source": {
+      "bytes": 31659524,
+      "sha256": "45ab1bbc3c36ef05abca52eebe9bcb4b3563c153af9a9362778331b7291c97c5"
+    },
+    "html": {
+      "bytes": 42804399,
+      "sha256": "e4aab51870960a76febd423e62c284830487e2966d6986b5c919de0501aa6ff1"
+    },
+    "directory": {
+      "bytes": 32304216,
+      "sha256": "cec887378c7231348a9f0dbe5cd130c2c5515a764dadcabaf9615dbe1c2d9a8d"
+    }
+  }
+}

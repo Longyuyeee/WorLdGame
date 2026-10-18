@@ -1,0 +1,437 @@
+{
+  "passed": true,
+  "baseline": false,
+  "engine": "firefox",
+  "browser": "153.0",
+  "build": {
+    "/assets/index-kTBLeIYg.js": "db72f795289b0e54f28494db1efa1d99c63dc084250684a92b0ae5f0996067b0",
+    "/assets/index-DJ92-1xN.css": "12f179587a2464422f8f241b017acc2f6c25b976cfe28b36c754577a4a3f972b"
+  },
+  "checks": [
+    {
+      "name": "explicit-keyboard-start-and-native-outcome",
+      "initial": {
+        "paused": true,
+        "ended": false,
+        "time": 0,
+        "readyState": 0,
+        "error": null,
+        "status": "试听：林远·合成语音04\n\n点击开始试听或原生播放控件，不会修改故事中的音乐。\n\n开始试听\n重新准备试听",
+        "events": [
+          {
+            "name": "loadstart",
+            "at": 2451,
+            "paused": true,
+            "time": 0,
+            "readyState": 0,
+            "error": null
+          }
+        ],
+        "nativeCalls": [],
+        "promise": null
+      },
+      "result": {
+        "paused": true,
+        "ended": true,
+        "time": 5.032608,
+        "readyState": 2,
+        "error": null,
+        "status": "试听：林远·合成语音04\n\n试听结束，可再次开始试听。\n\n开始试听\n重新准备试听",
+        "events": [
+          {
+            "name": "loadstart",
+            "at": 2451,
+            "paused": true,
+            "time": 0,
+            "readyState": 0,
+            "error": null
+          },
+          {
+            "name": "play",
+            "at": 2529,
+            "paused": false,
+            "time": 0,
+            "readyState": 0,
+            "error": null
+          },
+          {
+            "name": "waiting",
+            "at": 2529,
+            "paused": false,
+            "time": 0,
+            "readyState": 0,
+            "error": null
+          },
+          {
+            "name": "loadedmetadata",
+            "at": 2534,
+            "paused": false,
+            "time": 0,
+            "readyState": 1,
+            "error": null
+          },
+          {
+            "name": "canplay",
+            "at": 2579,
+            "paused": false,
+            "time": 0,
+            "readyState": 4,
+            "error": null
+          },
+          {
+            "name": "playing",
+            "at": 2579,
+            "paused": false,
+            "time": 0,
+            "readyState": 4,
+            "error": null
+          },
+          {
+            "name": "timeupdate",
+            "at": 2668,
+            "paused": false,
+            "time": 0.011979,
+            "readyState": 4,
+            "error": null
+          },
+          {
+            "name": "play",
+            "at": 2851,
+            "paused": false,
+            "time": 0,
+            "readyState": 0,
+            "error": null
+          },
+          {
+            "name": "waiting",
+            "at": 2852,
+            "paused": false,
+            "time": 0,
+            "readyState": 0,
+            "error": null
+          },
+          {
+            "name": "loadstart",
+            "at": 2852,
+            "paused": false,
+            "time": 0,
+            "readyState": 0,
+            "error": null
+          },
+          {
+            "name": "loadedmetadata",
+            "at": 2853,
+            "paused": false,
+            "time": 0,
+            "readyState": 1,
+            "error": null
+          },
+          {
+            "name": "canplay",
+            "at": 2854,
+            "paused": false,
+            "time": 0,
+            "readyState": 4,
+            "error": null
+          },
+          {
+            "name": "playing",
+            "at": 2854,
+            "paused": false,
+            "time": 0,
+            "readyState": 4,
+            "error": null
+          },
+          {
+            "name": "timeupdate",
+            "at": 2920,
+            "paused": false,
+            "time": 0.013875,
+            "readyState": 4,
+            "error": null
+          },
+          {
+            "name": "timeupdate",
+            "at": 3202,
+            "paused": false,
+            "time": 0.29627,
+            "readyState": 4,
+            "error": null
+          },
+          {
+            "name": "timeupdate",
+            "at": 3486,
+            "paused": false,
+            "time": 0.579604,
+            "readyState": 4,
+            "error": null
+          },
+          {
+            "name": "timeupdate",
+            "at": 3768,
+            "paused": false,
+            "time": 0.862125,
+            "readyState": 4,
+            "error": null
+          },
+          {
+            "name": "timeupdate",
+            "at": 4053,
+            "paused": false,
+            "time": 1.147062,
+            "readyState": 4,
+            "error": null
+          },
+          {
+            "name": "timeupdate",
+            "at": 4337,
+            "paused": false,
+            "time": 1.430708,
+            "readyState": 4,
+            "error": null
+          },
+          {
+            "name": "timeupdate",
+            "at": 4620,
+            "paused": false,
+            "time": 1.71327,
+            "readyState": 4,
+            "error": null
+          },
+          {
+            "name": "timeupdate",
+            "at": 4902,
+            "paused": false,
+            "time": 1.995645,
+            "readyState": 4,
+            "error": null
+          },
+          {
+            "name": "timeupdate",
+            "at": 5189,
+            "paused": false,
+            "time": 2.282895,
+            "readyState": 4,
+            "error": null
+          },
+          {
+            "name": "timeupdate",
+            "at": 5473,
+            "paused": false,
+            "time": 2.566833,
+            "readyState": 4,
+            "error": null
+          },
+          {
+            "name": "timeupdate",
+            "at": 5756,
+            "paused": false,
+            "time": 2.849937,
+            "readyState": 4,
+            "error": null
+          },
+          {
+            "name": "timeupdate",
+            "at": 6040,
+            "paused": false,
+            "time": 3.134145,
+            "readyState": 4,
+            "error": null
+          },
+          {
+            "name": "timeupdate",
+            "at": 6324,
+            "paused": false,
+            "time": 3.417937,
+            "readyState": 4,
+            "error": null
+          },
+          {
+            "name": "timeupdate",
+            "at": 6609,
+            "paused": false,
+            "time": 3.701979,
+            "readyState": 4,
+            "error": null
+          },
+          {
+            "name": "timeupdate",
+            "at": 6890,
+            "paused": false,
+            "time": 3.9845,
+            "readyState": 4,
+            "error": null
+          },
+          {
+            "name": "timeupdate",
+            "at": 7178,
+            "paused": false,
+            "time": 4.272062,
+            "readyState": 4,
+            "error": null
+          },
+          {
+            "name": "timeupdate",
+            "at": 7461,
+            "paused": false,
+            "time": 4.555062,
+            "readyState": 4,
+            "error": null
+          },
+          {
+            "name": "timeupdate",
+            "at": 7745,
+            "paused": false,
+            "time": 4.838562,
+            "readyState": 4,
+            "error": null
+          },
+          {
+            "name": "timeupdate",
+            "at": 7930,
+            "paused": true,
+            "time": 5.032608,
+            "readyState": 2,
+            "error": null
+          },
+          {
+            "name": "timeupdate",
+            "at": 7933,
+            "paused": true,
+            "time": 5.032608,
+            "readyState": 2,
+            "error": null
+          },
+          {
+            "name": "pause",
+            "at": 7933,
+            "paused": true,
+            "time": 5.032608,
+            "readyState": 2,
+            "error": null
+          },
+          {
+            "name": "ended",
+            "at": 7933,
+            "paused": true,
+            "time": 5.032608,
+            "readyState": 2,
+            "error": null
+          }
+        ],
+        "nativeCalls": [
+          {
+            "outcome": "resolved",
+            "at": 2525
+          },
+          {
+            "outcome": "resolved",
+            "at": 2847
+          }
+        ],
+        "promise": null
+      },
+      "playback": true,
+      "nativeProgressRequired": true,
+      "physicalDevice": false
+    },
+    {
+      "name": "three-phone-sized-layouts-with-reachable-native-and-explicit-controls",
+      "layouts": [
+        {
+          "viewport": {
+            "width": 320,
+            "height": 740
+          },
+          "geometry": [
+            {
+              "tag": "BUTTON",
+              "width": 198,
+              "height": 44,
+              "visible": true,
+              "overflow": false
+            },
+            {
+              "tag": "BUTTON",
+              "width": 198,
+              "height": 44,
+              "visible": true,
+              "overflow": false
+            },
+            {
+              "tag": "AUDIO",
+              "width": 198,
+              "height": 150,
+              "visible": true,
+              "overflow": false
+            }
+          ]
+        },
+        {
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "geometry": [
+            {
+              "tag": "BUTTON",
+              "width": 268,
+              "height": 44,
+              "visible": true,
+              "overflow": false
+            },
+            {
+              "tag": "BUTTON",
+              "width": 268,
+              "height": 44,
+              "visible": true,
+              "overflow": false
+            },
+            {
+              "tag": "AUDIO",
+              "width": 268,
+              "height": 150,
+              "visible": true,
+              "overflow": false
+            }
+          ]
+        },
+        {
+          "viewport": {
+            "width": 844,
+            "height": 390
+          },
+          "geometry": [
+            {
+              "tag": "BUTTON",
+              "width": 451.3666687011719,
+              "height": 44,
+              "visible": true,
+              "overflow": false
+            },
+            {
+              "tag": "BUTTON",
+              "width": 451.3666687011719,
+              "height": 44,
+              "visible": true,
+              "overflow": false
+            },
+            {
+              "tag": "AUDIO",
+              "width": 451.3666687011719,
+              "height": 150,
+              "visible": true,
+              "overflow": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "manual-reprepare-retry-close-with-private-draft-and-pending-state-retained",
+      "markerSavedToCanonicalSource": false
+    }
+  ],
+  "errors": [],
+  "scope": "Actual editor and original current voice file; native control click and native play Promise, observed events only. No synthetic media events; no claim of Safari, physical phone or licensing acceptance."
+}

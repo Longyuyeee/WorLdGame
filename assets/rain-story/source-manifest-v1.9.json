@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "version": "1.9.0",
+  "createdOn": "2026-10-17",
+  "assetId": "bus_stop_night",
+  "path": "assets/rain-story/bus-stop-night.png",
+  "sha256": "a1e6e500aa1ca5d4b0dcdca821070f1b17f617a14227f76a83eb0257e128847b",
+  "byteLength": 2788367,
+  "width": 1672,
+  "height": 941,
+  "tool": "built-in imagegen",
+  "inputImages": [],
+  "prompt": "Use case: stylized-concept. Asset type: finished 16:9 visual-novel environment background, PNG, ideally 2048x1152. Create an original empty small coastal-town street bus stop at night, after rain has eased to a very fine drizzle. Scene: a modest covered roadside bus shelter with a wooden bench and a simple route sign, wet pavement, a quiet road and warm distant shop windows near a railway station neighborhood. It is a BUS STOP by a street, NOT a train platform: no railway tracks, no train, no café interior. Style: polished Japanese visual-novel background painting with delicate realistic architecture and soft hand-painted detail, warm amber shelter lamps against deep blue night, restrained hopeful mood, matching a quiet rainy coastal-town romance. Composition: wide eye-level establishing frame; shelter and bench toward left/center, clear walkable foreground and quieter open space on the right for a separately composited character sprite; keep key environmental cues in the upper two-thirds because the game overlays dialogue below. No people, no character silhouettes, no bus blocking the view, no readable text, no lettering, no logos, no UI, no frame, no watermark. Maintain an ordinary, intimate scale rather than a futuristic city or grand station.",
+  "permission": "pending",
+  "evidence": "",
+  "reviewedBy": "",
+  "reviewedOn": "",
+  "credit": "",
+  "limits": "生成事实不等于发行许可或人工美术验收；旧 25 项来源台账须原样保留。"
+}

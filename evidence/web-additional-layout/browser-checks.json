@@ -1,0 +1,90 @@
+{
+  "passed": true,
+  "checkedAt": "2026-10-16T19:59:01.882Z",
+  "browser": "151.0.7922.34",
+  "checks": [
+    "The actual main story authors overview/gallery/music/replay/endings viewport layouts with isolated content and return regions, real-preview drag/one undo/keyboard, matching desktop/phone geometry, safe action lists and phone-hidden art.",
+    "Save/reopen, source project, portable configuration/skin bytes and both formal exports retain all five extra layouts without changing story, characters, seven assets or the existing title/reading/menu/save/history/preferences/credits/ending layouts.",
+    "Independent desktop file:// Player preserves locked secrecy and contextual returns, fits full artwork and modal focus through resize, retains actual muted audition position, completes the first route, replays via the native authority back to the exact parent checkpoint, and explicitly loads the first saved sentence; collection survives reload.",
+    "Touch-enabled directory Player checks all five pages at 390×844, 844×390 and 390×480, keeps artwork aspect and a reachable close, retains audition position, completes the other route, restores the parent replay checkpoint, explicitly loads and preserves collection on reload.",
+    "A second blank project reuses all five page layouts, hidden-device image references and actual media bytes without copying scripts or characters; its actual music preview remains editable."
+  ],
+  "errors": [],
+  "screenshots": [
+    "author-additional-desktop.png",
+    "author-additional-phone.png",
+    "author-gallery-desktop.png",
+    "author-gallery-phone.png",
+    "author-music-desktop.png",
+    "author-music-phone.png",
+    "author-replay-desktop.png",
+    "author-replay-phone.png",
+    "author-endings-desktop.png",
+    "author-endings-phone.png",
+    "desktop-locked-overview.png",
+    "desktop-artwork-0.png",
+    "desktop-artwork-1.png",
+    "desktop-gallery.png",
+    "desktop-music.png",
+    "desktop-endings.png",
+    "desktop-replay.png",
+    "phone-locked-overview.png",
+    "phone-artwork-0.png",
+    "phone-artwork-1.png",
+    "phone-artwork-2.png",
+    "phone-gallery.png",
+    "phone-music.png",
+    "phone-endings.png",
+    "phone-replay.png",
+    "author-reused-music.png"
+  ],
+  "formalEndingCoverage": "2/2 combined: HTML first route, directory other route; not all format×route combinations",
+  "editorFullRouteCoverage": "not run",
+  "realDevice": false,
+  "publicDeployment": false,
+  "desktopRoute": {
+    "choice": "1\n留下来，把今晚写完",
+    "ending": "有人等你回来",
+    "auditionPosition": 0.013961,
+    "replayCheckpointRestored": true
+  },
+  "phoneRoute": {
+    "choice": "2\n带上信，去下一座城市",
+    "ending": "把明天写进信里",
+    "auditionPosition": 0.018649,
+    "replayCheckpointRestored": true
+  },
+  "siteFiles": 18,
+  "artifacts": [
+    {
+      "name": "tomorrow-letter-0.9.0-project.zip",
+      "bytes": 10710273,
+      "sha256": "b456860d83c7eadf3dfbfeafdb7f2b88358070e829f6ea5757c5ccecd8476905"
+    },
+    {
+      "name": "tomorrow-letter-0.9.0.html",
+      "bytes": 15048233,
+      "sha256": "1c0d965e43448266bead7fcc8e6cb21a7c5a0acb7f5ffae3679b8b887695452a"
+    },
+    {
+      "name": "tomorrow-letter-0.9.0-web.zip",
+      "bytes": 11552837,
+      "sha256": "f4379942206e2699ccb1e8c32452f78aa84f0c4a9be012efc6ffcb2487cd71e6"
+    },
+    {
+      "name": "letter-extras.worldskin.json",
+      "bytes": 29525,
+      "sha256": "408d201f3573545eac952280a0f1c91dbb5c927106973e877ac4715c7518f95e"
+    },
+    {
+      "name": "letter-extras.worldskin.zip",
+      "bytes": 4653995,
+      "sha256": "a27753486f94ee35f7de3ccdfbe3bd68fe0ba69dc04fd0214e8c3e3bf18541e7"
+    },
+    {
+      "name": "reused-extras-project.zip",
+      "bytes": 4657107,
+      "sha256": "95363eddade96afb93e57d4c59e7d4f76c88347a77bafea696a7a37e3bab0087"
+    }
+  ]
+}

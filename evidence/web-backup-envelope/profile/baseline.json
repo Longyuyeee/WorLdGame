@@ -1,0 +1,154 @@
+{
+  "passed": true,
+  "label": "baseline",
+  "browser": "151.0.7922.34",
+  "bundleSha256": "48c2114f0e9992ea544e65d8df2f6e03a282e96120cc86c41a84ca032fd90509",
+  "sourceSha256": "2c0b50617f69ed5f6a1af29ae30aa41588ef1d0b88d87a7828519c66ca7f782b",
+  "rows": [
+    {
+      "round": 1,
+      "repetitions": 1,
+      "serializedCharacters": 36178,
+      "bytes": 43111,
+      "encode": {
+        "wallMs": 3.5999999940395355,
+        "maximumHeartbeatGapMs": 5.5999999940395355,
+        "beats": 5
+      },
+      "decode": {
+        "wallMs": 3,
+        "maximumHeartbeatGapMs": 4.9000000059604645,
+        "beats": 5
+      }
+    },
+    {
+      "round": 2,
+      "repetitions": 1,
+      "serializedCharacters": 36178,
+      "bytes": 43111,
+      "encode": {
+        "wallMs": 1.5999999940395355,
+        "maximumHeartbeatGapMs": 4.9000000059604645,
+        "beats": 5
+      },
+      "decode": {
+        "wallMs": 1.300000011920929,
+        "maximumHeartbeatGapMs": 4.9000000059604645,
+        "beats": 5
+      }
+    },
+    {
+      "round": 3,
+      "repetitions": 1,
+      "serializedCharacters": 36178,
+      "bytes": 43111,
+      "encode": {
+        "wallMs": 1.199999988079071,
+        "maximumHeartbeatGapMs": 4.699999988079071,
+        "beats": 5
+      },
+      "decode": {
+        "wallMs": 1.5,
+        "maximumHeartbeatGapMs": 5,
+        "beats": 5
+      }
+    },
+    {
+      "round": 1,
+      "repetitions": 128,
+      "serializedCharacters": 4630784,
+      "bytes": 5384985,
+      "encode": {
+        "wallMs": 76.80000001192093,
+        "maximumHeartbeatGapMs": 76,
+        "beats": 5
+      },
+      "decode": {
+        "wallMs": 63.400000005960464,
+        "maximumHeartbeatGapMs": 63.400000005960464,
+        "beats": 6
+      }
+    },
+    {
+      "round": 2,
+      "repetitions": 128,
+      "serializedCharacters": 4630784,
+      "bytes": 5384985,
+      "encode": {
+        "wallMs": 74.19999998807907,
+        "maximumHeartbeatGapMs": 73.59999999403954,
+        "beats": 6
+      },
+      "decode": {
+        "wallMs": 62.10000002384186,
+        "maximumHeartbeatGapMs": 61.20000001788139,
+        "beats": 6
+      }
+    },
+    {
+      "round": 3,
+      "repetitions": 128,
+      "serializedCharacters": 4630784,
+      "bytes": 5384985,
+      "encode": {
+        "wallMs": 70.40000000596046,
+        "maximumHeartbeatGapMs": 70.2999999821186,
+        "beats": 6
+      },
+      "decode": {
+        "wallMs": 60.69999998807907,
+        "maximumHeartbeatGapMs": 60.69999998807907,
+        "beats": 6
+      }
+    },
+    {
+      "round": 1,
+      "repetitions": 512,
+      "serializedCharacters": 18523136,
+      "bytes": 21536793,
+      "encode": {
+        "wallMs": 314.5,
+        "maximumHeartbeatGapMs": 313.2999999821186,
+        "beats": 6
+      },
+      "decode": {
+        "wallMs": 253.89999997615814,
+        "maximumHeartbeatGapMs": 253.09999999403954,
+        "beats": 6
+      }
+    },
+    {
+      "round": 2,
+      "repetitions": 512,
+      "serializedCharacters": 18523136,
+      "bytes": 21536793,
+      "encode": {
+        "wallMs": 316.69999998807907,
+        "maximumHeartbeatGapMs": 336.69999998807907,
+        "beats": 1
+      },
+      "decode": {
+        "wallMs": 270.40000000596046,
+        "maximumHeartbeatGapMs": 269.59999999403954,
+        "beats": 6
+      }
+    },
+    {
+      "round": 3,
+      "repetitions": 512,
+      "serializedCharacters": 18523136,
+      "bytes": 21536793,
+      "encode": {
+        "wallMs": 300.40000000596046,
+        "maximumHeartbeatGapMs": 302,
+        "beats": 6
+      },
+      "decode": {
+        "wallMs": 257.09999999403954,
+        "maximumHeartbeatGapMs": 256.90000000596046,
+        "beats": 6
+      }
+    }
+  ],
+  "scope": "Envelope-only same-machine Chromium probe. Repeated actual serialized text is synthetic and NOT a valid long Runtime save; formal load deliberately stops at an explicit sentinel. Measures JSON/envelope work plus its dispatch, not complete import, real long story, phone performance or total speedup."
+}

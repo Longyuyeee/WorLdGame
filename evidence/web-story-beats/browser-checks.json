@@ -1,0 +1,424 @@
+{
+  "passed": true,
+  "browser": "151.0.7922.34",
+  "playOnly": false,
+  "checks": [
+    {
+      "name": "eight-existing-notes-imported-and-three-actual-issues-recorded",
+      "detail": {}
+    },
+    {
+      "name": "ten-text-revisions-and-nine-voice-beats-applied-through-editor-with-undo-redo",
+      "detail": {}
+    },
+    {
+      "name": "voice-replacement-save-refresh-reopen-and-real-html-directory-exports",
+      "detail": {}
+    },
+    {
+      "name": "strict-source-identity-order-media-and-both-artifact-audit",
+      "detail": {
+        "scenes": 9,
+        "narration": 90,
+        "dialogue": 9,
+        "textCharacters": 9672,
+        "revisedNarrations": 9,
+        "revisedVoices": 1,
+        "movedVoiceBlocks": 7,
+        "voiceBeats": 9,
+        "directions": 74,
+        "assets": 25,
+        "unchangedMedia": 24,
+        "existingIdsPreserved": true
+      }
+    },
+    {
+      "name": "html-stay",
+      "detail": {
+        "ending": "同行的约定",
+        "paragraphs": 60,
+        "naturallyEndedVoices": 6
+      }
+    },
+    {
+      "name": "directory-leave",
+      "detail": {
+        "ending": "远行的约定",
+        "paragraphs": 60,
+        "naturallyEndedVoices": 6
+      }
+    },
+    {
+      "name": "actual-1.6-backup-rejected-without-changing-title-state",
+      "detail": {
+        "message": "这份备份来自未核对的游戏版本，请使用对应版本，或由作者核对兼容后再导入。",
+        "backupSha256": "5d8f975abae627a0eed17899caf51ddbc70e51c9e5485afa72fdbf8af27deafc"
+      }
+    }
+  ],
+  "errors": [],
+  "routes": {
+    "html-stay": {
+      "ending": "同行的约定",
+      "sceneNames": [
+        "车站的雨",
+        "候车室的旧信",
+        "站台前的约定",
+        "留下",
+        "灯下的回信",
+        "雨后的天明"
+      ],
+      "paragraphs": 60,
+      "voiceBeats": [
+        {
+          "line": "stmt_ui_25",
+          "previous": "stmt_ui_21",
+          "voiceAsset": "voice_01",
+          "background": "sample_station",
+          "portraits": [
+            "xia_thoughtful"
+          ],
+          "speakerContrast": {
+            "name": "rgb(107, 54, 89)",
+            "panel": "rgba(255, 248, 237, 0.88)",
+            "conservativeRatio": 6.5962291145740375
+          },
+          "naturalEnd": true
+        },
+        {
+          "line": "stmt_ui_51",
+          "previous": "stmt_ui_45",
+          "voiceAsset": "voice_02",
+          "background": "waiting_room",
+          "portraits": [
+            "xia_letter"
+          ],
+          "speakerContrast": {
+            "name": "rgb(107, 54, 89)",
+            "panel": "rgba(255, 248, 237, 0.88)",
+            "conservativeRatio": 6.5962291145740375
+          },
+          "naturalEnd": true
+        },
+        {
+          "line": "stmt_ui_81",
+          "previous": "stmt_ui_79",
+          "voiceAsset": "voice_03",
+          "background": "sample_station",
+          "portraits": [
+            "xia_smile"
+          ],
+          "speakerContrast": {
+            "name": "rgb(107, 54, 89)",
+            "panel": "rgba(255, 248, 237, 0.88)",
+            "conservativeRatio": 6.5962291145740375
+          },
+          "naturalEnd": true
+        },
+        {
+          "line": "stmt_ui_113",
+          "previous": "stmt_ui_109",
+          "voiceAsset": "voice_04",
+          "background": "night_cafe",
+          "portraits": [
+            "xia_smile"
+          ],
+          "speakerContrast": {
+            "name": "rgb(107, 54, 89)",
+            "panel": "rgba(255, 248, 237, 0.88)",
+            "conservativeRatio": 6.5962291145740375
+          },
+          "naturalEnd": true
+        },
+        {
+          "line": "stmt_ui_139",
+          "previous": "stmt_ui_129",
+          "voiceAsset": "voice_05",
+          "background": "night_cafe",
+          "portraits": [
+            "xia_smile"
+          ],
+          "speakerContrast": {
+            "name": "rgb(107, 54, 89)",
+            "panel": "rgba(255, 248, 237, 0.88)",
+            "conservativeRatio": 6.5962291145740375
+          },
+          "naturalEnd": true
+        },
+        {
+          "line": "stmt_ui_167",
+          "previous": "stmt_ui_152",
+          "voiceAsset": "voice_06",
+          "background": "morning_studio",
+          "portraits": [
+            "xia_smile"
+          ],
+          "speakerContrast": {
+            "name": "rgb(107, 54, 89)",
+            "panel": "rgba(255, 248, 237, 0.88)",
+            "conservativeRatio": 6.5962291145740375
+          },
+          "naturalEnd": true
+        }
+      ],
+      "orderedTextIds": [
+        "stmt_ui_5",
+        "stmt_ui_7",
+        "stmt_ui_9",
+        "stmt_ui_11",
+        "stmt_ui_13",
+        "stmt_ui_15",
+        "stmt_ui_17",
+        "stmt_ui_19",
+        "stmt_ui_21",
+        "stmt_ui_25",
+        "stmt_ui_23",
+        "stmt_ui_31",
+        "stmt_ui_33",
+        "stmt_ui_35",
+        "stmt_ui_37",
+        "stmt_ui_39",
+        "stmt_ui_41",
+        "stmt_ui_43",
+        "stmt_ui_45",
+        "stmt_ui_51",
+        "stmt_ui_47",
+        "stmt_ui_49",
+        "stmt_ui_61",
+        "stmt_ui_63",
+        "stmt_ui_65",
+        "stmt_ui_67",
+        "stmt_ui_69",
+        "stmt_ui_71",
+        "stmt_ui_73",
+        "stmt_ui_75",
+        "stmt_ui_77",
+        "stmt_ui_79",
+        "stmt_ui_81",
+        "stmt_ui_91",
+        "stmt_ui_93",
+        "stmt_ui_95",
+        "stmt_ui_97",
+        "stmt_ui_99",
+        "stmt_ui_101",
+        "stmt_ui_103",
+        "stmt_ui_105",
+        "stmt_ui_107",
+        "stmt_ui_109",
+        "stmt_ui_113",
+        "stmt_ui_119",
+        "stmt_ui_121",
+        "stmt_ui_123",
+        "stmt_ui_125",
+        "stmt_ui_127",
+        "stmt_ui_129",
+        "stmt_ui_139",
+        "stmt_ui_131",
+        "stmt_ui_133",
+        "stmt_ui_135",
+        "stmt_ui_137",
+        "stmt_ui_146",
+        "stmt_ui_148",
+        "stmt_ui_150",
+        "stmt_ui_152",
+        "stmt_ui_167",
+        "stmt_ui_154",
+        "stmt_ui_156",
+        "stmt_ui_158",
+        "stmt_ui_160",
+        "stmt_ui_162",
+        "stmt_ui_164"
+      ],
+      "checkedStages": {
+        "stmt_ui_158": "station_day"
+      },
+      "saveAtRelocatedDialogueReload": true,
+      "replayRestoredSameHash": true,
+      "humanReadTiming": false,
+      "humanListening": false,
+      "physicalPhone": false
+    },
+    "directory-leave": {
+      "ending": "远行的约定",
+      "sceneNames": [
+        "车站的雨",
+        "候车室的旧信",
+        "站台前的约定",
+        "远行",
+        "车窗与海",
+        "再一次见面"
+      ],
+      "paragraphs": 60,
+      "voiceBeats": [
+        {
+          "line": "stmt_ui_25",
+          "previous": "stmt_ui_21",
+          "voiceAsset": "voice_01",
+          "background": "sample_station",
+          "portraits": [
+            "xia_thoughtful"
+          ],
+          "speakerContrast": {
+            "name": "rgb(107, 54, 89)",
+            "panel": "rgba(255, 248, 237, 0.88)",
+            "conservativeRatio": 6.5962291145740375
+          },
+          "naturalEnd": true
+        },
+        {
+          "line": "stmt_ui_51",
+          "previous": "stmt_ui_45",
+          "voiceAsset": "voice_02",
+          "background": "waiting_room",
+          "portraits": [
+            "xia_letter"
+          ],
+          "speakerContrast": {
+            "name": "rgb(107, 54, 89)",
+            "panel": "rgba(255, 248, 237, 0.88)",
+            "conservativeRatio": 6.5962291145740375
+          },
+          "naturalEnd": true
+        },
+        {
+          "line": "stmt_ui_81",
+          "previous": "stmt_ui_79",
+          "voiceAsset": "voice_03",
+          "background": "sample_station",
+          "portraits": [
+            "xia_smile"
+          ],
+          "speakerContrast": {
+            "name": "rgb(107, 54, 89)",
+            "panel": "rgba(255, 248, 237, 0.88)",
+            "conservativeRatio": 6.5962291145740375
+          },
+          "naturalEnd": true
+        },
+        {
+          "line": "stmt_ui_196",
+          "previous": "stmt_ui_176",
+          "voiceAsset": "voice_07",
+          "background": "sample_station",
+          "portraits": [
+            "xia_letter"
+          ],
+          "speakerContrast": {
+            "name": "rgb(107, 54, 89)",
+            "panel": "rgba(255, 248, 237, 0.88)",
+            "conservativeRatio": 6.5962291145740375
+          },
+          "naturalEnd": true
+        },
+        {
+          "line": "stmt_ui_223",
+          "previous": "stmt_ui_211",
+          "voiceAsset": "voice_08",
+          "background": "coastal_morning",
+          "portraits": [],
+          "speakerContrast": {
+            "name": "rgb(107, 54, 89)",
+            "panel": "rgba(255, 248, 237, 0.88)",
+            "conservativeRatio": 6.5962291145740375
+          },
+          "naturalEnd": true
+        },
+        {
+          "line": "stmt_ui_250",
+          "previous": "stmt_ui_236",
+          "voiceAsset": "voice_09",
+          "background": "day_cafe",
+          "portraits": [
+            "xia_smile"
+          ],
+          "speakerContrast": {
+            "name": "rgb(107, 54, 89)",
+            "panel": "rgba(255, 248, 237, 0.88)",
+            "conservativeRatio": 6.5962291145740375
+          },
+          "naturalEnd": true
+        }
+      ],
+      "orderedTextIds": [
+        "stmt_ui_5",
+        "stmt_ui_7",
+        "stmt_ui_9",
+        "stmt_ui_11",
+        "stmt_ui_13",
+        "stmt_ui_15",
+        "stmt_ui_17",
+        "stmt_ui_19",
+        "stmt_ui_21",
+        "stmt_ui_25",
+        "stmt_ui_23",
+        "stmt_ui_31",
+        "stmt_ui_33",
+        "stmt_ui_35",
+        "stmt_ui_37",
+        "stmt_ui_39",
+        "stmt_ui_41",
+        "stmt_ui_43",
+        "stmt_ui_45",
+        "stmt_ui_51",
+        "stmt_ui_47",
+        "stmt_ui_49",
+        "stmt_ui_61",
+        "stmt_ui_63",
+        "stmt_ui_65",
+        "stmt_ui_67",
+        "stmt_ui_69",
+        "stmt_ui_71",
+        "stmt_ui_73",
+        "stmt_ui_75",
+        "stmt_ui_77",
+        "stmt_ui_79",
+        "stmt_ui_81",
+        "stmt_ui_174",
+        "stmt_ui_176",
+        "stmt_ui_196",
+        "stmt_ui_178",
+        "stmt_ui_180",
+        "stmt_ui_182",
+        "stmt_ui_184",
+        "stmt_ui_186",
+        "stmt_ui_188",
+        "stmt_ui_190",
+        "stmt_ui_192",
+        "stmt_ui_203",
+        "stmt_ui_205",
+        "stmt_ui_207",
+        "stmt_ui_209",
+        "stmt_ui_211",
+        "stmt_ui_223",
+        "stmt_ui_213",
+        "stmt_ui_215",
+        "stmt_ui_217",
+        "stmt_ui_219",
+        "stmt_ui_221",
+        "stmt_ui_230",
+        "stmt_ui_232",
+        "stmt_ui_234",
+        "stmt_ui_236",
+        "stmt_ui_250",
+        "stmt_ui_238",
+        "stmt_ui_240",
+        "stmt_ui_242",
+        "stmt_ui_244",
+        "stmt_ui_246",
+        "stmt_ui_248"
+      ],
+      "checkedStages": {
+        "stmt_ui_221": "station_day",
+        "stmt_ui_230": "station_day",
+        "stmt_ui_232": "day_cafe",
+        "stmt_ui_248": "night_studio"
+      },
+      "saveAtRelocatedDialogueReload": true,
+      "replayRestoredSameHash": true,
+      "humanReadTiming": false,
+      "humanListening": false,
+      "physicalPhone": false
+    }
+  },
+  "scope": "UI authored/exported full candidate; natural audio ended is not human listening; no physical device, licensing, public URL or old-content save migration acceptance"
+}

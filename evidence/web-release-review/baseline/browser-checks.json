@@ -1,0 +1,29 @@
+{
+  "passed": true,
+  "baseline": true,
+  "engine": "chromium",
+  "sourceVersion": "1.11.0",
+  "sourceSha256": "43ef6e1673ed3dffbf705b4f178b2122fc960971eaf47286b33742fa285f0576",
+  "notesSha256": "747534249345da6ce337054b4e7f47a1516556beda7079ef7b6d093e590bce8f",
+  "servedAssets": [
+    {
+      "file": "/assets/index-bW35dV-t.js",
+      "sha256": "9dabfd6fb84ffe1955e342a9b000a99f34cf09a07f0c21ce33efe93c002151e8"
+    },
+    {
+      "file": "/assets/index-DJ92-1xN.css",
+      "sha256": "12f179587a2464422f8f241b017acc2f6c25b976cfe28b36c754577a4a3f972b"
+    }
+  ],
+  "code": [],
+  "checks": [
+    {
+      "name": "original-25-pending-notes-visible-in-checks-but-absent-from-downloaded-preparation",
+      "notes": 25,
+      "missingReviewSummary": true
+    }
+  ],
+  "artifacts": [],
+  "errors": [],
+  "scope": "Actual isolated Editor author workflow. Internal review and arrival inventory only; no human approval, natural listening/reading/timing, physical phone/Safari, permission, public deployment or new game acceptance. #394 editable source and exact #416 public games retained. Production ZIPs inspected in memory, not promoted."
+}

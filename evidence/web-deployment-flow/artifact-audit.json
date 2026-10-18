@@ -1,0 +1,25 @@
+{
+  "passed": true,
+  "artifacts": {
+    "before-rain-stops-project.zip": {
+      "byteLength": 31682984,
+      "sha256": "4706ed70109b5cf665ddb76535750f5951b9c8df43b091cbd05a99c8436e5f6d"
+    },
+    "before-rain-stops.html": {
+      "byteLength": 42814356,
+      "sha256": "cb21dc581c240775ea50aa68d186392fc1d6c1c641e2424bab2a93368d45374d"
+    },
+    "before-rain-stops-web.zip": {
+      "byteLength": 32327985,
+      "sha256": "fedc2e9e0ef40855a5454d7cded72ad816d91b2591212267ea7fe899aaa5533b"
+    },
+    "before-rain-stops.worldreview": {
+      "byteLength": 9208,
+      "sha256": "7e0e2f2f809a671f09f6bf33da1e67850b42d24b766ac2f4976a3f4864bf23be"
+    }
+  },
+  "unchangedNonManifestSourceEntries": 64,
+  "unchangedMedia": 25,
+  "permissionConfirmed": 0,
+  "publicDeployment": false
+}

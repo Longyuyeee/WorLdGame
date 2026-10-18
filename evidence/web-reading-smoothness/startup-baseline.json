@@ -1,0 +1,234 @@
+{
+  "passed": true,
+  "label": "baseline",
+  "browser": "151.0.7922.34",
+  "candidateArchiveSha256": "740c77522cf12e70cdf48989fa2e217c7c3bfe363ca5d178223e40cf8fb5ab22",
+  "runtimeHash": "420505c4f2ae0370e23d4c0aa6a102fe38d892c00caf9cd744bdfc4576eb78c1",
+  "offlineClientHash": "ae0875be460768e02fcbf8de05ea0f1e6bfc0f97391c67e09eca002c09eb1591",
+  "samples": [
+    {
+      "run": 0,
+      "readyMs": 296.90000000596046,
+      "cpuProfilerAttached": true,
+      "cpu": [
+        {
+          "location": "(idle) ",
+          "sampledMs": 93.9
+        },
+        {
+          "location": "(program) ",
+          "sampledMs": 50.635000000000005
+        },
+        {
+          "location": "layout http://127.0.0.1:1935/offline.js",
+          "sampledMs": 39.867999999999995
+        },
+        {
+          "location": "(anonymous) http://127.0.0.1:1935/player.js",
+          "sampledMs": 21.562
+        },
+        {
+          "location": "Ge http://127.0.0.1:1935/player.js",
+          "sampledMs": 10.896
+        },
+        {
+          "location": "m http://127.0.0.1:1935/player.js",
+          "sampledMs": 9.373000000000001
+        },
+        {
+          "location": "yo http://127.0.0.1:1935/player.js",
+          "sampledMs": 7.638999999999999
+        },
+        {
+          "location": "(garbage collector) ",
+          "sampledMs": 7.204000000000001
+        },
+        {
+          "location": "g http://127.0.0.1:1935/player.js",
+          "sampledMs": 4.9510000000000005
+        },
+        {
+          "location": "pn http://127.0.0.1:1935/player.js",
+          "sampledMs": 4.305
+        },
+        {
+          "location": "Gd http://127.0.0.1:1935/player.js",
+          "sampledMs": 3.2560000000000002
+        },
+        {
+          "location": "(anonymous) ",
+          "sampledMs": 3.159
+        },
+        {
+          "location": "Dc http://127.0.0.1:1935/player.js",
+          "sampledMs": 3.053
+        },
+        {
+          "location": "Pd http://127.0.0.1:1935/player.js",
+          "sampledMs": 1.877
+        },
+        {
+          "location": "Qt http://127.0.0.1:1935/player.js",
+          "sampledMs": 1.786
+        },
+        {
+          "location": "l http://127.0.0.1:1935/player.js",
+          "sampledMs": 1.776
+        },
+        {
+          "location": "e.createRoot http://127.0.0.1:1935/player.js",
+          "sampledMs": 1.712
+        },
+        {
+          "location": "tt http://127.0.0.1:1935/player.js",
+          "sampledMs": 1.692
+        },
+        {
+          "location": "n http://127.0.0.1:1935/player.js",
+          "sampledMs": 1.684
+        },
+        {
+          "location": "Lc http://127.0.0.1:1935/player.js",
+          "sampledMs": 1.674
+        },
+        {
+          "location": "match ",
+          "sampledMs": 1.67
+        },
+        {
+          "location": "Nr http://127.0.0.1:1935/player.js",
+          "sampledMs": 1.666
+        },
+        {
+          "location": "getAriaRole ",
+          "sampledMs": 1.665
+        },
+        {
+          "location": "fn http://127.0.0.1:1935/player.js",
+          "sampledMs": 1.659
+        },
+        {
+          "location": "(anonymous) http://127.0.0.1:1935/offline.js",
+          "sampledMs": 1.659
+        },
+        {
+          "location": "Wc http://127.0.0.1:1935/player.js",
+          "sampledMs": 1.656
+        },
+        {
+          "location": "innerSerialize ",
+          "sampledMs": 1.646
+        },
+        {
+          "location": "Bu http://127.0.0.1:1935/player.js",
+          "sampledMs": 1.641
+        },
+        {
+          "location": "InjectedScript ",
+          "sampledMs": 1.64
+        },
+        {
+          "location": "SelectorEvaluatorImpl ",
+          "sampledMs": 1.631
+        }
+      ],
+      "telemetry": {
+        "tasks": [
+          {
+            "start": 83.40000000596046,
+            "duration": 87
+          }
+        ],
+        "frames": [
+          {
+            "start": 24.5,
+            "duration": 196.70000000298023
+          }
+        ]
+      }
+    },
+    {
+      "run": 1,
+      "readyMs": 226.29999999701977,
+      "cpuProfilerAttached": false,
+      "cpu": null,
+      "telemetry": {
+        "tasks": [
+          {
+            "start": 75.70000000298023,
+            "duration": 62
+          }
+        ],
+        "frames": [
+          {
+            "start": 75.70000000298023,
+            "duration": 89.79999999701977
+          }
+        ]
+      }
+    },
+    {
+      "run": 2,
+      "readyMs": 261.40000000596046,
+      "cpuProfilerAttached": false,
+      "cpu": null,
+      "telemetry": {
+        "tasks": [
+          {
+            "start": 89.40000000596046,
+            "duration": 64
+          }
+        ],
+        "frames": [
+          {
+            "start": 89.40000000596046,
+            "duration": 97
+          }
+        ]
+      }
+    },
+    {
+      "run": 3,
+      "readyMs": 221.90000000596046,
+      "cpuProfilerAttached": false,
+      "cpu": null,
+      "telemetry": {
+        "tasks": [
+          {
+            "start": 73.6000000089407,
+            "duration": 60
+          }
+        ],
+        "frames": [
+          {
+            "start": 37.400000005960464,
+            "duration": 124
+          }
+        ]
+      }
+    },
+    {
+      "run": 4,
+      "readyMs": 231.09999999403954,
+      "cpuProfilerAttached": false,
+      "cpu": null,
+      "telemetry": {
+        "tasks": [
+          {
+            "start": 88.59999999403954,
+            "duration": 57
+          }
+        ],
+        "frames": [
+          {
+            "start": 53.79999999701977,
+            "duration": 120.59999999403954
+          }
+        ]
+      }
+    }
+  ],
+  "errors": [],
+  "scope": "five fresh desktop contexts, title visible and enabled; first profiled; no CPU throttle or forced GC, not a device or statistical benchmark",
+  "physicalDevice": false
+}

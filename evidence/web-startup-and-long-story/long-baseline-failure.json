@@ -1,0 +1,7 @@
+{
+  "error": "TimeoutError: locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: '打开阅读菜单', exact: true })\u001b[22m\n",
+  "stack": "locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: '打开阅读菜单', exact: true })\u001b[22m\n\n    at menu (E:\\ProjectSave\\GeminiProject\\WorLdGame\\tools\\run-web-long-story.mjs:24:153)\n    at async file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-long-story.mjs:31:5",
+  "rows": [],
+  "operations": [],
+  "errors": []
+}

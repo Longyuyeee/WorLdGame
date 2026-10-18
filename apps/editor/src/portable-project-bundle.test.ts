@@ -14,7 +14,7 @@ import {
   type BlobDigest
 } from "@world-studio/project-persistence";
 import { describe, expect, it } from "vitest";
-import { exportPortableProjectBundle, importPortableProjectBundle } from "./portable-project-bundle";
+import { exportPortableProjectBundle, importPortableProjectBundle, importPortableProjectFiles } from "./portable-project-bundle";
 
 const reference: ProjectReference = { referenceId: "bundle-test", hostKind: "memory-test", displayLocation: "Memory/Bundle", permissionKey: "bundle" };
 const project = createProjectTemplate("Portable Story", "portable-story");
@@ -31,6 +31,13 @@ const blobs = new Map<BlobDigest, Uint8Array>([[backgroundDigest, background], [
 const source = { loadIndex: async () => index, read: async (digest: BlobDigest) => blobs.get(digest)?.slice() ?? null };
 
 describe("portable project bundle", () => {
+  it('reuses parsed entries without relaxing portable budgets or path checks', () => {
+    const files = importProjectBinaryZip(exportProjectZip(saveProject(project)));
+    expect(importPortableProjectFiles(files)).toEqual(importPortableProjectBundle(exportProjectZip(saveProject(project))));
+    expect(() => importPortableProjectFiles({ ...files, '../unsafe': new Uint8Array() })).toThrow(/Unsafe/);
+    expect(() => importPortableProjectFiles({ ...files, 'oversize': { byteLength: 64 * 1024 * 1024 + 1 } as Uint8Array })).toThrow(/budget/);
+    expect(() => importPortableProjectFiles(Object.fromEntries(Array.from({ length: 4097 }, (_, i) => [`file_${i}`, new Uint8Array()])))).toThrow(/too many/);
+  });
   it("deterministically exports project documents, Asset Index and verified source Blobs", async () => {
     const importedWorkspaceSession = { ...session, projectId: "new-workspace-reference" };
     const first = await exportPortableProjectBundle(importedWorkspaceSession, source);

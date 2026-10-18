@@ -1,0 +1,165 @@
+{
+  "passed": true,
+  "baseline": false,
+  "engine": "chromium",
+  "fileMode": true,
+  "browser": "151.0.7922.34",
+  "artifacts": {
+    "html": {
+      "bytes": 46841743,
+      "sha256": "bd453092147827d1d37b5642794441afabbc69b6ea56f10fb6dc28aaadba6bf7"
+    },
+    "website": {
+      "bytes": 35428192,
+      "sha256": "09427c7a0b7e3c148bae5933874f39ba1ab639bfbfd8cd9834e0ed189060d790"
+    }
+  },
+  "checks": [
+    {
+      "name": "verified-reading-summary-and-target-excerpt-distinguish-same-scene-before-any-write",
+      "before": {
+        "hash": "none",
+        "cursor": "0",
+        "status": "title"
+      },
+      "originalSlots": [
+        {
+          "slot": "manual-1",
+          "hash": "56dc64bac0c6003c4a4645c1b0fd4b2ebc7a0c3f2da65eecc402432653fade2c",
+          "digest": "b5b4fec177e0728290d54eeb930b05de263df647bdbcbfc09fa07efd58769f69"
+        }
+      ]
+    },
+    {
+      "name": "optional-verified-screenshot-does-not-replace-reading-summary-or-story-validation",
+      "preview": "available"
+    },
+    {
+      "name": "explicit-retain-old-target-download-preserves-exact-session-and-pending-import",
+      "sha256": "f0036aeaf75a5c15029ffeacfc8485e8a7de645f08f226220a30cea73168aa56",
+      "bytes": 52412
+    },
+    {
+      "name": "four-viewport-explicit-confirmation-remains-visible-and-actionable",
+      "layouts": [
+        {
+          "viewport": {
+            "width": 320,
+            "height": 568
+          },
+          "box": {
+            "height": 44,
+            "y": 343.75,
+            "bottom": 387.75,
+            "right": 258
+          }
+        },
+        {
+          "viewport": {
+            "width": 568,
+            "height": 320
+          },
+          "box": {
+            "height": 44,
+            "y": 118.5,
+            "bottom": 162.5,
+            "right": 506
+          }
+        },
+        {
+          "viewport": {
+            "width": 844,
+            "height": 390
+          },
+          "box": {
+            "height": 44,
+            "y": 188.140625,
+            "bottom": 232.140625,
+            "right": 769
+          }
+        },
+        {
+          "viewport": {
+            "width": 1280,
+            "height": 900
+          },
+          "box": {
+            "height": 44,
+            "y": 694.234375,
+            "bottom": 738.234375,
+            "right": 983
+          }
+        }
+      ]
+    },
+    {
+      "name": "cancel-keeps-original-then-explicit-overwrite-and-read-resume-the-inspected-prose",
+      "before": {
+        "hash": "none",
+        "cursor": "0",
+        "status": "title"
+      },
+      "after": {
+        "hash": "4871c5b2de7ef8c67976d40c9a7269b1601bfc5383c06a2e329b8bce25d011d9",
+        "cursor": "6",
+        "status": "presenting",
+        "text": "小夏不是来阻止他出发的。她在短信里只说，要把借了半年那本书还给他，顺便把书里的照片也还给他。林远原以为这是一件很容易的事：收下书，认真道谢，等广播响起后挥手。可当她撑着伞从街对面走来，他忽然不记得自己排练过的第一句话是什么了。"
+      }
+    },
+    {
+      "name": "reopen-and-manual-read-retain-the-actual-imported-session",
+      "after": {
+        "hash": "4871c5b2de7ef8c67976d40c9a7269b1601bfc5383c06a2e329b8bce25d011d9",
+        "cursor": "6",
+        "status": "presenting",
+        "text": "小夏不是来阻止他出发的。她在短信里只说，要把借了半年那本书还给他，顺便把书里的照片也还给他。林远原以为这是一件很容易的事：收下书，认真道谢，等广播响起后挥手。可当她撑着伞从街对面走来，他忽然不记得自己排练过的第一句话是什么了。"
+      }
+    }
+  ],
+  "errors": [],
+  "backups": [
+    {
+      "name": "chromium-earlier.worldsave",
+      "bytes": 45143,
+      "sha256": "ed2432959b50b37e01e20bf6c32c2aa0f11e6f404274e8a533e7cf8cfb59ecb6",
+      "position": {
+        "hash": "4871c5b2de7ef8c67976d40c9a7269b1601bfc5383c06a2e329b8bce25d011d9",
+        "cursor": "6",
+        "status": "presenting",
+        "text": "小夏不是来阻止他出发的。她在短信里只说，要把借了半年那本书还给他，顺便把书里的照片也还给他。林远原以为这是一件很容易的事：收下书，认真道谢，等广播响起后挥手。可当她撑着伞从街对面走来，他忽然不记得自己排练过的第一句话是什么了。"
+      },
+      "sceneId": "scene_87825610ea97b89eeea8",
+      "excerpt": "小夏不是来阻止他出发的。她在短信里只说，要把借了半年那本书还给他，顺便把书里的照片也还给他。林远原以为这是一件很容易的事：收下书，认真道谢，等广播响起后挥手。可当她撑着伞从街对面走来，他忽然不记得自己排练过的第一句话是什么了。",
+      "preview": {
+        "status": "available",
+        "mimeType": "image/webp",
+        "width": 512,
+        "height": 288,
+        "byteLength": 20156,
+        "sha256": "3b4852af4417e71b2e796935254f2232b448126ff14e29ae2cddd9d5f828fab7"
+      }
+    },
+    {
+      "name": "chromium-later.worldsave",
+      "bytes": 52415,
+      "sha256": "8012edfe08bba73862153f434d506df31b34776c0445a78052a752f2ef1b346f",
+      "position": {
+        "hash": "56dc64bac0c6003c4a4645c1b0fd4b2ebc7a0c3f2da65eecc402432653fade2c",
+        "cursor": "9",
+        "status": "presenting",
+        "text": "站台的雨味让他想起那间租了三年的房间。窗边原本留着摆画架的位置，后来堆满了纸箱。他给这次换工作起名叫重新开始，仿佛只要把地址换掉，箱子里那些没画完的东西就会自己展开。小夏知道那些画，却从没催他交一张能被称作作品的结果。"
+      },
+      "sceneId": "scene_87825610ea97b89eeea8",
+      "excerpt": "站台的雨味让他想起那间租了三年的房间。窗边原本留着摆画架的位置，后来堆满了纸箱。他给这次换工作起名叫重新开始，仿佛只要把地址换掉，箱子里那些没画完的东西就会自己展开。小夏知道那些画，却从没催他交一张能被称作作品的结果。",
+      "preview": {
+        "status": "available",
+        "mimeType": "image/webp",
+        "width": 512,
+        "height": 288,
+        "byteLength": 20150,
+        "sha256": "e4a59316de13603347457feddbb4294424d80364d1c3ce76e479afae32eaba3f"
+      }
+    }
+  ],
+  "scope": "Real UI-created same-scene .worldsave files, independent browser contexts, actual import/overwrite/cancel/download/load and readonly IndexedDB digests. No injected session, store or lifecycle/media events. Desktop engines and phone-sized viewports, not physical device/Safari, natural listening, whole-device collection migration, rights/public HTTPS or long soak."
+}

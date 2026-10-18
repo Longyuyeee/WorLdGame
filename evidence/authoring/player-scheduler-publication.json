@@ -1,0 +1,549 @@
+{
+  "schemaVersion": 1,
+  "scope": "portable-mixed-project-production-editor-html-directory-windows",
+  "fixture": {
+    "projectId": "mixed_publication",
+    "assetCount": 41,
+    "blobCount": 6,
+    "sources": [
+      {
+        "assetId": "picture_0",
+        "digest": "sha256:4833b56ef5339f4e081366b9d3ee1b720373fadc6622db24839c8cb6d2a053ce",
+        "byteLength": 34013,
+        "mimeType": "image/png"
+      },
+      {
+        "assetId": "picture_1",
+        "digest": "sha256:adf2bb5be1ec577ce60d868bad8ad713bceca07378da683a11eae78cc2d10a75",
+        "byteLength": 33093,
+        "mimeType": "image/png"
+      },
+      {
+        "assetId": "picture_2",
+        "digest": "sha256:42dbbbc8efcc9a67da3949c0a2a5b770b4beb89eb7bde4b52d44ef87f78316e3",
+        "byteLength": 33894,
+        "mimeType": "image/png"
+      },
+      {
+        "assetId": "picture_3",
+        "digest": "sha256:7b45f471bd088344529da3b5642c9b3acf73ff53e5a0acb20a43d6e6a14ec51b",
+        "byteLength": 34048,
+        "mimeType": "image/png"
+      },
+      {
+        "assetId": "voice_0",
+        "digest": "sha256:4620a7f975fb49cd960b1e7111748dfeea1ebe7343bedc12bfba6f4ca3b01f5d",
+        "byteLength": 8044,
+        "mimeType": "audio/wav"
+      },
+      {
+        "assetId": "voice_1",
+        "digest": "sha256:4620a7f975fb49cd960b1e7111748dfeea1ebe7343bedc12bfba6f4ca3b01f5d",
+        "byteLength": 8044,
+        "mimeType": "audio/wav"
+      },
+      {
+        "assetId": "voice_2",
+        "digest": "sha256:4620a7f975fb49cd960b1e7111748dfeea1ebe7343bedc12bfba6f4ca3b01f5d",
+        "byteLength": 8044,
+        "mimeType": "audio/wav"
+      },
+      {
+        "assetId": "voice_3",
+        "digest": "sha256:4620a7f975fb49cd960b1e7111748dfeea1ebe7343bedc12bfba6f4ca3b01f5d",
+        "byteLength": 8044,
+        "mimeType": "audio/wav"
+      },
+      {
+        "assetId": "voice_4",
+        "digest": "sha256:4620a7f975fb49cd960b1e7111748dfeea1ebe7343bedc12bfba6f4ca3b01f5d",
+        "byteLength": 8044,
+        "mimeType": "audio/wav"
+      },
+      {
+        "assetId": "voice_5",
+        "digest": "sha256:4620a7f975fb49cd960b1e7111748dfeea1ebe7343bedc12bfba6f4ca3b01f5d",
+        "byteLength": 8044,
+        "mimeType": "audio/wav"
+      },
+      {
+        "assetId": "voice_6",
+        "digest": "sha256:4620a7f975fb49cd960b1e7111748dfeea1ebe7343bedc12bfba6f4ca3b01f5d",
+        "byteLength": 8044,
+        "mimeType": "audio/wav"
+      },
+      {
+        "assetId": "voice_7",
+        "digest": "sha256:4620a7f975fb49cd960b1e7111748dfeea1ebe7343bedc12bfba6f4ca3b01f5d",
+        "byteLength": 8044,
+        "mimeType": "audio/wav"
+      },
+      {
+        "assetId": "voice_8",
+        "digest": "sha256:4620a7f975fb49cd960b1e7111748dfeea1ebe7343bedc12bfba6f4ca3b01f5d",
+        "byteLength": 8044,
+        "mimeType": "audio/wav"
+      },
+      {
+        "assetId": "voice_9",
+        "digest": "sha256:4620a7f975fb49cd960b1e7111748dfeea1ebe7343bedc12bfba6f4ca3b01f5d",
+        "byteLength": 8044,
+        "mimeType": "audio/wav"
+      },
+      {
+        "assetId": "voice_10",
+        "digest": "sha256:4620a7f975fb49cd960b1e7111748dfeea1ebe7343bedc12bfba6f4ca3b01f5d",
+        "byteLength": 8044,
+        "mimeType": "audio/wav"
+      },
+      {
+        "assetId": "voice_11",
+        "digest": "sha256:4620a7f975fb49cd960b1e7111748dfeea1ebe7343bedc12bfba6f4ca3b01f5d",
+        "byteLength": 8044,
+        "mimeType": "audio/wav"
+      },
+      {
+        "assetId": "voice_12",
+        "digest": "sha256:4620a7f975fb49cd960b1e7111748dfeea1ebe7343bedc12bfba6f4ca3b01f5d",
+        "byteLength": 8044,
+        "mimeType": "audio/wav"
+      },
+      {
+        "assetId": "voice_13",
+        "digest": "sha256:4620a7f975fb49cd960b1e7111748dfeea1ebe7343bedc12bfba6f4ca3b01f5d",
+        "byteLength": 8044,
+        "mimeType": "audio/wav"
+      },
+      {
+        "assetId": "voice_14",
+        "digest": "sha256:4620a7f975fb49cd960b1e7111748dfeea1ebe7343bedc12bfba6f4ca3b01f5d",
+        "byteLength": 8044,
+        "mimeType": "audio/wav"
+      },
+      {
+        "assetId": "voice_15",
+        "digest": "sha256:4620a7f975fb49cd960b1e7111748dfeea1ebe7343bedc12bfba6f4ca3b01f5d",
+        "byteLength": 8044,
+        "mimeType": "audio/wav"
+      },
+      {
+        "assetId": "voice_16",
+        "digest": "sha256:4620a7f975fb49cd960b1e7111748dfeea1ebe7343bedc12bfba6f4ca3b01f5d",
+        "byteLength": 8044,
+        "mimeType": "audio/wav"
+      },
+      {
+        "assetId": "voice_17",
+        "digest": "sha256:4620a7f975fb49cd960b1e7111748dfeea1ebe7343bedc12bfba6f4ca3b01f5d",
+        "byteLength": 8044,
+        "mimeType": "audio/wav"
+      },
+      {
+        "assetId": "voice_18",
+        "digest": "sha256:4620a7f975fb49cd960b1e7111748dfeea1ebe7343bedc12bfba6f4ca3b01f5d",
+        "byteLength": 8044,
+        "mimeType": "audio/wav"
+      },
+      {
+        "assetId": "voice_19",
+        "digest": "sha256:4620a7f975fb49cd960b1e7111748dfeea1ebe7343bedc12bfba6f4ca3b01f5d",
+        "byteLength": 8044,
+        "mimeType": "audio/wav"
+      },
+      {
+        "assetId": "voice_20",
+        "digest": "sha256:4620a7f975fb49cd960b1e7111748dfeea1ebe7343bedc12bfba6f4ca3b01f5d",
+        "byteLength": 8044,
+        "mimeType": "audio/wav"
+      },
+      {
+        "assetId": "voice_21",
+        "digest": "sha256:4620a7f975fb49cd960b1e7111748dfeea1ebe7343bedc12bfba6f4ca3b01f5d",
+        "byteLength": 8044,
+        "mimeType": "audio/wav"
+      },
+      {
+        "assetId": "voice_22",
+        "digest": "sha256:4620a7f975fb49cd960b1e7111748dfeea1ebe7343bedc12bfba6f4ca3b01f5d",
+        "byteLength": 8044,
+        "mimeType": "audio/wav"
+      },
+      {
+        "assetId": "voice_23",
+        "digest": "sha256:4620a7f975fb49cd960b1e7111748dfeea1ebe7343bedc12bfba6f4ca3b01f5d",
+        "byteLength": 8044,
+        "mimeType": "audio/wav"
+      },
+      {
+        "assetId": "voice_24",
+        "digest": "sha256:4620a7f975fb49cd960b1e7111748dfeea1ebe7343bedc12bfba6f4ca3b01f5d",
+        "byteLength": 8044,
+        "mimeType": "audio/wav"
+      },
+      {
+        "assetId": "voice_25",
+        "digest": "sha256:4620a7f975fb49cd960b1e7111748dfeea1ebe7343bedc12bfba6f4ca3b01f5d",
+        "byteLength": 8044,
+        "mimeType": "audio/wav"
+      },
+      {
+        "assetId": "voice_26",
+        "digest": "sha256:4620a7f975fb49cd960b1e7111748dfeea1ebe7343bedc12bfba6f4ca3b01f5d",
+        "byteLength": 8044,
+        "mimeType": "audio/wav"
+      },
+      {
+        "assetId": "voice_27",
+        "digest": "sha256:4620a7f975fb49cd960b1e7111748dfeea1ebe7343bedc12bfba6f4ca3b01f5d",
+        "byteLength": 8044,
+        "mimeType": "audio/wav"
+      },
+      {
+        "assetId": "voice_28",
+        "digest": "sha256:4620a7f975fb49cd960b1e7111748dfeea1ebe7343bedc12bfba6f4ca3b01f5d",
+        "byteLength": 8044,
+        "mimeType": "audio/wav"
+      },
+      {
+        "assetId": "voice_29",
+        "digest": "sha256:4620a7f975fb49cd960b1e7111748dfeea1ebe7343bedc12bfba6f4ca3b01f5d",
+        "byteLength": 8044,
+        "mimeType": "audio/wav"
+      },
+      {
+        "assetId": "voice_30",
+        "digest": "sha256:4620a7f975fb49cd960b1e7111748dfeea1ebe7343bedc12bfba6f4ca3b01f5d",
+        "byteLength": 8044,
+        "mimeType": "audio/wav"
+      },
+      {
+        "assetId": "voice_31",
+        "digest": "sha256:4620a7f975fb49cd960b1e7111748dfeea1ebe7343bedc12bfba6f4ca3b01f5d",
+        "byteLength": 8044,
+        "mimeType": "audio/wav"
+      },
+      {
+        "assetId": "voice_32",
+        "digest": "sha256:4620a7f975fb49cd960b1e7111748dfeea1ebe7343bedc12bfba6f4ca3b01f5d",
+        "byteLength": 8044,
+        "mimeType": "audio/wav"
+      },
+      {
+        "assetId": "voice_33",
+        "digest": "sha256:4620a7f975fb49cd960b1e7111748dfeea1ebe7343bedc12bfba6f4ca3b01f5d",
+        "byteLength": 8044,
+        "mimeType": "audio/wav"
+      },
+      {
+        "assetId": "voice_34",
+        "digest": "sha256:4620a7f975fb49cd960b1e7111748dfeea1ebe7343bedc12bfba6f4ca3b01f5d",
+        "byteLength": 8044,
+        "mimeType": "audio/wav"
+      },
+      {
+        "assetId": "voice_35",
+        "digest": "sha256:4620a7f975fb49cd960b1e7111748dfeea1ebe7343bedc12bfba6f4ca3b01f5d",
+        "byteLength": 8044,
+        "mimeType": "audio/wav"
+      },
+      {
+        "assetId": "movie",
+        "digest": "sha256:73c7edd5f4a7597e7928b117167b465a56f6dfca61fbdb228901498e486de895",
+        "byteLength": 32555,
+        "mimeType": "video/webm"
+      }
+    ]
+  },
+  "archiveSha256": "06ec26988bf797a6660e01785f8c279ebfd944ce4f4d46bcce58218ea43300b8",
+  "htmlSha256": "90d868993b4c4dba9f257ac75993e006708ad5eb847e8218ebc00bf7b8a6f4e7",
+  "directorySha256": "586d506ecc2d507929321f854fc6533200f0846a616f6660ca937a4f35e6c88d",
+  "sourceBytesPreserved": true,
+  "runs": [
+    {
+      "kind": "html",
+      "browser": {
+        "protocolVersion": "1.3",
+        "product": "HeadlessChrome/151.0.7922.34",
+        "revision": "@782af9cb30a53f54487e5d2e44738645a8ec457c",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537.36",
+        "jsVersion": "15.1.206.8"
+      },
+      "storage": {
+        "databaseVersion": 4,
+        "recovery": {
+          "packed": true,
+          "payloadBytes": 57552,
+          "canonicalBytes": 1624627,
+          "sha256": "2eaf8fc7ec6230167ac661180b12be8504d1580a5a6633f82216e4651e70917b"
+        },
+        "quick": {
+          "packed": true,
+          "payloadBytes": 57552,
+          "canonicalBytes": 1624627,
+          "sha256": "2eaf8fc7ec6230167ac661180b12be8504d1580a5a6633f82216e4651e70917b"
+        }
+      },
+      "elapsedMilliseconds": 107051.8015,
+      "transitions": 12,
+      "media": {
+        "events": [
+          "AUDIO",
+          "AUDIO",
+          "AUDIO",
+          "VIDEO",
+          "AUDIO",
+          "AUDIO",
+          "AUDIO",
+          "VIDEO",
+          "AUDIO",
+          "AUDIO",
+          "AUDIO",
+          "VIDEO",
+          "AUDIO",
+          "AUDIO",
+          "AUDIO",
+          "VIDEO",
+          "AUDIO",
+          "AUDIO",
+          "AUDIO",
+          "VIDEO",
+          "AUDIO",
+          "AUDIO",
+          "AUDIO",
+          "VIDEO",
+          "AUDIO",
+          "AUDIO",
+          "AUDIO",
+          "VIDEO",
+          "AUDIO",
+          "AUDIO",
+          "AUDIO",
+          "VIDEO",
+          "AUDIO",
+          "AUDIO",
+          "AUDIO",
+          "VIDEO",
+          "AUDIO",
+          "AUDIO",
+          "AUDIO",
+          "VIDEO",
+          "AUDIO",
+          "AUDIO",
+          "AUDIO",
+          "VIDEO",
+          "AUDIO",
+          "AUDIO",
+          "AUDIO",
+          "VIDEO"
+        ],
+        "denied": 1
+      },
+      "permissionRetry": true,
+      "corruptVideoRetry": true,
+      "suspendHeld": true,
+      "checkpoint": {
+        "hash": "c0a9047527e5c2f3495b3222646f430bbe226399d71ed6511d71078ee5cd80ce",
+        "history": 241
+      },
+      "coldRestart": {
+        "exited": true,
+        "mode": "graceful-browser-exit"
+      },
+      "recoveryAndQuickLoadHeld": true,
+      "screenshot": true,
+      "retryButtonHitTest": true
+    },
+    {
+      "kind": "directory",
+      "browser": {
+        "protocolVersion": "1.3",
+        "product": "HeadlessChrome/151.0.7922.34",
+        "revision": "@782af9cb30a53f54487e5d2e44738645a8ec457c",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537.36",
+        "jsVersion": "15.1.206.8"
+      },
+      "storage": {
+        "databaseVersion": 4,
+        "recovery": {
+          "packed": true,
+          "payloadBytes": 57552,
+          "canonicalBytes": 1624627,
+          "sha256": "2eaf8fc7ec6230167ac661180b12be8504d1580a5a6633f82216e4651e70917b"
+        },
+        "quick": {
+          "packed": true,
+          "payloadBytes": 57552,
+          "canonicalBytes": 1624627,
+          "sha256": "2eaf8fc7ec6230167ac661180b12be8504d1580a5a6633f82216e4651e70917b"
+        }
+      },
+      "elapsedMilliseconds": 108379.18349999998,
+      "transitions": 12,
+      "media": {
+        "events": [
+          "AUDIO",
+          "AUDIO",
+          "AUDIO",
+          "VIDEO",
+          "AUDIO",
+          "AUDIO",
+          "AUDIO",
+          "VIDEO",
+          "AUDIO",
+          "AUDIO",
+          "AUDIO",
+          "VIDEO",
+          "AUDIO",
+          "AUDIO",
+          "AUDIO",
+          "VIDEO",
+          "AUDIO",
+          "AUDIO",
+          "AUDIO",
+          "VIDEO",
+          "AUDIO",
+          "AUDIO",
+          "AUDIO",
+          "VIDEO",
+          "AUDIO",
+          "AUDIO",
+          "AUDIO",
+          "VIDEO",
+          "AUDIO",
+          "AUDIO",
+          "AUDIO",
+          "VIDEO",
+          "AUDIO",
+          "AUDIO",
+          "AUDIO",
+          "VIDEO",
+          "AUDIO",
+          "AUDIO",
+          "AUDIO",
+          "VIDEO",
+          "AUDIO",
+          "AUDIO",
+          "AUDIO",
+          "VIDEO",
+          "AUDIO",
+          "AUDIO",
+          "AUDIO",
+          "VIDEO"
+        ],
+        "denied": 1
+      },
+      "permissionRetry": true,
+      "corruptVideoRetry": true,
+      "suspendHeld": true,
+      "checkpoint": {
+        "hash": "c0a9047527e5c2f3495b3222646f430bbe226399d71ed6511d71078ee5cd80ce",
+        "history": 241
+      },
+      "coldRestart": {
+        "exited": true,
+        "mode": "graceful-browser-exit"
+      },
+      "recoveryAndQuickLoadHeld": true,
+      "screenshot": true,
+      "retryButtonHitTest": true
+    },
+    {
+      "kind": "windows",
+      "browser": {
+        "protocolVersion": "1.3",
+        "product": "Chrome/150.0.7871.224",
+        "revision": "@8465c3ea0a8a68f10e56d83ea2d7e7af61777e9e",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) WorLdPlayer/0.1.0 Chrome/150.0.7871.224 Electron/43.4.0 Safari/537.36",
+        "jsVersion": "15.0.245.28"
+      },
+      "storage": {
+        "databaseVersion": 4,
+        "recovery": {
+          "packed": true,
+          "payloadBytes": 57552,
+          "canonicalBytes": 1624627,
+          "sha256": "2eaf8fc7ec6230167ac661180b12be8504d1580a5a6633f82216e4651e70917b"
+        },
+        "quick": {
+          "packed": true,
+          "payloadBytes": 57552,
+          "canonicalBytes": 1624627,
+          "sha256": "2eaf8fc7ec6230167ac661180b12be8504d1580a5a6633f82216e4651e70917b"
+        }
+      },
+      "elapsedMilliseconds": 450923.77619999996,
+      "transitions": 12,
+      "media": {
+        "events": [
+          "AUDIO",
+          "AUDIO",
+          "AUDIO",
+          "VIDEO",
+          "AUDIO",
+          "AUDIO",
+          "AUDIO",
+          "VIDEO",
+          "AUDIO",
+          "AUDIO",
+          "AUDIO",
+          "VIDEO",
+          "AUDIO",
+          "AUDIO",
+          "AUDIO",
+          "VIDEO",
+          "AUDIO",
+          "AUDIO",
+          "AUDIO",
+          "VIDEO",
+          "AUDIO",
+          "AUDIO",
+          "AUDIO",
+          "VIDEO",
+          "AUDIO",
+          "AUDIO",
+          "AUDIO",
+          "VIDEO",
+          "AUDIO",
+          "AUDIO",
+          "AUDIO",
+          "VIDEO",
+          "AUDIO",
+          "AUDIO",
+          "AUDIO",
+          "VIDEO",
+          "AUDIO",
+          "AUDIO",
+          "AUDIO",
+          "VIDEO",
+          "AUDIO",
+          "AUDIO",
+          "AUDIO",
+          "VIDEO",
+          "AUDIO",
+          "AUDIO",
+          "AUDIO",
+          "VIDEO"
+        ],
+        "denied": 1
+      },
+      "permissionRetry": true,
+      "corruptVideoRetry": true,
+      "suspendHeld": true,
+      "checkpoint": {
+        "hash": "c0a9047527e5c2f3495b3222646f430bbe226399d71ed6511d71078ee5cd80ce",
+        "history": 241
+      },
+      "coldRestart": {
+        "previousPid": 57376,
+        "pid": 41340,
+        "exited": true,
+        "mode": "test-process-termination"
+      },
+      "recoveryAndQuickLoadHeld": true,
+      "screenshot": false,
+      "retryButtonHitTest": true
+    }
+  ],
+  "exceptions": [],
+  "limits": "Synthetic PNG/WAV/VP8 WebM, actual Editor UI and build Worker. Permission denial via play() injection, corruption via real bad source decode, freeze/resume events injected; not OS events or phone. Normal HTML/ZIP bytes preserved; test instrumentation through CDP. Windows uses packaged exe with isolated test profile and hidden window, background timer throttling disabled for functional tests, no Windows screenshot/visual/performance acceptance, then test process termination. No physical-device/two-hour acceptance."
+}

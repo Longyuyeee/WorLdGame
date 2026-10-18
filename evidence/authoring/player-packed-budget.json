@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "node": "v22.12.0",
+  "bundleSha256": "5c17d05cad752b7c5a22cbc0eadba7165206f2447accad2324e2234ac19261b4",
+  "rows": [
+    {
+      "count": 120,
+      "checkpoints": 121,
+      "uniqueReadArrays": 121,
+      "uniqueReadArraySlots": 7260,
+      "canonicalBytes": 254343,
+      "payloadBytes": 20334,
+      "byteIdentical": true,
+      "artifactHash": "6d2f31814a8f6369d800ddfab3ae68c19f0282ac6d8fcfb312f45ddd12c2ee74",
+      "packMilliseconds": 7.16560000000004,
+      "unpackMilliseconds": 2.283300000000054
+    },
+    {
+      "count": 240,
+      "checkpoints": 241,
+      "uniqueReadArrays": 241,
+      "uniqueReadArraySlots": 28920,
+      "canonicalBytes": 661083,
+      "payloadBytes": 40970,
+      "byteIdentical": true,
+      "artifactHash": "f7ec2e14e475a408baebc4a1a1779e700c017c8e779cd1caac2f0a478ac23d5e",
+      "packMilliseconds": 5.457100000000082,
+      "unpackMilliseconds": 3.285899999999856
+    },
+    {
+      "count": 480,
+      "checkpoints": 481,
+      "uniqueReadArrays": 481,
+      "uniqueReadArraySlots": 115440,
+      "canonicalBytes": 1949763,
+      "payloadBytes": 86834,
+      "byteIdentical": true,
+      "artifactHash": "ed71810599238151372816e0ae6fb39d728e7f690edcf194755a050e10762c22",
+      "packMilliseconds": 12.39849999999933,
+      "unpackMilliseconds": 7.563300000001618
+    }
+  ],
+  "limits": "Actual distinct read-array slots, not heap bytes. Native gzip timings are single diagnostic samples, not a performance comparison. Full Runtime validation and in-memory history remain unchanged."
+}

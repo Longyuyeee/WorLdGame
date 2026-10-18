@@ -1,0 +1,25 @@
+{
+  "passed": false,
+  "error": "AssertionError [ERR_ASSERTION]: .world-assets/bundle.json\n+ actual - expected\n\n+ '84b4c7c440deee30047e11670a43f83fd266fb8ad15ce64f13750b6f4b5ca84e'\n- '0f22cf52609d729330df83e954c1b782fbe7ace94777d1d572f93ecb29d7e67f'\n",
+  "stack": "AssertionError [ERR_ASSERTION]: .world-assets/bundle.json\n+ actual - expected\n\n+ '84b4c7c440deee30047e11670a43f83fd266fb8ad15ce64f13750b6f4b5ca84e'\n- '0f22cf52609d729330df83e954c1b782fbe7ace94777d1d572f93ecb29d7e67f'\n\n    at auditContinuitySource (file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/audit-rain-story-branch-context.mjs:43:19)\n    at author (file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-story-branch-context.mjs:123:110)\n    at async file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-story-branch-context.mjs:224:46",
+  "checks": [
+    {
+      "name": "three-new-issues-recorded-original-sixteen-preserved",
+      "detail": {
+        "build": {
+          "/assets/index-DS8UFGyK.js": "9584edf3315a32046640e3a2521f151f6ee7733263c26085605446154bb864af",
+          "/assets/index-DNbmjF5j.css": "67271527adceeeb5cdc822f62bb23802fa266c60b28c48c2be0620e5fae1832d"
+        }
+      }
+    },
+    {
+      "name": "real-image-import-and-pending-source-ledger-without-release-approval",
+      "detail": {}
+    },
+    {
+      "name": "one-paragraph-and-four-cues-authored-with-undo-redo-and-old-content-compatibility-explicitly-refused",
+      "detail": {}
+    }
+  ],
+  "errors": []
+}

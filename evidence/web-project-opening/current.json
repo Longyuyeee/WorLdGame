@@ -1,0 +1,1261 @@
+{
+  "passed": true,
+  "browser": "151.0.7922.34",
+  "features": {
+    "worker": true,
+    "nativeDigest": true,
+    "secureContext": true
+  },
+  "samples": 3,
+  "tasks": [
+    {
+      "run": 0,
+      "name": "import",
+      "wallMs": 1525.9000000003725,
+      "longTasks": [],
+      "heartbeatGapsMs": [
+        14.800000000745058,
+        11.699999999254942,
+        18.800000000745058,
+        13.599999999627471,
+        15.5,
+        16.300000000745058,
+        16.299999998882413,
+        16.100000001490116,
+        15.899999998509884,
+        16.40000000037253,
+        16.09999999962747,
+        16.300000000745058,
+        15.099999999627471,
+        16.09999999962747,
+        16.5,
+        15.300000000745058,
+        16.5,
+        16.5,
+        16,
+        15.599999999627471,
+        15.5,
+        16,
+        16.09999999962747,
+        16.100000001490116,
+        15.899999998509884,
+        16,
+        16.90000000037253,
+        15.700000001117587,
+        15.699999999254942,
+        15.5,
+        16.90000000037253,
+        15.799999998882413,
+        14.900000000372529,
+        16.800000000745058,
+        15.799999998882413,
+        16.700000001117587,
+        15.599999999627471,
+        15.900000000372529,
+        15.699999999254942,
+        16.5,
+        15.800000000745058,
+        17,
+        14.299999998882413,
+        16.40000000037253,
+        15.900000000372529,
+        16.09999999962747,
+        16.300000000745058,
+        15.199999999254942,
+        16.700000001117587,
+        15.5,
+        15.899999998509884,
+        16.200000001117587,
+        16.09999999962747,
+        15.800000000745058,
+        16.899999998509884,
+        15.800000000745058,
+        15.400000000372529,
+        16.699999999254942,
+        15.900000000372529,
+        16,
+        15.699999999254942,
+        16.700000001117587,
+        15.099999999627471,
+        17.09999999962747,
+        14.800000000745058,
+        16.09999999962747,
+        17,
+        15.300000000745058,
+        15.899999998509884,
+        16.600000001490116,
+        15.199999999254942,
+        15.900000000372529,
+        15.699999999254942,
+        16.5,
+        16.90000000037253,
+        15.699999999254942,
+        15.700000001117587,
+        15.5,
+        16.59999999962747,
+        45.80000000074506,
+        1.3999999985098839,
+        16.800000000745058,
+        15.300000000745058,
+        16.399999998509884,
+        24,
+        12.600000001490116,
+        19.699999999254942,
+        7.099999999627471,
+        77.30000000074506,
+        5.599999999627471,
+        25.699999999254942
+      ]
+    },
+    {
+      "run": 0,
+      "name": "scene:灯下的回信",
+      "wallMs": 146.5,
+      "longTasks": [],
+      "heartbeatGapsMs": [
+        15.400000000372529,
+        16.09999999962747,
+        31.09999999962747,
+        28,
+        27,
+        11,
+        15.5
+      ]
+    },
+    {
+      "run": 0,
+      "name": "scene:车窗与海",
+      "wallMs": 131.2000000011176,
+      "longTasks": [],
+      "heartbeatGapsMs": [
+        15.900000000372529,
+        15.5,
+        34.30000000074506,
+        20.199999999254942,
+        11.099999999627471,
+        19.600000001490116,
+        11.399999998509884
+      ]
+    },
+    {
+      "run": 0,
+      "name": "scene:车站的雨",
+      "wallMs": 151.09999999962747,
+      "longTasks": [],
+      "heartbeatGapsMs": [
+        16,
+        16.600000001490116,
+        15,
+        23.59999999962747,
+        15,
+        14.099999999627471,
+        31.699999999254942,
+        11.5,
+        16.300000000745058
+      ]
+    },
+    {
+      "run": 0,
+      "name": "scene:再一次见面",
+      "wallMs": 113.90000000037253,
+      "longTasks": [],
+      "heartbeatGapsMs": [
+        10.099999999627471,
+        29.5,
+        6,
+        25.800000000745058,
+        6.099999999627471,
+        19.59999999962747,
+        9.800000000745058
+      ]
+    },
+    {
+      "run": 0,
+      "name": "scene:雨后的天明",
+      "wallMs": 120.09999999962747,
+      "longTasks": [],
+      "heartbeatGapsMs": [
+        13.400000000372529,
+        35.30000000074506,
+        22.399999998509884,
+        8.200000001117587,
+        23.90000000037253,
+        6.099999999627471,
+        15.699999999254942
+      ]
+    },
+    {
+      "run": 0,
+      "name": "scene:留下",
+      "wallMs": 129.2000000011176,
+      "longTasks": [],
+      "heartbeatGapsMs": [
+        15.599999999627471,
+        17,
+        22.800000000745058,
+        16,
+        14.199999999254942,
+        23.300000000745058,
+        2.800000000745058,
+        16.09999999962747
+      ]
+    },
+    {
+      "run": 0,
+      "name": "scene:站台前的约定",
+      "wallMs": 167.7000000011176,
+      "longTasks": [],
+      "heartbeatGapsMs": [
+        16.90000000037253,
+        15.099999999627471,
+        33.79999999888241,
+        26.800000000745058,
+        5.5,
+        23.09999999962747,
+        6.900000000372529,
+        17,
+        24.199999999254942
+      ]
+    },
+    {
+      "run": 0,
+      "name": "scene:远行",
+      "wallMs": 96.40000000037253,
+      "longTasks": [],
+      "heartbeatGapsMs": [
+        6.300000000745058,
+        37.40000000037253,
+        16.59999999962747,
+        13.400000000372529,
+        21.799999998882413
+      ]
+    },
+    {
+      "run": 0,
+      "name": "scene:候车室的旧信",
+      "wallMs": 129.40000000037253,
+      "longTasks": [],
+      "heartbeatGapsMs": [
+        15.900000000372529,
+        15.699999999254942,
+        23.800000000745058,
+        19.40000000037253,
+        5.399999998509884,
+        24.40000000037253,
+        8.300000000745058,
+        15.900000000372529
+      ]
+    },
+    {
+      "run": 0,
+      "name": "reopen",
+      "wallMs": 182,
+      "longTasks": [],
+      "heartbeatGapsMs": [
+        3.799999998882413,
+        15.300000000745058,
+        15.900000000372529,
+        23,
+        32.79999999888241,
+        9,
+        16.5,
+        19,
+        23,
+        16.200000001117587
+      ]
+    },
+    {
+      "run": 1,
+      "name": "import",
+      "wallMs": 1383.3999999985099,
+      "longTasks": [],
+      "heartbeatGapsMs": [
+        28.09999999962747,
+        5.799999998882413,
+        16.90000000037253,
+        16.09999999962747,
+        15.400000000372529,
+        17,
+        16.40000000037253,
+        14.699999999254942,
+        16.200000001117587,
+        15.599999999627471,
+        15.900000000372529,
+        17.199999999254942,
+        15,
+        16.59999999962747,
+        15.5,
+        15.800000000745058,
+        16.5,
+        16.300000000745058,
+        15.5,
+        16.59999999962747,
+        16,
+        15.599999999627471,
+        15.599999999627471,
+        16.59999999962747,
+        15.600000001490116,
+        16.199999999254942,
+        16.800000000745058,
+        15.199999999254942,
+        15.800000000745058,
+        16.09999999962747,
+        16.699999999254942,
+        16.40000000037253,
+        15,
+        16.800000000745058,
+        15.099999999627471,
+        15.5,
+        17.5,
+        15,
+        15.400000000372529,
+        16.59999999962747,
+        16,
+        16.09999999962747,
+        15.900000000372529,
+        16.09999999962747,
+        15.800000000745058,
+        15.599999999627471,
+        16.59999999962747,
+        16,
+        15.900000000372529,
+        16,
+        15.400000000372529,
+        16.399999998509884,
+        15.900000000372529,
+        16.5,
+        15.400000000372529,
+        16.40000000037253,
+        16.299999998882413,
+        15.700000001117587,
+        16,
+        16.199999999254942,
+        16.09999999962747,
+        15.800000000745058,
+        16,
+        16,
+        16.09999999962747,
+        16,
+        15.200000001117587,
+        16.59999999962747,
+        16.09999999962747,
+        17.09999999962747,
+        17.800000000745058,
+        31,
+        14.799999998882413,
+        14.600000001490116,
+        16.699999999254942,
+        28.199999999254942,
+        11.800000000745058,
+        8.099999999627471,
+        15.400000000372529,
+        73.19999999925494,
+        6.900000000372529
+      ]
+    },
+    {
+      "run": 1,
+      "name": "scene:灯下的回信",
+      "wallMs": 127.20000000111759,
+      "longTasks": [],
+      "heartbeatGapsMs": [
+        5.700000001117587,
+        11.699999999254942,
+        36.90000000037253,
+        15,
+        15.299999998882413,
+        21,
+        8.300000000745058
+      ]
+    },
+    {
+      "run": 1,
+      "name": "scene:车窗与海",
+      "wallMs": 130.90000000037253,
+      "longTasks": [],
+      "heartbeatGapsMs": [
+        16.199999999254942,
+        15.800000000745058,
+        23.199999999254942,
+        22.699999999254942,
+        6.100000001490116,
+        22.399999998509884,
+        6.600000001490116,
+        15.599999999627471
+      ]
+    },
+    {
+      "run": 1,
+      "name": "scene:车站的雨",
+      "wallMs": 117.90000000037253,
+      "longTasks": [],
+      "heartbeatGapsMs": [
+        16.09999999962747,
+        16,
+        24.699999999254942,
+        8,
+        18.700000001117587,
+        30.59999999962747
+      ]
+    },
+    {
+      "run": 1,
+      "name": "scene:再一次见面",
+      "wallMs": 164.7999999988824,
+      "longTasks": [],
+      "heartbeatGapsMs": [
+        13.800000000745058,
+        16,
+        31.899999998509884,
+        29,
+        5.5,
+        25.90000000037253,
+        5,
+        15.099999999627471,
+        25.700000001117587
+      ]
+    },
+    {
+      "run": 1,
+      "name": "scene:雨后的天明",
+      "wallMs": 113.70000000111759,
+      "longTasks": [],
+      "heartbeatGapsMs": [
+        15.599999999627471,
+        24.199999999254942,
+        16,
+        12.200000001117587,
+        22.399999998509884,
+        6.100000001490116,
+        15.5
+      ]
+    },
+    {
+      "run": 1,
+      "name": "scene:留下",
+      "wallMs": 131,
+      "longTasks": [],
+      "heartbeatGapsMs": [
+        15.5,
+        16.699999999254942,
+        25,
+        9.400000000372529,
+        17.199999999254942,
+        22,
+        6.300000000745058,
+        16.09999999962747
+      ]
+    },
+    {
+      "run": 1,
+      "name": "scene:站台前的约定",
+      "wallMs": 132.89999999850988,
+      "longTasks": [],
+      "heartbeatGapsMs": [
+        16.09999999962747,
+        16.09999999962747,
+        30.5,
+        22.90000000037253,
+        11.200000001117587,
+        16.699999999254942,
+        14.199999999254942
+      ]
+    },
+    {
+      "run": 1,
+      "name": "scene:远行",
+      "wallMs": 146.40000000037253,
+      "longTasks": [],
+      "heartbeatGapsMs": [
+        24.5,
+        6.600000001490116,
+        16,
+        24.5,
+        14.699999999254942,
+        14.199999999254942,
+        21.100000001490116,
+        6.299999998882413,
+        16.09999999962747
+      ]
+    },
+    {
+      "run": 1,
+      "name": "scene:候车室的旧信",
+      "wallMs": 115.5,
+      "longTasks": [],
+      "heartbeatGapsMs": [
+        15,
+        16.90000000037253,
+        25.90000000037253,
+        7.300000000745058,
+        18.199999999254942,
+        26.300000000745058,
+        1.5
+      ]
+    },
+    {
+      "run": 1,
+      "name": "reopen",
+      "wallMs": 161,
+      "longTasks": [],
+      "heartbeatGapsMs": [
+        15.800000000745058,
+        16.5,
+        24.299999998882413,
+        25.40000000037253,
+        14.5,
+        19.59999999962747,
+        21.300000000745058,
+        10.699999999254942,
+        20.700000001117587
+      ]
+    },
+    {
+      "run": 2,
+      "name": "import",
+      "wallMs": 1219.2999999988824,
+      "longTasks": [],
+      "heartbeatGapsMs": [
+        19.699999999254942,
+        8.300000000745058,
+        11.400000000372529,
+        16.199999999254942,
+        16.59999999962747,
+        16,
+        16.40000000037253,
+        14.599999999627471,
+        16.800000000745058,
+        16,
+        15.099999999627471,
+        16.5,
+        16,
+        16.199999999254942,
+        16.200000001117587,
+        15,
+        16.09999999962747,
+        16.59999999962747,
+        16.700000001117587,
+        15.599999999627471,
+        16.199999999254942,
+        16.59999999962747,
+        15.100000001490116,
+        15.199999999254942,
+        17,
+        15.599999999627471,
+        15.400000000372529,
+        17.09999999962747,
+        15.700000001117587,
+        15.199999999254942,
+        16.5,
+        15.900000000372529,
+        16.09999999962747,
+        16.5,
+        16.699999999254942,
+        14.800000000745058,
+        16.300000000745058,
+        16.299999998882413,
+        15.599999999627471,
+        16,
+        15.600000001490116,
+        16.5,
+        16.09999999962747,
+        15.900000000372529,
+        16,
+        16,
+        16,
+        16.09999999962747,
+        15.5,
+        16.5,
+        16.5,
+        15.5,
+        16.09999999962747,
+        15.699999999254942,
+        15.900000000372529,
+        16.09999999962747,
+        15.900000000372529,
+        15.599999999627471,
+        17,
+        16.600000001490116,
+        14.199999999254942,
+        16.5,
+        15.900000000372529,
+        15.5,
+        30.5,
+        3.5,
+        14.5,
+        16.5,
+        15,
+        20.699999999254942,
+        11.300000000745058,
+        18.90000000037253,
+        79
+      ]
+    },
+    {
+      "run": 2,
+      "name": "scene:灯下的回信",
+      "wallMs": 158.09999999962747,
+      "longTasks": [],
+      "heartbeatGapsMs": [
+        25,
+        22.899999998509884,
+        14.300000000745058,
+        15.699999999254942,
+        22.700000001117587,
+        19.90000000037253,
+        5.399999998509884,
+        22,
+        10.800000000745058,
+        16.199999999254942
+      ]
+    },
+    {
+      "run": 2,
+      "name": "scene:车窗与海",
+      "wallMs": 132,
+      "longTasks": [],
+      "heartbeatGapsMs": [
+        15.400000000372529,
+        16.09999999962747,
+        30.700000001117587,
+        27,
+        5.599999999627471,
+        21.199999999254942,
+        11.600000001490116
+      ]
+    },
+    {
+      "run": 2,
+      "name": "scene:车站的雨",
+      "wallMs": 131.7000000011176,
+      "longTasks": [],
+      "heartbeatGapsMs": [
+        16.09999999962747,
+        16,
+        30.799999998882413,
+        23.90000000037253,
+        9.300000000745058,
+        19.5,
+        12.400000000372529
+      ]
+    },
+    {
+      "run": 2,
+      "name": "scene:再一次见面",
+      "wallMs": 131.7999999988824,
+      "longTasks": [],
+      "heartbeatGapsMs": [
+        16.399999998509884,
+        15.400000000372529,
+        33.09999999962747,
+        26.90000000037253,
+        7.099999999627471,
+        16.600000001490116,
+        11.599999999627471,
+        16.90000000037253
+      ]
+    },
+    {
+      "run": 2,
+      "name": "scene:雨后的天明",
+      "wallMs": 132,
+      "longTasks": [],
+      "heartbeatGapsMs": [
+        16,
+        25.199999999254942,
+        7.199999999254942,
+        22.90000000037253,
+        10.300000000745058,
+        13.5,
+        21.09999999962747,
+        11.199999999254942
+      ]
+    },
+    {
+      "run": 2,
+      "name": "scene:留下",
+      "wallMs": 130.30000000074506,
+      "longTasks": [],
+      "heartbeatGapsMs": [
+        16.90000000037253,
+        15.5,
+        29.90000000037253,
+        4.800000000745058,
+        25.799999998882413,
+        4.599999999627471,
+        16.5,
+        15
+      ]
+    },
+    {
+      "run": 2,
+      "name": "scene:站台前的约定",
+      "wallMs": 132.30000000074506,
+      "longTasks": [],
+      "heartbeatGapsMs": [
+        14.800000000745058,
+        16.09999999962747,
+        34.70000000111759,
+        27.299999998882413,
+        5.5,
+        15.900000000372529,
+        13.199999999254942,
+        16.200000001117587
+      ]
+    },
+    {
+      "run": 2,
+      "name": "scene:远行",
+      "wallMs": 132.69999999925494,
+      "longTasks": [],
+      "heartbeatGapsMs": [
+        15.900000000372529,
+        16,
+        25,
+        6.5,
+        20,
+        22.59999999962747,
+        6.900000000372529,
+        14.599999999627471
+      ]
+    },
+    {
+      "run": 2,
+      "name": "scene:候车室的旧信",
+      "wallMs": 132.09999999962747,
+      "longTasks": [],
+      "heartbeatGapsMs": [
+        16.299999998882413,
+        29.100000001490116,
+        5.5,
+        20.5,
+        14.799999998882413,
+        10.200000001117587,
+        24.09999999962747,
+        7.699999999254942
+      ]
+    },
+    {
+      "run": 2,
+      "name": "reopen",
+      "wallMs": 158,
+      "longTasks": [],
+      "heartbeatGapsMs": [
+        16.600000001490116,
+        16.299999998882413,
+        27.800000000745058,
+        3.400000000372529,
+        22.799999998882413,
+        12.099999999627471,
+        13,
+        31.5,
+        22.40000000037253
+      ]
+    }
+  ],
+  "profiles": [
+    {
+      "name": "import",
+      "self": [
+        {
+          "location": "(idle) ",
+          "sampledMs": 1251.4730000000015
+        },
+        {
+          "location": "(program) ",
+          "sampledMs": 122.18200000000003
+        },
+        {
+          "location": "../../src/indexeddb-asset-repository.ts:346 replaceFromPortableBundle",
+          "sampledMs": 41.358
+        },
+        {
+          "location": "packages/project-domain/src/sha256.ts:4 W",
+          "sampledMs": 35.10800000000001
+        },
+        {
+          "location": "digest ",
+          "sampledMs": 25.467000000000002
+        },
+        {
+          "location": "../../../../node_modules/react-dom/cjs/react-dom-client.production.js:4333 ho",
+          "sampledMs": 5.299
+        },
+        {
+          "location": "packages/project-compiler/src/canonical-json.ts:27 yl",
+          "sampledMs": 4.984
+        },
+        {
+          "location": "(anonymous) ",
+          "sampledMs": 4.77
+        },
+        {
+          "location": "(garbage collector) ",
+          "sampledMs": 4.051
+        },
+        {
+          "location": "../../src/asset-library-card.tsx:13 ",
+          "sampledMs": 2.646
+        },
+        {
+          "location": "../../src/indexeddb-project-store.ts:106 e.addEventListener.once",
+          "sampledMs": 2.572
+        },
+        {
+          "location": "encode ",
+          "sampledMs": 2.5709999999999997
+        },
+        {
+          "location": "../../src/preview-canvas-host.tsx:224 qv",
+          "sampledMs": 2.178
+        },
+        {
+          "location": "packages/project-domain/src/sha256.ts:3 Fe",
+          "sampledMs": 2.129
+        },
+        {
+          "location": "packages/project-persistence/src/asset-lifecycle.ts:434 zi",
+          "sampledMs": 2.1159999999999997
+        },
+        {
+          "location": "../../src/indexeddb-asset-repository.ts:445 read",
+          "sampledMs": 2.0999999999999996
+        },
+        {
+          "location": "packages/project-domain/src/codec.ts:122 ut",
+          "sampledMs": 2.079
+        },
+        {
+          "location": "../../../../node_modules/react-dom/cjs/react-dom-client.production.js:13346 Pd",
+          "sampledMs": 2.04
+        }
+      ],
+      "inclusive": [
+        {
+          "location": "(root) ",
+          "sampledMs": 1571.086000000002
+        },
+        {
+          "location": "(idle) ",
+          "sampledMs": 1251.4730000000015
+        },
+        {
+          "location": "(program) ",
+          "sampledMs": 122.18200000000003
+        },
+        {
+          "location": "../../src/indexeddb-asset-repository.ts:346 replaceFromPortableBundle",
+          "sampledMs": 62.616
+        },
+        {
+          "location": "packages/project-domain/src/sha256.ts:4 W",
+          "sampledMs": 39.80800000000001
+        },
+        {
+          "location": "../../../../node_modules/scheduler/cjs/scheduler.production.js:121 D",
+          "sampledMs": 39.03899999999999
+        },
+        {
+          "location": "packages/project-compiler/src/compiler-cache-artifact.ts:110 hu",
+          "sampledMs": 36.102000000000004
+        },
+        {
+          "location": "../../../../node_modules/react-dom/cjs/react-dom-client.production.js:10681 pu",
+          "sampledMs": 34.001999999999995
+        },
+        {
+          "location": "../../../../node_modules/react-dom/cjs/react-dom-client.production.js:12065 od",
+          "sampledMs": 32.931999999999995
+        },
+        {
+          "location": "../../../../node_modules/react-dom/cjs/react-dom-client.production.js:11304 ku",
+          "sampledMs": 30.866
+        },
+        {
+          "location": "../../../../node_modules/react-dom/cjs/react-dom-client.production.js:11181 Eu",
+          "sampledMs": 30.866
+        },
+        {
+          "location": "../../../../node_modules/react-dom/cjs/react-dom-client.production.js:11120 Tu",
+          "sampledMs": 30.866
+        },
+        {
+          "location": "../../../../node_modules/react-dom/cjs/react-dom-client.production.js:7392 wc",
+          "sampledMs": 26.578000000000003
+        },
+        {
+          "location": "../../../../node_modules/react-dom/cjs/react-dom-client.production.js:6489 sc",
+          "sampledMs": 25.481
+        },
+        {
+          "location": "digest ",
+          "sampledMs": 25.467000000000002
+        },
+        {
+          "location": "../../src/browser-blob-digest.ts:4 go",
+          "sampledMs": 25.467000000000002
+        },
+        {
+          "location": "../../../../node_modules/react-dom/cjs/react-dom-client.production.js:4333 ho",
+          "sampledMs": 25.438000000000002
+        },
+        {
+          "location": "packages/project-compiler/src/compiler.ts:343 Zl",
+          "sampledMs": 24.026
+        }
+      ],
+      "wallMs": 1571.241,
+      "attribution": "sampled CPU, inclusive stacks overlap; not phase wall time"
+    },
+    {
+      "name": "scene:再一次见面",
+      "self": [
+        {
+          "location": "(idle) ",
+          "sampledMs": 62.849000000000004
+        },
+        {
+          "location": "(program) ",
+          "sampledMs": 39.91799999999999
+        },
+        {
+          "location": "digest ",
+          "sampledMs": 6.978
+        },
+        {
+          "location": "(anonymous) ",
+          "sampledMs": 3.5309999999999997
+        },
+        {
+          "location": "../../src/indexeddb-project-store.ts:106 e.addEventListener.once",
+          "sampledMs": 2.5839999999999996
+        },
+        {
+          "location": "setTransform ",
+          "sampledMs": 2.161
+        },
+        {
+          "location": "Blob ",
+          "sampledMs": 2.1310000000000002
+        },
+        {
+          "location": "createElementNS ",
+          "sampledMs": 1.1
+        },
+        {
+          "location": "removeChild ",
+          "sampledMs": 1.06
+        },
+        {
+          "location": "packages/story-language/src/directive-patch.ts:123 Ns",
+          "sampledMs": 1.057
+        },
+        {
+          "location": "../../../../node_modules/react-dom/cjs/react-dom-client.production.js:12957 Md",
+          "sampledMs": 1.054
+        },
+        {
+          "location": "../../src/App.tsx:4194 cT",
+          "sampledMs": 1.053
+        },
+        {
+          "location": "../../src/asset-library-card.tsx:13 ",
+          "sampledMs": 1.053
+        },
+        {
+          "location": "../../src/preview-media-runtime.ts:624 create",
+          "sampledMs": 1.053
+        },
+        {
+          "location": "getAriaRole ",
+          "sampledMs": 1.046
+        },
+        {
+          "location": "../../../../node_modules/react-dom/cjs/react-dom-client.production.js:4455 Co",
+          "sampledMs": 1.042
+        },
+        {
+          "location": "../../src/stage-timeline.ts:32 $_",
+          "sampledMs": 0.532
+        },
+        {
+          "location": "../../../../node_modules/react-dom/cjs/react-dom-client.production.js:1254 It",
+          "sampledMs": 0.343
+        }
+      ],
+      "inclusive": [
+        {
+          "location": "(root) ",
+          "sampledMs": 130.745
+        },
+        {
+          "location": "(idle) ",
+          "sampledMs": 62.849000000000004
+        },
+        {
+          "location": "(program) ",
+          "sampledMs": 39.91799999999999
+        },
+        {
+          "location": "../../../../node_modules/react-dom/cjs/react-dom-client.production.js:10681 pu",
+          "sampledMs": 9.602
+        },
+        {
+          "location": "digest ",
+          "sampledMs": 6.978
+        },
+        {
+          "location": "../../src/browser-blob-digest.ts:4 go",
+          "sampledMs": 6.978
+        },
+        {
+          "location": "../../../../node_modules/react-dom/cjs/react-dom-client.production.js:12084 sd",
+          "sampledMs": 6.449
+        },
+        {
+          "location": "../../../../node_modules/react-dom/cjs/react-dom-client.production.js:11918 nd",
+          "sampledMs": 6.449
+        },
+        {
+          "location": "../../../../node_modules/react-dom/cjs/react-dom-client.production.js:11966 id",
+          "sampledMs": 6.449
+        },
+        {
+          "location": "../../../../node_modules/react-dom/cjs/react-dom-client.production.js:12089 ",
+          "sampledMs": 6.449
+        },
+        {
+          "location": "../../../../node_modules/react-dom/cjs/react-dom-client.production.js:11304 ku",
+          "sampledMs": 5.327
+        },
+        {
+          "location": "../../../../node_modules/react-dom/cjs/react-dom-client.production.js:11181 Eu",
+          "sampledMs": 5.327
+        },
+        {
+          "location": "../../../../node_modules/react-dom/cjs/react-dom-client.production.js:11120 Tu",
+          "sampledMs": 5.327
+        },
+        {
+          "location": "../../src/indexeddb-asset-repository.ts:445 read",
+          "sampledMs": 4.732
+        },
+        {
+          "location": "(anonymous) ",
+          "sampledMs": 4.577
+        },
+        {
+          "location": "../../src/asset-library-card.tsx:13 ",
+          "sampledMs": 4.385
+        },
+        {
+          "location": "../../../../node_modules/react-dom/cjs/react-dom-client.production.js:11457 Pu",
+          "sampledMs": 4.275
+        },
+        {
+          "location": "../../../../node_modules/react-dom/cjs/react-dom-client.production.js:10848 mu",
+          "sampledMs": 4.275
+        }
+      ],
+      "wallMs": 130.905,
+      "attribution": "sampled CPU, inclusive stacks overlap; not phase wall time"
+    },
+    {
+      "name": "reopen",
+      "self": [
+        {
+          "location": "(idle) ",
+          "sampledMs": 57.524
+        },
+        {
+          "location": "(program) ",
+          "sampledMs": 50.364999999999995
+        },
+        {
+          "location": "packages/project-domain/src/sha256.ts:4 W",
+          "sampledMs": 36.894
+        },
+        {
+          "location": "digest ",
+          "sampledMs": 4.688000000000001
+        },
+        {
+          "location": "packages/project-persistence/src/sha256.ts:25 hr",
+          "sampledMs": 4.644
+        },
+        {
+          "location": "encode ",
+          "sampledMs": 2.885
+        },
+        {
+          "location": "../../src/indexeddb-project-store.ts:106 e.addEventListener.once",
+          "sampledMs": 2.559
+        },
+        {
+          "location": "packages/project-compiler/src/canonical-json.ts:3 _l",
+          "sampledMs": 2.556
+        },
+        {
+          "location": "setTransform ",
+          "sampledMs": 2.072
+        },
+        {
+          "location": "../../../../node_modules/react-dom/cjs/react-dom-client.production.js:13346 Pd",
+          "sampledMs": 1.895
+        },
+        {
+          "location": "../../../../node_modules/react/cjs/react-jsx-runtime.production.js:14 r",
+          "sampledMs": 1.599
+        },
+        {
+          "location": "packages/story-language/src/parser.ts:175 qo",
+          "sampledMs": 1.525
+        },
+        {
+          "location": "setAttribute ",
+          "sampledMs": 1.513
+        },
+        {
+          "location": "packages/project-domain/src/project-lifecycle.ts:29 sn",
+          "sampledMs": 1.497
+        },
+        {
+          "location": "__export ",
+          "sampledMs": 1.494
+        },
+        {
+          "location": "packages/project-compiler/src/canonical-json.ts:27 yl",
+          "sampledMs": 1.446
+        },
+        {
+          "location": "packages/project-compiler/src/compiler-cache-artifact.ts:47 su",
+          "sampledMs": 1.197
+        },
+        {
+          "location": "../../../../node_modules/react-dom/cjs/react-dom-client.production.js:13577 Fd",
+          "sampledMs": 1.18
+        }
+      ],
+      "inclusive": [
+        {
+          "location": "(root) ",
+          "sampledMs": 212.2390000000001
+        },
+        {
+          "location": "(idle) ",
+          "sampledMs": 57.524
+        },
+        {
+          "location": "(program) ",
+          "sampledMs": 50.364999999999995
+        },
+        {
+          "location": "packages/project-domain/src/sha256.ts:4 W",
+          "sampledMs": 38.745999999999995
+        },
+        {
+          "location": "../../../../node_modules/scheduler/cjs/scheduler.production.js:121 D",
+          "sampledMs": 33.119
+        },
+        {
+          "location": "packages/project-compiler/src/compiler-cache-artifact.ts:110 hu",
+          "sampledMs": 29.780000000000005
+        },
+        {
+          "location": "../../../../node_modules/react-dom/cjs/react-dom-client.production.js:10681 pu",
+          "sampledMs": 27.409999999999997
+        },
+        {
+          "location": "../../../../node_modules/react-dom/cjs/react-dom-client.production.js:12065 od",
+          "sampledMs": 25.896999999999995
+        },
+        {
+          "location": "../../../../node_modules/react-dom/cjs/react-dom-client.production.js:11304 ku",
+          "sampledMs": 24.345999999999997
+        },
+        {
+          "location": "../../../../node_modules/react-dom/cjs/react-dom-client.production.js:11181 Eu",
+          "sampledMs": 24.345999999999997
+        },
+        {
+          "location": "../../../../node_modules/react-dom/cjs/react-dom-client.production.js:11120 Tu",
+          "sampledMs": 24.345999999999997
+        },
+        {
+          "location": "../../../../node_modules/react-dom/cjs/react-dom-client.production.js:7392 wc",
+          "sampledMs": 20.445999999999994
+        },
+        {
+          "location": "../../../../node_modules/react-dom/cjs/react-dom-client.production.js:6489 sc",
+          "sampledMs": 17.686999999999998
+        },
+        {
+          "location": "../../../../node_modules/react-dom/cjs/react-dom-client.production.js:4333 ho",
+          "sampledMs": 17.530999999999995
+        },
+        {
+          "location": "packages/project-domain/src/codec.ts:127 ht",
+          "sampledMs": 17.156
+        },
+        {
+          "location": "packages/project-domain/src/codec.ts:126 mt",
+          "sampledMs": 16.054999999999996
+        },
+        {
+          "location": "packages/project-compiler/src/compiler.ts:343 Zl",
+          "sampledMs": 14.092999999999996
+        },
+        {
+          "location": "packages/project-compiler/src/compiler-cache-artifact.ts:98 mu",
+          "sampledMs": 12.399
+        }
+      ],
+      "wallMs": 212.427,
+      "attribution": "sampled CPU, inclusive stacks overlap; not phase wall time"
+    }
+  ],
+  "checks": [
+    {
+      "name": "complete-project-import-switch-nine-scenes-and-reopen:0",
+      "passed": true
+    },
+    {
+      "name": "complete-project-import-switch-nine-scenes-and-reopen:1",
+      "passed": true
+    },
+    {
+      "name": "complete-project-import-switch-nine-scenes-and-reopen:2",
+      "passed": true
+    },
+    {
+      "name": "worker-rejects-crc-sha-and-unsafe-path-without-changing-projects",
+      "passed": true,
+      "detail": {}
+    },
+    {
+      "name": "worker-load-failure-is-visible-and-retryable-without-inline-large-fallback",
+      "passed": true,
+      "detail": {}
+    },
+    {
+      "name": "cancel-during-native-worker-validation-retains-saved-source-and-all-25-blobs",
+      "passed": true,
+      "detail": {
+        "protectedSourceSha256": "ff25b3e6972f1a3ecf5599071ff0b9b7e0c9ab2f942bb522673dd4d277284d7d"
+      }
+    },
+    {
+      "name": "same-file-retry-imports-fresh-canonical-content-not-an-old-local-snapshot",
+      "passed": true,
+      "detail": {}
+    },
+    {
+      "name": "nested-production-delivery-import-remains-supported",
+      "passed": true,
+      "detail": {}
+    }
+  ],
+  "errors": [],
+  "physicalDevice": false,
+  "statisticalBenchmark": false
+}

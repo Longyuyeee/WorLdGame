@@ -1,0 +1,15 @@
+{
+  "baseline": false,
+  "engine": "webkit",
+  "identity": {
+    "codeSha256": "d08d0219c3bb1f95c8927904972ff6cf7250066a24c6e05bf9704f39506c739d",
+    "cssSha256": "52bf2e567137644d53b3718e75971f2b4d3deb0100386940fc6d7c2a1a1dc8bc",
+    "fixtureSha256": "1200a893c9ef8b400ce579de82481b5c7713163e8b39d70ccea407d3e0814fe8"
+  },
+  "samples": [],
+  "errors": [
+    "locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: '查看收藏与结局', exact: true })\u001b[22m\n\u001b[2m    - locator resolved to <button type=\"button\" class=\"player-primary\">查看收藏与结局</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <div role=\"alert\" class=\"player-media-error\">…</div> intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <div role=\"alert\" class=\"player-media-error\">…</div> intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    46 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is visible, enabled and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - <div role=\"alert\" class=\"player-media-error\">…</div> intercepts pointer events\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n\n    at E:\\ProjectSave\\GeminiProject\\WorLdGame\\tools\\run-web-collection-covers.mjs:32:27",
+    "菜单 ☰\n\n横屏更适合观看演出\n\n存读档\n声音“Deterministic Theme”：当前浏览器无法打开这份声音。请联网重试；仍失败可备份进度后换浏览器或使用作者提供的完整目录。\n重试媒体\n本次先无声阅读\n故事告一段落\nCurtain\n\n已达成 1 / 1 个结局\n\n已读、画廊、音乐与结局记录会保留。可以查看收藏，或读取存档探索其他选择。\n\n查看收藏与结局\n读取存档探索其他路线\n回到标题"
+  ],
+  "scope": "Configured catalog covers and long names in an isolated native-browser fixture. Not an authored Rain story export or full-story acceptance."
+}

@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "preparedPublicFiles": 36,
+  "exactBytes": true,
+  "localPreview": {
+    "fileIntegrityPassed": true,
+    "loopback": true,
+    "privateFilesNotServed": true
+  },
+  "permissionVerified": false,
+  "publicDeployment": false,
+  "scratch": ".browser-diagnostic\\deployment-flow\\run-Ekrhvb"
+}

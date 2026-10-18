@@ -1,0 +1,10 @@
+{
+  "checks": [
+    "Actual main-story authoring configures four title components and two reading actions, rejects invalid width, undoes deletion, saves/reopens and exports a source project, skin configuration and both formal formats.",
+    "Desktop file:// title and reading anchors stay in-stage; custom load/preferences/save actions preserve the current paragraph and return focus; the full first route reaches its ending.",
+    "390×844 touch-enabled directory game uses mobile-safe and independent coordinates, survives 844×390 rotation, keeps menus/save focus intact and reaches the other ending."
+  ],
+  "errors": [],
+  "failure": "page.goto: Timeout 18000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:2989/gal/\", waiting until \"load\"\u001b[22m\n\n    at start (E:\\ProjectSave\\GeminiProject\\WorLdGame\\tools\\run-web-responsive-layout.mjs:31:63)\n    at E:\\ProjectSave\\GeminiProject\\WorLdGame\\tools\\run-web-responsive-layout.mjs:79:273",
+  "text": ""
+}

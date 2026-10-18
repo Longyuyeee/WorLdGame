@@ -1,0 +1,573 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "name": "actual-editor-source-roundtrip-and-three-export-formats-exact-story-media-and-public-inventory",
+      "detail": {}
+    },
+    {
+      "name": "actual-previous-1.8.0-cache-update-waits-for-close-and-restores-same-progress-offline",
+      "detail": {
+        "oldHash": "60c5fea355f55f41765a3f22cf9d742dcc1f90ff64f963720209267e76a94867",
+        "storyVersionChanged": false,
+        "loopbackOnly": true
+      }
+    },
+    {
+      "name": "download-continues-title-to-reading-to-menu-and-retains-browser-install-callback",
+      "detail": {
+        "installPromptMock": true,
+        "realInstallation": false
+      }
+    },
+    {
+      "name": "new-menu-keeps-live-update-failure-retry-and-waiting-state-across-close-reopen",
+      "detail": {
+        "reverseShellBytesOnly": true,
+        "storyContentChanged": false
+      }
+    },
+    {
+      "name": "chromium-title-keyboard-menu-long-status-four-viewports-and-exact-story-return",
+      "detail": {
+        "browser": "151.0.7922.34",
+        "physicalPhone": false,
+        "safari": false
+      }
+    },
+    {
+      "name": "firefox-title-keyboard-menu-long-status-four-viewports-and-exact-story-return",
+      "detail": {
+        "browser": "153.0",
+        "physicalPhone": false,
+        "safari": false
+      }
+    },
+    {
+      "name": "webkit-title-keyboard-menu-long-status-four-viewports-and-exact-story-return",
+      "detail": {
+        "browser": "26.5",
+        "physicalPhone": false,
+        "safari": false
+      }
+    },
+    {
+      "name": "chromium-html-desktop-full-route-save-reload-load-and-ending",
+      "detail": {
+        "texts": 66,
+        "voices": 6,
+        "humanListening": false
+      }
+    },
+    {
+      "name": "chromium-website-phone-full-route-save-reload-load-and-ending",
+      "detail": {
+        "texts": 66,
+        "voices": 6,
+        "humanListening": false
+      }
+    },
+    {
+      "name": "unchanged-0.9.0-authored-title-menu-primary-scroll-and-independent-return-three-viewports",
+      "detail": {}
+    }
+  ],
+  "errors": [],
+  "measurements": [
+    {
+      "name": "before-844x390",
+      "offset": 68,
+      "shellTop": 68
+    },
+    {
+      "name": "updated-844x390",
+      "viewport": [
+        844,
+        390
+      ],
+      "offset": 0,
+      "shellTop": 0,
+      "stage": {
+        "x": 75.328125,
+        "y": 0,
+        "width": 693.328125,
+        "height": 389.984375,
+        "top": 0,
+        "right": 768.65625,
+        "bottom": 389.984375,
+        "left": 75.328125
+      },
+      "ratio": 1.7778356504667654,
+      "width": 844,
+      "visibleTools": 0
+    },
+    {
+      "name": "offline-restored-844x390",
+      "viewport": [
+        844,
+        390
+      ],
+      "offset": 0,
+      "shellTop": 0,
+      "stage": {
+        "x": 75.328125,
+        "y": 0,
+        "width": 693.328125,
+        "height": 389.984375,
+        "top": 0,
+        "right": 768.65625,
+        "bottom": 389.984375,
+        "left": 75.328125
+      },
+      "ratio": 1.7778356504667654,
+      "width": 844,
+      "visibleTools": 0
+    },
+    {
+      "name": "chromium-reading-390x844",
+      "viewport": [
+        390,
+        844
+      ],
+      "offset": 0,
+      "shellTop": 0,
+      "stage": {
+        "x": 0,
+        "y": 64,
+        "width": 390,
+        "height": 219.375,
+        "top": 64,
+        "right": 390,
+        "bottom": 283.375,
+        "left": 0
+      },
+      "ratio": 1.7777777777777777,
+      "width": 390,
+      "visibleTools": 0
+    },
+    {
+      "name": "chromium-reading-844x390",
+      "viewport": [
+        844,
+        390
+      ],
+      "offset": 0,
+      "shellTop": 0,
+      "stage": {
+        "x": 75.328125,
+        "y": 0,
+        "width": 693.328125,
+        "height": 389.984375,
+        "top": 0,
+        "right": 768.65625,
+        "bottom": 389.984375,
+        "left": 75.328125
+      },
+      "ratio": 1.7778356504667654,
+      "width": 844,
+      "visibleTools": 0
+    },
+    {
+      "name": "chromium-reading-320x740",
+      "viewport": [
+        320,
+        740
+      ],
+      "offset": 0,
+      "shellTop": 0,
+      "stage": {
+        "x": 0,
+        "y": 64,
+        "width": 320,
+        "height": 180,
+        "top": 64,
+        "right": 320,
+        "bottom": 244,
+        "left": 0
+      },
+      "ratio": 1.7777777777777777,
+      "width": 320,
+      "visibleTools": 0
+    },
+    {
+      "name": "chromium-reading-1280x900",
+      "viewport": [
+        1280,
+        900
+      ],
+      "offset": 0,
+      "shellTop": 0,
+      "stage": {
+        "x": 51,
+        "y": 119.125,
+        "width": 1178,
+        "height": 661.75,
+        "top": 119.125,
+        "right": 1229,
+        "bottom": 780.875,
+        "left": 51
+      },
+      "ratio": 1.7801284472988288,
+      "width": 1280,
+      "visibleTools": 0
+    },
+    {
+      "name": "firefox-reading-390x844",
+      "viewport": [
+        390,
+        844
+      ],
+      "offset": 0,
+      "shellTop": 0,
+      "stage": {
+        "x": 0,
+        "y": 64,
+        "width": 390,
+        "height": 219.38333129882812,
+        "top": 64,
+        "right": 390,
+        "bottom": 283.3833312988281,
+        "left": 0
+      },
+      "ratio": 1.7777102649096443,
+      "width": 390,
+      "visibleTools": 0
+    },
+    {
+      "name": "firefox-reading-844x390",
+      "viewport": [
+        844,
+        390
+      ],
+      "offset": 0,
+      "shellTop": 0,
+      "stage": {
+        "x": 75.33332824707031,
+        "y": 0,
+        "width": 693.3333740234375,
+        "height": 390,
+        "top": 0,
+        "right": 768.6667022705078,
+        "bottom": 390,
+        "left": 75.33332824707031
+      },
+      "ratio": 1.777777882111378,
+      "width": 844,
+      "visibleTools": 0
+    },
+    {
+      "name": "firefox-reading-320x740",
+      "viewport": [
+        320,
+        740
+      ],
+      "offset": 0,
+      "shellTop": 0,
+      "stage": {
+        "x": 0,
+        "y": 64,
+        "width": 320,
+        "height": 180,
+        "top": 64,
+        "right": 320,
+        "bottom": 244,
+        "left": 0
+      },
+      "ratio": 1.7777777777777777,
+      "width": 320,
+      "visibleTools": 0
+    },
+    {
+      "name": "firefox-reading-1280x900",
+      "viewport": [
+        1280,
+        900
+      ],
+      "offset": 0,
+      "shellTop": 0,
+      "stage": {
+        "x": 51,
+        "y": 119.11666870117188,
+        "width": 1178,
+        "height": 661.75,
+        "top": 119.11666870117188,
+        "right": 1229,
+        "bottom": 780.8666687011719,
+        "left": 51
+      },
+      "ratio": 1.7801284472988288,
+      "width": 1280,
+      "visibleTools": 0
+    },
+    {
+      "name": "webkit-reading-390x844",
+      "viewport": [
+        390,
+        844
+      ],
+      "offset": 0,
+      "shellTop": 0,
+      "stage": {
+        "x": 0,
+        "y": 64,
+        "width": 390,
+        "height": 219.375,
+        "top": 64,
+        "right": 390,
+        "bottom": 283.375,
+        "left": 0
+      },
+      "ratio": 1.7777777777777777,
+      "width": 390,
+      "visibleTools": 0
+    },
+    {
+      "name": "webkit-reading-844x390",
+      "viewport": [
+        844,
+        390
+      ],
+      "offset": 0,
+      "shellTop": 0,
+      "stage": {
+        "x": 75.328125,
+        "y": 0,
+        "width": 693.328125,
+        "height": 389.984375,
+        "top": 0,
+        "right": 768.65625,
+        "bottom": 389.984375,
+        "left": 75.328125
+      },
+      "ratio": 1.7778356504667654,
+      "width": 844,
+      "visibleTools": 0
+    },
+    {
+      "name": "webkit-reading-320x740",
+      "viewport": [
+        320,
+        740
+      ],
+      "offset": 0,
+      "shellTop": 0,
+      "stage": {
+        "x": 0,
+        "y": 64,
+        "width": 320,
+        "height": 180,
+        "top": 64,
+        "right": 320,
+        "bottom": 244,
+        "left": 0
+      },
+      "ratio": 1.7777777777777777,
+      "width": 320,
+      "visibleTools": 0
+    },
+    {
+      "name": "webkit-reading-1280x900",
+      "viewport": [
+        1280,
+        900
+      ],
+      "offset": 0,
+      "shellTop": 0,
+      "stage": {
+        "x": 51,
+        "y": 119.125,
+        "width": 1178,
+        "height": 661.75,
+        "top": 119.125,
+        "right": 1229,
+        "bottom": 780.875,
+        "left": 51
+      },
+      "ratio": 1.7801284472988288,
+      "width": 1280,
+      "visibleTools": 0
+    }
+  ],
+  "routes": [
+    {
+      "branch": 0,
+      "entry": "html-file",
+      "ids": [
+        "stmt_ui_5",
+        "stmt_ui_7",
+        "stmt_ui_9",
+        "stmt_ui_11",
+        "stmt_ui_13",
+        "stmt_ui_15",
+        "stmt_ui_17",
+        "stmt_ui_19",
+        "stmt_ui_21",
+        "stmt_ui_25",
+        "stmt_ui_23",
+        "stmt_ui_31",
+        "stmt_ui_33",
+        "stmt_ui_35",
+        "stmt_ui_37",
+        "stmt_ui_39",
+        "stmt_ui_41",
+        "stmt_ui_43",
+        "stmt_ui_45",
+        "stmt_ui_51",
+        "stmt_ui_47",
+        "stmt_ui_49",
+        "stmt_ui_61",
+        "stmt_ui_63",
+        "stmt_ui_65",
+        "stmt_ui_67",
+        "stmt_ui_69",
+        "stmt_ui_71",
+        "stmt_ui_73",
+        "stmt_ui_75",
+        "stmt_ui_77",
+        "stmt_ui_79",
+        "stmt_ui_81",
+        "stmt_ui_91",
+        "stmt_ui_93",
+        "stmt_ui_95",
+        "stmt_ui_97",
+        "stmt_ui_99",
+        "stmt_ui_101",
+        "stmt_ui_103",
+        "stmt_ui_105",
+        "stmt_ui_107",
+        "stmt_ui_109",
+        "stmt_ui_113",
+        "stmt_ui_119",
+        "stmt_ui_121",
+        "stmt_ui_123",
+        "stmt_ui_125",
+        "stmt_ui_127",
+        "stmt_ui_129",
+        "stmt_ui_139",
+        "stmt_ui_131",
+        "stmt_ui_133",
+        "stmt_ui_135",
+        "stmt_ui_137",
+        "stmt_ui_146",
+        "stmt_ui_148",
+        "stmt_ui_150",
+        "stmt_ui_152",
+        "stmt_ui_167",
+        "stmt_ui_154",
+        "stmt_ui_156",
+        "stmt_ui_158",
+        "stmt_ui_160",
+        "stmt_ui_162",
+        "stmt_ui_164"
+      ],
+      "ending": "故事告一段落\n同行的约定\n\n已达成 1 / 2 个结局\n\n已读、画廊、音乐与结局记录会保留。可以查看收藏，或读取存档探索其他选择。\n\n查看收藏与结局\n读取存档探索其他路线\n回到标题",
+      "mutedNativeVoices": 6
+    },
+    {
+      "branch": 1,
+      "entry": "website-http",
+      "ids": [
+        "stmt_ui_5",
+        "stmt_ui_7",
+        "stmt_ui_9",
+        "stmt_ui_11",
+        "stmt_ui_13",
+        "stmt_ui_15",
+        "stmt_ui_17",
+        "stmt_ui_19",
+        "stmt_ui_21",
+        "stmt_ui_25",
+        "stmt_ui_23",
+        "stmt_ui_31",
+        "stmt_ui_33",
+        "stmt_ui_35",
+        "stmt_ui_37",
+        "stmt_ui_39",
+        "stmt_ui_41",
+        "stmt_ui_43",
+        "stmt_ui_45",
+        "stmt_ui_51",
+        "stmt_ui_47",
+        "stmt_ui_49",
+        "stmt_ui_61",
+        "stmt_ui_63",
+        "stmt_ui_65",
+        "stmt_ui_67",
+        "stmt_ui_69",
+        "stmt_ui_71",
+        "stmt_ui_73",
+        "stmt_ui_75",
+        "stmt_ui_77",
+        "stmt_ui_79",
+        "stmt_ui_81",
+        "stmt_ui_174",
+        "stmt_ui_176",
+        "stmt_ui_196",
+        "stmt_ui_178",
+        "stmt_ui_180",
+        "stmt_ui_182",
+        "stmt_ui_184",
+        "stmt_ui_186",
+        "stmt_ui_188",
+        "stmt_ui_190",
+        "stmt_ui_192",
+        "stmt_ui_203",
+        "stmt_ui_205",
+        "stmt_ui_207",
+        "stmt_ui_209",
+        "stmt_ui_211",
+        "stmt_ui_223",
+        "stmt_ui_213",
+        "stmt_ui_215",
+        "stmt_ui_217",
+        "stmt_ui_219",
+        "stmt_ui_221",
+        "stmt_ui_230",
+        "stmt_ui_232",
+        "stmt_ui_234",
+        "stmt_ui_236",
+        "stmt_ui_250",
+        "stmt_ui_238",
+        "stmt_ui_240",
+        "stmt_ui_242",
+        "stmt_ui_244",
+        "stmt_ui_246",
+        "stmt_ui_248"
+      ],
+      "ending": "故事告一段落\n远行的约定\n\n已达成 1 / 2 个结局\n\n已读、画廊、音乐与结局记录会保留。可以查看收藏，或读取存档探索其他选择。\n\n查看收藏与结局\n读取存档探索其他路线\n回到标题",
+      "mutedNativeVoices": 6
+    }
+  ],
+  "artifacts": {
+    "editor": {
+      "/assets/index-BgsM0elG.js": "da67c092a50de218fb32204ba7ae8eb3a936aa45a76cda54d9f8ad63563aad76",
+      "/assets/index-DNbmjF5j.css": "67271527adceeeb5cdc822f62bb23802fa266c60b28c48c2be0620e5fae1832d"
+    },
+    "html": {
+      "bytes": 43021662,
+      "sha256": "0668e6206a9e2c5633b0486a1045403f2e171ec8079802dce38454cdd21f243b"
+    },
+    "website": {
+      "bytes": 32508002,
+      "sha256": "0f53699f0e023e47df82a5dbba54c1814ea3497a9c3695f797f8c2b24aa08d82"
+    },
+    "directory": {
+      "bytes": 32535261,
+      "sha256": "bbc8eb1f2e5640fad85002ee6b5f893ef0f0fd8a4cddf8fb92af4fa2fd4467e2"
+    },
+    "source": {
+      "sha256": "f48264f9836e9a60fa753e3df47a710095d8e82be34f7b72981ce64d49dbb6a0",
+      "unchangedEntries": 65,
+      "unchangedMedia": 25,
+      "version": "1.8.0",
+      "projectDigest": "6decebb7dedd38df076b6d096eddd7947fd66d73e0237ee076eccaeab798382a"
+    },
+    "authoredLayout": {
+      "sourceUnchanged": true,
+      "version": "0.9.0",
+      "temporaryWebsiteBytes": 11542019,
+      "sha256": "9d50839f1ab767b5a7dce915b67c498fbc410acc4bd3976e2d5070dc5604def5"
+    }
+  },
+  "scope": "Actual unmodified 1.8.0 source and three exports; three desktop engines for title/menu/keyboard/viewport only; Chromium two complete routes (not format × route matrix), same-story shell update/failure/retry/offline saved-position checks on loopback. No physical phone/Safari/public HTTPS/licensing/human listening or full-reading timing acceptance."
+}

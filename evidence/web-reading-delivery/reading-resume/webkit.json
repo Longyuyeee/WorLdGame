@@ -1,0 +1,685 @@
+{
+  "passed": true,
+  "label": "webkit",
+  "browser": "26.5",
+  "htmlSha256": "e342827d80a0bd18944cc84655437ded37f25f901d81b4bf4229fd9d97080510",
+  "checks": [
+    {
+      "name": "recovery-restores-actual-text-anchor",
+      "before": {
+        "first": 44,
+        "excerpt": "核对了两次，没有走去询问值班员。他看见玻璃上自己的倒影，才发",
+        "scrollTop": 220,
+        "max": 235,
+        "top": 296.375,
+        "bottom": 771.375,
+        "lines": [
+          {
+            "index": 0,
+            "top": 104.8125,
+            "bottom": 135.8125
+          },
+          {
+            "index": 11,
+            "top": 152.6875,
+            "bottom": 183.6875
+          },
+          {
+            "index": 22,
+            "top": 200.5625,
+            "bottom": 231.5625
+          },
+          {
+            "index": 33,
+            "top": 248.4375,
+            "bottom": 279.4375
+          },
+          {
+            "index": 44,
+            "top": 296.3125,
+            "bottom": 327.3125
+          },
+          {
+            "index": 55,
+            "top": 344.1875,
+            "bottom": 375.1875
+          },
+          {
+            "index": 66,
+            "top": 392.0625,
+            "bottom": 423.0625
+          },
+          {
+            "index": 77,
+            "top": 439.9375,
+            "bottom": 470.9375
+          },
+          {
+            "index": 89,
+            "top": 487.8125,
+            "bottom": 518.8125
+          },
+          {
+            "index": 100,
+            "top": 535.6875,
+            "bottom": 566.6875
+          },
+          {
+            "index": 111,
+            "top": 583.5625,
+            "bottom": 614.5625
+          },
+          {
+            "index": 122,
+            "top": 631.4375,
+            "bottom": 662.4375
+          },
+          {
+            "index": 133,
+            "top": 679.3125,
+            "bottom": 710.3125
+          },
+          {
+            "index": 144,
+            "top": 727.1875,
+            "bottom": 758.1875
+          }
+        ],
+        "hash": "789868e76600d9a63c12034797655e9af454d7742a5c200cabece029cb9a74cd",
+        "cursor": "4"
+      },
+      "resumed": {
+        "first": 44,
+        "excerpt": "核对了两次，没有走去询问值班员。他看见玻璃上自己的倒影，才发",
+        "scrollTop": 220,
+        "max": 235,
+        "top": 296.375,
+        "bottom": 771.375,
+        "lines": [
+          {
+            "index": 0,
+            "top": 104.8125,
+            "bottom": 135.8125
+          },
+          {
+            "index": 11,
+            "top": 152.6875,
+            "bottom": 183.6875
+          },
+          {
+            "index": 22,
+            "top": 200.5625,
+            "bottom": 231.5625
+          },
+          {
+            "index": 33,
+            "top": 248.4375,
+            "bottom": 279.4375
+          },
+          {
+            "index": 44,
+            "top": 296.3125,
+            "bottom": 327.3125
+          },
+          {
+            "index": 55,
+            "top": 344.1875,
+            "bottom": 375.1875
+          },
+          {
+            "index": 66,
+            "top": 392.0625,
+            "bottom": 423.0625
+          },
+          {
+            "index": 77,
+            "top": 439.9375,
+            "bottom": 470.9375
+          },
+          {
+            "index": 89,
+            "top": 487.8125,
+            "bottom": 518.8125
+          },
+          {
+            "index": 100,
+            "top": 535.6875,
+            "bottom": 566.6875
+          },
+          {
+            "index": 111,
+            "top": 583.5625,
+            "bottom": 614.5625
+          },
+          {
+            "index": 122,
+            "top": 631.4375,
+            "bottom": 662.4375
+          },
+          {
+            "index": 133,
+            "top": 679.3125,
+            "bottom": 710.3125
+          },
+          {
+            "index": 144,
+            "top": 727.1875,
+            "bottom": 758.1875
+          }
+        ],
+        "hash": "789868e76600d9a63c12034797655e9af454d7742a5c200cabece029cb9a74cd",
+        "cursor": "4"
+      }
+    },
+    {
+      "name": "resume-reflow-and-controls",
+      "viewport": {
+        "width": 320,
+        "height": 740
+      },
+      "position": {
+        "first": 40,
+        "excerpt": "钟。林远核对了两次，没有走去询问值班员。他看见玻璃上自己的倒",
+        "scrollTop": 267,
+        "max": 540,
+        "top": 257,
+        "bottom": 667,
+        "lines": [
+          {
+            "index": 0,
+            "top": 18.4375,
+            "bottom": 49.4375
+          },
+          {
+            "index": 8,
+            "top": 66.3125,
+            "bottom": 97.3125
+          },
+          {
+            "index": 16,
+            "top": 114.1875,
+            "bottom": 145.1875
+          },
+          {
+            "index": 24,
+            "top": 162.0625,
+            "bottom": 193.0625
+          },
+          {
+            "index": 32,
+            "top": 209.9375,
+            "bottom": 240.9375
+          },
+          {
+            "index": 40,
+            "top": 257.8125,
+            "bottom": 288.8125
+          },
+          {
+            "index": 48,
+            "top": 305.6875,
+            "bottom": 336.6875
+          },
+          {
+            "index": 56,
+            "top": 353.5625,
+            "bottom": 384.5625
+          },
+          {
+            "index": 64,
+            "top": 401.4375,
+            "bottom": 432.4375
+          },
+          {
+            "index": 72,
+            "top": 449.3125,
+            "bottom": 480.3125
+          },
+          {
+            "index": 80,
+            "top": 497.1875,
+            "bottom": 528.1875
+          },
+          {
+            "index": 89,
+            "top": 545.0625,
+            "bottom": 576.0625
+          },
+          {
+            "index": 97,
+            "top": 592.9375,
+            "bottom": 623.9375
+          },
+          {
+            "index": 105,
+            "top": 640.8125,
+            "bottom": 671.8125
+          },
+          {
+            "index": 113,
+            "top": 688.6875,
+            "bottom": 719.6875
+          },
+          {
+            "index": 121,
+            "top": 736.5625,
+            "bottom": 767.5625
+          },
+          {
+            "index": 129,
+            "top": 784.4375,
+            "bottom": 815.4375
+          },
+          {
+            "index": 137,
+            "top": 832.3125,
+            "bottom": 863.3125
+          },
+          {
+            "index": 145,
+            "top": 880.1875,
+            "bottom": 911.1875
+          }
+        ],
+        "hash": "789868e76600d9a63c12034797655e9af454d7742a5c200cabece029cb9a74cd",
+        "cursor": "4"
+      },
+      "bounds": {
+        "x": 25.796875,
+        "y": 118,
+        "width": 106,
+        "height": 44
+      },
+      "notice": {
+        "x": 12.796875,
+        "y": 76,
+        "width": 294.40625,
+        "height": 99
+      },
+      "paragraph": {
+        "x": 14,
+        "y": 256,
+        "width": 292,
+        "height": 412
+      },
+      "save": {
+        "x": 218,
+        "y": 678,
+        "width": 88,
+        "height": 48
+      }
+    },
+    {
+      "name": "resume-reflow-and-controls",
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "position": {
+        "first": 26,
+        "excerpt": "线。站台上的钟比手机慢了三分钟。林远核对了两次，没有走去询问",
+        "scrollTop": 58,
+        "max": 79,
+        "top": 135.21875,
+        "bottom": 317.21875,
+        "lines": [
+          {
+            "index": 0,
+            "top": 96.421875,
+            "bottom": 121.421875
+          },
+          {
+            "index": 26,
+            "top": 135.84375,
+            "bottom": 160.84375
+          },
+          {
+            "index": 52,
+            "top": 175.265625,
+            "bottom": 200.265625
+          },
+          {
+            "index": 78,
+            "top": 214.6875,
+            "bottom": 239.6875
+          },
+          {
+            "index": 104,
+            "top": 254.109375,
+            "bottom": 279.109375
+          },
+          {
+            "index": 131,
+            "top": 293.53125,
+            "bottom": 318.53125
+          }
+        ],
+        "hash": "789868e76600d9a63c12034797655e9af454d7742a5c200cabece029cb9a74cd",
+        "cursor": "4"
+      },
+      "bounds": {
+        "x": 557,
+        "y": 337,
+        "width": 83,
+        "height": 44
+      },
+      "notice": {
+        "x": 14,
+        "y": 328,
+        "width": 700,
+        "height": 62
+      },
+      "paragraph": {
+        "x": 103.046875,
+        "y": 134.21875,
+        "width": 637.890625,
+        "height": 183.765625
+      },
+      "save": {
+        "x": 742,
+        "y": 332,
+        "width": 88,
+        "height": 44
+      }
+    },
+    {
+      "name": "resume-reflow-and-controls",
+      "viewport": {
+        "width": 568,
+        "height": 320
+      },
+      "position": {
+        "first": 42,
+        "excerpt": "林远核对了两次，没有走去询问值班员。他看见玻璃上自己的倒影，",
+        "scrollTop": 98,
+        "max": 165,
+        "top": 73.25,
+        "bottom": 247.25,
+        "lines": [
+          {
+            "index": 0,
+            "top": -5.546875,
+            "bottom": 19.453125
+          },
+          {
+            "index": 21,
+            "top": 33.875,
+            "bottom": 58.875
+          },
+          {
+            "index": 42,
+            "top": 73.296875,
+            "bottom": 98.296875
+          },
+          {
+            "index": 63,
+            "top": 112.71875,
+            "bottom": 137.71875
+          },
+          {
+            "index": 84,
+            "top": 152.140625,
+            "bottom": 177.140625
+          },
+          {
+            "index": 105,
+            "top": 191.5625,
+            "bottom": 216.5625
+          },
+          {
+            "index": 126,
+            "top": 230.984375,
+            "bottom": 255.984375
+          },
+          {
+            "index": 147,
+            "top": 270.40625,
+            "bottom": 295.40625
+          }
+        ],
+        "hash": "789868e76600d9a63c12034797655e9af454d7742a5c200cabece029cb9a74cd",
+        "cursor": "4"
+      },
+      "bounds": {
+        "x": 281,
+        "y": 267,
+        "width": 83,
+        "height": 44
+      },
+      "notice": {
+        "x": 14,
+        "y": 258,
+        "width": 424,
+        "height": 62
+      },
+      "paragraph": {
+        "x": 22.71875,
+        "y": 72.25,
+        "width": 522.5625,
+        "height": 175.5
+      },
+      "save": {
+        "x": 466,
+        "y": 258,
+        "width": 88,
+        "height": 48
+      }
+    },
+    {
+      "name": "resume-reflow-and-controls",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "position": {
+        "first": 44,
+        "excerpt": "核对了两次，没有走去询问值班员。他看见玻璃上自己的倒影，才发",
+        "scrollTop": 220,
+        "max": 235,
+        "top": 296.375,
+        "bottom": 771.375,
+        "lines": [
+          {
+            "index": 0,
+            "top": 104.8125,
+            "bottom": 135.8125
+          },
+          {
+            "index": 11,
+            "top": 152.6875,
+            "bottom": 183.6875
+          },
+          {
+            "index": 22,
+            "top": 200.5625,
+            "bottom": 231.5625
+          },
+          {
+            "index": 33,
+            "top": 248.4375,
+            "bottom": 279.4375
+          },
+          {
+            "index": 44,
+            "top": 296.3125,
+            "bottom": 327.3125
+          },
+          {
+            "index": 55,
+            "top": 344.1875,
+            "bottom": 375.1875
+          },
+          {
+            "index": 66,
+            "top": 392.0625,
+            "bottom": 423.0625
+          },
+          {
+            "index": 77,
+            "top": 439.9375,
+            "bottom": 470.9375
+          },
+          {
+            "index": 89,
+            "top": 487.8125,
+            "bottom": 518.8125
+          },
+          {
+            "index": 100,
+            "top": 535.6875,
+            "bottom": 566.6875
+          },
+          {
+            "index": 111,
+            "top": 583.5625,
+            "bottom": 614.5625
+          },
+          {
+            "index": 122,
+            "top": 631.4375,
+            "bottom": 662.4375
+          },
+          {
+            "index": 133,
+            "top": 679.3125,
+            "bottom": 710.3125
+          },
+          {
+            "index": 144,
+            "top": 727.1875,
+            "bottom": 758.1875
+          }
+        ],
+        "hash": "789868e76600d9a63c12034797655e9af454d7742a5c200cabece029cb9a74cd",
+        "cursor": "4"
+      },
+      "bounds": {
+        "x": 28.59375,
+        "y": 118,
+        "width": 106,
+        "height": 44
+      },
+      "notice": {
+        "x": 15.59375,
+        "y": 76,
+        "width": 358.8125,
+        "height": 99
+      },
+      "paragraph": {
+        "x": 14,
+        "y": 295.375,
+        "width": 362,
+        "height": 476.609375
+      },
+      "save": {
+        "x": 288,
+        "y": 782,
+        "width": 88,
+        "height": 48
+      }
+    },
+    {
+      "name": "quick-load-original-hash-mark-after-monotonic-meta-merge",
+      "afterLoad": {
+        "first": 44,
+        "excerpt": "核对了两次，没有走去询问值班员。他看见玻璃上自己的倒影，才发",
+        "scrollTop": 220,
+        "max": 235,
+        "top": 296.375,
+        "bottom": 771.375,
+        "lines": [
+          {
+            "index": 0,
+            "top": 104.8125,
+            "bottom": 135.8125
+          },
+          {
+            "index": 11,
+            "top": 152.6875,
+            "bottom": 183.6875
+          },
+          {
+            "index": 22,
+            "top": 200.5625,
+            "bottom": 231.5625
+          },
+          {
+            "index": 33,
+            "top": 248.4375,
+            "bottom": 279.4375
+          },
+          {
+            "index": 44,
+            "top": 296.3125,
+            "bottom": 327.3125
+          },
+          {
+            "index": 55,
+            "top": 344.1875,
+            "bottom": 375.1875
+          },
+          {
+            "index": 66,
+            "top": 392.0625,
+            "bottom": 423.0625
+          },
+          {
+            "index": 77,
+            "top": 439.9375,
+            "bottom": 470.9375
+          },
+          {
+            "index": 89,
+            "top": 487.8125,
+            "bottom": 518.8125
+          },
+          {
+            "index": 100,
+            "top": 535.6875,
+            "bottom": 566.6875
+          },
+          {
+            "index": 111,
+            "top": 583.5625,
+            "bottom": 614.5625
+          },
+          {
+            "index": 122,
+            "top": 631.4375,
+            "bottom": 662.4375
+          },
+          {
+            "index": 133,
+            "top": 679.3125,
+            "bottom": 710.3125
+          },
+          {
+            "index": 144,
+            "top": 727.1875,
+            "bottom": 758.1875
+          }
+        ],
+        "hash": "8b272b2533428f6443f008791a46cad1d2958dbd6466f9ab1ee07b76b54c525d",
+        "cursor": "4"
+      }
+    },
+    {
+      "name": "restored-unread-paragraph-holds-auto",
+      "controlledClockMs": 120000
+    },
+    {
+      "name": "explicit-head-re-read-survives-reload"
+    },
+    {
+      "name": "corrupt-optional-cache-keeps-formal-story-and-quick-slot"
+    }
+  ],
+  "saved": {
+    "bytes": 10666,
+    "sha256": "16a6b844f0df5d69c16c39c68839588d7dd4451da3965ef9c98ae5ef288788c5",
+    "artifactHash": "41157418839f89345df60bbe114ba7f7dc623bbb8c54325584448975c69e7949",
+    "hash": "789868e76600d9a63c12034797655e9af454d7742a5c200cabece029cb9a74cd"
+  },
+  "errors": [],
+  "scope": "Actual complete 1.10.0 HTML, public controls, native wheel/Range and IndexedDB. Local UI marks only; no fake story states or DOM geometry. Controlled Auto time is a gate test, not natural reading. Desktop engines/phone-sized windows do not prove physical phone/Safari acceptance."
+}

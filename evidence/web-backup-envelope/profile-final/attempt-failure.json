@@ -1,0 +1,8 @@
+{
+  "passed": false,
+  "command": "STUDIO_BACKUP_ENVELOPE_PROFILE_DIRECTORY=evidence/web-backup-envelope/profile-final node tools/profile-web-backup-envelope.mjs",
+  "completedMeasurementRows": 9,
+  "error": "AssertionError [ERR_ASSERTION]: 1 !== 0 at tools/profile-web-backup-envelope.mjs:27:58",
+  "observation": "The immediate Playwright page.workers().length check after cancellation and two animation frames still returned 1. This attempt did not write its measurement rows before failing, and is not a passing profile report.",
+  "correction": "Await the asynchronous browser-protocol worker-close observation for at most five seconds; retain the zero-remaining-workers assertion. Write failure reports on future errors. Rerun in a fresh directory."
+}

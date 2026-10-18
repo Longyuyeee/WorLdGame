@@ -1,0 +1,8 @@
+{
+  "checks": [
+    "two issues recorded through actual preview; publishing reminder opens filtered checklist with return-to-generation; exact original text opens with its issue task, dirty edits block transitions; fix-and-retest starts actual revised content and manual confirmation stays separate"
+  ],
+  "errors": [],
+  "error": "AssertionError [ERR_ASSERTION]: {\"top\":987.53125,\"bottom\":1940.78125,\"height\":844}",
+  "stack": "AssertionError [ERR_ASSERTION]: {\"top\":987.53125,\"bottom\":1940.78125,\"height\":844}\n    at file:///E:/Project/AIProject/ClaudeProject/WorLdGame/tools/run-web-review-tasks.mjs:37:364"
+}

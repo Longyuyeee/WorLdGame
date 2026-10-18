@@ -1,0 +1,69 @@
+{
+  "passed": true,
+  "checkedAt": "2026-10-16T19:15:55.897Z",
+  "browser": "151.0.7922.34",
+  "checks": [
+    "The actual 0.5.0 main story is edited over the formal Player: scaled drag commits once, one undo/redo restores it, Escape leaves the draft unchanged, keyboard move/resize and pointer resize work without starting the game.",
+    "Inspector and actual-preview device/selection stay synchronized; hidden mobile decoration is still selectable and can be restored/undone, while a phone-only button receives a separate mobile geometry edit.",
+    "Real overlap diagnostics locate the responsible component, safely repair the essential pair in one edit and find an actually non-overlapping custom-button position; unavailable mobile space is reported without removing native entry points.",
+    "Author reading edits, local save/reopen, source ZIP, portable configuration, skin bytes and both formal game exports retain the new layout/visibility. Plot, characters and seven original assets remain unchanged.",
+    "Independent file:// HTML and touch-enabled directory Player apply device visibility, retain native load/settings and save focus/current sentence, survive portrait/landscape rotation and reach two different endings; no author canvas appears in exports.",
+    "A blank second project reuses actual skin bytes, device visibility and canvas coordinates without copying source scripts or characters."
+  ],
+  "errors": [],
+  "screenshots": [
+    "author-drag-and-resize.png",
+    "author-phone-hidden-and-conflicts.png",
+    "author-main-overlap.png",
+    "author-repaired-title.png",
+    "author-reading-layout.png",
+    "author-expanded-touch-layout.png",
+    "desktop-title.png",
+    "desktop-reading.png",
+    "desktop-ending.png",
+    "phone-title.png",
+    "phone-landscape.png",
+    "phone-reading.png",
+    "phone-ending.png",
+    "author-reused-canvas.png"
+  ],
+  "desktopRoute": "1\n留下来，把今晚写完",
+  "phoneRoute": "2\n带上信，去下一座城市",
+  "siteFiles": 18,
+  "formalEndingCoverage": "2/2 combined: HTML first route, directory other route; not all format×route combinations",
+  "editorFullRouteCoverage": "not run",
+  "realDevice": false,
+  "publicDeployment": false,
+  "artifacts": [
+    {
+      "name": "tomorrow-letter-0.6.0-project.zip",
+      "bytes": 10689323,
+      "sha256": "00ab998bf95a62e93aba5f61e16eaec54276a74fd34df4fb50b8460da88053a3"
+    },
+    {
+      "name": "tomorrow-letter-0.6.0.html",
+      "bytes": 15021874,
+      "sha256": "3f45ec38679bc0a7117ea905fd790ff772b6f8041f649f3e4c869ae07221db95"
+    },
+    {
+      "name": "tomorrow-letter-0.6.0-web.zip",
+      "bytes": 11526477,
+      "sha256": "2debefe2bf871653af713d15c59ad560fc3864b9a8987e075851fd31daa39a3a"
+    },
+    {
+      "name": "letter-canvas.worldskin.json",
+      "bytes": 8575,
+      "sha256": "06db2e86f50eb59f4858310924a627699521b50692c727d9715687519a8ea3b3"
+    },
+    {
+      "name": "letter-canvas.worldskin.zip",
+      "bytes": 4630536,
+      "sha256": "2a165fdd43053c37373d30785b138f5e840c8af845becac1b54b60555333cfcd"
+    },
+    {
+      "name": "reused-canvas-project.zip",
+      "bytes": 4636000,
+      "sha256": "6f0270800989f1da86ed9e2c9d2291ec627a61b1a8410655adc86c05d6f12be0"
+    }
+  ]
+}

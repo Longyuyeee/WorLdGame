@@ -1,0 +1,159 @@
+{
+  "passed": true,
+  "label": "baseline",
+  "priorCommit": null,
+  "baselineSourceSnapshot": "evidence/web-load-responsiveness/baseline-sources.json",
+  "formalStyle": true,
+  "cssHash": "42520dc0c9a5510b9b00313b1957ac11a60ba5acc6b9701ba026050d66ec0c61",
+  "fixtureSourceHash": "756fa03e7cf60fb550cbd7c26dd000559aa9e5f2c4a9ea9517bb13ececa0a415",
+  "bundleHash": "7063cdd748e08ed728debb050ed86754593561b1dbda12d96d19e597a5e5f8c9",
+  "browser": "151.0.7922.34",
+  "rows": [
+    {
+      "count": 120,
+      "historyLength": 120,
+      "savedHash": "1f0a07d54e426ba018faa84f8d93a2b7ea5adfd09c8ce2b4353c569a8f5307a5",
+      "advancedHash": "03b5e298e4ff3c30a2d6b0eb296cd3957e9fffb2c527a71f0084e4f2db98c05d",
+      "loadedHash": "f1267bf34d9712fb662505b0257ffa810bd3d4e2d44a321f7d0e3b9f5138beee"
+    },
+    {
+      "count": 240,
+      "historyLength": 240,
+      "savedHash": "92df689430d80ee954c1ee51da0228e7d37cc4d47ba4338768921620b7d2e049",
+      "advancedHash": "d5f4e84961a9c1e78e8b8bcf0fbc653b4122166359dec0f1c4a6ed03464f9403",
+      "loadedHash": "393dba0f287f1b01b03da030e8b5b2fe04346a45149eab180dc032c80eaf3008"
+    },
+    {
+      "count": 480,
+      "historyLength": 480,
+      "savedHash": "4a021baf224c0d9f9c0e33fed05b8a4e935a8920fe9958469df298126aa40825",
+      "advancedHash": "b1a1d80ccf0f63d5447dbd15b34687a54123baafb0c386d28c83bea18e74482c",
+      "loadedHash": "f5df6f6cc2dc62b1b0aba3bc7d2e8787910fe6ae789d7fc7c8eba6132ce6560e"
+    }
+  ],
+  "operations": [
+    {
+      "name": "120-quick-save",
+      "wallMs": 110.09999999403954,
+      "longTasks": [],
+      "longFrames": [],
+      "maximumHeartbeatGapMs": 26.599999994039536
+    },
+    {
+      "name": "120-advance",
+      "wallMs": 65.59999999403954,
+      "longTasks": [],
+      "longFrames": [],
+      "maximumHeartbeatGapMs": 30.099999994039536
+    },
+    {
+      "name": "120-quick-load",
+      "wallMs": 231.20000000298023,
+      "longTasks": [],
+      "longFrames": [
+        {
+          "start": 6052.4000000059605,
+          "duration": 54.400000005960464
+        }
+      ],
+      "maximumHeartbeatGapMs": 25.700000002980232
+    },
+    {
+      "name": "240-quick-save",
+      "wallMs": 175.29999999701977,
+      "longTasks": [],
+      "longFrames": [],
+      "maximumHeartbeatGapMs": 40.900000005960464
+    },
+    {
+      "name": "240-advance",
+      "wallMs": 75.5,
+      "longTasks": [],
+      "longFrames": [],
+      "maximumHeartbeatGapMs": 25.69999998807907
+    },
+    {
+      "name": "240-quick-load",
+      "wallMs": 290.09999999403954,
+      "longTasks": [],
+      "longFrames": [
+        {
+          "start": 13774.60000000894,
+          "duration": 51
+        },
+        {
+          "start": 13853.70000000298,
+          "duration": 52.29999999701977
+        }
+      ],
+      "maximumHeartbeatGapMs": 28.799999997019768
+    },
+    {
+      "name": "480-quick-save",
+      "wallMs": 344.5,
+      "longTasks": [],
+      "longFrames": [],
+      "maximumHeartbeatGapMs": 45.5
+    },
+    {
+      "name": "480-advance",
+      "wallMs": 109.80000001192093,
+      "longTasks": [
+        {
+          "start": 34920.5,
+          "duration": 59
+        }
+      ],
+      "longFrames": [
+        {
+          "start": 34918.30000001192,
+          "duration": 62.5
+        }
+      ],
+      "maximumHeartbeatGapMs": 68.79999999701977
+    },
+    {
+      "name": "480-quick-load",
+      "wallMs": 541.5,
+      "longTasks": [],
+      "longFrames": [
+        {
+          "start": 35109.80000001192,
+          "duration": 74.8999999910593
+        }
+      ],
+      "maximumHeartbeatGapMs": 48.099999994039536
+    }
+  ],
+  "errors": [],
+  "workerLifetime": {
+    "created": 3,
+    "terminated": 1,
+    "live": 2,
+    "peakLive": 2
+  },
+  "workersAfterPressure": {
+    "created": 4,
+    "terminated": 4,
+    "live": 0,
+    "peakLive": 2
+  },
+  "workersAfterUnmount": {
+    "created": 4,
+    "terminated": 4,
+    "live": 0,
+    "peakLive": 2
+  },
+  "foregroundSerializer": {
+    "active": 0,
+    "peakActive": 1,
+    "started": 8,
+    "completed": 8,
+    "cancelled": 0,
+    "fallback": 0,
+    "failed": 0
+  },
+  "scope": "synthetic text, real UI/IndexedDB; public host pressure notification, not physical memory; no injected history, media or forced GC",
+  "physicalDevice": false,
+  "twoHourSoakPassed": false
+}

@@ -1,0 +1,16 @@
+route 留下等雨停: step 0
+route 留下等雨停: step 30
+route 留下等雨停: step 60
+{
+  replayed: false,
+  limitation: 'Rain authored replay has no safe scene entrance in current History; disabled guidance checked, actual replay not claimed'
+}
+desktop HTML: first full route unlocks one ending, real gallery image and music remain available; replay availability is checked without changing the ending hash/cursor; title and refresh retain collection without loading a story save; missing route contexts are explained and disabled
+route 去追最后一班车: step 0
+route 去追最后一班车: step 30
+route 去追最后一班车: step 60
+desktop HTML: a fresh execution reaches the other ending and unions both route collections; reading the older opening save keeps both endings; another reload still shows both
+route 去追最后一班车: step 0
+route 去追最后一班车: step 30
+route 去追最后一班车: step 60
+390px HTTP directory: full other route reaches ending; portrait and 844x390 ending card fit; collection and refreshed title persist one ending in the independent browser storage; replay guidance opens native read mode

@@ -1,0 +1,135 @@
+{
+  "passed": true,
+  "checks": [
+    "UI import, version 1.4.0, source ZIP, production HTML and directory export",
+    {
+      "width": 320,
+      "portraitFrame": {
+        "width": 320,
+        "height": 180,
+        "ratio": 1.7777777777777777,
+        "inside": true
+      },
+      "landscapeFrame": {
+        "width": 650.65625,
+        "height": 365.984375,
+        "ratio": 1.7777777777777777,
+        "inside": true
+      },
+      "touchContext": true,
+      "compactToolbar": true,
+      "menuFocusAndNoProgress": true,
+      "saveRefresh": true,
+      "paceRestored": true,
+      "history": true,
+      "viewportRotation": true
+    },
+    {
+      "width": 390,
+      "portraitFrame": {
+        "width": 390,
+        "height": 219.375,
+        "ratio": 1.7777777777777777,
+        "inside": true
+      },
+      "landscapeFrame": {
+        "width": 650.65625,
+        "height": 365.984375,
+        "ratio": 1.7777777777777777,
+        "inside": true
+      },
+      "touchContext": true,
+      "compactToolbar": true,
+      "menuFocusAndNoProgress": true,
+      "saveRefresh": true,
+      "paceRestored": true,
+      "history": true,
+      "viewportRotation": true
+    },
+    "desktop-stay: complete route, all 60 paragraphs, voices and menu-based save/refresh",
+    "touch-leave: complete route, all 60 paragraphs, voices and menu-based save/refresh",
+    "http-touch-stay: complete route, all 60 paragraphs, voices and menu-based save/refresh",
+    {
+      "autoStandardTiming": true,
+      "units": 121,
+      "expectedDelay": 22280,
+      "measuredDelay": 22329,
+      "reducedMotionNeedsNoExtraRevealTap": true,
+      "humanTiming": false
+    },
+    "1400-character UI-authored paragraph: native touch scroll, Auto below-fold wait, next-screen reading, final flip/reset"
+  ],
+  "routes": {
+    "desktop-stay": {
+      "visited": [
+        "车站的雨",
+        "候车室的旧信",
+        "站台前的约定",
+        "留下",
+        "灯下的回信",
+        "雨后的天明"
+      ],
+      "paragraphs": 60,
+      "completedVoices": [
+        "voice_01",
+        "voice_02",
+        "voice_03",
+        "voice_04",
+        "voice_05",
+        "voice_06"
+      ],
+      "saveRefresh": true,
+      "allParagraphsClearOfControls": true,
+      "hasTouch": false
+    },
+    "touch-leave": {
+      "visited": [
+        "车站的雨",
+        "候车室的旧信",
+        "站台前的约定",
+        "远行",
+        "车窗与海",
+        "再一次见面"
+      ],
+      "paragraphs": 60,
+      "completedVoices": [
+        "voice_01",
+        "voice_02",
+        "voice_03",
+        "voice_07",
+        "voice_08",
+        "voice_09"
+      ],
+      "saveRefresh": true,
+      "allParagraphsClearOfControls": true,
+      "hasTouch": true
+    },
+    "http-touch-stay": {
+      "visited": [
+        "车站的雨",
+        "候车室的旧信",
+        "站台前的约定",
+        "留下",
+        "灯下的回信",
+        "雨后的天明"
+      ],
+      "paragraphs": 60,
+      "completedVoices": [
+        "voice_01",
+        "voice_02",
+        "voice_03",
+        "voice_04",
+        "voice_05",
+        "voice_06"
+      ],
+      "saveRefresh": true,
+      "allParagraphsClearOfControls": true,
+      "hasTouch": true
+    }
+  },
+  "errors": [],
+  "voiceLinesCompleted": 9,
+  "physicalDevicePassed": false,
+  "humanReadTimingPassed": false,
+  "publicDeployment": false
+}

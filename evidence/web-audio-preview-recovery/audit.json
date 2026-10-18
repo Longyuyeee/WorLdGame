@@ -1,0 +1,105 @@
+{
+  "passed": true,
+  "contentVersion": "1.11.0",
+  "technicalVersion": "S0.41",
+  "currentCandidateUnchanged": true,
+  "retained": [
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops-project.zip",
+      "sha256": "43ef6e1673ed3dffbf705b4f178b2122fc960971eaf47286b33742fa285f0576"
+    },
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops.worldreview",
+      "sha256": "747534249345da6ce337054b4e7f47a1516556beda7079ef7b6d093e590bce8f"
+    },
+    {
+      "file": "evidence/web-reading-press/before-rain-stops.html",
+      "sha256": "62cef5a100e83767bd2d05f4a6a84702335f6cda05d52176480bf51546c775ce"
+    },
+    {
+      "file": "evidence/web-reading-press/before-rain-stops-website.zip",
+      "sha256": "f5df9798de96c6bf29269082ff7748fe500c0e4a0afea60dacd507d410235b89"
+    }
+  ],
+  "build": {
+    "/assets/index-kTBLeIYg.js": "db72f795289b0e54f28494db1efa1d99c63dc084250684a92b0ae5f0996067b0",
+    "/assets/index-DJ92-1xN.css": "12f179587a2464422f8f241b017acc2f6c25b976cfe28b36c754577a4a3f972b"
+  },
+  "tests": {
+    "files": 138,
+    "distinctTests": 1249,
+    "newRecoveryTests": 17,
+    "nodeTests": 45
+  },
+  "browsers": [
+    {
+      "engine": "chromium",
+      "version": "151.0.7922.34",
+      "explicitPlayback": true,
+      "recoveryFeedbackPassed": true,
+      "sourceWorkflowPassed": true
+    },
+    {
+      "engine": "firefox",
+      "version": "153.0",
+      "explicitPlayback": true,
+      "recoveryFeedbackPassed": true,
+      "sourceWorkflowPassed": true
+    },
+    {
+      "engine": "webkit",
+      "version": "26.5",
+      "explicitPlayback": false,
+      "recoveryFeedbackPassed": true,
+      "sourceWorkflowPassed": true
+    }
+  ],
+  "architecture": {
+    "audit-architecture": {
+      "status": "PASS",
+      "auditedPortableFiles": 118,
+      "auditedNodeAdapterFiles": 4,
+      "guarantees": [
+        "narrative-vm-spike has no UI, DOM, platform-shell, filesystem, process, crypto-provider, wall-clock, or ambient-random dependency",
+        "story-core has no UI, DOM, platform-shell, filesystem, or process dependency",
+        "story-language has no UI, DOM, platform-shell, filesystem, or process dependency",
+        "story-language depends only on story-core",
+        "project-compiler is portable and depends only on project-domain/story-language, never the VM spike or platform APIs",
+        "runtime is portable and depends only on project-compiler, never the VM spike, editor, filesystem, wall clock, randomness, or platform APIs",
+        "runtime-host is portable and depends only on formal runtime, never UI, DOM, shell, filesystem, wall clock, randomness, or platform APIs",
+        "player-core is portable and consumes only canonical project, formal Compiler IR, Runtime, and Runtime Host without a parallel StoryStatement interpreter",
+        "gal-settings is dependency-free and portable with no UI, DOM, filesystem, process, shell, wall-clock, or ambient-random dependency",
+        "route-graph is portable and projects only canonical project and compiler facts through the Project Service boundary",
+        "project-persistence has no UI, DOM, platform-shell, filesystem, process, or runtime third-party dependency",
+        "project-domain depends only on portable Gal settings and has no UI, DOM, platform-shell, filesystem, process, crypto-provider, or runtime third-party dependency",
+        "project-persistence-node is isolated from the web editor and depends only on portable project-domain/project-persistence contracts",
+        "editor declares the Gal settings dependency explicitly",
+        "editor declares the story-core dependency explicitly",
+        "editor declares the story-language dependency explicitly",
+        "editor declares the project-persistence dependency explicitly",
+        "web editor does not bundle the Node filesystem adapter",
+        "VM Web Worker conformance Harness depends only on the portable Spike, formal Runtime, and portable Runtime Host and imports no shell or Node adapter",
+        "VM conformance CLI is an isolated Node reference host and depends only on the portable narrative VM",
+        "Windows Electron host keeps isolation and sandboxing enabled with the frozen WindowsHostV1 storage bridge",
+        "Windows Tauri host exposes only the frozen WindowsHostV1 storage commands and no generic privileged plugin",
+        "Windows project grant roots stay native-only and both hosts reject reparse roots and existing reparse path segments",
+        "story-core has no runtime third-party dependency"
+      ]
+    },
+    "audit-n52-e5b-runtime-history-v2": {
+      "status": "PASS",
+      "node": "N52-E5b-runtime-history-v2",
+      "engineeringStatus": "complete",
+      "productAcceptance": "blocked",
+      "continuation": {
+        "node": "N52-E5c-gal-history-policy-and-player-core-projection",
+        "gate": "only-after-e5b-exact-head-windows-ci-is-green"
+      },
+      "violations": []
+    }
+  },
+  "pendingMediaPermissions": 26,
+  "approvedMediaPermissions": 0,
+  "pendingHumanNotes": 25,
+  "scope": "Bounded editor preparation and preview playback recovery, native browser outcomes, source drafts/save/reopen and dual delivery boundaries. No new player candidate or full route rerun; no physical phone/Safari, human timing/listening, rights or public deployment acceptance."
+}

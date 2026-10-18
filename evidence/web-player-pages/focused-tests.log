@@ -1,0 +1,729 @@
+
+ RUN  v4.1.10 E:/Project/AIProject/ClaudeProject/WorLdGame
+
+ ✓ apps/player-shell/src/player-save-flow.test.tsx (6 tests) 4851ms
+   ✓ shows one action per card and keeps empty load cards disabled  1044ms
+   ✓ cancels a requested read without changing progress, then reads the pinned slot and stops Auto  850ms
+   ✓ refuses a changed slot after confirmation and refreshes the displayed selection  957ms
+   ✓ continues the latest saved slot from title using the normal validated loader  604ms
+   ✓ keeps a corrupt read from replacing the current story or writing a slot  729ms
+   ✓ keeps the confirmation modal open while the store read is busy  667ms
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+ ✓ apps/player-shell/src/player-preferences-shell.test.tsx (9 tests) 1978ms
+   ✓ provides title settings and instant personal changes without mutating source or progress  429ms
+   ✓ owns only the player fullscreen and synchronizes rejection, enter and browser exit  430ms
+ ✓ apps/player-shell/src/player-collection-flow.test.tsx (2 tests) 860ms
+   ✓ keeps unlocked endings after return to title and a fresh mount without reading a save  700ms
+ ✓ apps/editor/src/player-skin-settings.test.tsx (3 tests) 1286ms
+   ✓ edits another page, copies shared window style, undoes it and applies ending copy without changing other page widths  669ms
+   ✓ previews drafts, undoes a preset and applies title plus reading styles together  410ms
+ ❯ apps/player-shell/src/mount-player.test.tsx (9 tests | 5 failed) 801ms
+     ✓ suspends synchronously for pagehide and respects host/visibility ceilings on pageshow  308ms
+     ✓ does not let pageshow clear freeze or resume clear pagehide 63ms
+     × reports actual voice waiting as active and suspends it through the host API 167ms
+     × suspends synchronously for freeze and keeps host/visibility restrictions after resume 95ms
+     × treats real document visibility as a ceiling even with an explicit active host 48ms
+     × mounts the formal Core and exposes a stable observation contract 38ms
+     × updates activity without losing progress and resets only for a changed project identity 35ms
+     ✓ unmounts idempotently, rejects disposed operations, and permits a fresh remount 31ms
+     ✓ fails closed for detached containers and duplicate ownership 15ms
+ ✓ apps/editor/src/player-skin-preset.test.ts (5 tests) 48ms
+ ❯ apps/player-shell/src/player-screen-skin.test.tsx (7 tests | 6 failed) 617ms
+   × opens the actual menu page in an isolated, non-persistent preview 219ms
+   × opens the actual save page in an isolated, non-persistent preview 66ms
+   × opens the actual history page in an isolated, non-persistent preview 67ms
+   × opens the actual preferences page in an isolated, non-persistent preview 53ms
+   × opens the actual additional page in an isolated, non-persistent preview 50ms
+   × opens the actual credits page in an isolated, non-persistent preview 49ms
+   ✓ uses the author's ending copy and keeps its return action functional 111ms
+ ✓ packages/project-domain/src/web-player-skin.test.ts (3 tests) 24ms
+ ✓ packages/project-domain/src/web-player-screens.test.ts (2 tests) 25ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 11 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  apps/player-shell/src/mount-player.test.tsx > N50-E6 versioned Player host embedding API > reports actual voice waiting as active and suspends it through the host API
+TestingLibraryElementError: Unable to find an accessible element with the role "button" and name "继续下一句"
+
+Here are the accessible roles:
+
+  main:
+
+  Name "":
+  <main
+    class="player-shell"
+    data-additional-content="closed"
+    data-artwork-view="false"
+    data-audio-mode="enabled"
+    data-auto-playback="off"
+    data-compact-reading="false"
+    data-compiler="0.2.0"
+    data-effect-operation="none"
+    data-history-archives="0"
+    data-history-can-back="false"
+    data-history-can-forward="false"
+    data-history-cursor="0"
+    data-history-forward-policy="true"
+    data-history-length="0"
+    data-history-panel="closed"
+    data-host-activity="active"
+    data-input-accepted="true"
+    data-input-source="lifecycle"
+    data-memory-pressure="idle"
+    data-memory-pressure-serial="0"
+    data-playback-activation="none"
+    data-playback-mode="normal"
+    data-playback-policy="1.2.0"
+    data-playback-speed="normal"
+    data-playback-stop-reason="none"
+    data-player-core="0.5.0"
+    data-player-font="system"
+    data-player-fullscreen="false"
+    data-player-locale="und"
+    data-player-locale-fallbacks="0"
+    data-player-media-fallbacks="0"
+    data-player-media-locale="und"
+    data-player-media-missing="0"
+    data-player-muted="false"
+    data-player-status="title"
+    data-player-typography="standard"
+    data-preferences-open="false"
+    data-reading-menu-open="false"
+    data-reading-pace="standard"
+    data-reading-unread-below="false"
+    data-recovery-operation="scanning"
+    data-recovery-store="unavailable"
+    data-recovery-store-version="none"
+    data-runtime="0.6.0"
+    data-runtime-host="0.1.0"
+    data-runtime-host-snapshot-hash="f54b5eb474f9ef52719d2d36e70e76699864f341c4d3a1b75eee8b3328706258"
+    data-runtime-state-hash="none"
+    data-save-operation="idle"
+    data-save-store="unavailable"
+    data-save-store-version="none"
+    data-scene-replay="inactive"
+    data-settings-allow-hold="true"
+    data-settings-application="1"
+    data-settings-audio-ambient="0.8"
+    data-settings-audio-bgm="0.8"
+    data-settings-audio-master="1"
+    data-settings-audio-resume="true"
+    data-settings-audio-sfx="0.9"
+    data-settings-audio-ui="0.9"
+    data-settings-audio-voice="1"
+    data-settings-audio-voice-ducking="0.35"
+    data-settings-choice-layout="vertical"
+    data-settings-choice-numbers="true"
+    data-settings-high-contrast="false"
+    data-settings-history-forward="true"
+    data-settings-input-gamepad="true"
+    data-settings-input-hints="true"
+    data-settings-input-keyboard="true"
+    data-settings-input-pointer="true"
+    data-settings-input-touch="true"
+    data-settings-orientation="landscape"
+    data-settings-platform="web"
+    data-settings-quality="high"
+    data-settings-reduce-flashing="false"
+    data-settings-reduce-motion="false"
+    data-settings-safe-area="system"
+    data-settings-stage-duration="360"
+    data-settings-stage-easing="linear"
+    data-settings-text-cps="30"
+    data-settings-text-minimum="350"
+    data-settings-text-punctuation="120"
+    data-settings-textbox-default="adv"
+    data-settings-wait-for-voice="true"
+    data-skip-active="false"
+    data-skip-media="normal"
+    data-stage-images-pending="false"
+    data-video-policy-stop-reason="none"
+    style="--gal-stage-aspect: 1920 / 1080; --gal-stage-ratio: 1.7777777777777777; --gal-font-scale: 1; --gal-message-opacity: 0.88; --gal-line-height: 1.75; --gal-letter-spacing: 0em; --player-font-family: \"Noto Sans\", Inter, system-ui, sans-serif; --skin-font-title: \"Noto Sans\", Inter, system-ui, sans-serif; --skin-font-name: \"Noto Sans\", Inter, system-ui, sans-serif; --skin-font-ui: \"Noto Sans\", Inter, system-ui, sans-serif;"
+  />
+
+  --------------------------------------------------
+  region:
+
+  Name "WorLd Player · 多通道舞台 游戏画面":
+  <section
+    aria-label="WorLd Player · 多通道舞台 游戏画面"
+    class="player-stage"
+  />
+
+  --------------------------------------------------
+  paragraph:
+
+  Name "":
+  <p
+    class="player-eyebrow"
+  />
+
+  Name "":
+  <p />
+
+  --------------------------------------------------
+  heading:
+
+  Name "WorLd Player · 多通道舞台":
+  <h1 />
+
+  --------------------------------------------------
+  button:
+
+  Name "开始故事":
+  <button
+    class="player-primary"
+    disabled=""
+    type="button"
+  />
+
+  Name "打开玩家设置":
+  <button
+    aria-label="打开玩家设置"
+    type="button"
+  />
+
+  Name "打开附加内容":
+  <button
+    aria-label="打开附加内容"
+    type="button"
+  />
+
+  --------------------------------------------------
+  navigation:
+
+  Name "作品菜单":
+  <nav
+    aria-label="作品菜单"
+    class="player-title-actions"
+  />
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <main
+      class="player-shell"
+      data-additional-content="closed"
+      data-artwork-view="false"
+      data-audio-mode="enabled"
+      data-auto-playback="off"
+      data-compact-reading="false"
+      data-compiler="0.2.0"
+      data-effect-operation="none"
+      data-history-archives="0"
+      data-history-can-back="false"
+      data-history-can-forward="false"
+      data-history-cursor="0"
+      data-history-forward-policy="true"
+      data-history-length="0"
+      data-history-panel="closed"
+      data-host-activity="active"
+      data-input-accepted="true"
+      data-input-source="lifecycle"
+      data-memory-pressure="idle"
+      data-memory-pressure-serial="0"
+      data-playback-activation="none"
+      data-playback-mode="normal"
+      data-playback-policy="1.2.0"
+      data-playback-speed="normal"
+      data-playback-stop-reason="none"
+      data-player-core="0.5.0"
+      data-player-font="system"
+      data-player-fullscreen="false"
+      data-player-locale="und"
+      data-player-locale-fallbacks="0"
+      data-player-media-fallbacks="0"
+      data-player-media-locale="und"
+      data-player-media-missing="0"
+      data-player-muted="false"
+      data-player-status="title"
+      data-player-typography="standard"
+      data-preferences-open="false"
+      data-reading-menu-open="false"
+      data-reading-pace="standard"
+      data-reading-unread-below="false"
+      data-recovery-operation="scanning"
+      data-recovery-store="unavailable"
+      data-recovery-store-version="none"
+      data-runtime="0.6.0"
+      data-runtime-host="0.1.0"
+      data-runtime-host-snapshot-hash="f54b5eb474f9ef52719d2d36e70e76699864f341c4d3a1b75eee8b3328706258"
+      data-runtime-state-hash="none"
+      data-save-operation="idle"
+      data-save-store="unavailable"
+      data-save-store-version="none"
+      data-scene-replay="inactive"
+      data-settings-allow-hold="true"
+      data-settings-application="1"
+      data-settings-audio-ambient="0.8"
+      data-settings-audio-bgm="0.8"
+      data-settings-audio-master="1"
+      data-settings-audio-resume="true"
+      data-settings-audio-sfx="0.9"
+      data-settings-audio-ui="0.9"
+      data-settings-audio-voice="1"
+      data-settings-audio-voice-ducking="0.35"
+      data-settings-choice-layout="vertical"
+      data-settings-choice-numbers="true"
+      data-settings-high-contrast="false"
+      data-settings-history-forward="true"
+      data-settings-input-gamepad="true"
+      data-settings-input-hints="true"
+      data-settings-input-keyboard="true"
+      data-settings-input-pointer="true"
+      data-settings-input-touch="true"
+      data-settings-orientation="landscape"
+      data-settings-platform="web"
+      data-settings-quality="high"
+      data-settings-reduce-flashing="false"
+      data-settings-reduce-motion="false"
+      data-settings-safe-area="system"
+      data-settings-stage-duration="360"
+      data-settings-stage-easing="linear"
+      data-settings-text-cps="30"
+      data-settings-text-minimum="350"
+      data-settings-text-punctuation="120"
+      data-settings-textbox-default="adv"
+      data-settings-wait-for-voice="true"
+      data-skip-active="false"
+      data-skip-media="normal"
+      data-stage-images-pending="false"
+      data-video-policy-stop-reason="none"
+      style="--gal-stage-aspect: 1920 / 1080; --gal-stage-ratio: 1.7777777777777777; --gal-font-scale: 1; --gal-message-opacity: 0.88; --gal-line-height: 1.75; --gal-letter-spacing: 0em; --player-font-family: \"Noto Sans\", Inter, system-ui, sans-serif; --skin-font-title: \"Noto Sans\", Inter, system-ui, sans-serif; --skin-font-name: \"Noto Sans\", Inter, system-ui, sans-serif; --skin-font-ui: \"Noto Sans\", Inter, system-ui, sans-serif;"
+    >
+      <div
+        class="player-glow player-glow--violet"
+      />
+      <div
+        class="player-glow player-glow--cyan"
+      />
+      <section
+        aria-label="WorLd Player · 多通道舞台 游戏画面"
+        class="player-stage"
+      >
+        <div
+          aria-label="正式媒体舞台"
+          class="player-stage-world"
+          data-skip-media="normal"
+          style="transform: translate(0%, 0%) scale(1) rotate(0deg);"
+        />
+        <header
+          aria-label="播放器状态"
+          class="player-brand"
+          hidden=""
+        >
+          <span
+            aria-hidden="true"
+            class="player-brand__mark"
+          >
+            W
+          </span>
+          <span>
+            WorLd Player
+          </span>
+          <span
+            class="player-brand__status"
+          >
+            title
+          </span>
+        </header>
+        <div
+          class="player-control-layer"
+          data-open="false"
+          id="player-reading-menu"
+        >
+          <nav
+            aria-label="剧情历史控制"
+            class="player-history-controls"
+            hidden=""
+          >
+            <h3
+              class="player-menu-only player-menu-section-title"
+            >
+              回看与内容
+            </h3>
+            <button
+              aria-label="打开玩家设置"
+              class="player-menu-only"
+              type="button"
+            >
+              设置
+            </button>
+            <button
+              aria-label="后退一步"
+              disabled=""
+              type="button"
+            >
+              <span
+                aria-hidden="true"
+              >
+                ←
+              </span>
+              <span>
+                后退
+              </span>
+            </button>
+            <span
+              aria-label="历史位置"
+              class="player-history-controls__position"
+            >
+              0
+              /
+              0
+            </span>
+            <button
+              aria-label="前进一步"
+              disabled=""
+              type="button"
+            >
+              <span>
+                前进
+              </span>
+              <span
+                aria-hidden="true"
+              >
+                →
+              </span>
+            </button>
+            <button
+              aria-expanded="false"
+              aria-label="打开剧情历史"
+              class="player-history-controls__open"
+              type="button"
+            >
+              <span
+                aria-hidden="true"
+              >
+                ☰
+              </span>
+              <span>
+                历史
+              </span>
+            </button>
+            <button
+              aria-expanded="false"
+              aria-label="打开附加内容"
+              class="player-history-controls__additional player-menu-only"
+              type="button"
+            >
+              <span
+                aria-hidden="true"
+              >
+                ✦
+              </span>
+              <span>
+                附加内容
+              </span>
+            </button>
+          </nav>
+          <div
+            aria-label="播放控制"
+            class="player-playback-controls"
+            hidden=""
+          >
+            <h3
+              class="player-menu-only player-menu-section-title"
+            >
+              自动阅读与快进
+            </h3>
+            <label
+              class="player-menu-only"
+            >
+              自动阅读节奏
+              <select
+                aria-label="自动阅读节奏"
+              >
+                <option
+                  value="standard"
+                >
+                  标准
+                </option>
+                <option
+                  value="calm"
+                >
+                  从容
+                </option>
+                <option
+                  value="brisk"
+                >
+                  快速
+                </option>
+                <option
+                  value="policy"
+                >
+                  原速
+                </option>
+              </select>
+            </label>
+            <button
+              aria-label="自动播放"
+              aria-pressed="false"
+              disabled=""
+              type="button"
+            >
+              自动
+            </button>
+            <button
+              aria-label="快进已读"
+              aria-pressed="false"
+              disabled=""
+              type="button"
+            >
+              已读
+            </button>
+            <button
+              aria-label="快进全部"
+              aria-pressed="false"
+              class="player-menu-only"
+              disabled=""
+              type="button"
+            >
+              全部
+            </button>
+            <label
+              class="player-menu-only"
+            >
+              方式
+              <select
+                aria-label="快进激活方式"
+              >
+                <option
+                  value="toggle"
+                >
+                  切换
+                </option>
+                <option
+                  value="hold"
+                >
+                  按住
+                </option>
+              </select>
+            </label>
+            <label
+              class="player-menu-only"
+            >
+              速度
+              <select
+                aria-label="快进速度"
+              >
+                <option
+                  value="5"
+                >
+                  5×
+                </option>
+                <option
+                  value="10"
+                >
+                  10×
+                </option>
+                <option
+                  value="20"
+                >
+                  20×
+                </option>
+                <option
+                  value="40"
+                >
+                  40×
+                </option>
+                <option
+                  value="instant"
+                >
+                  瞬时
+                </option>
+              </select>
+            </label>
+            <span
+              aria-live="polite"
+            >
+              自动播放关闭
+            </span>
+          </div>
+        </div>
+        <div
+          class="player-title-screen"
+        >
+          <p
+            class="player-eyebrow"
+          >
+            A WORLd STUDIO STORY
+          </p>
+          <h1>
+            WorLd Player · 多通道舞台
+          </h1>
+          <p>
+            同一个故事核心，面向每一块屏幕。
+          </p>
+          <button
+            class="player-primary"
+            disabled=""
+            type="button"
+          >
+            开始故事
+            <span
+              aria-hidden="true"
+            >
+              →
+            </span>
+          </button>
+          <nav
+            aria-label="作品菜单"
+            class="player-title-actions"
+          >
+            <button
+              aria-label="打开玩家设置"
+              type="button"
+            >
+              设置
+            </button>
+            <button
+              aria-label="打开附加内容"
+              type="button"
+            >
+              附加内容
+            </button>
+          </nav>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ apps/player-shell/src/mount-player.test.tsx:65:28
+     63|     mounted.push(handle);
+     64|     fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+     65|     fireEvent.click(screen.getByRole("button", { name: "继续下一句" }));
+       |                            ^
+     66|     fireEvent.click(screen.getByRole("button", { name: "自动播放" }));
+     67|     await waitFor(() => expect(container.querySelector("main")).toHave…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/11]⎯
+
+ FAIL  apps/player-shell/src/mount-player.test.tsx > N50-E6 versioned Player host embedding API > suspends synchronously for freeze and keeps host/visibility restrictions after resume
+AssertionError: expected { schemaVersion: 1, …(13) } to match object { hostActivity: 'suspended', …(1) }
+(18 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+    "hostActivity": "suspended",
+-   "status": "waiting-choice",
++   "status": "title",
+  }
+
+ ❯ apps/player-shell/src/mount-player.test.tsx:82:77
+     80|     visibility.mockReturnValue("visible");fireEvent(document,new Event…
+     81|     fireEvent(document,new Event("freeze"));handle.setHostActivity("su…
+     82|     fireEvent(document,new Event("resume"));expect(handle.getObservati…
+       |                                                                             ^
+     83|     handle.unmount();fireEvent(document,new Event("freeze"));fireEvent…
+     84|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/11]⎯
+
+ FAIL  apps/player-shell/src/mount-player.test.tsx > N50-E6 versioned Player host embedding API > treats real document visibility as a ceiling even with an explicit active host
+AssertionError: expected { schemaVersion: 1, …(13) } to match object { hostActivity: 'suspended', …(1) }
+(18 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+    "hostActivity": "suspended",
+-   "status": "waiting-choice",
++   "status": "title",
+  }
+
+ ❯ apps/player-shell/src/mount-player.test.tsx:90:37
+     88|     fireEvent.click(screen.getByRole("button",{name:/开始故事/u}));
+     89|     visibility.mockReturnValue("hidden");fireEvent(document,new Event(…
+     90|     expect(handle.getObservation()).toMatchObject({hostActivity:"suspe…
+       |                                     ^
+     91|     handle.setHostActivity("active");expect(handle.getObservation().ho…
+     92|     handle.setHostActivity("suspended");visibility.mockReturnValue("vi…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/11]⎯
+
+ FAIL  apps/player-shell/src/mount-player.test.tsx > N50-E6 versioned Player host embedding API > mounts the formal Core and exposes a stable observation contract
+AssertionError: expected 'title' to be 'waiting-choice' // Object.is equality
+
+Expected: "waiting-choice"
+Received: "title"
+
+ ❯ apps/player-shell/src/mount-player.test.tsx:123:44
+    121|     });
+    122|     fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    123|     expect(handle.getObservation().status).toBe("waiting-choice");
+       |                                            ^
+    124|     expect(handle.getObservation().playback).toMatchObject({ mode: "no…
+    125|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/11]⎯
+
+ FAIL  apps/player-shell/src/mount-player.test.tsx > N50-E6 versioned Player host embedding API > updates activity without losing progress and resets only for a changed project identity
+AssertionError: expected 'title' to be 'waiting-choice' // Object.is equality
+
+Expected: "waiting-choice"
+Received: "title"
+
+ ❯ apps/player-shell/src/mount-player.test.tsx:131:44
+    129|     const handle = mount(connectedContainer(), original);
+    130|     fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    131|     expect(handle.getObservation().status).toBe("waiting-choice");
+       |                                            ^
+    132|
+    133|     handle.setHostActivity("suspended");
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/11]⎯
+
+ FAIL  apps/player-shell/src/player-screen-skin.test.tsx > opens the actual menu page in an isolated, non-persistent preview
+ FAIL  apps/player-shell/src/player-screen-skin.test.tsx > opens the actual additional page in an isolated, non-persistent preview
+Error: expect(element).toHaveAttribute("data-save-store-backend", "appearance-preview-memory") // element.getAttribute("data-save-store-backend") === "appearance-preview-memory"
+
+Expected the element to have attribute:
+  data-save-store-backend="appearance-preview-memory"
+Received:
+  null
+ ❯ apps/player-shell/src/player-screen-skin.test.tsx:20:43
+     18|   const panel = await screen.findByRole("dialog", { name: label });
+     19|   expect(panel).toHaveAttribute("data-skin-screen", id);
+     20|   expect(container.querySelector("main")).toHaveAttribute("data-save-s…
+       |                                           ^
+     21|   if (id === "save") {
+     22|     fireEvent.click(within(screen.getByRole("region", { name: "手动存档 1"…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/11]⎯
+
+ FAIL  apps/player-shell/src/player-screen-skin.test.tsx > opens the actual save page in an isolated, non-persistent preview
+ FAIL  apps/player-shell/src/player-screen-skin.test.tsx > opens the actual history page in an isolated, non-persistent preview
+ FAIL  apps/player-shell/src/player-screen-skin.test.tsx > opens the actual preferences page in an isolated, non-persistent preview
+ FAIL  apps/player-shell/src/player-screen-skin.test.tsx > opens the actual credits page in an isolated, non-persistent preview
+Error: expect(element).toHaveAttribute("data-save-store-backend", "appearance-preview-memory") // element.getAttribute("data-save-store-backend") === "appearance-preview-memory"
+
+Expected the element to have attribute:
+  data-save-store-backend="appearance-preview-memory"
+Received:
+  null
+ ❯ apps/player-shell/src/player-screen-skin.test.tsx:20:43
+     18|   const panel = await screen.findByRole("dialog", { name: label });
+     19|   expect(panel).toHaveAttribute("data-skin-screen", id);
+     20|   expect(container.querySelector("main")).toHaveAttribute("data-save-s…
+       |                                           ^
+     21|   if (id === "save") {
+     22|     fireEvent.click(within(screen.getByRole("region", { name: "手动存档 1"…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/11]⎯
+
+
+ Test Files  2 failed | 7 passed (9)
+      Tests  11 failed | 35 passed (46)
+   Start at  16:33:32
+   Duration  28.81s (transform 2.80s, setup 1.98s, import 7.04s, tests 10.49s, environment 7.17s)
+
+JSON report written to E:/Project/AIProject/ClaudeProject/WorLdGame/evidence/web-player-pages/focused-tests.json

@@ -1,0 +1,6 @@
+{
+  "passed": false,
+  "checks": [],
+  "errors": [],
+  "failure": "locator.waitFor: Timeout 20000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByText('最近一次试玩尚未从入口完成全程', { exact: true }) to be visible\u001b[22m\n\n    at E:\\Project\\AIProject\\ClaudeProject\\WorLdGame\\tools\\run-web-release-readiness.mjs:94:62"
+}

@@ -1,0 +1,104 @@
+{
+  "passed": true,
+  "promoted": true,
+  "contentVersion": "1.11.0",
+  "technicalVersion": "S0.41",
+  "artifacts": {
+    "html": {
+      "bytes": 46837824,
+      "sha256": "6a669333942bfb1fb478e4bc653c8ae6e4309180fb2161210dd14fefd2bab684"
+    },
+    "website": {
+      "bytes": 35424273,
+      "sha256": "30d253550b9e083fd364a62058d7e2e0002348016f4c23e23f4b82c7291a27cd"
+    }
+  },
+  "sourceAndNotes": "evidence/web-story-plans-and-farewell",
+  "pendingNotes": 25,
+  "retained": [
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops-project.zip",
+      "sha256": "43ef6e1673ed3dffbf705b4f178b2122fc960971eaf47286b33742fa285f0576"
+    },
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops.worldreview",
+      "sha256": "747534249345da6ce337054b4e7f47a1516556beda7079ef7b6d093e590bce8f"
+    },
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops.html",
+      "sha256": "6e5dfb4dfb88b5e210354fbcaeb8ccc4e79d50aa935a1d449f750bde8fc822fa"
+    },
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops-website.zip",
+      "sha256": "25ef0ab90a396f01dcfb09e60f754fb31a82f59aedb8da869b4a199a59e8f19e"
+    },
+    {
+      "file": "evidence/web-audio-failure-continuity/before-rain-stops.html",
+      "sha256": "8d874327042ea7c0d164b04524733580a56c350b16423c5df82a803433c7e812"
+    },
+    {
+      "file": "evidence/web-audio-failure-continuity/before-rain-stops-website.zip",
+      "sha256": "5505fb17d9f5de6882dda977f730d8e5624ebc2ded9e83a4c52a7f019338ee1f"
+    }
+  ],
+  "browsers": [
+    {
+      "engine": "chromium",
+      "checks": 6
+    },
+    {
+      "engine": "firefox",
+      "checks": 6
+    },
+    {
+      "engine": "webkit",
+      "checks": 6
+    }
+  ],
+  "healthy": [
+    {
+      "engine": "chromium",
+      "fileMode": false,
+      "checks": 6
+    },
+    {
+      "engine": "firefox",
+      "fileMode": false,
+      "checks": 6
+    },
+    {
+      "engine": "webkit",
+      "fileMode": false,
+      "checks": 6
+    },
+    {
+      "engine": "chromium",
+      "fileMode": true,
+      "checks": 6
+    }
+  ],
+  "fullMatrixCells": 4,
+  "tests": {
+    "files": 158,
+    "distinctTests": 1488,
+    "newTests": 14,
+    "nodeTests": 94
+  },
+  "engineering": {
+    "typecheck": {
+      "passed": true,
+      "output": ""
+    },
+    "architecture": {
+      "passed": true,
+      "output": "{\n  \"status\": \"PASS\",\n  \"auditedPortableFiles\": 118,\n  \"auditedNodeAdapterFiles\": 4,\n  \"guarantees\": [\n    \"narrative-vm-spike has no UI, DOM, platform-shell, filesystem, process, crypto-provider, wall-clock, or ambient-random dependency\",\n    \"story-core has no UI, DOM, platform-shell, filesystem, or process dependency\",\n    \"story-language has no UI, DOM, platform-shell, filesystem, or process dependency\",\n    \"story-language depends only on story-core\",\n    \"project-compiler is portable and depends only on project-domain/story-language, never the VM spike or platform APIs\",\n    \"runtime is portable and depends only on project-compiler, never the VM spike, editor, filesystem, wall clock, randomness, or platform APIs\",\n    \"runtime-host is portable and depends only on formal runtime, never UI, DOM, shell, filesystem, wall clock, randomness, or platform APIs\",\n    \"player-core is portable and consumes only canonical project, formal Compiler IR, Runtime, and Runtime Host without a parallel StoryStatement interpreter\",\n    \"gal-settings is dependency-free and portable with no UI, DOM, filesystem, process, shell, wall-clock, or ambient-random dependency\",\n    \"route-graph is portable and projects only canonical project and compiler facts through the Project Service boundary\",\n    \"project-persistence has no UI, DOM, platform-shell, filesystem, process, or runtime third-party dependency\",\n    \"project-domain depends only on portable Gal settings and has no UI, DOM, platform-shell, filesystem, process, crypto-provider, or runtime third-party dependency\",\n    \"project-persistence-node is isolated from the web editor and depends only on portable project-domain/project-persistence contracts\",\n    \"editor declares the Gal settings dependency explicitly\",\n    \"editor declares the story-core dependency explicitly\",\n    \"editor declares the story-language dependency explicitly\",\n    \"editor declares the project-persistence dependency explicitly\",\n    \"web editor does not bundle the Node filesystem adapter\",\n    \"VM Web Worker conformance Harness depends only on the portable Spike, formal Runtime, and portable Runtime Host and imports no shell or Node adapter\",\n    \"VM conformance CLI is an isolated Node reference host and depends only on the portable narrative VM\",\n    \"Windows Electron host keeps isolation and sandboxing enabled with the frozen WindowsHostV1 storage bridge\",\n    \"Windows Tauri host exposes only the frozen WindowsHostV1 storage commands and no generic privileged plugin\",\n    \"Windows project grant roots stay native-only and both hosts reject reparse roots and existing reparse path segments\",\n    \"story-core has no runtime third-party dependency\"\n  ]\n}\n"
+    },
+    "history-engineering": {
+      "passed": true,
+      "output": "{\n  \"status\": \"PASS\",\n  \"node\": \"N52-E5b-runtime-history-v2\",\n  \"engineeringStatus\": \"complete\",\n  \"productAcceptance\": \"blocked\",\n  \"continuation\": {\n    \"node\": \"N52-E5c-gal-history-policy-and-player-core-projection\",\n    \"gate\": \"only-after-e5b-exact-head-windows-ci-is-green\"\n  },\n  \"violations\": []\n}\n"
+    }
+  },
+  "pendingMediaPermissions": 26,
+  "approvedMediaPermissions": 0,
+  "scope": "History Tab navigation stays within live controls; inert backdrop and intent guard prevent toolbar back/forward, with explicit recorded-row rollback preserved. Three native desktop-engine website tasks verify keyboard search/audition/filter/stop/return, four viewport sizes and unchanged real slots. Healthy history checks additionally include local Chromium HTML. Full Chromium format/route matrix, actual production authoring, original same-content backup and exact 26 media retained. No story, direction, audio policy, Core, Runtime or save-format changes. Not screen reader acceptance, natural reading/listening/timing, physical phones/Safari, OS interruptions/BFCache, embedded WebKit audio, licensing/public HTTPS or long soak. Existing cold-title and timeout investigations and long-history/storage costs remain open."
+}

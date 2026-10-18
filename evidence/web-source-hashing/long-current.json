@@ -1,0 +1,124 @@
+{
+  "passed": true,
+  "label": "current",
+  "priorCommit": "d4e336273dbc9c37e711c5170e09dc7422b951dc",
+  "fixtureSourceHash": "385bff0a2034159d95ae4a1c49af697dd5d7ff616f85a3698b2f2eea091986f8",
+  "bundleHash": "519c541a88f6d555e4c7128158939e73dd41ed831008cf8e8e07df3c01b7d9df",
+  "browser": "151.0.7922.34",
+  "rows": [
+    {
+      "count": 120,
+      "historyLength": 120,
+      "savedHash": "1f0a07d54e426ba018faa84f8d93a2b7ea5adfd09c8ce2b4353c569a8f5307a5",
+      "advancedHash": "03b5e298e4ff3c30a2d6b0eb296cd3957e9fffb2c527a71f0084e4f2db98c05d",
+      "loadedHash": "f1267bf34d9712fb662505b0257ffa810bd3d4e2d44a321f7d0e3b9f5138beee"
+    },
+    {
+      "count": 240,
+      "historyLength": 240,
+      "savedHash": "92df689430d80ee954c1ee51da0228e7d37cc4d47ba4338768921620b7d2e049",
+      "advancedHash": "d5f4e84961a9c1e78e8b8bcf0fbc653b4122166359dec0f1c4a6ed03464f9403",
+      "loadedHash": "393dba0f287f1b01b03da030e8b5b2fe04346a45149eab180dc032c80eaf3008"
+    },
+    {
+      "count": 480,
+      "historyLength": 480,
+      "savedHash": "4a021baf224c0d9f9c0e33fed05b8a4e935a8920fe9958469df298126aa40825",
+      "advancedHash": "b1a1d80ccf0f63d5447dbd15b34687a54123baafb0c386d28c83bea18e74482c",
+      "loadedHash": "f5df6f6cc2dc62b1b0aba3bc7d2e8787910fe6ae789d7fc7c8eba6132ce6560e"
+    }
+  ],
+  "operations": [
+    {
+      "name": "120-quick-save",
+      "wallMs": 107.39999999850988,
+      "longTasks": [],
+      "longFrames": [],
+      "maximumHeartbeatGapMs": 25.399999998509884
+    },
+    {
+      "name": "120-advance",
+      "wallMs": 66.79999999701977,
+      "longTasks": [],
+      "longFrames": [],
+      "maximumHeartbeatGapMs": 29.600000001490116
+    },
+    {
+      "name": "120-quick-load",
+      "wallMs": 209,
+      "longTasks": [],
+      "longFrames": [],
+      "maximumHeartbeatGapMs": 18.19999999552965
+    },
+    {
+      "name": "240-quick-save",
+      "wallMs": 173.79999999701977,
+      "longTasks": [],
+      "longFrames": [],
+      "maximumHeartbeatGapMs": 23.299999997019768
+    },
+    {
+      "name": "240-advance",
+      "wallMs": 80,
+      "longTasks": [],
+      "longFrames": [],
+      "maximumHeartbeatGapMs": 33.29999999701977
+    },
+    {
+      "name": "240-quick-load",
+      "wallMs": 246.20000000298023,
+      "longTasks": [],
+      "longFrames": [],
+      "maximumHeartbeatGapMs": 18.5
+    },
+    {
+      "name": "480-quick-save",
+      "wallMs": 284.8999999985099,
+      "longTasks": [],
+      "longFrames": [],
+      "maximumHeartbeatGapMs": 45.70000000298023
+    },
+    {
+      "name": "480-advance",
+      "wallMs": 115.29999999701977,
+      "longTasks": [
+        {
+          "start": 28569.5,
+          "duration": 50
+        }
+      ],
+      "longFrames": [
+        {
+          "start": 28568.10000000149,
+          "duration": 51.79999999701977
+        }
+      ],
+      "maximumHeartbeatGapMs": 52
+    },
+    {
+      "name": "480-quick-load",
+      "wallMs": 428.79999999701977,
+      "longTasks": [],
+      "longFrames": [
+        {
+          "start": 28751.60000000149,
+          "duration": 59.70000000298023
+        }
+      ],
+      "maximumHeartbeatGapMs": 33.899999998509884
+    }
+  ],
+  "errors": [],
+  "foregroundSerializer": {
+    "active": 0,
+    "peakActive": 1,
+    "started": 7,
+    "completed": 7,
+    "cancelled": 0,
+    "fallback": 0,
+    "failed": 0
+  },
+  "scope": "synthetic text, real UI/IndexedDB; no injected history, media, forced GC or physical device",
+  "physicalDevice": false,
+  "twoHourSoakPassed": false
+}

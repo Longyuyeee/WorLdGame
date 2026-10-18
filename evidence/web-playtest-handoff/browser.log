@@ -1,0 +1,6 @@
+actual entry runs: old left ending, edit narration through revision, new right ending; independent progress download retains two source versions without counting old progress as current
+opt-in directory production bundle has independently chosen notes/progress, exact manifest digests, original editable source, private author records only under review/; changing progress option invalidates generated downloads; 390px options fit
+second isolated browser: full bundle restores source, waits for explicit merge, retains both author prompts across home/reload/reopen; progress and notes merge independently; consumed prompts stay cleared after reload; current 1/2 and old receipt remain distinct, dark mobile fits
+third isolated browser: normal source ZIP has no progress; actual local new-version left run is retained while importing right + old left; cancel writes nothing, repeat merge stays at 2/2 and three receipts; foreign file rejected; merged progress survives reload
+delivery with foreign progress and recomputed correct file inventory/digests is rejected before creating a recent project
+actual delivered game/ HTTP directory independently plays the revised short story to an ending at 390px

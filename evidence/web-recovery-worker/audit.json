@@ -1,0 +1,126 @@
+{
+  "passed": true,
+  "scope": "current runtime/artifact identity, functional and bounded release evidence; no statistical performance or physical-device acceptance",
+  "oldRuntimeHash": "ffb0065d7fbd4c8b88fce0ab4e61417e13b0100f1cbee41fc12a430d28ad1513",
+  "runtimeHash": "accc459c9eaf24d3be941cba448be2efd4531a54ff96232aa2c150fc5963b598",
+  "artifacts": {
+    "before-rain-stops-project.zip": {
+      "byteLength": 31683014,
+      "sha256": "a55d610e3f7348aafe94f86db426304c44e8f706684497e4279a59cc2c083e5a"
+    },
+    "before-rain-stops.html": {
+      "byteLength": 42859721,
+      "sha256": "9736506f2fedd5bbc507d3387e7c669eda781a5a038d26dc78d73b3522fd6b8c"
+    },
+    "before-rain-stops-web.zip": {
+      "byteLength": 32373392,
+      "sha256": "68168028818873d46a1695ba6b94a0f1e6f9511c4a42ae97b469e34446d3a3c0"
+    },
+    "before-rain-stops.worldreview": {
+      "byteLength": 9208,
+      "sha256": "7e0e2f2f809a671f09f6bf33da1e67850b42d24b766ac2f4976a3f4864bf23be"
+    }
+  },
+  "tests": {
+    "baseline": 420,
+    "baselineFiles": 45,
+    "playerHost": 416,
+    "playerHostFiles": 55,
+    "overlapTests": 134,
+    "overlapFiles": 8,
+    "pollTests": 3,
+    "fixtureTests": 2,
+    "distinct": 707,
+    "distinctFiles": 94
+  },
+  "baseline": [
+    {
+      "run": 0,
+      "cpuProfilerAttached": true,
+      "longTasks": 3,
+      "longTaskMs": 180,
+      "longestFrameMs": 115.19999999925494,
+      "recoverySerializer": null
+    },
+    {
+      "run": 1,
+      "cpuProfilerAttached": false,
+      "longTasks": 14,
+      "longTaskMs": 1386,
+      "longestFrameMs": 221,
+      "recoverySerializer": null
+    },
+    {
+      "run": 2,
+      "cpuProfilerAttached": false,
+      "longTasks": 5,
+      "longTaskMs": 400,
+      "longestFrameMs": 227.09999999776483,
+      "recoverySerializer": null
+    }
+  ],
+  "current": [
+    {
+      "run": 0,
+      "cpuProfilerAttached": true,
+      "longTasks": 1,
+      "longTaskMs": 71,
+      "longestFrameMs": 116,
+      "recoverySerializer": {
+        "active": 0,
+        "peakActive": 1,
+        "started": 71,
+        "completed": 71,
+        "cancelled": 0,
+        "fallback": 0,
+        "failed": 0
+      }
+    },
+    {
+      "run": 1,
+      "cpuProfilerAttached": false,
+      "longTasks": 1,
+      "longTaskMs": 65,
+      "longestFrameMs": 80.09999999776483,
+      "recoverySerializer": {
+        "active": 0,
+        "peakActive": 1,
+        "started": 71,
+        "completed": 71,
+        "cancelled": 0,
+        "fallback": 0,
+        "failed": 0
+      }
+    },
+    {
+      "run": 2,
+      "cpuProfilerAttached": false,
+      "longTasks": 1,
+      "longTaskMs": 67,
+      "longestFrameMs": 82.5,
+      "recoverySerializer": {
+        "active": 0,
+        "peakActive": 1,
+        "started": 71,
+        "completed": 71,
+        "cancelled": 0,
+        "fallback": 0,
+        "failed": 0
+      }
+    }
+  ],
+  "authorEvidence": "author-check.json; browser matrix sourceReused is recorded separately",
+  "browserChecks": {
+    "matrix": 16,
+    "authorRecordedSeparately": true,
+    "totalCoverage": 17
+  },
+  "continuousCycles": 8,
+  "continuousWallMilliseconds": 274550,
+  "physicalDevice": false,
+  "twoHourSoakPassed": false,
+  "physicalMemoryLeakFreeProven": false,
+  "fullOfflineAudioMatrixPassed": false,
+  "permissionsVerified": false,
+  "publicDeployment": false
+}

@@ -1,0 +1,20 @@
+import { readFile, writeFile, mkdir } from 'node:fs/promises';
+import { resolve, join } from 'node:path';
+import { pathToFileURL } from 'node:url';
+import { createRequire } from 'node:module';
+const base=import.meta.dirname;
+const deps='C:/Users/39633/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules';
+const sharp=createRequire(import.meta.url)(join(deps,'sharp'));
+// The source artwork remains intact; this small derivative is only for embedding the preview.
+const jpg=await sharp(join(base,'images/sample-station.png')).resize({width:1050,withoutEnlargement:true}).jpeg({quality:75,mozjpeg:true}).toBuffer();
+await writeFile(join(base,'images/sample-station-preview.jpg'),jpg);
+const source=await readFile(join(base,'prototype-source.html'),'utf8');
+const embedded=source.replace('<style>','<style>\n#world-design-root .wd-product{--wd-scene-image:url("data:image/jpeg;base64,'+jpg.toString('base64')+'")}');
+const inline='C:/Users/39633/.codex/visualizations/2026/10/12/01a12de0-ed50-7712-847a-4bb2a5d46060/world-studio-system-design.html';
+await mkdir(resolve(inline,'..'),{recursive:true});
+await writeFile(inline,embedded,'utf8');
+await writeFile(join(base,'prototype-fragment.html'),embedded,'utf8');
+const lucide=await readFile(join(deps,'lucide/dist/umd/lucide.js'),'utf8').catch(()=>null);
+const full='<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>WorLd Studio · 界面与交互方案</title><style>body{margin:0;background:#eaedf2;padding:24px;max-width:1520px;margin:auto} @media(max-width:600px){body{padding:8px}} button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{outline:2px solid #6286ff;outline-offset:3px} [hidden]{display:none!important}</style></head><body>'+(lucide?'<script>'+lucide+'</script>':'')+embedded+'</body></html>';
+await writeFile(join(base,'prototype.html'),full,'utf8');
+console.log(JSON.stringify({inline,bytes:Buffer.byteLength(embedded),standalone:join(base,'prototype.html'),sampleArtworkBytes:jpg.length,icons:!!lucide}));

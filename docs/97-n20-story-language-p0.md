@@ -1,5 +1,13 @@
 # N20 Story Language P0 审计
 
+## 2026-10-10 场景目标补充（当前实现）
+
+`jump`、`call`、条件的目标名先解析为当前场景标签；没有同名标签时，可使用工程中的场景稳定 ID，进入该场景第 0 条指令。`call` 仍压入下一条位置，`return` 返回原调用位置；条件不成立继续当前场景的下一步。变量状态沿用既有 Runtime，不在本轮重定义作用域生命周期。
+
+Canonical 字段仍是 `targetLabel`，无需迁移旧工程。Compiler 输出本地标签时保留原 IR operands；跨场景时输出 `targetSceneId`（与 `targetLabel` 互斥），同时纳入场景依赖、可达图和出口分析。缓存依赖加入控制目标解析标记，防止复用旧结果；旧标签工程的 golden IR/build identity 不变。新增 operand 是当前 IR 1.1 实现的加法扩展，旧独立播放器未具备此能力，使用此功能的作品必须配套更新后的 Runtime/重新导出，不宣称旧播放器兼容。
+
+作者不必手写 ID：Sequence 按场景名称选目标，条件面板可按变量名称生成数值/是否/文本比较，也可保留复杂表达式。真实制作、重开和预期/实际结果见 `evidence/authoring/condition-workflow.json`。以下 N20 冻结记录保留历史身份。
+
 > 日期：2026-08-14
 > 节点：N20
 > 对齐需求：`REQ-SCRIPT`、`REQ-SEQ`、`REQ-RUNTIME`；为 N21、N30、N31、N40 提供权威脚本语义

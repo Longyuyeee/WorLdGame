@@ -1,0 +1,26 @@
+{
+  "passed": true,
+  "browser": "155.0.8059.41",
+  "checks": [
+    "draft cancel keeps two options; add/remove/reorder apply once; one Undo/Redo restores full option group; only real scenes offered; light/dark and 390px controls fit",
+    "enter selected target, edit its narration with pending-input protection, return to exact original choice",
+    "numeric increase, boolean and quoted Chinese text applied; declared boolean comparison locked to type; complex condition preserved until explicit generation, discard restores it; wrong-type/incomplete expressions show errors without source changes",
+    "actual Editor Runtime follows the generated condition and all three edited options to their distinct endings",
+    "edited source ZIP and real HTML exported; surviving IDs/order/typed expressions and target text verified in ZIP; saved project survives home/reload/reopen",
+    "exported local HTML plays all three edited branches to distinct endings in isolated contexts, including 390px; this is a short authoring fixture, not a rerun of Rain Before candidate"
+  ],
+  "artifacts": {
+    "branch-authoring-edited.zip": {
+      "byteLength": 7658,
+      "sha256": "e6423408531e26c5ed197a078957755cf1cedca998fe0f025f6aadb7f553ca52"
+    },
+    "branch-authoring.html": {
+      "byteLength": 594105,
+      "sha256": "4cbb107aecaf2035a2cfef847319ddc4553b1d3634578b9a35012bfd93a5288c"
+    }
+  },
+  "errors": [],
+  "candidateReissued": false,
+  "fullRainRoutesRerun": false,
+  "physicalPhone": false
+}

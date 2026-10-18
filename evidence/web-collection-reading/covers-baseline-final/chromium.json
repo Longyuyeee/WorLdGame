@@ -1,0 +1,55 @@
+{
+  "baseline": true,
+  "engine": "chromium",
+  "identity": {
+    "codeSha256": "6eb98f465e29354064f520963c034d63f3b008249bee2baab5f74790fd815be9",
+    "cssSha256": "44ab478c9e24ade04cbf03b353d5f0e8e02bdb6444f79cb6955e58d0a02e162d",
+    "fixtureSha256": "1200a893c9ef8b400ce579de82481b5c7713163e8b39d70ccea407d3e0814fe8"
+  },
+  "samples": [
+    {
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "view": "场景回想",
+      "result": {
+        "overflow": 53,
+        "rows": [
+          {
+            "title": "雨后的约定与下一次旅程 BeforeTheRainStopsAndWeMeetAgain",
+            "titleBox": {
+              "x": 50,
+              "y": 409.375,
+              "width": 290.1875,
+              "height": 42
+            },
+            "rowBox": {
+              "x": 33,
+              "y": 330.375,
+              "width": 254,
+              "height": 155
+            },
+            "coverBox": {
+              "x": 100,
+              "y": 343.375,
+              "width": 72,
+              "height": 52
+            },
+            "actionBox": {
+              "x": 100,
+              "y": 418.875,
+              "width": 94,
+              "height": 44
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "errors": [
+    "locator.evaluate: TypeError: Cannot read properties of null (reading 'getBoundingClientRect')\n    at box (eval at evaluate (:311:30), <anonymous>:2:42)\n    at eval (eval at evaluate (:311:30), <anonymous>:3:224)\n    at Array.map (<anonymous>)\n    at eval (eval at evaluate (:311:30), <anonymous>:3:90)\n    at UtilityScript.evaluate (<anonymous>:313:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at E:\\ProjectSave\\GeminiProject\\WorLdGame\\tools\\run-web-collection-covers.mjs:37:84",
+    "横屏更适合观看演出\n\nEXTRAS\n附加内容\n返回剧情\n← 返回总览\nMUSIC\n音乐室\n\n1 / 1 已收录\n\n01\n雨后的约定与下一次旅程 BeforeTheRainStopsAndWeMeetAgain\n存读档\n\n进度已自动保存\n\n故事告一段落\nCurtain\n\n已达成 1 / 1 个结局\n\n已读、画廊、音乐与结局记录会保留。可以查看收藏，或读取存档探索其他选择。\n\n查看收藏与结局\n读取存档探索其他路线\n回到标题"
+  ],
+  "scope": "Configured catalog covers and long names in an isolated native-browser fixture. Not an authored Rain story export or full-story acceptance."
+}

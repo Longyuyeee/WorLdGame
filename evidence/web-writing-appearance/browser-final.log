@@ -1,0 +1,18 @@
+blank-project guidance creates a character and returns to the original writing scene; dirty Escape preserves input
+{"label":"created 留下","scenes":["车站的雨","留下"],"sceneId":"scene_e919f09d3b7d45f7","save":"保存到本机"}
+{"label":"created 远行","scenes":["车站的雨","留下","远行"],"sceneId":"scene_f4bf99fd319a40a4","save":"保存到本机"}
+create number variable and two ending scenes directly from writing; new scenes enter writing without changing the opening scene
+{"label":"before preview","scenes":["车站的雨","留下","远行"],"sceneId":"scene_87825610ea97b89eeea8","save":"保存到本机"}
+write real dialogue, assign a numeric variable with a valid default, and connect named choices to two authored endings without script editing
+extend two connected routes through writing; create a role and return with undo/redo and selection intact
+{"label":"after exit preview","scenes":["车站的雨","留下","远行"],"sceneId":"scene_e919f09d3b7d45f7","save":"已自动保存 · s8"}
+{"label":"selected entry","scenes":["车站的雨","留下","远行"],"sceneId":"scene_87825610ea97b89eeea8","save":"已自动保存 · s8"}
+configure cover, title copy, paper/rose palette and text scale with draft protection and real project saving
+{"label":"reopened","scenes":["车站的雨","留下","远行"],"sceneId":"scene_87825610ea97b89eeea8","save":"已恢复 · s10"}
+preview a complete route, save before returning home, and reopen the original scene with persisted choices
+reopened appearance stays intact; apply the release version before exporting the editable project
+paper palette applies to actual save/history panels while quick save persists the authored route
+export standalone HTML; complete both endings on desktop/mobile sizes; quick save and reload restore the same state hash
+export directory ZIP and complete a route through a real local HTTP deployment under /gal/
+structure lists and native creation dialog fit 736/390/320px widths
+{"passed":true,"checks":11,"errors":[]}

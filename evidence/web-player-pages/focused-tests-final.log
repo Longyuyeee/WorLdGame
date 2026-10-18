@@ -1,0 +1,37 @@
+
+ RUN  v4.1.10 E:/Project/AIProject/ClaudeProject/WorLdGame
+
+ ✓ apps/player-shell/src/player-save-flow.test.tsx (6 tests) 4950ms
+   ✓ shows one action per card and keeps empty load cards disabled  1162ms
+   ✓ cancels a requested read without changing progress, then reads the pinned slot and stops Auto  914ms
+   ✓ refuses a changed slot after confirmation and refreshes the displayed selection  1012ms
+   ✓ continues the latest saved slot from title using the normal validated loader  673ms
+   ✓ keeps a corrupt read from replacing the current story or writing a slot  600ms
+   ✓ keeps the confirmation modal open while the store read is busy  586ms
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+ ✓ apps/player-shell/src/mount-player.test.tsx (9 tests) 1202ms
+     ✓ suspends synchronously for pagehide and respects host/visibility ceilings on pageshow  375ms
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+ ✓ apps/player-shell/src/player-preferences-shell.test.tsx (9 tests) 2102ms
+   ✓ provides title settings and instant personal changes without mutating source or progress  380ms
+   ✓ owns only the player fullscreen and synchronizes rejection, enter and browser exit  634ms
+ ✓ apps/editor/src/player-skin-settings.test.tsx (3 tests) 1420ms
+   ✓ edits another page, copies shared window style, undoes it and applies ending copy without changing other page widths  675ms
+   ✓ previews drafts, undoes a preset and applies title plus reading styles together  474ms
+ ✓ apps/player-shell/src/player-collection-flow.test.tsx (2 tests) 791ms
+   ✓ keeps unlocked endings after return to title and a fresh mount without reading a save  661ms
+ ✓ apps/player-shell/src/player-screen-skin.test.tsx (7 tests) 746ms
+ ✓ apps/editor/src/player-skin-preset.test.ts (6 tests) 56ms
+ ✓ packages/project-domain/src/web-player-screens.test.ts (2 tests) 17ms
+ ✓ packages/project-domain/src/web-player-skin.test.ts (3 tests) 19ms
+
+ Test Files  9 passed (9)
+      Tests  47 passed (47)
+   Start at  16:40:30
+   Duration  29.53s (transform 2.83s, setup 1.89s, import 6.78s, tests 11.30s, environment 7.31s)
+
+JSON report written to E:/Project/AIProject/ClaudeProject/WorLdGame/evidence/web-player-pages/focused-tests-final.json

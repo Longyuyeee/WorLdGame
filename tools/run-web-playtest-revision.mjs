@@ -1,0 +1,78 @@
+import { createRequire } from 'node:module';
+import { mkdir, readFile, writeFile, mkdtemp, copyFile, unlink, rmdir } from 'node:fs/promises';
+import { homedir, tmpdir } from 'node:os';
+import path from 'node:path';
+import { pathToFileURL } from 'node:url';
+import { createHash } from 'node:crypto';
+import assert from 'node:assert/strict';
+import { unzipSync, zipSync, strFromU8, strToU8 } from 'fflate';
+const require = createRequire(import.meta.url); let chromium;
+try { ({ chromium } = require('playwright')); } catch { ({ chromium } = require(path.join(homedir(), '.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright'))); }
+const root = path.resolve(import.meta.dirname, '..'), output = path.join(root, 'evidence/web-playtest-revision'); await mkdir(output, { recursive: true });
+const source = unzipSync(await readFile(path.join(root, 'evidence/web-branch-authoring/branch-authoring-fixture.zip'))), manifest = JSON.parse(strFromU8(source['world.project.json']));
+const entry = JSON.parse(strFromU8(source['scripts/entry.json'])); entry.statements = entry.statements.filter(item => item.kind === 'narration' || item.kind === 'choice'); source['scripts/entry.json'] = strToU8(JSON.stringify(entry));
+const browser = await chromium.launch({ headless: true, executablePath: process.env.STUDIO_CHROME ?? 'C:/Program Files/Google/Chrome/Application/chrome.exe' });
+const page = await browser.newPage({ viewport: { width: 1440, height: 1000 }, reducedMotion: 'reduce' }); page.setDefaultTimeout(20000);
+const checks = [], errors = [], artifacts = {}; let temporaryDirectory, htmlPath;
+const watch = p => p.on('pageerror', e => errors.push(e.message)); watch(page);
+const check = detail => { checks.push(detail); console.log(detail); };
+const ready = () => page.waitForFunction(() => document.querySelector('.local-save-button')?.disabled === false);
+const clean = () => page.waitForFunction(() => document.querySelector('[data-nav-item="checks"]')?.disabled === false);
+const nav = name => page.getByRole('navigation', { name: '主要功能' }).getByRole('button', { name, exact: true }).click();
+const shot = name => page.screenshot({ path: path.join(output, `${name}.png`), animations: 'disabled' });
+const board = () => page.getByRole('region', { name: '试玩校订清单' });
+const savedNotes = () => page.evaluate(id => JSON.parse(localStorage.getItem(`world-studio:playtest-notes:${id}`)), manifest.projectId);
+const revision = () => page.getByTestId('workspace-shell').getAttribute('data-source-revision');
+async function fit(selector) { const r = await page.locator(selector).evaluate(el => { const rect = el.getBoundingClientRect(); return { left: rect.left, right: rect.right, viewport: innerWidth, width: el.clientWidth, scroll: el.scrollWidth }; }); assert.ok(r.left >= -1 && r.right <= r.viewport + 1 && r.scroll <= r.width + 1, JSON.stringify(r)); }
+async function download(trigger, name, retain = false) { const wait = page.waitForEvent('download'); await trigger(); const item = await wait; if (retain) await item.saveAs(path.join(output, name)); const target = await item.path(), bytes = await readFile(target); artifacts[name] = { byteLength: bytes.length, sha256: createHash('sha256').update(bytes).digest('hex') }; return { target, bytes }; }
+try {
+  await page.goto(process.env.STUDIO_UI_URL ?? 'http://127.0.0.1:5194/'); await page.getByLabel('导入工程 ZIP', { exact: true }).setInputFiles({ name: 'playtest-revision-fixture.zip', mimeType: 'application/zip', buffer: Buffer.from(zipSync(source, { level: 0 })) }); await ready();
+  await page.getByRole('button', { name: '试玩完整流程', exact: true }).click();
+  const before = await revision(); await page.getByRole('button', { name: '记录问题', exact: true }).click();
+  let dialog = page.getByRole('dialog', { name: '记录试玩问题' }); await dialog.getByLabel('校订问题描述').fill('取消时不保存'); await dialog.getByLabel('关闭问题记录').click(); assert.equal(await revision(), before);
+  await page.getByRole('button', { name: '记录问题', exact: true }).click(); dialog = page.getByRole('dialog', { name: '记录试玩问题' });
+  await dialog.getByLabel('校订问题描述').fill('这句需要更自然，修改后重新确认。<script>不会作为脚本运行</script>'); await shot('capture-note-desktop'); await dialog.getByRole('button', { name: '保存校订记录', exact: true }).click();
+  assert.equal(await revision(), before); assert.equal((await savedNotes()).notes[0].statementId, 'intro'); assert.equal((await savedNotes()).notes[0].excerpt, entry.statements[0].text);
+  await page.getByRole('button', { name: '修改当前内容', exact: true }).click();
+  assert.equal(await page.getByTestId('workspace-shell').getAttribute('data-context-statement-id'), 'intro');
+  await page.getByLabel('旁白文本', { exact: true }).fill('屋檐下的雨声终于停了。'); assert.ok(await page.getByRole('button', { name: '返回试玩', exact: true }).isDisabled());
+  await page.getByRole('button', { name: '应用修改', exact: true }).click(); await clean(); await page.getByRole('button', { name: '返回试玩', exact: true }).click();
+  await page.getByTestId('preview-step').getByText('屋檐下的雨声终于停了。', { exact: true }).waitFor(); assert.ok((await page.getByRole('group', { name: 'Runtime 调试控制' }).innerText()).includes('试玩记录 1/1'));
+  await page.getByRole('button', { name: '继续故事', exact: true }).click(); await page.getByRole('button', { name: '选择路线：留在车站', exact: true }).click();
+  await nav('检查'); await board().getByRole('button', { name: '定位原文', exact: true }).click();
+  assert.equal(await page.getByTestId('workspace-shell').getAttribute('data-context-scene-id'), 'entry'); await shot('revision-return-desktop'); await page.getByRole('button', { name: '返回试玩', exact: true }).click();
+  await page.getByTestId('preview-step').getByText('你留在了车站。', { exact: true }).waitFor();
+  check('capture/cancel creates only local notes; stable origin/excerpt; direct editing guards drafts, keeps 1/1 history; cross-scene note editing returns to the original route');
+  await nav('检查'); await board().getByRole('button', { name: '标记已修改', exact: true }).click(); await board().getByText('待复核', { exact: true }).waitFor();
+  await board().getByRole('button', { name: '从此处复测', exact: true }).click(); await page.getByTestId('preview-step').getByText('屋檐下的雨声终于停了。', { exact: true }).waitFor(); await page.getByText('局部内容试玩', { exact: true }).waitFor();
+  await nav('检查'); await board().getByRole('button', { name: '确认已复核', exact: true }).click(); await board().getByRole('button', { name: '全部 1', exact: true }).click();
+  await board().getByRole('button', { name: '定位原文', exact: true }).click(); await page.getByLabel('旁白文本', { exact: true }).fill('雨停后，站台终于安静了。'); await page.getByRole('button', { name: '应用修改', exact: true }).click(); await clean();
+  await nav('检查'); await board().getByText('内容已变 · 需复核', { exact: true }).waitFor();
+  await board().scrollIntoViewIfNeeded(); await fit('.playtest-review-board'); await shot('review-board-desktop');
+  await page.locator('.editor-preferences > summary').click(); await page.getByRole('button', { name: '石墨', exact: true }).click(); await page.locator('.editor-preferences > summary').click(); await shot('review-board-dark');
+  await page.locator('.editor-preferences > summary').click(); await page.getByRole('button', { name: '清亮', exact: true }).click(); await page.locator('.editor-preferences > summary').click();
+  await page.setViewportSize({ width: 390, height: 844 }); await fit('.playtest-review-board'); await shot('review-board-mobile'); await page.setViewportSize({ width: 1440, height: 1000 });
+  check('fixing and manual verification are distinct; exact-location replay is labelled partial; editing story makes a verified record pending; real light/dark and 390px board');
+  const exported = await download(() => board().getByRole('button', { name: '导出校订记录', exact: true }).click(), 'review-notes.worldreview', true);
+  const document = JSON.parse(exported.bytes.toString('utf8')); assert.equal(document.projectId, manifest.projectId); assert.equal(document.notes.length, 1);
+  await board().getByLabel('导入校订记录').setInputFiles({ name: 'wrong.worldreview', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify({ ...document, projectId: 'different_project' })) }); await board().getByRole('alert').waitFor(); assert.equal((await savedNotes()).notes.length, 1);
+  await board().getByLabel('导入校订记录').setInputFiles({ name: 'conflict.worldreview', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify({ ...document, notes: [{ ...document.notes[0], text: '不同的记录版本' }] })) }); await board().getByText(/同一记录存在不同版本/).waitFor(); assert.equal((await savedNotes()).notes[0].text, document.notes[0].text);
+  await board().locator('.review-note-more > summary').click(); await board().locator('.review-delete > summary').click(); await board().getByRole('button', { name: '确认删除记录', exact: true }).click();
+  await board().getByLabel('导入校订记录').setInputFiles(path.join(output, 'review-notes.worldreview')); await board().getByText('内容已变 · 需复核', { exact: true }).waitFor(); assert.equal((await savedNotes()).notes[0].id, document.notes[0].id);
+  await ready(); await page.getByLabel('项目菜单', { exact: true }).click(); await page.getByRole('button', { name: /所有项目/ }).click(); await page.reload(); await page.getByRole('button', { name: /^打开项目：分支创作流程/ }).click(); await ready();
+  await nav('检查'); await board().getByText('内容已变 · 需复核', { exact: true }).waitFor();
+  check('portable record export/import retains identity and status; foreign project and conflicting duplicate refuse atomically; home/reload/reopen retains notes');
+  await nav('发布'); await page.getByRole('button', { name: '继续：导出方式 →', exact: true }).click(); await page.getByRole('button', { name: '继续：生成游戏 →', exact: true }).click();
+  await page.getByRole('region', { name: '发布前校订提醒' }).getByRole('button', { name: '查看校订清单', exact: true }).click(); await board().waitFor();
+  await board().getByRole('button', { name: '确认已复核', exact: true }).click();
+  await page.getByLabel('项目菜单', { exact: true }).click(); const zip = await download(() => page.getByRole('button', { name: /导出工程 ZIP/ }).click(), 'revised-source.zip', true);
+  const files = unzipSync(zip.bytes); assert.equal(JSON.parse(strFromU8(files['scripts/entry.json'])).statements[0].text, '雨停后，站台终于安静了。'); assert.ok(!Object.keys(files).some(key => key.includes('review'))); assert.ok(!Buffer.from(zip.bytes).includes(Buffer.from(document.notes[0].text)));
+  await nav('发布'); await page.getByRole('button', { name: '继续：导出方式 →', exact: true }).click(); await page.getByRole('button', { name: '继续：生成游戏 →', exact: true }).click();
+  await page.getByText('故事与素材检查通过', { exact: true }).waitFor(); await page.getByRole('button', { name: '构建试玩 HTML', exact: true }).click(); const html = await download(() => page.getByRole('link', { name: '下载游戏', exact: true }).click(), 'singleHtml');
+  assert.ok(!html.bytes.includes(Buffer.from(document.notes[0].text))); temporaryDirectory = await mkdtemp(path.join(tmpdir(), 'world-playtest-revision-')); htmlPath = path.join(temporaryDirectory, 'revised.html'); await copyFile(html.target, htmlPath);
+  const player = await browser.newPage({ viewport: { width: 390, height: 844 }, reducedMotion: 'reduce' }); watch(player); await player.goto(pathToFileURL(htmlPath).href); await player.getByRole('button', { name: /^开始故事/ }).click();
+  await player.getByText('雨停后，站台终于安静了。', { exact: true }).waitFor(); await player.getByRole('button', { name: '继续下一句', exact: true }).click(); await player.locator('.player-choice').getByRole('button', { name: /留在车站/ }).click(); await player.getByText('你留在了车站。', { exact: true }).waitFor(); await player.getByRole('button', { name: '继续下一句', exact: true }).click(); await player.locator('main[data-player-status="ended"]').waitFor(); assert.ok((await player.locator('.player-ending').innerText()).includes('留下的约定')); await player.screenshot({ path: path.join(output, 'revised-player-ending-mobile.png') }); await player.close();
+  check('release shows pending review reminders; revised source ZIP and real HTML contain the new text and no private notes; exported local HTML plays the short branch to its ending');
+  assert.deepEqual(errors, []); await writeFile(path.join(output, 'browser-checks.json'), JSON.stringify({ passed: true, browser: browser.version(), checks, errors, artifacts, scope: 'Short branch-authoring fixture; not Rain 1.5.4 full routes, human reading or device acceptance', notesStorage: 'project-scoped localStorage plus a separate portable file; never a player save or embedded source ZIP' }, null, 2));
+} catch (error) { await writeFile(path.join(output, 'browser-failure.json'), JSON.stringify({ checks, errors, error: String(error), stack: error.stack }, null, 2)); await shot('failure'); throw error; }
+finally { await browser.close(); if (htmlPath) await unlink(htmlPath); if (temporaryDirectory) await rmdir(temporaryDirectory); }

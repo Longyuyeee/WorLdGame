@@ -1,4 +1,5 @@
 import type { EntityId, SceneResourceManifest, StoryProject } from "@world-studio/story-core";
+import { storyMotionError } from "@world-studio/story-core";
 import {
   CAMERA_GEOMETRY_PARAMETERS,
   DIRECTIVE_PARAMETERS,
@@ -194,6 +195,8 @@ export function compileSceneResourceManifest(
         message: `@${node.command} action is invalid: ${actionSource ?? ""}`, sceneId: scene.id,
         statementId: node.id, line: node.range.start.line });
       if (action !== undefined) {
+        const motionError = storyMotionError(node.command, action, Object.fromEntries(parsed.parameters));
+        if (motionError) diagnostics.push({ code: "INVALID_ACTION_PARAMETER", severity: "error", message: motionError, sceneId: scene.id, statementId: node.id, line: node.range.start.line });
         const actionParameters = new Set(directiveActionParameters(node.command, action));
         const standardParameters = new Set(DIRECTIVE_PARAMETERS[node.command]);
         const invalidParameters = [...parsed.parameters.keys()].filter((key) => standardParameters.has(key) && !actionParameters.has(key));
@@ -295,7 +298,7 @@ export function compileSceneResourceManifest(
       const transition = parsed.parameters.get("transition");
       if (transition !== undefined && !isStageTransition(transition)) diagnostics.push({ code: "INVALID_STAGE_TRANSITION", severity: "error",
         message: "transition must be fade|dissolve|slide", sceneId: scene.id, statementId: node.id, line: node.range.start.line });
-      const requiresAsset = action !== undefined && directiveActionRequiresAsset(node.command, action);
+      const requiresAsset = action !== undefined && (directiveActionRequiresAsset(node.command, action) || node.command === "show" && parsed.parameters.get("motion") === "fade-out");
       const dependencies = [requiresAsset ? assetId : undefined, requiresAsset ? parsed.parameters.get("transitionAsset") : undefined]
         .filter((value): value is string => value !== undefined);
       const validDependencies: string[] = [];

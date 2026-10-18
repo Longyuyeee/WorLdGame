@@ -1,0 +1,6 @@
+{
+  "error": "TimeoutError: page.waitForFunction: Timeout 30000ms exceeded.",
+  "stack": "page.waitForFunction: Timeout 30000ms exceeded.\n    at E:\\ProjectSave\\GeminiProject\\WorLdGame\\tools\\run-web-startup-profile.mjs:25:144",
+  "samples": [],
+  "errors": []
+}

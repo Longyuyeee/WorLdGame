@@ -15,7 +15,7 @@ describe("N43-E6 Debug & QA real task", () => {
     const first = render(<App autosaveDebounceMs={60_000} />);
 
     fireEvent.click(await screen.findByRole("radio", { name: "Debug & QA" }));
-    expect(screen.getByRole("heading", { name: "诊断与运行检查台" })).toBeVisible();
+    expect(screen.getByRole("heading", { name: "检查与调试" })).toBeVisible();
     expect(screen.getByTestId("workspace-shell")).toHaveAttribute("data-context-statement-id", "stmt_gate_bg");
     fireEvent.click(screen.getByRole("button", { name: "运行正式 QA 检查" }));
     await waitFor(() => expect(screen.getByText("当前正式检查无诊断")).toBeVisible(), { timeout: UI_BUDGET_MS });
@@ -40,7 +40,7 @@ describe("N43-E6 Debug & QA real task", () => {
     render(<App autosaveDebounceMs={60_000} />);
     expect(await screen.findByRole("button", { name: "已恢复 · s1" }, { timeout: UI_BUDGET_MS })).toBeVisible();
     expect(screen.getByRole("radio", { name: "Debug & QA" })).toHaveAttribute("aria-checked", "true");
-    expect(screen.getByRole("heading", { name: "诊断与运行检查台" })).toBeVisible();
+    expect(screen.getByRole("heading", { name: "检查与调试" })).toBeVisible();
     expect(screen.getByTestId("workspace-shell")).toHaveAttribute("data-context-restore-status", "restored");
     expect(screen.getByTestId("workspace-shell")).toHaveAttribute("data-context-statement-id", "stmt_gate_bg");
   }, 30_000);

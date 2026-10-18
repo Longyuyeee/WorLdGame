@@ -1,0 +1,217 @@
+{
+  "passed": true,
+  "baseline": false,
+  "engine": "webkit",
+  "browser": "26.5",
+  "build": {
+    "/assets/index-kTBLeIYg.js": "db72f795289b0e54f28494db1efa1d99c63dc084250684a92b0ae5f0996067b0",
+    "/assets/index-DJ92-1xN.css": "12f179587a2464422f8f241b017acc2f6c25b976cfe28b36c754577a4a3f972b"
+  },
+  "checks": [
+    {
+      "name": "explicit-keyboard-start-and-native-outcome",
+      "initial": {
+        "paused": true,
+        "ended": false,
+        "time": 0,
+        "readyState": 0,
+        "error": null,
+        "status": "试听：林远·合成语音04\n\n音频无法播放，当前浏览器可能不支持此文件。可再次开始试听；仍失败请换浏览器或重新导入支持的格式。\n\n开始试听\n重新准备试听",
+        "events": [
+          {
+            "name": "loadstart",
+            "at": 8916,
+            "paused": true,
+            "time": 0,
+            "readyState": 0,
+            "error": 4
+          },
+          {
+            "name": "error",
+            "at": 8917,
+            "paused": true,
+            "time": 0,
+            "readyState": 0,
+            "error": 4
+          }
+        ],
+        "nativeCalls": [],
+        "promise": null
+      },
+      "result": {
+        "paused": true,
+        "ended": false,
+        "time": 0,
+        "readyState": 0,
+        "error": null,
+        "status": "试听：林远·合成语音04\n\n音频无法播放，当前浏览器可能不支持此文件。可再次开始试听；仍失败请换浏览器或重新导入支持的格式。\n\n开始试听\n重新准备试听",
+        "events": [
+          {
+            "name": "loadstart",
+            "at": 8916,
+            "paused": true,
+            "time": 0,
+            "readyState": 0,
+            "error": 4
+          },
+          {
+            "name": "error",
+            "at": 8917,
+            "paused": true,
+            "time": 0,
+            "readyState": 0,
+            "error": 4
+          },
+          {
+            "name": "play",
+            "at": 9012,
+            "paused": false,
+            "time": 0,
+            "readyState": 0,
+            "error": null
+          },
+          {
+            "name": "waiting",
+            "at": 9014,
+            "paused": false,
+            "time": 0,
+            "readyState": 0,
+            "error": null
+          },
+          {
+            "name": "loadstart",
+            "at": 9024,
+            "paused": true,
+            "time": 0,
+            "readyState": 0,
+            "error": 4
+          },
+          {
+            "name": "error",
+            "at": 9025,
+            "paused": true,
+            "time": 0,
+            "readyState": 0,
+            "error": 4
+          },
+          {
+            "name": "pause",
+            "at": 9026,
+            "paused": true,
+            "time": 0,
+            "readyState": 0,
+            "error": 4
+          }
+        ],
+        "nativeCalls": [
+          {
+            "outcome": "NotSupportedError",
+            "at": 9007
+          }
+        ],
+        "promise": null
+      },
+      "playback": false,
+      "nativeProgressRequired": false,
+      "physicalDevice": false
+    },
+    {
+      "name": "three-phone-sized-layouts-with-reachable-native-and-explicit-controls",
+      "layouts": [
+        {
+          "viewport": {
+            "width": 320,
+            "height": 740
+          },
+          "geometry": [
+            {
+              "tag": "BUTTON",
+              "width": 198,
+              "height": 44,
+              "visible": true,
+              "overflow": false
+            },
+            {
+              "tag": "BUTTON",
+              "width": 198,
+              "height": 44,
+              "visible": true,
+              "overflow": false
+            },
+            {
+              "tag": "AUDIO",
+              "width": 198,
+              "height": 31,
+              "visible": true,
+              "overflow": false
+            }
+          ]
+        },
+        {
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "geometry": [
+            {
+              "tag": "BUTTON",
+              "width": 268,
+              "height": 44,
+              "visible": true,
+              "overflow": false
+            },
+            {
+              "tag": "BUTTON",
+              "width": 268,
+              "height": 44,
+              "visible": true,
+              "overflow": false
+            },
+            {
+              "tag": "AUDIO",
+              "width": 268,
+              "height": 31,
+              "visible": true,
+              "overflow": false
+            }
+          ]
+        },
+        {
+          "viewport": {
+            "width": 844,
+            "height": 390
+          },
+          "geometry": [
+            {
+              "tag": "BUTTON",
+              "width": 451.359375,
+              "height": 44,
+              "visible": true,
+              "overflow": false
+            },
+            {
+              "tag": "BUTTON",
+              "width": 451.359375,
+              "height": 44,
+              "visible": true,
+              "overflow": false
+            },
+            {
+              "tag": "AUDIO",
+              "width": 451.359375,
+              "height": 31,
+              "visible": true,
+              "overflow": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "manual-reprepare-retry-close-with-private-draft-and-pending-state-retained",
+      "markerSavedToCanonicalSource": false
+    }
+  ],
+  "errors": [],
+  "scope": "Actual editor and original current voice file; native control click and native play Promise, observed events only. No synthetic media events; no claim of Safari, physical phone or licensing acceptance."
+}

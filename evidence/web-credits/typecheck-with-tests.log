@@ -1,0 +1,11 @@
+
+> world-studio@0.0.0-s0.41 typecheck
+> tsc -b
+
+apps/editor/src/branch-authoring-fixture.ts(1,43): error TS6059: File 'E:/Project/AIProject/ClaudeProject/WorLdGame/apps/editor/src/canonical-project-adapter.ts' is not under 'rootDir' 'E:/Project/AIProject/ClaudeProject/WorLdGame/apps/player-shell/src'. 'rootDir' is expected to contain all source files.
+apps/editor/src/branch-authoring-fixture.ts(1,43): error TS6307: File 'E:/Project/AIProject/ClaudeProject/WorLdGame/apps/editor/src/canonical-project-adapter.ts' is not listed within the file list of project 'E:/Project/AIProject/ClaudeProject/WorLdGame/apps/player-shell/tsconfig.json'. Projects must list all files or use an 'include' pattern.
+apps/player-shell/src/player-credits.test.tsx(4,40): error TS6059: File 'E:/Project/AIProject/ClaudeProject/WorLdGame/apps/editor/src/branch-authoring-fixture.ts' is not under 'rootDir' 'E:/Project/AIProject/ClaudeProject/WorLdGame/apps/player-shell/src'. 'rootDir' is expected to contain all source files.
+apps/player-shell/src/player-credits.test.tsx(4,40): error TS6307: File 'E:/Project/AIProject/ClaudeProject/WorLdGame/apps/editor/src/branch-authoring-fixture.ts' is not listed within the file list of project 'E:/Project/AIProject/ClaudeProject/WorLdGame/apps/player-shell/tsconfig.json'. Projects must list all files or use an 'include' pattern.
+apps/editor/src/web-credits.test.tsx(4,64): error TS6133: 'loadProject' is declared but its value is never read.
+apps/editor/src/web-credits.test.tsx(4,77): error TS6133: 'importProjectBinaryZip' is declared but its value is never read.
+apps/editor/src/web-credits.test.tsx(16,93): error TS2339: Property 'cancel' does not exist on type 'FireFunction & FireObject'.

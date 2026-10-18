@@ -1,0 +1,5 @@
+{
+  "checks": [],
+  "errors": [],
+  "failure": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\n'1.5.4' !== '1.6.0'\n\n    at auditArtifacts (file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/audit-rain-story-refinement.mjs:58:10)\n    at async file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-story-refinement.mjs:131:43"
+}

@@ -1,0 +1,989 @@
+{
+  "passed": true,
+  "baseline": false,
+  "engine": "webkit",
+  "fileMode": false,
+  "browser": "26.5",
+  "artifacts": {
+    "html": {
+      "bytes": 46842644,
+      "sha256": "ca8563fafc15bea90bcc4c3f7c4d6d9b60422f04c1c80cd4a4a2c502c51f6008"
+    },
+    "website": {
+      "bytes": 35429093,
+      "sha256": "c2cbb30e234630616c19996c86f043b8cc7afbecb0b0c924afb060405483e4f5"
+    }
+  },
+  "checks": [
+    {
+      "name": "first-full-route-and-two-real-manual-checkpoints",
+      "paragraphs": 66,
+      "branchPoint": {
+        "hash": "c6f71bba9c036ffc96d3930159c76e0d88161baeb4219b8e72415b74b80cfb8e",
+        "host": "4b86ccc3c98395bc9a4ae4429b81a287d6cfb44a29d89bc364ebe1902520de9a",
+        "cursor": "54",
+        "status": "waiting-choice",
+        "replay": "inactive",
+        "autoEnabled": "false",
+        "autoPlayback": "off"
+      },
+      "initial": {
+        "hash": "82e2acf507042ca294db18181ea77af0e7eed1889ee86690bac318ce59634412",
+        "host": "bc63db962fba844af82a97006342eba24ecbc40ef5c214e56ccbee729f734cd3",
+        "cursor": "4",
+        "status": "presenting",
+        "replay": "inactive",
+        "autoEnabled": "false",
+        "autoPlayback": "off",
+        "text": "售票员把窗口里的灯关掉时，雨正沿着站台的屋檐连成一条线。站台上的钟比手机慢了三分钟。林远核对了两次，没有走去询问值班员。他看见玻璃上自己的倒影，才发现他已经穿着这件外套站了很久。行李箱旁挂着新公司的地址，手机里存着一份还没签字的合同；这些东西都能说明他要去哪里，却没有一样能替他解释为什么迟迟不肯往前走。"
+      },
+      "savedPosition": {
+        "top": 296.3741810796646,
+        "bottom": 770.9851939203354,
+        "scrollTop": 220,
+        "max": 235,
+        "first": 44,
+        "lines": [
+          {
+            "offset": 0,
+            "top": 104.8125,
+            "bottom": 135.8125
+          },
+          {
+            "offset": 11,
+            "top": 152.6875,
+            "bottom": 183.6875
+          },
+          {
+            "offset": 22,
+            "top": 200.5625,
+            "bottom": 231.5625
+          },
+          {
+            "offset": 33,
+            "top": 248.4375,
+            "bottom": 279.4375
+          },
+          {
+            "offset": 44,
+            "top": 296.3125,
+            "bottom": 327.3125
+          },
+          {
+            "offset": 55,
+            "top": 344.1875,
+            "bottom": 375.1875
+          },
+          {
+            "offset": 66,
+            "top": 392.0625,
+            "bottom": 423.0625
+          },
+          {
+            "offset": 77,
+            "top": 439.9375,
+            "bottom": 470.9375
+          },
+          {
+            "offset": 89,
+            "top": 487.8125,
+            "bottom": 518.8125
+          },
+          {
+            "offset": 100,
+            "top": 535.6875,
+            "bottom": 566.6875
+          },
+          {
+            "offset": 111,
+            "top": 583.5625,
+            "bottom": 614.5625
+          },
+          {
+            "offset": 122,
+            "top": 631.4375,
+            "bottom": 662.4375
+          },
+          {
+            "offset": 133,
+            "top": 679.3125,
+            "bottom": 710.3125
+          },
+          {
+            "offset": 144,
+            "top": 727.1875,
+            "bottom": 758.1875
+          }
+        ]
+      }
+    },
+    {
+      "name": "load-saved-branch-finish-other-route-and-return-to-second-ending",
+      "paragraphs": 66,
+      "ending": {
+        "hash": "db58453263a175d5cf49142e01d388dd08d1da4fc37746e520ab36e11ebc6f4a",
+        "host": "474cced9172fd72b3d3ee34c44e3fa2e4e5520354e8cdf477412409e58c66d11",
+        "cursor": "125",
+        "status": "ended",
+        "replay": "inactive",
+        "autoEnabled": "false",
+        "autoPlayback": "off"
+      },
+      "formalSlotsPreserved": true
+    },
+    {
+      "name": "both-unlocks-and-real-entrances-survive-reopen-and-title-replay",
+      "title": {
+        "hash": "none",
+        "host": "f54b5eb474f9ef52719d2d36e70e76699864f341c4d3a1b75eee8b3328706258",
+        "cursor": "0",
+        "status": "title",
+        "replay": "inactive",
+        "autoEnabled": "false",
+        "autoPlayback": "off"
+      }
+    },
+    {
+      "name": "escape-restores-parent-visible-line-without-writing-slots-or-archives",
+      "before": {
+        "top": 296.3741810796646,
+        "bottom": 770.9851939203354,
+        "scrollTop": 220,
+        "max": 235,
+        "first": 44,
+        "lines": [
+          {
+            "offset": 0,
+            "top": 104.8125,
+            "bottom": 135.8125
+          },
+          {
+            "offset": 11,
+            "top": 152.6875,
+            "bottom": 183.6875
+          },
+          {
+            "offset": 22,
+            "top": 200.5625,
+            "bottom": 231.5625
+          },
+          {
+            "offset": 33,
+            "top": 248.4375,
+            "bottom": 279.4375
+          },
+          {
+            "offset": 44,
+            "top": 296.3125,
+            "bottom": 327.3125
+          },
+          {
+            "offset": 55,
+            "top": 344.1875,
+            "bottom": 375.1875
+          },
+          {
+            "offset": 66,
+            "top": 392.0625,
+            "bottom": 423.0625
+          },
+          {
+            "offset": 77,
+            "top": 439.9375,
+            "bottom": 470.9375
+          },
+          {
+            "offset": 89,
+            "top": 487.8125,
+            "bottom": 518.8125
+          },
+          {
+            "offset": 100,
+            "top": 535.6875,
+            "bottom": 566.6875
+          },
+          {
+            "offset": 111,
+            "top": 583.5625,
+            "bottom": 614.5625
+          },
+          {
+            "offset": 122,
+            "top": 631.4375,
+            "bottom": 662.4375
+          },
+          {
+            "offset": 133,
+            "top": 679.3125,
+            "bottom": 710.3125
+          },
+          {
+            "offset": 144,
+            "top": 727.1875,
+            "bottom": 758.1875
+          }
+        ]
+      },
+      "after": {
+        "top": 296.3741810796646,
+        "bottom": 770.9851939203354,
+        "scrollTop": 220,
+        "max": 235,
+        "first": 44,
+        "lines": [
+          {
+            "offset": 0,
+            "top": 104.8125,
+            "bottom": 135.8125
+          },
+          {
+            "offset": 11,
+            "top": 152.6875,
+            "bottom": 183.6875
+          },
+          {
+            "offset": 22,
+            "top": 200.5625,
+            "bottom": 231.5625
+          },
+          {
+            "offset": 33,
+            "top": 248.4375,
+            "bottom": 279.4375
+          },
+          {
+            "offset": 44,
+            "top": 296.3125,
+            "bottom": 327.3125
+          },
+          {
+            "offset": 55,
+            "top": 344.1875,
+            "bottom": 375.1875
+          },
+          {
+            "offset": 66,
+            "top": 392.0625,
+            "bottom": 423.0625
+          },
+          {
+            "offset": 77,
+            "top": 439.9375,
+            "bottom": 470.9375
+          },
+          {
+            "offset": 89,
+            "top": 487.8125,
+            "bottom": 518.8125
+          },
+          {
+            "offset": 100,
+            "top": 535.6875,
+            "bottom": 566.6875
+          },
+          {
+            "offset": 111,
+            "top": 583.5625,
+            "bottom": 614.5625
+          },
+          {
+            "offset": 122,
+            "top": 631.4375,
+            "bottom": 662.4375
+          },
+          {
+            "offset": 133,
+            "top": 679.3125,
+            "bottom": 710.3125
+          },
+          {
+            "offset": 144,
+            "top": 727.1875,
+            "bottom": 758.1875
+          }
+        ]
+      }
+    },
+    {
+      "name": "completed-replay-and-explicit-return-preserve-parent-reading-line",
+      "after": {
+        "top": 296.3741810796646,
+        "bottom": 770.9851939203354,
+        "scrollTop": 220,
+        "max": 235,
+        "first": 44,
+        "lines": [
+          {
+            "offset": 0,
+            "top": 104.8125,
+            "bottom": 135.8125
+          },
+          {
+            "offset": 11,
+            "top": 152.6875,
+            "bottom": 183.6875
+          },
+          {
+            "offset": 22,
+            "top": 200.5625,
+            "bottom": 231.5625
+          },
+          {
+            "offset": 33,
+            "top": 248.4375,
+            "bottom": 279.4375
+          },
+          {
+            "offset": 44,
+            "top": 296.3125,
+            "bottom": 327.3125
+          },
+          {
+            "offset": 55,
+            "top": 344.1875,
+            "bottom": 375.1875
+          },
+          {
+            "offset": 66,
+            "top": 392.0625,
+            "bottom": 423.0625
+          },
+          {
+            "offset": 77,
+            "top": 439.9375,
+            "bottom": 470.9375
+          },
+          {
+            "offset": 89,
+            "top": 487.8125,
+            "bottom": 518.8125
+          },
+          {
+            "offset": 100,
+            "top": 535.6875,
+            "bottom": 566.6875
+          },
+          {
+            "offset": 111,
+            "top": 583.5625,
+            "bottom": 614.5625
+          },
+          {
+            "offset": 122,
+            "top": 631.4375,
+            "bottom": 662.4375
+          },
+          {
+            "offset": 133,
+            "top": 679.3125,
+            "bottom": 710.3125
+          },
+          {
+            "offset": 144,
+            "top": 727.1875,
+            "bottom": 758.1875
+          }
+        ]
+      }
+    },
+    {
+      "name": "native-space-after-replay-completion-restores-parent-auto-and-readable-line",
+      "autoParent": {
+        "hash": "8a8a1cca66827246300131c82cb23e0b8bf1fc908722f22a9d72b7f205467039",
+        "host": "603d23a61d931ed875065b5ad3c7cd66504d11e84167a6ffb81e67773fa33bce",
+        "cursor": "4",
+        "status": "presenting",
+        "replay": "inactive",
+        "autoEnabled": "true",
+        "autoPlayback": "waiting-reading",
+        "text": "售票员把窗口里的灯关掉时，雨正沿着站台的屋檐连成一条线。站台上的钟比手机慢了三分钟。林远核对了两次，没有走去询问值班员。他看见玻璃上自己的倒影，才发现他已经穿着这件外套站了很久。行李箱旁挂着新公司的地址，手机里存着一份还没签字的合同；这些东西都能说明他要去哪里，却没有一样能替他解释为什么迟迟不肯往前走。"
+      },
+      "after": {
+        "hash": "8a8a1cca66827246300131c82cb23e0b8bf1fc908722f22a9d72b7f205467039",
+        "host": "603d23a61d931ed875065b5ad3c7cd66504d11e84167a6ffb81e67773fa33bce",
+        "cursor": "4",
+        "status": "presenting",
+        "replay": "inactive",
+        "autoEnabled": "false",
+        "autoPlayback": "off",
+        "text": "售票员把窗口里的灯关掉时，雨正沿着站台的屋檐连成一条线。站台上的钟比手机慢了三分钟。林远核对了两次，没有走去询问值班员。他看见玻璃上自己的倒影，才发现他已经穿着这件外套站了很久。行李箱旁挂着新公司的地址，手机里存着一份还没签字的合同；这些东西都能说明他要去哪里，却没有一样能替他解释为什么迟迟不肯往前走。"
+      }
+    },
+    {
+      "name": "four-viewport-replay-return-restores-readable-anchor-focus-and-keeps-original-records",
+      "logicalAnchorOffset": 44,
+      "layouts": [
+        {
+          "viewport": {
+            "width": 320,
+            "height": 568
+          },
+          "before": {
+            "top": 296.3741810796646,
+            "bottom": 770.9851939203354,
+            "scrollTop": 220,
+            "max": 235,
+            "first": 44,
+            "lines": [
+              {
+                "offset": 0,
+                "top": 104.8125,
+                "bottom": 135.8125
+              },
+              {
+                "offset": 11,
+                "top": 152.6875,
+                "bottom": 183.6875
+              },
+              {
+                "offset": 22,
+                "top": 200.5625,
+                "bottom": 231.5625
+              },
+              {
+                "offset": 33,
+                "top": 248.4375,
+                "bottom": 279.4375
+              },
+              {
+                "offset": 44,
+                "top": 296.3125,
+                "bottom": 327.3125
+              },
+              {
+                "offset": 55,
+                "top": 344.1875,
+                "bottom": 375.1875
+              },
+              {
+                "offset": 66,
+                "top": 392.0625,
+                "bottom": 423.0625
+              },
+              {
+                "offset": 77,
+                "top": 439.9375,
+                "bottom": 470.9375
+              },
+              {
+                "offset": 89,
+                "top": 487.8125,
+                "bottom": 518.8125
+              },
+              {
+                "offset": 100,
+                "top": 535.6875,
+                "bottom": 566.6875
+              },
+              {
+                "offset": 111,
+                "top": 583.5625,
+                "bottom": 614.5625
+              },
+              {
+                "offset": 122,
+                "top": 631.4375,
+                "bottom": 662.4375
+              },
+              {
+                "offset": 133,
+                "top": 679.3125,
+                "bottom": 710.3125
+              },
+              {
+                "offset": 144,
+                "top": 727.1875,
+                "bottom": 758.1875
+              }
+            ]
+          },
+          "after": {
+            "top": 257,
+            "bottom": 495,
+            "scrollTop": 267,
+            "max": 712,
+            "first": 40,
+            "lines": [
+              {
+                "offset": 0,
+                "top": 18.4375,
+                "bottom": 49.4375
+              },
+              {
+                "offset": 8,
+                "top": 66.3125,
+                "bottom": 97.3125
+              },
+              {
+                "offset": 16,
+                "top": 114.1875,
+                "bottom": 145.1875
+              },
+              {
+                "offset": 24,
+                "top": 162.0625,
+                "bottom": 193.0625
+              },
+              {
+                "offset": 32,
+                "top": 209.9375,
+                "bottom": 240.9375
+              },
+              {
+                "offset": 40,
+                "top": 257.8125,
+                "bottom": 288.8125
+              },
+              {
+                "offset": 48,
+                "top": 305.6875,
+                "bottom": 336.6875
+              },
+              {
+                "offset": 56,
+                "top": 353.5625,
+                "bottom": 384.5625
+              },
+              {
+                "offset": 64,
+                "top": 401.4375,
+                "bottom": 432.4375
+              },
+              {
+                "offset": 72,
+                "top": 449.3125,
+                "bottom": 480.3125
+              },
+              {
+                "offset": 80,
+                "top": 497.1875,
+                "bottom": 528.1875
+              },
+              {
+                "offset": 89,
+                "top": 545.0625,
+                "bottom": 576.0625
+              },
+              {
+                "offset": 97,
+                "top": 592.9375,
+                "bottom": 623.9375
+              },
+              {
+                "offset": 105,
+                "top": 640.8125,
+                "bottom": 671.8125
+              },
+              {
+                "offset": 113,
+                "top": 688.6875,
+                "bottom": 719.6875
+              },
+              {
+                "offset": 121,
+                "top": 736.5625,
+                "bottom": 767.5625
+              },
+              {
+                "offset": 129,
+                "top": 784.4375,
+                "bottom": 815.4375
+              },
+              {
+                "offset": 137,
+                "top": 832.3125,
+                "bottom": 863.3125
+              },
+              {
+                "offset": 145,
+                "top": 880.1875,
+                "bottom": 911.1875
+              }
+            ]
+          }
+        },
+        {
+          "viewport": {
+            "width": 568,
+            "height": 320
+          },
+          "before": {
+            "top": 257,
+            "bottom": 495,
+            "scrollTop": 267,
+            "max": 712,
+            "first": 40,
+            "lines": [
+              {
+                "offset": 0,
+                "top": 18.4375,
+                "bottom": 49.4375
+              },
+              {
+                "offset": 8,
+                "top": 66.3125,
+                "bottom": 97.3125
+              },
+              {
+                "offset": 16,
+                "top": 114.1875,
+                "bottom": 145.1875
+              },
+              {
+                "offset": 24,
+                "top": 162.0625,
+                "bottom": 193.0625
+              },
+              {
+                "offset": 32,
+                "top": 209.9375,
+                "bottom": 240.9375
+              },
+              {
+                "offset": 40,
+                "top": 257.8125,
+                "bottom": 288.8125
+              },
+              {
+                "offset": 48,
+                "top": 305.6875,
+                "bottom": 336.6875
+              },
+              {
+                "offset": 56,
+                "top": 353.5625,
+                "bottom": 384.5625
+              },
+              {
+                "offset": 64,
+                "top": 401.4375,
+                "bottom": 432.4375
+              },
+              {
+                "offset": 72,
+                "top": 449.3125,
+                "bottom": 480.3125
+              },
+              {
+                "offset": 80,
+                "top": 497.1875,
+                "bottom": 528.1875
+              },
+              {
+                "offset": 89,
+                "top": 545.0625,
+                "bottom": 576.0625
+              },
+              {
+                "offset": 97,
+                "top": 592.9375,
+                "bottom": 623.9375
+              },
+              {
+                "offset": 105,
+                "top": 640.8125,
+                "bottom": 671.8125
+              },
+              {
+                "offset": 113,
+                "top": 688.6875,
+                "bottom": 719.6875
+              },
+              {
+                "offset": 121,
+                "top": 736.5625,
+                "bottom": 767.5625
+              },
+              {
+                "offset": 129,
+                "top": 784.4375,
+                "bottom": 815.4375
+              },
+              {
+                "offset": 137,
+                "top": 832.3125,
+                "bottom": 863.3125
+              },
+              {
+                "offset": 145,
+                "top": 880.1875,
+                "bottom": 911.1875
+              }
+            ]
+          },
+          "after": {
+            "top": 73.2471590909091,
+            "bottom": 246.7528409090909,
+            "scrollTop": 98,
+            "max": 165,
+            "first": 42,
+            "lines": [
+              {
+                "offset": 0,
+                "top": -5.546875,
+                "bottom": 19.453125
+              },
+              {
+                "offset": 21,
+                "top": 33.875,
+                "bottom": 58.875
+              },
+              {
+                "offset": 42,
+                "top": 73.296875,
+                "bottom": 98.296875
+              },
+              {
+                "offset": 63,
+                "top": 112.71875,
+                "bottom": 137.71875
+              },
+              {
+                "offset": 84,
+                "top": 152.140625,
+                "bottom": 177.140625
+              },
+              {
+                "offset": 105,
+                "top": 191.5625,
+                "bottom": 216.5625
+              },
+              {
+                "offset": 126,
+                "top": 230.984375,
+                "bottom": 255.984375
+              },
+              {
+                "offset": 147,
+                "top": 270.40625,
+                "bottom": 295.40625
+              }
+            ]
+          }
+        },
+        {
+          "viewport": {
+            "width": 844,
+            "height": 390
+          },
+          "before": {
+            "top": 73.2471590909091,
+            "bottom": 246.7528409090909,
+            "scrollTop": 98,
+            "max": 165,
+            "first": 42,
+            "lines": [
+              {
+                "offset": 0,
+                "top": -5.546875,
+                "bottom": 19.453125
+              },
+              {
+                "offset": 21,
+                "top": 33.875,
+                "bottom": 58.875
+              },
+              {
+                "offset": 42,
+                "top": 73.296875,
+                "bottom": 98.296875
+              },
+              {
+                "offset": 63,
+                "top": 112.71875,
+                "bottom": 137.71875
+              },
+              {
+                "offset": 84,
+                "top": 152.140625,
+                "bottom": 177.140625
+              },
+              {
+                "offset": 105,
+                "top": 191.5625,
+                "bottom": 216.5625
+              },
+              {
+                "offset": 126,
+                "top": 230.984375,
+                "bottom": 255.984375
+              },
+              {
+                "offset": 147,
+                "top": 270.40625,
+                "bottom": 295.40625
+              }
+            ]
+          },
+          "after": {
+            "top": 135.2174762228261,
+            "bottom": 316.9856487771739,
+            "scrollTop": 58,
+            "max": 79,
+            "first": 26,
+            "lines": [
+              {
+                "offset": 0,
+                "top": 96.421875,
+                "bottom": 121.421875
+              },
+              {
+                "offset": 26,
+                "top": 135.84375,
+                "bottom": 160.84375
+              },
+              {
+                "offset": 52,
+                "top": 175.265625,
+                "bottom": 200.265625
+              },
+              {
+                "offset": 78,
+                "top": 214.6875,
+                "bottom": 239.6875
+              },
+              {
+                "offset": 104,
+                "top": 254.109375,
+                "bottom": 279.109375
+              },
+              {
+                "offset": 131,
+                "top": 293.53125,
+                "bottom": 318.53125
+              }
+            ]
+          }
+        },
+        {
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "before": {
+            "top": 135.2174762228261,
+            "bottom": 316.9856487771739,
+            "scrollTop": 58,
+            "max": 79,
+            "first": 26,
+            "lines": [
+              {
+                "offset": 0,
+                "top": 96.421875,
+                "bottom": 121.421875
+              },
+              {
+                "offset": 26,
+                "top": 135.84375,
+                "bottom": 160.84375
+              },
+              {
+                "offset": 52,
+                "top": 175.265625,
+                "bottom": 200.265625
+              },
+              {
+                "offset": 78,
+                "top": 214.6875,
+                "bottom": 239.6875
+              },
+              {
+                "offset": 104,
+                "top": 254.109375,
+                "bottom": 279.109375
+              },
+              {
+                "offset": 131,
+                "top": 293.53125,
+                "bottom": 318.53125
+              }
+            ]
+          },
+          "after": {
+            "top": 296.3741810796646,
+            "bottom": 770.9851939203354,
+            "scrollTop": 220,
+            "max": 235,
+            "first": 44,
+            "lines": [
+              {
+                "offset": 0,
+                "top": 104.8125,
+                "bottom": 135.8125
+              },
+              {
+                "offset": 11,
+                "top": 152.6875,
+                "bottom": 183.6875
+              },
+              {
+                "offset": 22,
+                "top": 200.5625,
+                "bottom": 231.5625
+              },
+              {
+                "offset": 33,
+                "top": 248.4375,
+                "bottom": 279.4375
+              },
+              {
+                "offset": 44,
+                "top": 296.3125,
+                "bottom": 327.3125
+              },
+              {
+                "offset": 55,
+                "top": 344.1875,
+                "bottom": 375.1875
+              },
+              {
+                "offset": 66,
+                "top": 392.0625,
+                "bottom": 423.0625
+              },
+              {
+                "offset": 77,
+                "top": 439.9375,
+                "bottom": 470.9375
+              },
+              {
+                "offset": 89,
+                "top": 487.8125,
+                "bottom": 518.8125
+              },
+              {
+                "offset": 100,
+                "top": 535.6875,
+                "bottom": 566.6875
+              },
+              {
+                "offset": 111,
+                "top": 583.5625,
+                "bottom": 614.5625
+              },
+              {
+                "offset": 122,
+                "top": 631.4375,
+                "bottom": 662.4375
+              },
+              {
+                "offset": 133,
+                "top": 679.3125,
+                "bottom": 710.3125
+              },
+              {
+                "offset": 144,
+                "top": 727.1875,
+                "bottom": 758.1875
+              }
+            ]
+          }
+        }
+      ],
+      "formalSlotsPreserved": true,
+      "independentArchivesPreserved": true
+    }
+  ],
+  "errors": [],
+  "scope": "Actual 1.11 UI only: both full routes with a real saved branch, reopen/unlocks, title/ending/body replay and visible text-line restoration. Muted desktop engines/phone viewports, not human reading/listening, physical Safari/OS lifecycle, native streaming stalls, cross-device independent archive migration, rights or public HTTPS."
+}

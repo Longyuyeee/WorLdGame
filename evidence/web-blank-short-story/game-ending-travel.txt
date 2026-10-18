@@ -1,0 +1,31 @@
+- generic "离线与安装 ·":
+  - text: 离线与安装 ·
+  - status: 尚未下载离线内容
+- paragraph: 版本 0.1.0
+- main:
+  - region "给明天的回信 游戏画面":
+    - generic "正式媒体舞台":
+      - img "驶向明天的列车"
+    - button "打开阅读菜单": 菜单 ☰
+    - navigation "剧情历史控制":
+      - button "后退一步":
+        - generic: ←
+      - button "前进一步" [disabled]:
+        - generic: →
+      - button "打开剧情历史":
+        - generic: ☰
+        - generic: 历史
+    - generic "播放控制":
+      - button "自动播放" [disabled]: 自动
+      - button "快进已读" [disabled]: 已读
+    - complementary:
+      - button "存读档"
+    - status:
+      - generic: 故事告一段落
+      - heading "把明天写进信里" [level=2]
+      - paragraph: 已达成 2 / 2 个结局
+      - paragraph: 已读、画廊、音乐与结局记录会保留。可以查看收藏，或读取存档探索其他选择。
+      - button "查看收藏与结局"
+      - button "制作名单"
+      - button "读取存档探索其他路线"
+      - button "回到标题"

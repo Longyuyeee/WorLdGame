@@ -1,0 +1,77 @@
+{
+  "passed": true,
+  "checkedAt": "2026-10-16T19:47:26.907Z",
+  "browser": "151.0.7922.34",
+  "checks": [
+    "The actual main story authors preferences/credits/ending viewport layouts with isolated content and return regions, real-preview drag/one undo/keyboard, matching desktop/phone geometry, safe action lists and phone-hidden art.",
+    "Save/reopen, source project, portable configuration/skin bytes and both formal exports retain all three layouts without changing story, characters, seven assets or the existing title/reading/menu/save/history layouts.",
+    "Independent desktop file:// Player adjusts/resets/restores personal preferences, retains native credits and focus, saves and explicitly reads from ending, opens collection, finishes the first route, and uses both native/custom ending returns without losing personal settings.",
+    "Touch-enabled directory Player checks the three pages at 390×844, 844×390 and 390×480, retains preference values and credits while resizing, returns from native ending collection/credits/load, and finishes the other route.",
+    "A second blank project reuses all three page layouts, hidden-device image references and actual media bytes without copying scripts or characters; its actual credits preview remains editable."
+  ],
+  "errors": [],
+  "screenshots": [
+    "author-preferences-desktop.png",
+    "author-preferences-phone.png",
+    "author-credits-desktop.png",
+    "author-credits-phone.png",
+    "author-ending-desktop.png",
+    "author-ending-phone.png",
+    "desktop-preferences.png",
+    "desktop-credits.png",
+    "desktop-ending.png",
+    "desktop-ending-collection.png",
+    "phone-preferences.png",
+    "phone-credits.png",
+    "phone-ending.png",
+    "phone-ending-collection.png",
+    "author-reused-credits.png"
+  ],
+  "formalEndingCoverage": "2/2 combined: HTML first route, directory other route; not all format×route combinations",
+  "editorFullRouteCoverage": "not run",
+  "realDevice": false,
+  "publicDeployment": false,
+  "desktopRoute": {
+    "choice": "1\n留下来，把今晚写完",
+    "ending": "有人等你回来",
+    "progress": "已达成 1 / 2 个结局"
+  },
+  "phoneRoute": {
+    "choice": "2\n带上信，去下一座城市",
+    "ending": "把明天写进信里",
+    "progress": "已达成 1 / 2 个结局"
+  },
+  "siteFiles": 18,
+  "artifacts": [
+    {
+      "name": "tomorrow-letter-0.8.0-project.zip",
+      "bytes": 10700953,
+      "sha256": "a8755b631fc78b05802a03002cbbbd6c37e9b0fcdd16677a0fa4d6518c2bd0aa"
+    },
+    {
+      "name": "tomorrow-letter-0.8.0.html",
+      "bytes": 15038385,
+      "sha256": "a2d6fa324955bdeed5c20b64d0ea7b40bb5978a88f3b6d66c52624f377d2f4f6"
+    },
+    {
+      "name": "tomorrow-letter-0.8.0-web.zip",
+      "bytes": 11542989,
+      "sha256": "e39af644bac47b7bbb852d3d84e3449cd80f4d07f2ee9e3e4f88927f7cbdc76f"
+    },
+    {
+      "name": "letter-info-ending.worldskin.json",
+      "bytes": 20205,
+      "sha256": "148f4a532c4c837781be8464a5cb9aa6c3428ef0cdcfa3bf72307188fa924f22"
+    },
+    {
+      "name": "letter-info-ending.worldskin.zip",
+      "bytes": 4643560,
+      "sha256": "46f3436f514ebb4d3fa624f6815ebdf297c5a907451ce3d5c07bd240057ab6a4"
+    },
+    {
+      "name": "reused-info-ending-project.zip",
+      "bytes": 4647717,
+      "sha256": "5a13bbeb9a4e92a882814e5ad05c67ff41ed3e4b465688abef97e3f6171541dc"
+    }
+  ]
+}

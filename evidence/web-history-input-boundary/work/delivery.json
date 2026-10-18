@@ -1,0 +1,7 @@
+{
+  "scope": "Export inventory for the frozen working pair. Not final batch or product acceptance; final gates are recorded at the parent directory after verification.",
+  "artifacts": {
+    "html": { "bytes": 46837824, "sha256": "6a669333942bfb1fb478e4bc653c8ae6e4309180fb2161210dd14fefd2bab684" },
+    "website": { "bytes": 35424273, "sha256": "30d253550b9e083fd364a62058d7e2e0002348016f4c23e23f4b82c7291a27cd" }
+  }
+}

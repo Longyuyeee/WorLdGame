@@ -1,0 +1,44 @@
+{
+  "version": "1.6.0",
+  "assets": [
+    {
+      "assetId": "station_day",
+      "file": "station-day.png",
+      "name": "雨后白天站台",
+      "reference": "station-night-v2.png",
+      "sha256": "49e0d7f4aedf5242a8c5001d3875ec3cae7836d5c73e57415db7f5fdaf627807",
+      "referenceSha256": "7b0aeee0aef6219584fef7833b6960ecb316bffa3b565ab13f847151068ba0bd",
+      "byteLength": 3004142,
+      "width": 1672,
+      "height": 941,
+      "method": "built-in imagegen lighting-weather edit",
+      "releasePermissionConfirmed": false
+    },
+    {
+      "assetId": "day_cafe",
+      "file": "day-cafe.png",
+      "name": "白天的面馆",
+      "reference": "night-cafe.png",
+      "sha256": "cd749f04403e3b4c8483350b77e79fb01bf9166de3f65e9d701583d43afead75",
+      "referenceSha256": "9ded1d5e951474c53f36f92fa7dc5ab6fcf575ebc3d6fb648a2759c5f9015698",
+      "byteLength": 2435623,
+      "width": 1672,
+      "height": 941,
+      "method": "built-in imagegen lighting-weather edit",
+      "releasePermissionConfirmed": false
+    },
+    {
+      "assetId": "night_studio",
+      "file": "night-studio.png",
+      "name": "夜归的画室",
+      "reference": "morning-studio.png",
+      "sha256": "d8721a9d412e6589161ceffc2ada4f65e9c20ff7402319569b4a86623ab00c96",
+      "referenceSha256": "598b41535295814f1e98a4388d8df83012897402090b83d988e5e2c6b583b57f",
+      "byteLength": 2034448,
+      "width": 1672,
+      "height": 941,
+      "method": "built-in imagegen lighting-weather edit",
+      "releasePermissionConfirmed": false
+    }
+  ]
+}

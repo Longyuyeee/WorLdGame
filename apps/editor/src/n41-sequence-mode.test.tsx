@@ -29,7 +29,7 @@ const sequenceStory: StoryProject = {
 };
 
 describe("N41 formal Sequence mode", () => {
-  it("projects formal Runtime current statement and History navigation onto the canonical Sequence", async () => {
+  it("projects formal Runtime current statement and history navigation onto the canonical Sequence", async () => {
     vi.stubGlobal("indexedDB", new IDBFactory());
     render(<App />);
 
@@ -37,8 +37,8 @@ describe("N41 formal Sequence mode", () => {
     const highlight = await screen.findByRole("status", { name: "Sequence 运行步骤高亮" });
     const timeline = screen.getByRole("group", { name: "时间线播放头" });
     const playhead = within(timeline).getByRole("slider", { name: "时间线播放头位置" });
-    const first = screen.getByRole("button", { name: "选择演出：action=clear" });
-    expect(highlight).toHaveTextContent("stmt_gate_bg");
+    const first = screen.getByRole("button", { name: "选择演出：清除背景" });
+    expect(highlight).toHaveTextContent(/试玩到第\s*1\s*步/u);
     expect(timeline).toHaveAttribute("data-playhead-source", "runtime");
     expect(playhead).toBeDisabled();
     expect(playhead).toHaveValue("0");
@@ -46,7 +46,7 @@ describe("N41 formal Sequence mode", () => {
     expect(first).toHaveAttribute("data-runtime-current", "true");
 
     const controls = screen.getByRole("group", { name: "Runtime 调试控制" });
-    fireEvent.click(within(controls).getByRole("button", { name: "Continue" }));
+    fireEvent.click(within(controls).getByRole("button", { name: "继续故事" }));
     const dialogue = screen.getByRole("button", { name: /^选择对白：广播站/ });
     expect(first).toHaveAttribute("data-runtime-current", "false");
     expect(playhead).toHaveValue("1");
@@ -59,7 +59,7 @@ describe("N41 formal Sequence mode", () => {
     expect(screen.getByRole("button", { name: /^选择对白：广播站/ })).toHaveAttribute("aria-current", "step");
 
     fireEvent.click(within(controls).getByRole("button", { name: "Runtime 后退一步" }));
-    expect(screen.getByRole("button", { name: "选择演出：action=clear" })).toHaveAttribute("aria-current", "step");
+    expect(screen.getByRole("button", { name: "选择演出：清除背景" })).toHaveAttribute("aria-current", "step");
     fireEvent.click(within(controls).getByRole("button", { name: "Runtime 前进一步" }));
     expect(screen.getByRole("button", { name: /^选择对白：广播站/ })).toHaveAttribute("aria-current", "step");
   });

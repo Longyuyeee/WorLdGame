@@ -1,0 +1,22 @@
+
+> world-studio@0.0.0-s0.41 audit:web-load-responsiveness:browser
+> node tools/run-web-load-responsiveness.mjs
+
+PASS actual-editor-save-reopen-formal-1.7.13-dual-export
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+page.goto: net::ERR_UNSAFE_PORT at http://127.0.0.1:1719/gal/
+Call log:
+  - navigating to "http://127.0.0.1:1719/gal/", waiting until "load"
+
+    at recovery (E:\Project\AIProject\ClaudeProject\WorLdGame\tools\run-web-audio-recovery.mjs:95:124)
+    at async file:///E:/Project/AIProject/ClaudeProject/WorLdGame/tools/run-web-audio-recovery.mjs:150:122 {
+  log: [
+    '  - navigating to "http://127.0.0.1:1719/gal/", waiting until "load"'
+  ],
+  name: 'Error'
+}
+
+Node.js v24.14.0

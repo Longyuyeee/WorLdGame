@@ -1,0 +1,3069 @@
+{
+  "scale": true,
+  "measurements": [
+    {
+      "kind": "html",
+      "elapsedMs": 1605.0152999999991,
+      "bytes": 11382369
+    },
+    {
+      "kind": "continuous-process-samples",
+      "name": "build-html",
+      "samples": [
+        {
+          "elapsedMs": 829.3410000000003,
+          "processes": 6,
+          "privateBytes": 407011328,
+          "workingSetBytes": 739545088
+        },
+        {
+          "elapsedMs": 1771.4866999999995,
+          "processes": 6,
+          "privateBytes": 508346368,
+          "workingSetBytes": 812982272
+        }
+      ],
+      "observedMaxPrivateBytes": 508346368,
+      "observedMaxWorkingSetBytes": 812982272,
+      "limits": "Serial process-tree sampling plus 200ms pause; actual timestamps retained. Observed maxima are lower bounds, not guaranteed instantaneous peaks, and include browser/harness activity."
+    },
+    {
+      "kind": "html",
+      "elapsedMs": 2989.5632000000005,
+      "bytes": 1956404
+    },
+    {
+      "kind": "continuous-process-samples",
+      "name": "build-html",
+      "samples": [
+        {
+          "elapsedMs": 604.849000000002,
+          "processes": 6,
+          "privateBytes": 379940864,
+          "workingSetBytes": 691433472
+        },
+        {
+          "elapsedMs": 1376.7662000000018,
+          "processes": 6,
+          "privateBytes": 420376576,
+          "workingSetBytes": 728973312
+        },
+        {
+          "elapsedMs": 2164.2736000000004,
+          "processes": 6,
+          "privateBytes": 445788160,
+          "workingSetBytes": 753823744
+        },
+        {
+          "elapsedMs": 2948.8564000000006,
+          "processes": 6,
+          "privateBytes": 417288192,
+          "workingSetBytes": 729436160
+        }
+      ],
+      "observedMaxPrivateBytes": 445788160,
+      "observedMaxWorkingSetBytes": 753823744,
+      "limits": "Serial process-tree sampling plus 200ms pause; actual timestamps retained. Observed maxima are lower bounds, not guaranteed instantaneous peaks, and include browser/harness activity."
+    },
+    {
+      "kind": "html",
+      "elapsedMs": 750.3064999999988,
+      "bytes": 1956404
+    },
+    {
+      "kind": "continuous-process-samples",
+      "name": "build-html",
+      "samples": [
+        {
+          "elapsedMs": 525.0440000000017,
+          "processes": 6,
+          "privateBytes": 511762432,
+          "workingSetBytes": 928780288
+        },
+        {
+          "elapsedMs": 1240.2809000000052,
+          "processes": 6,
+          "privateBytes": 511270912,
+          "workingSetBytes": 928403456
+        }
+      ],
+      "observedMaxPrivateBytes": 511762432,
+      "observedMaxWorkingSetBytes": 928780288,
+      "limits": "Serial process-tree sampling plus 200ms pause; actual timestamps retained. Observed maxima are lower bounds, not guaranteed instantaneous peaks, and include browser/harness activity."
+    },
+    {
+      "kind": "directory",
+      "elapsedMs": 938.1315000000031,
+      "bytes": 1895749
+    },
+    {
+      "kind": "continuous-process-samples",
+      "name": "build-directory",
+      "samples": [
+        {
+          "elapsedMs": 557.6759999999995,
+          "processes": 6,
+          "privateBytes": 458199040,
+          "workingSetBytes": 778416128
+        },
+        {
+          "elapsedMs": 1277.019699999997,
+          "processes": 6,
+          "privateBytes": 479260672,
+          "workingSetBytes": 796065792
+        }
+      ],
+      "observedMaxPrivateBytes": 479260672,
+      "observedMaxWorkingSetBytes": 796065792,
+      "limits": "Serial process-tree sampling plus 200ms pause; actual timestamps retained. Observed maxima are lower bounds, not guaranteed instantaneous peaks, and include browser/harness activity."
+    },
+    {
+      "kind": "html",
+      "elapsedMs": 2985.7361999999994,
+      "bytes": 1956404
+    },
+    {
+      "kind": "continuous-process-samples",
+      "name": "build-html",
+      "samples": [
+        {
+          "elapsedMs": 551.4763000000021,
+          "processes": 6,
+          "privateBytes": 494030848,
+          "workingSetBytes": 829267968
+        },
+        {
+          "elapsedMs": 1388.3896999999997,
+          "processes": 6,
+          "privateBytes": 480624640,
+          "workingSetBytes": 768045056
+        },
+        {
+          "elapsedMs": 2214.059500000003,
+          "processes": 6,
+          "privateBytes": 502366208,
+          "workingSetBytes": 787996672
+        },
+        {
+          "elapsedMs": 3048.663099999998,
+          "processes": 6,
+          "privateBytes": 459829248,
+          "workingSetBytes": 752812032
+        }
+      ],
+      "observedMaxPrivateBytes": 502366208,
+      "observedMaxWorkingSetBytes": 829267968,
+      "limits": "Serial process-tree sampling plus 200ms pause; actual timestamps retained. Observed maxima are lower bounds, not guaranteed instantaneous peaks, and include browser/harness activity."
+    },
+    {
+      "kind": "html",
+      "elapsedMs": 787.4224000000031,
+      "bytes": 1956404
+    },
+    {
+      "kind": "continuous-process-samples",
+      "name": "build-html",
+      "samples": [
+        {
+          "elapsedMs": 626.7724000000017,
+          "processes": 6,
+          "privateBytes": 471687168,
+          "workingSetBytes": 762064896
+        }
+      ],
+      "observedMaxPrivateBytes": 471687168,
+      "observedMaxWorkingSetBytes": 762064896,
+      "limits": "Serial process-tree sampling plus 200ms pause; actual timestamps retained. Observed maxima are lower bounds, not guaranteed instantaneous peaks, and include browser/harness activity."
+    },
+    {
+      "kind": "delivery-cold-warm",
+      "round": 0,
+      "coldState": {
+        "maxConcurrentLoads": 1,
+        "maxResidentBytes": 67108864,
+        "activeLoads": 0,
+        "queuedLoads": 0,
+        "residentResources": 4,
+        "referencedResources": 0,
+        "residentBytes": 2150880,
+        "reservedBytes": 0,
+        "peakAccountedBytes": 9871402,
+        "cacheHits": 0,
+        "deduplicatedRequests": 4,
+        "evictions": 0,
+        "cancellations": 0,
+        "built": 4
+      },
+      "warmState": {
+        "maxConcurrentLoads": 1,
+        "maxResidentBytes": 67108864,
+        "activeLoads": 0,
+        "queuedLoads": 0,
+        "residentResources": 4,
+        "referencedResources": 0,
+        "residentBytes": 2150880,
+        "reservedBytes": 0,
+        "peakAccountedBytes": 9871402,
+        "cacheHits": 4,
+        "deduplicatedRequests": 4,
+        "evictions": 0,
+        "cancellations": 0,
+        "built": 4
+      },
+      "limits": "Cold means a reloaded editor session, not cleared OS/browser disk caches."
+    },
+    {
+      "kind": "html",
+      "elapsedMs": 2929.0255000000034,
+      "bytes": 1956404
+    },
+    {
+      "kind": "continuous-process-samples",
+      "name": "build-html",
+      "samples": [
+        {
+          "elapsedMs": 557.1565000000046,
+          "processes": 6,
+          "privateBytes": 497455104,
+          "workingSetBytes": 830590976
+        },
+        {
+          "elapsedMs": 1342.9127000000008,
+          "processes": 6,
+          "privateBytes": 487272448,
+          "workingSetBytes": 792596480
+        },
+        {
+          "elapsedMs": 2098.855300000003,
+          "processes": 6,
+          "privateBytes": 511475712,
+          "workingSetBytes": 801222656
+        },
+        {
+          "elapsedMs": 2924.6204,
+          "processes": 6,
+          "privateBytes": 462774272,
+          "workingSetBytes": 759996416
+        }
+      ],
+      "observedMaxPrivateBytes": 511475712,
+      "observedMaxWorkingSetBytes": 830590976,
+      "limits": "Serial process-tree sampling plus 200ms pause; actual timestamps retained. Observed maxima are lower bounds, not guaranteed instantaneous peaks, and include browser/harness activity."
+    },
+    {
+      "kind": "html",
+      "elapsedMs": 865.2951999999932,
+      "bytes": 1956404
+    },
+    {
+      "kind": "continuous-process-samples",
+      "name": "build-html",
+      "samples": [
+        {
+          "elapsedMs": 558.9961000000039,
+          "processes": 6,
+          "privateBytes": 476651520,
+          "workingSetBytes": 771100672
+        },
+        {
+          "elapsedMs": 1274.148699999998,
+          "processes": 6,
+          "privateBytes": 485765120,
+          "workingSetBytes": 780472320
+        }
+      ],
+      "observedMaxPrivateBytes": 485765120,
+      "observedMaxWorkingSetBytes": 780472320,
+      "limits": "Serial process-tree sampling plus 200ms pause; actual timestamps retained. Observed maxima are lower bounds, not guaranteed instantaneous peaks, and include browser/harness activity."
+    },
+    {
+      "kind": "delivery-cold-warm",
+      "round": 1,
+      "coldState": {
+        "maxConcurrentLoads": 1,
+        "maxResidentBytes": 67108864,
+        "activeLoads": 0,
+        "queuedLoads": 0,
+        "residentResources": 4,
+        "referencedResources": 0,
+        "residentBytes": 2150880,
+        "reservedBytes": 0,
+        "peakAccountedBytes": 9871402,
+        "cacheHits": 0,
+        "deduplicatedRequests": 4,
+        "evictions": 0,
+        "cancellations": 0,
+        "built": 4
+      },
+      "warmState": {
+        "maxConcurrentLoads": 1,
+        "maxResidentBytes": 67108864,
+        "activeLoads": 0,
+        "queuedLoads": 0,
+        "residentResources": 4,
+        "referencedResources": 0,
+        "residentBytes": 2150880,
+        "reservedBytes": 0,
+        "peakAccountedBytes": 9871402,
+        "cacheHits": 4,
+        "deduplicatedRequests": 4,
+        "evictions": 0,
+        "cancellations": 0,
+        "built": 4
+      },
+      "limits": "Cold means a reloaded editor session, not cleared OS/browser disk caches."
+    },
+    {
+      "kind": "html",
+      "elapsedMs": 3125.0018999999957,
+      "bytes": 1956404
+    },
+    {
+      "kind": "continuous-process-samples",
+      "name": "build-html",
+      "samples": [
+        {
+          "elapsedMs": 537.9153000000006,
+          "processes": 6,
+          "privateBytes": 483577856,
+          "workingSetBytes": 823906304
+        },
+        {
+          "elapsedMs": 1305.114499999996,
+          "processes": 6,
+          "privateBytes": 524509184,
+          "workingSetBytes": 811773952
+        },
+        {
+          "elapsedMs": 2150.2410999999993,
+          "processes": 6,
+          "privateBytes": 494059520,
+          "workingSetBytes": 788750336
+        },
+        {
+          "elapsedMs": 2996.7301000000007,
+          "processes": 6,
+          "privateBytes": 501821440,
+          "workingSetBytes": 796827648
+        }
+      ],
+      "observedMaxPrivateBytes": 524509184,
+      "observedMaxWorkingSetBytes": 823906304,
+      "limits": "Serial process-tree sampling plus 200ms pause; actual timestamps retained. Observed maxima are lower bounds, not guaranteed instantaneous peaks, and include browser/harness activity."
+    },
+    {
+      "kind": "html",
+      "elapsedMs": 886.2053000000014,
+      "bytes": 1956404
+    },
+    {
+      "kind": "continuous-process-samples",
+      "name": "build-html",
+      "samples": [
+        {
+          "elapsedMs": 554.6051999999981,
+          "processes": 6,
+          "privateBytes": 478699520,
+          "workingSetBytes": 774488064
+        },
+        {
+          "elapsedMs": 1341.7312999999995,
+          "processes": 6,
+          "privateBytes": 492957696,
+          "workingSetBytes": 789422080
+        }
+      ],
+      "observedMaxPrivateBytes": 492957696,
+      "observedMaxWorkingSetBytes": 789422080,
+      "limits": "Serial process-tree sampling plus 200ms pause; actual timestamps retained. Observed maxima are lower bounds, not guaranteed instantaneous peaks, and include browser/harness activity."
+    },
+    {
+      "kind": "delivery-cold-warm",
+      "round": 2,
+      "coldState": {
+        "maxConcurrentLoads": 1,
+        "maxResidentBytes": 67108864,
+        "activeLoads": 0,
+        "queuedLoads": 0,
+        "residentResources": 4,
+        "referencedResources": 0,
+        "residentBytes": 2150880,
+        "reservedBytes": 0,
+        "peakAccountedBytes": 9871402,
+        "cacheHits": 0,
+        "deduplicatedRequests": 4,
+        "evictions": 0,
+        "cancellations": 0,
+        "built": 4
+      },
+      "warmState": {
+        "maxConcurrentLoads": 1,
+        "maxResidentBytes": 67108864,
+        "activeLoads": 0,
+        "queuedLoads": 0,
+        "residentResources": 4,
+        "referencedResources": 0,
+        "residentBytes": 2150880,
+        "reservedBytes": 0,
+        "peakAccountedBytes": 9871402,
+        "cacheHits": 4,
+        "deduplicatedRequests": 4,
+        "evictions": 0,
+        "cancellations": 0,
+        "built": 4
+      },
+      "limits": "Cold means a reloaded editor session, not cleared OS/browser disk caches."
+    },
+    {
+      "kind": "html",
+      "elapsedMs": 1621.5597999999954,
+      "bytes": 4470396
+    },
+    {
+      "kind": "continuous-process-samples",
+      "name": "build-html",
+      "samples": [
+        {
+          "elapsedMs": 602.2657000000036,
+          "processes": 6,
+          "privateBytes": 498634752,
+          "workingSetBytes": 819793920
+        },
+        {
+          "elapsedMs": 1550.4526000000042,
+          "processes": 6,
+          "privateBytes": 487407616,
+          "workingSetBytes": 814485504
+        }
+      ],
+      "observedMaxPrivateBytes": 498634752,
+      "observedMaxWorkingSetBytes": 819793920,
+      "limits": "Serial process-tree sampling plus 200ms pause; actual timestamps retained. Observed maxima are lower bounds, not guaranteed instantaneous peaks, and include browser/harness activity."
+    },
+    {
+      "kind": "html",
+      "elapsedMs": 1549.4648000000016,
+      "bytes": 1956396
+    },
+    {
+      "kind": "continuous-process-samples",
+      "name": "build-html",
+      "samples": [
+        {
+          "elapsedMs": 769.7988000000041,
+          "processes": 6,
+          "privateBytes": 484995072,
+          "workingSetBytes": 816054272
+        },
+        {
+          "elapsedMs": 1783.863400000002,
+          "processes": 6,
+          "privateBytes": 475783168,
+          "workingSetBytes": 801107968
+        }
+      ],
+      "observedMaxPrivateBytes": 484995072,
+      "observedMaxWorkingSetBytes": 816054272,
+      "limits": "Serial process-tree sampling plus 200ms pause; actual timestamps retained. Observed maxima are lower bounds, not guaranteed instantaneous peaks, and include browser/harness activity."
+    },
+    {
+      "kind": "incremental-verification",
+      "affectedGroup": "dicing-a304fdb07e3a",
+      "unchangedGroups": 3,
+      "reverified": 8,
+      "proofBefore": {
+        "maxConcurrentLoads": 1,
+        "maxResidentBytes": 524288,
+        "activeLoads": 0,
+        "queuedLoads": 0,
+        "residentResources": 30,
+        "referencedResources": 0,
+        "residentBytes": 15762,
+        "reservedBytes": 0,
+        "peakAccountedBytes": 15762,
+        "cacheHits": 30,
+        "deduplicatedRequests": 30,
+        "evictions": 0,
+        "cancellations": 0,
+        "verified": 30
+      },
+      "proofAfter": {
+        "maxConcurrentLoads": 1,
+        "maxResidentBytes": 524288,
+        "activeLoads": 0,
+        "queuedLoads": 0,
+        "residentResources": 38,
+        "referencedResources": 0,
+        "residentBytes": 19990,
+        "reservedBytes": 0,
+        "peakAccountedBytes": 19990,
+        "cacheHits": 96,
+        "deduplicatedRequests": 30,
+        "evictions": 0,
+        "cancellations": 0,
+        "verified": 38
+      }
+    },
+    {
+      "kind": "incremental-delivery",
+      "deliveryBefore": {
+        "maxConcurrentLoads": 1,
+        "maxResidentBytes": 67108864,
+        "activeLoads": 0,
+        "queuedLoads": 0,
+        "residentResources": 4,
+        "referencedResources": 0,
+        "residentBytes": 2150880,
+        "reservedBytes": 0,
+        "peakAccountedBytes": 9871402,
+        "cacheHits": 4,
+        "deduplicatedRequests": 4,
+        "evictions": 0,
+        "cancellations": 0,
+        "built": 4
+      },
+      "deliveryAfter": {
+        "maxConcurrentLoads": 1,
+        "maxResidentBytes": 67108864,
+        "activeLoads": 0,
+        "queuedLoads": 0,
+        "residentResources": 5,
+        "referencedResources": 0,
+        "residentBytes": 2724036,
+        "reservedBytes": 0,
+        "peakAccountedBytes": 10876094,
+        "cacheHits": 13,
+        "deduplicatedRequests": 4,
+        "evictions": 0,
+        "cancellations": 0,
+        "built": 5
+      },
+      "recompressed": 1,
+      "unchangedGroups": 3
+    },
+    {
+      "kind": "html",
+      "elapsedMs": 1606.2733000000007,
+      "bytes": 11382464
+    },
+    {
+      "kind": "continuous-process-samples",
+      "name": "build-html",
+      "samples": [
+        {
+          "elapsedMs": 788.9196999999986,
+          "processes": 6,
+          "privateBytes": 619876352,
+          "workingSetBytes": 968298496
+        },
+        {
+          "elapsedMs": 1841.065999999999,
+          "processes": 6,
+          "privateBytes": 603312128,
+          "workingSetBytes": 941191168
+        }
+      ],
+      "observedMaxPrivateBytes": 619876352,
+      "observedMaxWorkingSetBytes": 968298496,
+      "limits": "Serial process-tree sampling plus 200ms pause; actual timestamps retained. Observed maxima are lower bounds, not guaranteed instantaneous peaks, and include browser/harness activity."
+    },
+    {
+      "kind": "html",
+      "elapsedMs": 2034.2093000000023,
+      "bytes": 11383225
+    },
+    {
+      "kind": "continuous-process-samples",
+      "name": "build-html",
+      "samples": [
+        {
+          "elapsedMs": 881.4636000000028,
+          "processes": 6,
+          "privateBytes": 471724032,
+          "workingSetBytes": 759721984
+        },
+        {
+          "elapsedMs": 1957.1062999999995,
+          "processes": 6,
+          "privateBytes": 601214976,
+          "workingSetBytes": 889024512
+        }
+      ],
+      "observedMaxPrivateBytes": 601214976,
+      "observedMaxWorkingSetBytes": 889024512,
+      "limits": "Serial process-tree sampling plus 200ms pause; actual timestamps retained. Observed maxima are lower bounds, not guaranteed instantaneous peaks, and include browser/harness activity."
+    },
+    {
+      "kind": "html",
+      "elapsedMs": 3125.955400000006,
+      "bytes": 1956526
+    },
+    {
+      "kind": "continuous-process-samples",
+      "name": "build-html",
+      "samples": [
+        {
+          "elapsedMs": 794.0506000000023,
+          "processes": 6,
+          "privateBytes": 687161344,
+          "workingSetBytes": 969932800
+        },
+        {
+          "elapsedMs": 1798.4187999999995,
+          "processes": 6,
+          "privateBytes": 723886080,
+          "workingSetBytes": 994852864
+        },
+        {
+          "elapsedMs": 2785.715000000011,
+          "processes": 6,
+          "privateBytes": 738684928,
+          "workingSetBytes": 1001713664
+        },
+        {
+          "elapsedMs": 3765.2936000000045,
+          "processes": 6,
+          "privateBytes": 775098368,
+          "workingSetBytes": 1036771328
+        }
+      ],
+      "observedMaxPrivateBytes": 775098368,
+      "observedMaxWorkingSetBytes": 1036771328,
+      "limits": "Serial process-tree sampling plus 200ms pause; actual timestamps retained. Observed maxima are lower bounds, not guaranteed instantaneous peaks, and include browser/harness activity."
+    },
+    {
+      "kind": "play-to-character",
+      "name": "original",
+      "elapsedMs": 1461.5806999999913,
+      "processMemory": {
+        "processes": 6,
+        "privateBytes": 342290432,
+        "workingSetBytes": 545681408
+      },
+      "jsHeap": {
+        "used": 50400000,
+        "total": 81400000
+      }
+    },
+    {
+      "kind": "startup-longtasks",
+      "name": "original",
+      "tasks": [
+        {
+          "start": 171.29999999981374,
+          "duration": 66
+        }
+      ],
+      "readyAt": 237.10000000009313,
+      "limits": "Startup through ready; optimized includes deliberate cancellation/retry. Navigation, JSON, hashes and host overhead included; not a controlled before/after baseline."
+    },
+    {
+      "kind": "continuous-process-samples",
+      "name": "original",
+      "samples": [
+        {
+          "elapsedMs": 758.8626999999979,
+          "processes": 6,
+          "privateBytes": 295297024,
+          "workingSetBytes": 498311168
+        },
+        {
+          "elapsedMs": 1742.489899999986,
+          "processes": 6,
+          "privateBytes": 341012480,
+          "workingSetBytes": 544808960
+        },
+        {
+          "elapsedMs": 2626.2518999999884,
+          "processes": 6,
+          "privateBytes": 342601728,
+          "workingSetBytes": 546062336
+        },
+        {
+          "elapsedMs": 3509.0151999999944,
+          "processes": 6,
+          "privateBytes": 346591232,
+          "workingSetBytes": 566624256
+        },
+        {
+          "elapsedMs": 4378.64929999999,
+          "processes": 6,
+          "privateBytes": 321175552,
+          "workingSetBytes": 542302208
+        },
+        {
+          "elapsedMs": 5198.284899999999,
+          "processes": 6,
+          "privateBytes": 330399744,
+          "workingSetBytes": 551436288
+        },
+        {
+          "elapsedMs": 6023.9776999999885,
+          "processes": 6,
+          "privateBytes": 345387008,
+          "workingSetBytes": 565927936
+        },
+        {
+          "elapsedMs": 6905.774799999999,
+          "processes": 6,
+          "privateBytes": 356888576,
+          "workingSetBytes": 577216512
+        },
+        {
+          "elapsedMs": 7721.463899999988,
+          "processes": 6,
+          "privateBytes": 375267328,
+          "workingSetBytes": 594604032
+        },
+        {
+          "elapsedMs": 8527.185599999997,
+          "processes": 6,
+          "privateBytes": 387448832,
+          "workingSetBytes": 606801920
+        },
+        {
+          "elapsedMs": 9395.228899999987,
+          "processes": 6,
+          "privateBytes": 357736448,
+          "workingSetBytes": 579223552
+        },
+        {
+          "elapsedMs": 10257.26049999999,
+          "processes": 6,
+          "privateBytes": 394797056,
+          "workingSetBytes": 621166592
+        },
+        {
+          "elapsedMs": 11133.95689999999,
+          "processes": 6,
+          "privateBytes": 402071552,
+          "workingSetBytes": 628506624
+        },
+        {
+          "elapsedMs": 12035.503399999987,
+          "processes": 6,
+          "privateBytes": 395964416,
+          "workingSetBytes": 622764032
+        }
+      ],
+      "observedMaxPrivateBytes": 402071552,
+      "observedMaxWorkingSetBytes": 628506624,
+      "limits": "Serial process-tree sampling plus 200ms pause; actual timestamps retained. Observed maxima are lower bounds, not guaranteed instantaneous peaks, and include browser/harness activity."
+    },
+    {
+      "kind": "play-to-character",
+      "name": "optimized",
+      "elapsedMs": 2073.9795000000013,
+      "processMemory": {
+        "processes": 6,
+        "privateBytes": 348721152,
+        "workingSetBytes": 574611456
+      },
+      "jsHeap": {
+        "used": 50400000,
+        "total": 81400000
+      }
+    },
+    {
+      "kind": "startup-longtasks",
+      "name": "optimized",
+      "tasks": [],
+      "readyAt": 594.8000000002794,
+      "limits": "Startup through ready; optimized includes deliberate cancellation/retry. Navigation, JSON, hashes and host overhead included; not a controlled before/after baseline."
+    },
+    {
+      "kind": "continuous-process-samples",
+      "name": "optimized",
+      "samples": [
+        {
+          "elapsedMs": 649.7420999999886,
+          "processes": 6,
+          "privateBytes": 413896704,
+          "workingSetBytes": 633544704
+        },
+        {
+          "elapsedMs": 1463.4214999999967,
+          "processes": 6,
+          "privateBytes": 351682560,
+          "workingSetBytes": 576131072
+        },
+        {
+          "elapsedMs": 2366.2119999999995,
+          "processes": 6,
+          "privateBytes": 344096768,
+          "workingSetBytes": 574111744
+        },
+        {
+          "elapsedMs": 3272.549399999989,
+          "processes": 6,
+          "privateBytes": 345034752,
+          "workingSetBytes": 573100032
+        },
+        {
+          "elapsedMs": 4172.280799999993,
+          "processes": 6,
+          "privateBytes": 369520640,
+          "workingSetBytes": 601714688
+        },
+        {
+          "elapsedMs": 5123.762099999993,
+          "processes": 6,
+          "privateBytes": 513650688,
+          "workingSetBytes": 736571392
+        },
+        {
+          "elapsedMs": 6151.123099999997,
+          "processes": 6,
+          "privateBytes": 437948416,
+          "workingSetBytes": 668557312
+        },
+        {
+          "elapsedMs": 7088.809599999993,
+          "processes": 6,
+          "privateBytes": 445771776,
+          "workingSetBytes": 675520512
+        },
+        {
+          "elapsedMs": 8141.833499999993,
+          "processes": 6,
+          "privateBytes": 349802496,
+          "workingSetBytes": 586797056
+        },
+        {
+          "elapsedMs": 9068.435899999997,
+          "processes": 6,
+          "privateBytes": 362377216,
+          "workingSetBytes": 598007808
+        },
+        {
+          "elapsedMs": 10099.227799999993,
+          "processes": 6,
+          "privateBytes": 366440448,
+          "workingSetBytes": 603590656
+        },
+        {
+          "elapsedMs": 11254.672299999991,
+          "processes": 6,
+          "privateBytes": 390242304,
+          "workingSetBytes": 626397184
+        },
+        {
+          "elapsedMs": 12233.059599999993,
+          "processes": 6,
+          "privateBytes": 412291072,
+          "workingSetBytes": 650985472
+        },
+        {
+          "elapsedMs": 13151.842599999989,
+          "processes": 6,
+          "privateBytes": 395255808,
+          "workingSetBytes": 638210048
+        },
+        {
+          "elapsedMs": 14085.052299999996,
+          "processes": 6,
+          "privateBytes": 394350592,
+          "workingSetBytes": 638619648
+        },
+        {
+          "elapsedMs": 15342.781900000002,
+          "processes": 6,
+          "privateBytes": 471207936,
+          "workingSetBytes": 715669504
+        },
+        {
+          "elapsedMs": 16519.111999999994,
+          "processes": 6,
+          "privateBytes": 465457152,
+          "workingSetBytes": 714301440
+        },
+        {
+          "elapsedMs": 17600.66799999999,
+          "processes": 6,
+          "privateBytes": 465133568,
+          "workingSetBytes": 715620352
+        },
+        {
+          "elapsedMs": 18782.1786,
+          "processes": 6,
+          "privateBytes": 377593856,
+          "workingSetBytes": 628637696
+        }
+      ],
+      "observedMaxPrivateBytes": 513650688,
+      "observedMaxWorkingSetBytes": 736571392,
+      "limits": "Serial process-tree sampling plus 200ms pause; actual timestamps retained. Observed maxima are lower bounds, not guaranteed instantaneous peaks, and include browser/harness activity."
+    },
+    {
+      "kind": "play-to-character",
+      "name": "directory",
+      "elapsedMs": 2196.1324999999924,
+      "processMemory": {
+        "processes": 6,
+        "privateBytes": 363741184,
+        "workingSetBytes": 621162496
+      },
+      "jsHeap": {
+        "used": 50400000,
+        "total": 81400000
+      }
+    },
+    {
+      "kind": "startup-longtasks",
+      "name": "directory",
+      "tasks": [],
+      "readyAt": 616.3999999994412,
+      "limits": "Startup through ready; optimized includes deliberate cancellation/retry. Navigation, JSON, hashes and host overhead included; not a controlled before/after baseline."
+    },
+    {
+      "kind": "continuous-process-samples",
+      "name": "directory",
+      "samples": [
+        {
+          "elapsedMs": 964.7333999999973,
+          "processes": 6,
+          "privateBytes": 380510208,
+          "workingSetBytes": 644280320
+        },
+        {
+          "elapsedMs": 2020.7825999999914,
+          "processes": 6,
+          "privateBytes": 458039296,
+          "workingSetBytes": 709943296
+        },
+        {
+          "elapsedMs": 3383.6379000000015,
+          "processes": 6,
+          "privateBytes": 363741184,
+          "workingSetBytes": 622297088
+        },
+        {
+          "elapsedMs": 4546.294299999994,
+          "processes": 6,
+          "privateBytes": 389455872,
+          "workingSetBytes": 651313152
+        },
+        {
+          "elapsedMs": 5798.786599999992,
+          "processes": 6,
+          "privateBytes": 501985280,
+          "workingSetBytes": 758104064
+        },
+        {
+          "elapsedMs": 6803.33679999999,
+          "processes": 6,
+          "privateBytes": 410185728,
+          "workingSetBytes": 671866880
+        },
+        {
+          "elapsedMs": 7735.313299999994,
+          "processes": 6,
+          "privateBytes": 402313216,
+          "workingSetBytes": 662421504
+        },
+        {
+          "elapsedMs": 8659.315799999997,
+          "processes": 6,
+          "privateBytes": 403861504,
+          "workingSetBytes": 664023040
+        },
+        {
+          "elapsedMs": 9928.434999999998,
+          "processes": 6,
+          "privateBytes": 406200320,
+          "workingSetBytes": 664850432
+        },
+        {
+          "elapsedMs": 11105.093599999993,
+          "processes": 6,
+          "privateBytes": 443760640,
+          "workingSetBytes": 699146240
+        },
+        {
+          "elapsedMs": 12287.10089999999,
+          "processes": 6,
+          "privateBytes": 408182784,
+          "workingSetBytes": 670842880
+        },
+        {
+          "elapsedMs": 13266.353199999998,
+          "processes": 6,
+          "privateBytes": 411942912,
+          "workingSetBytes": 676335616
+        },
+        {
+          "elapsedMs": 14527.402000000002,
+          "processes": 6,
+          "privateBytes": 410034176,
+          "workingSetBytes": 674275328
+        },
+        {
+          "elapsedMs": 15450.853099999993,
+          "processes": 6,
+          "privateBytes": 421691392,
+          "workingSetBytes": 687828992
+        },
+        {
+          "elapsedMs": 16384.23019999999,
+          "processes": 6,
+          "privateBytes": 402804736,
+          "workingSetBytes": 674766848
+        },
+        {
+          "elapsedMs": 17282.353000000003,
+          "processes": 6,
+          "privateBytes": 485871616,
+          "workingSetBytes": 752062464
+        },
+        {
+          "elapsedMs": 18178.863299999997,
+          "processes": 6,
+          "privateBytes": 458747904,
+          "workingSetBytes": 731684864
+        },
+        {
+          "elapsedMs": 19016.70199999999,
+          "processes": 6,
+          "privateBytes": 415485952,
+          "workingSetBytes": 688951296
+        }
+      ],
+      "observedMaxPrivateBytes": 501985280,
+      "observedMaxWorkingSetBytes": 758104064,
+      "limits": "Serial process-tree sampling plus 200ms pause; actual timestamps retained. Observed maxima are lower bounds, not guaranteed instantaneous peaks, and include browser/harness activity."
+    },
+    {
+      "kind": "play-to-character",
+      "name": "windows",
+      "elapsedMs": 2206.5818,
+      "processMemory": {
+        "processes": 5,
+        "privateBytes": 946114560,
+        "workingSetBytes": 719986688
+      },
+      "jsHeap": {
+        "used": 108317321,
+        "total": 118904245
+      }
+    },
+    {
+      "kind": "continuous-process-samples",
+      "name": "windows",
+      "samples": [
+        {
+          "elapsedMs": 829.4110999999975,
+          "processes": 4,
+          "privateBytes": 284327936,
+          "workingSetBytes": 374849536
+        },
+        {
+          "elapsedMs": 2077.2715000000026,
+          "processes": 4,
+          "privateBytes": 716144640,
+          "workingSetBytes": 543166464
+        },
+        {
+          "elapsedMs": 3013.715400000001,
+          "processes": 5,
+          "privateBytes": 946114560,
+          "workingSetBytes": 719986688
+        },
+        {
+          "elapsedMs": 3910.1008,
+          "processes": 5,
+          "privateBytes": 818798592,
+          "workingSetBytes": 568410112
+        },
+        {
+          "elapsedMs": 4861.619399999996,
+          "processes": 5,
+          "privateBytes": 868904960,
+          "workingSetBytes": 602890240
+        },
+        {
+          "elapsedMs": 5861.510300000009,
+          "processes": 5,
+          "privateBytes": 863776768,
+          "workingSetBytes": 606117888
+        },
+        {
+          "elapsedMs": 6844.370899999994,
+          "processes": 5,
+          "privateBytes": 864407552,
+          "workingSetBytes": 607494144
+        },
+        {
+          "elapsedMs": 7821.834400000007,
+          "processes": 5,
+          "privateBytes": 851013632,
+          "workingSetBytes": 594128896
+        },
+        {
+          "elapsedMs": 8883.974999999991,
+          "processes": 5,
+          "privateBytes": 838778880,
+          "workingSetBytes": 595431424
+        },
+        {
+          "elapsedMs": 9773.628500000006,
+          "processes": 5,
+          "privateBytes": 1005199360,
+          "workingSetBytes": 678993920
+        },
+        {
+          "elapsedMs": 10753.9225,
+          "processes": 5,
+          "privateBytes": 998764544,
+          "workingSetBytes": 678178816
+        },
+        {
+          "elapsedMs": 11760.977999999988,
+          "processes": 5,
+          "privateBytes": 1006166016,
+          "workingSetBytes": 685932544
+        },
+        {
+          "elapsedMs": 12833.147899999996,
+          "processes": 5,
+          "privateBytes": 810631168,
+          "workingSetBytes": 678436864
+        },
+        {
+          "elapsedMs": 13805.74440000001,
+          "processes": 5,
+          "privateBytes": 791433216,
+          "workingSetBytes": 688623616
+        },
+        {
+          "elapsedMs": 14671.771200000003,
+          "processes": 5,
+          "privateBytes": 789688320,
+          "workingSetBytes": 693039104
+        },
+        {
+          "elapsedMs": 15480.255799999999,
+          "processes": 5,
+          "privateBytes": 797876224,
+          "workingSetBytes": 701050880
+        },
+        {
+          "elapsedMs": 16606.525099999984,
+          "processes": 5,
+          "privateBytes": 807890944,
+          "workingSetBytes": 711450624
+        },
+        {
+          "elapsedMs": 17902.391599999988,
+          "processes": 5,
+          "privateBytes": 830009344,
+          "workingSetBytes": 732188672
+        }
+      ],
+      "observedMaxPrivateBytes": 1006166016,
+      "observedMaxWorkingSetBytes": 732188672,
+      "limits": "Serial process-tree sampling plus 200ms pause; actual timestamps retained. Observed maxima are lower bounds, not guaranteed instantaneous peaks, and include browser/harness activity."
+    },
+    {
+      "kind": "play-to-character",
+      "name": "corrupt-page",
+      "elapsedMs": 1672.5491000000038,
+      "processMemory": {
+        "processes": 6,
+        "privateBytes": 307765248,
+        "workingSetBytes": 585187328
+      },
+      "jsHeap": {
+        "used": 50400000,
+        "total": 81400000
+      }
+    },
+    {
+      "kind": "startup-longtasks",
+      "name": "corrupt-page",
+      "tasks": [],
+      "readyAt": 565.3999999994412,
+      "limits": "Startup through ready; optimized includes deliberate cancellation/retry. Navigation, JSON, hashes and host overhead included; not a controlled before/after baseline."
+    },
+    {
+      "kind": "continuous-process-samples",
+      "name": "corrupt-page",
+      "samples": [
+        {
+          "elapsedMs": 791.2007999999914,
+          "processes": 6,
+          "privateBytes": 315842560,
+          "workingSetBytes": 602345472
+        },
+        {
+          "elapsedMs": 1496.0142999999807,
+          "processes": 6,
+          "privateBytes": 305332224,
+          "workingSetBytes": 580280320
+        },
+        {
+          "elapsedMs": 2264.416199999978,
+          "processes": 6,
+          "privateBytes": 307765248,
+          "workingSetBytes": 585187328
+        },
+        {
+          "elapsedMs": 2950.0559999999823,
+          "processes": 6,
+          "privateBytes": 307818496,
+          "workingSetBytes": 585240576
+        },
+        {
+          "elapsedMs": 3649.907899999991,
+          "processes": 6,
+          "privateBytes": 334966784,
+          "workingSetBytes": 627027968
+        },
+        {
+          "elapsedMs": 4535.9765999999945,
+          "processes": 6,
+          "privateBytes": 346443776,
+          "workingSetBytes": 639750144
+        },
+        {
+          "elapsedMs": 5373.692299999995,
+          "processes": 6,
+          "privateBytes": 349188096,
+          "workingSetBytes": 642146304
+        },
+        {
+          "elapsedMs": 6168.018400000001,
+          "processes": 6,
+          "privateBytes": 351186944,
+          "workingSetBytes": 642846720
+        },
+        {
+          "elapsedMs": 6891.246599999984,
+          "processes": 6,
+          "privateBytes": 360980480,
+          "workingSetBytes": 650907648
+        },
+        {
+          "elapsedMs": 7721.595299999986,
+          "processes": 6,
+          "privateBytes": 375083008,
+          "workingSetBytes": 661143552
+        },
+        {
+          "elapsedMs": 8532.40969999999,
+          "processes": 6,
+          "privateBytes": 328941568,
+          "workingSetBytes": 619708416
+        },
+        {
+          "elapsedMs": 9242.800199999998,
+          "processes": 6,
+          "privateBytes": 356708352,
+          "workingSetBytes": 647270400
+        },
+        {
+          "elapsedMs": 9963.870999999985,
+          "processes": 6,
+          "privateBytes": 336142336,
+          "workingSetBytes": 628932608
+        },
+        {
+          "elapsedMs": 10685.873199999973,
+          "processes": 6,
+          "privateBytes": 352710656,
+          "workingSetBytes": 644276224
+        },
+        {
+          "elapsedMs": 11410.131399999984,
+          "processes": 6,
+          "privateBytes": 344719360,
+          "workingSetBytes": 636825600
+        }
+      ],
+      "observedMaxPrivateBytes": 375083008,
+      "observedMaxWorkingSetBytes": 661143552,
+      "limits": "Serial process-tree sampling plus 200ms pause; actual timestamps retained. Observed maxima are lower bounds, not guaranteed instantaneous peaks, and include browser/harness activity."
+    },
+    {
+      "kind": "play-to-character",
+      "name": "unsupported",
+      "elapsedMs": 1531.787799999991,
+      "processMemory": {
+        "processes": 6,
+        "privateBytes": 354344960,
+        "workingSetBytes": 639782912
+      },
+      "jsHeap": {
+        "used": 50400000,
+        "total": 81400000
+      }
+    },
+    {
+      "kind": "startup-longtasks",
+      "name": "unsupported",
+      "tasks": [],
+      "readyAt": 445.20000000018626,
+      "limits": "Startup through ready; optimized includes deliberate cancellation/retry. Navigation, JSON, hashes and host overhead included; not a controlled before/after baseline."
+    },
+    {
+      "kind": "continuous-process-samples",
+      "name": "unsupported",
+      "samples": [
+        {
+          "elapsedMs": 598.6080999999831,
+          "processes": 6,
+          "privateBytes": 352874496,
+          "workingSetBytes": 646590464
+        },
+        {
+          "elapsedMs": 1606.8827999999921,
+          "processes": 6,
+          "privateBytes": 354447360,
+          "workingSetBytes": 639905792
+        },
+        {
+          "elapsedMs": 2312.083899999998,
+          "processes": 6,
+          "privateBytes": 354394112,
+          "workingSetBytes": 639832064
+        },
+        {
+          "elapsedMs": 3025.1826,
+          "processes": 6,
+          "privateBytes": 346894336,
+          "workingSetBytes": 630693888
+        },
+        {
+          "elapsedMs": 3737.5585999999894,
+          "processes": 6,
+          "privateBytes": 367390720,
+          "workingSetBytes": 662183936
+        },
+        {
+          "elapsedMs": 4439.052899999981,
+          "processes": 6,
+          "privateBytes": 372613120,
+          "workingSetBytes": 668209152
+        },
+        {
+          "elapsedMs": 5149.636499999993,
+          "processes": 6,
+          "privateBytes": 351522816,
+          "workingSetBytes": 646930432
+        },
+        {
+          "elapsedMs": 5866.167300000001,
+          "processes": 6,
+          "privateBytes": 342712320,
+          "workingSetBytes": 637943808
+        },
+        {
+          "elapsedMs": 6579.62969999999,
+          "processes": 6,
+          "privateBytes": 343265280,
+          "workingSetBytes": 638603264
+        },
+        {
+          "elapsedMs": 7278.2311000000045,
+          "processes": 6,
+          "privateBytes": 355704832,
+          "workingSetBytes": 652173312
+        },
+        {
+          "elapsedMs": 7981.890199999994,
+          "processes": 6,
+          "privateBytes": 384200704,
+          "workingSetBytes": 681533440
+        },
+        {
+          "elapsedMs": 8678.498900000006,
+          "processes": 6,
+          "privateBytes": 400130048,
+          "workingSetBytes": 698597376
+        },
+        {
+          "elapsedMs": 9384.263699999981,
+          "processes": 6,
+          "privateBytes": 394248192,
+          "workingSetBytes": 694370304
+        },
+        {
+          "elapsedMs": 10130.375899999985,
+          "processes": 6,
+          "privateBytes": 398098432,
+          "workingSetBytes": 699322368
+        },
+        {
+          "elapsedMs": 10839.2604,
+          "processes": 6,
+          "privateBytes": 388993024,
+          "workingSetBytes": 691240960
+        }
+      ],
+      "observedMaxPrivateBytes": 400130048,
+      "observedMaxWorkingSetBytes": 699322368,
+      "limits": "Serial process-tree sampling plus 200ms pause; actual timestamps retained. Observed maxima are lower bounds, not guaranteed instantaneous peaks, and include browser/harness activity."
+    },
+    {
+      "kind": "rapid-switch",
+      "sceneChanges": 30,
+      "scheduler": {
+        "maxConcurrentLoads": 1,
+        "maxResidentBytes": 67108864,
+        "activeLoads": 0,
+        "queuedLoads": 0,
+        "residentResources": 1,
+        "referencedResources": 0,
+        "residentBytes": 2138730,
+        "reservedBytes": 0,
+        "peakAccountedBytes": 67108864,
+        "cacheHits": 13,
+        "deduplicatedRequests": 0,
+        "evictions": 0,
+        "cancellations": 0
+      },
+      "native": {
+        "groups": 0,
+        "accountedBytes": 0,
+        "peakBytes": 1547968,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 1,
+        "decodedGroups": 9,
+        "cacheHits": 4
+      }
+    },
+    {
+      "kind": "dicing-sequence",
+      "fixtureHash": "sha256:ebf76df43791f110ef6aa570c2cbf2545a87ca644458e7b4cf5db39fe37da955",
+      "runs": [
+        {
+          "name": "original",
+          "mode": "ordinary",
+          "assets": {
+            "media_sunset": {
+              "width": 256,
+              "height": 256,
+              "digest": "b6c6b4f301b18bb9e91aab46aec0fda15b25a8e70c7047cc16ba7d6bab1533b4"
+            },
+            "media_actor_sprite": {
+              "width": 256,
+              "height": 256,
+              "digest": "5e4c4e6c948296c91e3f17ba72699d9b98b6d6c4cb494650eaf7de0377613ed2"
+            },
+            "scale_2": {
+              "width": 256,
+              "height": 256,
+              "digest": "e49e754b217215b4b7c33888b3d792ea10c0da801ce7f12f3da67b0e971b3b9d"
+            },
+            "scale_3": {
+              "width": 256,
+              "height": 256,
+              "digest": "9213b6306f842da34edbb506e54546935be8be756f2ee1304080c0263b1ab9ea"
+            },
+            "scale_4": {
+              "width": 256,
+              "height": 256,
+              "digest": "c86a461c9b86af3f3b746e82e042eb2808e4dbe0cc7ac6f5671d855f3c6c8d8e"
+            },
+            "scale_5": {
+              "width": 256,
+              "height": 256,
+              "digest": "6cba1ab53d70f07ab8a1d62e9690a4f5e541dcacffd048bf1800bccd15798311"
+            },
+            "scale_6": {
+              "width": 256,
+              "height": 256,
+              "digest": "548939f0f8a537b35adbb6ef2dde4306a83f03c6a5469dda5327f58055fede57"
+            },
+            "scale_7": {
+              "width": 256,
+              "height": 256,
+              "digest": "f197952879e2002ab023c7ec5436d074690df6b38673ea3f35d0273b49563838"
+            },
+            "scale_8": {
+              "width": 256,
+              "height": 256,
+              "digest": "1d74d7cd8c779fbf583e027bf308e466ef94bfcc48886dd8dd1e0a05c8f9a3ac"
+            },
+            "scale_9": {
+              "width": 256,
+              "height": 256,
+              "digest": "bc4423bee313c5296553100ea569874e413130f2125b09043996729477892fde"
+            },
+            "scale_10": {
+              "width": 256,
+              "height": 256,
+              "digest": "cd8190bfdb74173a8990b0e16de541d08b69c838ec0d09fcf497d37deae690d0"
+            },
+            "scale_11": {
+              "width": 256,
+              "height": 256,
+              "digest": "dbd36c32a1ce4bae39cb93a99ce11fd36599f29cbdfe71feed7ad1452c5b0a70"
+            },
+            "scale_12": {
+              "width": 256,
+              "height": 256,
+              "digest": "85f2e92c6ec26c81375972b89776142fd8884eb526fcc4733f7389855adae409"
+            },
+            "scale_13": {
+              "width": 256,
+              "height": 256,
+              "digest": "9ffbc6b7d459962d33519433ef48489dae8f5315cb982cd08f49cf7d9acb33e5"
+            },
+            "scale_14": {
+              "width": 256,
+              "height": 256,
+              "digest": "789e57a0d0654677a9c4b8c3005c92724e40c5e662fc2fb51e017d8249321e86"
+            },
+            "scale_15": {
+              "width": 256,
+              "height": 256,
+              "digest": "10131e61f6b36cee19508868f908fbeb8447635a0f59f06e2dc2bc16ba03337c"
+            },
+            "scale_16": {
+              "width": 256,
+              "height": 256,
+              "digest": "a94cdc48ede4fcd98e07664ce0914e476b36fcd543df395c7035d06b44cd2a6a"
+            },
+            "scale_17": {
+              "width": 256,
+              "height": 256,
+              "digest": "d305c84e33d11914678e81183ed271527ae59589b0a4f081183f11e764060c92"
+            },
+            "scale_18": {
+              "width": 256,
+              "height": 256,
+              "digest": "8d72a16b92feb5898f0e4cbdd7d5d026c3d6ae63ac4f715a652ec5b772868e2c"
+            },
+            "scale_19": {
+              "width": 256,
+              "height": 256,
+              "digest": "f44c5029b13e06e3322b0a0eec958d12d7d9038892f05be2cb25ee1b6d0f45b2"
+            },
+            "scale_20": {
+              "width": 256,
+              "height": 256,
+              "digest": "6471d6276870ad7f6f34facc989e1b0777b759ef909c389f1076f93962dfdaad"
+            },
+            "scale_21": {
+              "width": 256,
+              "height": 256,
+              "digest": "9242aa81c6112ff4ba3739d849fdadeb2d354b3c3b5f70ccb680164b84c29e2e"
+            },
+            "scale_22": {
+              "width": 256,
+              "height": 256,
+              "digest": "9a3b9e987d2dffc034aa6c1ef9ec8f5b03d7fcb38c6c26dbd3eb4e9babddd09e"
+            },
+            "scale_23": {
+              "width": 256,
+              "height": 256,
+              "digest": "35dd6f449da7aaf88ce51c4b8e541f9ac253e27f851cc759248b8e7b8d650a08"
+            },
+            "scale_24": {
+              "width": 256,
+              "height": 256,
+              "digest": "74bdae222c52e9d8fbbd8015ec80f1e64ac92bd432a0768004d9116b9024b690"
+            },
+            "scale_25": {
+              "width": 256,
+              "height": 256,
+              "digest": "0e0d8046ba8fdd187bab97b06ebb4031c7e753eac153f10a09aacb1f7c14954a"
+            },
+            "scale_26": {
+              "width": 256,
+              "height": 256,
+              "digest": "a24dde1376f52a8a7066ef6cd66b8baab4aafeea91717764a1a0c2ddf83ce4cf"
+            },
+            "scale_27": {
+              "width": 256,
+              "height": 256,
+              "digest": "34993360199b842489e23c403b16109295b35886e8a17a8cb4f9939b6edc682d"
+            },
+            "scale_28": {
+              "width": 256,
+              "height": 256,
+              "digest": "0085d984525a8961cc8ee47cff4a7edb8946e8ecee9e974671216fa41ab081ea"
+            },
+            "scale_29": {
+              "width": 256,
+              "height": 256,
+              "digest": "21c75ac689a5200c6feddbd55a7572e2fd9e22a4a314fb477a76b8ca78dd4165"
+            }
+          },
+          "count": 30
+        },
+        {
+          "name": "optimized",
+          "mode": "ready",
+          "assets": {
+            "media_sunset": {
+              "width": 256,
+              "height": 256,
+              "digest": "b6c6b4f301b18bb9e91aab46aec0fda15b25a8e70c7047cc16ba7d6bab1533b4"
+            },
+            "media_actor_sprite": {
+              "width": 256,
+              "height": 256,
+              "digest": "5e4c4e6c948296c91e3f17ba72699d9b98b6d6c4cb494650eaf7de0377613ed2"
+            },
+            "scale_2": {
+              "width": 256,
+              "height": 256,
+              "digest": "e49e754b217215b4b7c33888b3d792ea10c0da801ce7f12f3da67b0e971b3b9d"
+            },
+            "scale_3": {
+              "width": 256,
+              "height": 256,
+              "digest": "9213b6306f842da34edbb506e54546935be8be756f2ee1304080c0263b1ab9ea"
+            },
+            "scale_4": {
+              "width": 256,
+              "height": 256,
+              "digest": "c86a461c9b86af3f3b746e82e042eb2808e4dbe0cc7ac6f5671d855f3c6c8d8e"
+            },
+            "scale_5": {
+              "width": 256,
+              "height": 256,
+              "digest": "6cba1ab53d70f07ab8a1d62e9690a4f5e541dcacffd048bf1800bccd15798311"
+            },
+            "scale_6": {
+              "width": 256,
+              "height": 256,
+              "digest": "548939f0f8a537b35adbb6ef2dde4306a83f03c6a5469dda5327f58055fede57"
+            },
+            "scale_7": {
+              "width": 256,
+              "height": 256,
+              "digest": "f197952879e2002ab023c7ec5436d074690df6b38673ea3f35d0273b49563838"
+            },
+            "scale_8": {
+              "width": 256,
+              "height": 256,
+              "digest": "1d74d7cd8c779fbf583e027bf308e466ef94bfcc48886dd8dd1e0a05c8f9a3ac"
+            },
+            "scale_9": {
+              "width": 256,
+              "height": 256,
+              "digest": "bc4423bee313c5296553100ea569874e413130f2125b09043996729477892fde"
+            },
+            "scale_10": {
+              "width": 256,
+              "height": 256,
+              "digest": "cd8190bfdb74173a8990b0e16de541d08b69c838ec0d09fcf497d37deae690d0"
+            },
+            "scale_11": {
+              "width": 256,
+              "height": 256,
+              "digest": "dbd36c32a1ce4bae39cb93a99ce11fd36599f29cbdfe71feed7ad1452c5b0a70"
+            },
+            "scale_12": {
+              "width": 256,
+              "height": 256,
+              "digest": "85f2e92c6ec26c81375972b89776142fd8884eb526fcc4733f7389855adae409"
+            },
+            "scale_13": {
+              "width": 256,
+              "height": 256,
+              "digest": "9ffbc6b7d459962d33519433ef48489dae8f5315cb982cd08f49cf7d9acb33e5"
+            },
+            "scale_14": {
+              "width": 256,
+              "height": 256,
+              "digest": "789e57a0d0654677a9c4b8c3005c92724e40c5e662fc2fb51e017d8249321e86"
+            },
+            "scale_15": {
+              "width": 256,
+              "height": 256,
+              "digest": "10131e61f6b36cee19508868f908fbeb8447635a0f59f06e2dc2bc16ba03337c"
+            },
+            "scale_16": {
+              "width": 256,
+              "height": 256,
+              "digest": "a94cdc48ede4fcd98e07664ce0914e476b36fcd543df395c7035d06b44cd2a6a"
+            },
+            "scale_17": {
+              "width": 256,
+              "height": 256,
+              "digest": "d305c84e33d11914678e81183ed271527ae59589b0a4f081183f11e764060c92"
+            },
+            "scale_18": {
+              "width": 256,
+              "height": 256,
+              "digest": "8d72a16b92feb5898f0e4cbdd7d5d026c3d6ae63ac4f715a652ec5b772868e2c"
+            },
+            "scale_19": {
+              "width": 256,
+              "height": 256,
+              "digest": "f44c5029b13e06e3322b0a0eec958d12d7d9038892f05be2cb25ee1b6d0f45b2"
+            },
+            "scale_20": {
+              "width": 256,
+              "height": 256,
+              "digest": "6471d6276870ad7f6f34facc989e1b0777b759ef909c389f1076f93962dfdaad"
+            },
+            "scale_21": {
+              "width": 256,
+              "height": 256,
+              "digest": "9242aa81c6112ff4ba3739d849fdadeb2d354b3c3b5f70ccb680164b84c29e2e"
+            },
+            "scale_22": {
+              "width": 256,
+              "height": 256,
+              "digest": "9a3b9e987d2dffc034aa6c1ef9ec8f5b03d7fcb38c6c26dbd3eb4e9babddd09e"
+            },
+            "scale_23": {
+              "width": 256,
+              "height": 256,
+              "digest": "35dd6f449da7aaf88ce51c4b8e541f9ac253e27f851cc759248b8e7b8d650a08"
+            },
+            "scale_24": {
+              "width": 256,
+              "height": 256,
+              "digest": "74bdae222c52e9d8fbbd8015ec80f1e64ac92bd432a0768004d9116b9024b690"
+            },
+            "scale_25": {
+              "width": 256,
+              "height": 256,
+              "digest": "0e0d8046ba8fdd187bab97b06ebb4031c7e753eac153f10a09aacb1f7c14954a"
+            },
+            "scale_26": {
+              "width": 256,
+              "height": 256,
+              "digest": "a24dde1376f52a8a7066ef6cd66b8baab4aafeea91717764a1a0c2ddf83ce4cf"
+            },
+            "scale_27": {
+              "width": 256,
+              "height": 256,
+              "digest": "34993360199b842489e23c403b16109295b35886e8a17a8cb4f9939b6edc682d"
+            },
+            "scale_28": {
+              "width": 256,
+              "height": 256,
+              "digest": "0085d984525a8961cc8ee47cff4a7edb8946e8ecee9e974671216fa41ab081ea"
+            },
+            "scale_29": {
+              "width": 256,
+              "height": 256,
+              "digest": "21c75ac689a5200c6feddbd55a7572e2fd9e22a4a314fb477a76b8ca78dd4165"
+            }
+          },
+          "count": 30
+        },
+        {
+          "name": "directory",
+          "mode": "ready",
+          "assets": {
+            "media_sunset": {
+              "width": 256,
+              "height": 256,
+              "digest": "b6c6b4f301b18bb9e91aab46aec0fda15b25a8e70c7047cc16ba7d6bab1533b4"
+            },
+            "media_actor_sprite": {
+              "width": 256,
+              "height": 256,
+              "digest": "5e4c4e6c948296c91e3f17ba72699d9b98b6d6c4cb494650eaf7de0377613ed2"
+            },
+            "scale_2": {
+              "width": 256,
+              "height": 256,
+              "digest": "e49e754b217215b4b7c33888b3d792ea10c0da801ce7f12f3da67b0e971b3b9d"
+            },
+            "scale_3": {
+              "width": 256,
+              "height": 256,
+              "digest": "9213b6306f842da34edbb506e54546935be8be756f2ee1304080c0263b1ab9ea"
+            },
+            "scale_4": {
+              "width": 256,
+              "height": 256,
+              "digest": "c86a461c9b86af3f3b746e82e042eb2808e4dbe0cc7ac6f5671d855f3c6c8d8e"
+            },
+            "scale_5": {
+              "width": 256,
+              "height": 256,
+              "digest": "6cba1ab53d70f07ab8a1d62e9690a4f5e541dcacffd048bf1800bccd15798311"
+            },
+            "scale_6": {
+              "width": 256,
+              "height": 256,
+              "digest": "548939f0f8a537b35adbb6ef2dde4306a83f03c6a5469dda5327f58055fede57"
+            },
+            "scale_7": {
+              "width": 256,
+              "height": 256,
+              "digest": "f197952879e2002ab023c7ec5436d074690df6b38673ea3f35d0273b49563838"
+            },
+            "scale_8": {
+              "width": 256,
+              "height": 256,
+              "digest": "1d74d7cd8c779fbf583e027bf308e466ef94bfcc48886dd8dd1e0a05c8f9a3ac"
+            },
+            "scale_9": {
+              "width": 256,
+              "height": 256,
+              "digest": "bc4423bee313c5296553100ea569874e413130f2125b09043996729477892fde"
+            },
+            "scale_10": {
+              "width": 256,
+              "height": 256,
+              "digest": "cd8190bfdb74173a8990b0e16de541d08b69c838ec0d09fcf497d37deae690d0"
+            },
+            "scale_11": {
+              "width": 256,
+              "height": 256,
+              "digest": "dbd36c32a1ce4bae39cb93a99ce11fd36599f29cbdfe71feed7ad1452c5b0a70"
+            },
+            "scale_12": {
+              "width": 256,
+              "height": 256,
+              "digest": "85f2e92c6ec26c81375972b89776142fd8884eb526fcc4733f7389855adae409"
+            },
+            "scale_13": {
+              "width": 256,
+              "height": 256,
+              "digest": "9ffbc6b7d459962d33519433ef48489dae8f5315cb982cd08f49cf7d9acb33e5"
+            },
+            "scale_14": {
+              "width": 256,
+              "height": 256,
+              "digest": "789e57a0d0654677a9c4b8c3005c92724e40c5e662fc2fb51e017d8249321e86"
+            },
+            "scale_15": {
+              "width": 256,
+              "height": 256,
+              "digest": "10131e61f6b36cee19508868f908fbeb8447635a0f59f06e2dc2bc16ba03337c"
+            },
+            "scale_16": {
+              "width": 256,
+              "height": 256,
+              "digest": "a94cdc48ede4fcd98e07664ce0914e476b36fcd543df395c7035d06b44cd2a6a"
+            },
+            "scale_17": {
+              "width": 256,
+              "height": 256,
+              "digest": "d305c84e33d11914678e81183ed271527ae59589b0a4f081183f11e764060c92"
+            },
+            "scale_18": {
+              "width": 256,
+              "height": 256,
+              "digest": "8d72a16b92feb5898f0e4cbdd7d5d026c3d6ae63ac4f715a652ec5b772868e2c"
+            },
+            "scale_19": {
+              "width": 256,
+              "height": 256,
+              "digest": "f44c5029b13e06e3322b0a0eec958d12d7d9038892f05be2cb25ee1b6d0f45b2"
+            },
+            "scale_20": {
+              "width": 256,
+              "height": 256,
+              "digest": "6471d6276870ad7f6f34facc989e1b0777b759ef909c389f1076f93962dfdaad"
+            },
+            "scale_21": {
+              "width": 256,
+              "height": 256,
+              "digest": "9242aa81c6112ff4ba3739d849fdadeb2d354b3c3b5f70ccb680164b84c29e2e"
+            },
+            "scale_22": {
+              "width": 256,
+              "height": 256,
+              "digest": "9a3b9e987d2dffc034aa6c1ef9ec8f5b03d7fcb38c6c26dbd3eb4e9babddd09e"
+            },
+            "scale_23": {
+              "width": 256,
+              "height": 256,
+              "digest": "35dd6f449da7aaf88ce51c4b8e541f9ac253e27f851cc759248b8e7b8d650a08"
+            },
+            "scale_24": {
+              "width": 256,
+              "height": 256,
+              "digest": "74bdae222c52e9d8fbbd8015ec80f1e64ac92bd432a0768004d9116b9024b690"
+            },
+            "scale_25": {
+              "width": 256,
+              "height": 256,
+              "digest": "0e0d8046ba8fdd187bab97b06ebb4031c7e753eac153f10a09aacb1f7c14954a"
+            },
+            "scale_26": {
+              "width": 256,
+              "height": 256,
+              "digest": "a24dde1376f52a8a7066ef6cd66b8baab4aafeea91717764a1a0c2ddf83ce4cf"
+            },
+            "scale_27": {
+              "width": 256,
+              "height": 256,
+              "digest": "34993360199b842489e23c403b16109295b35886e8a17a8cb4f9939b6edc682d"
+            },
+            "scale_28": {
+              "width": 256,
+              "height": 256,
+              "digest": "0085d984525a8961cc8ee47cff4a7edb8946e8ecee9e974671216fa41ab081ea"
+            },
+            "scale_29": {
+              "width": 256,
+              "height": 256,
+              "digest": "21c75ac689a5200c6feddbd55a7572e2fd9e22a4a314fb477a76b8ca78dd4165"
+            }
+          },
+          "count": 30
+        },
+        {
+          "name": "windows",
+          "mode": "ready",
+          "assets": {
+            "media_sunset": {
+              "width": 256,
+              "height": 256,
+              "digest": "b6c6b4f301b18bb9e91aab46aec0fda15b25a8e70c7047cc16ba7d6bab1533b4"
+            },
+            "media_actor_sprite": {
+              "width": 256,
+              "height": 256,
+              "digest": "5e4c4e6c948296c91e3f17ba72699d9b98b6d6c4cb494650eaf7de0377613ed2"
+            },
+            "scale_2": {
+              "width": 256,
+              "height": 256,
+              "digest": "e49e754b217215b4b7c33888b3d792ea10c0da801ce7f12f3da67b0e971b3b9d"
+            },
+            "scale_3": {
+              "width": 256,
+              "height": 256,
+              "digest": "9213b6306f842da34edbb506e54546935be8be756f2ee1304080c0263b1ab9ea"
+            },
+            "scale_4": {
+              "width": 256,
+              "height": 256,
+              "digest": "c86a461c9b86af3f3b746e82e042eb2808e4dbe0cc7ac6f5671d855f3c6c8d8e"
+            },
+            "scale_5": {
+              "width": 256,
+              "height": 256,
+              "digest": "6cba1ab53d70f07ab8a1d62e9690a4f5e541dcacffd048bf1800bccd15798311"
+            },
+            "scale_6": {
+              "width": 256,
+              "height": 256,
+              "digest": "548939f0f8a537b35adbb6ef2dde4306a83f03c6a5469dda5327f58055fede57"
+            },
+            "scale_7": {
+              "width": 256,
+              "height": 256,
+              "digest": "f197952879e2002ab023c7ec5436d074690df6b38673ea3f35d0273b49563838"
+            },
+            "scale_8": {
+              "width": 256,
+              "height": 256,
+              "digest": "1d74d7cd8c779fbf583e027bf308e466ef94bfcc48886dd8dd1e0a05c8f9a3ac"
+            },
+            "scale_9": {
+              "width": 256,
+              "height": 256,
+              "digest": "bc4423bee313c5296553100ea569874e413130f2125b09043996729477892fde"
+            },
+            "scale_10": {
+              "width": 256,
+              "height": 256,
+              "digest": "cd8190bfdb74173a8990b0e16de541d08b69c838ec0d09fcf497d37deae690d0"
+            },
+            "scale_11": {
+              "width": 256,
+              "height": 256,
+              "digest": "dbd36c32a1ce4bae39cb93a99ce11fd36599f29cbdfe71feed7ad1452c5b0a70"
+            },
+            "scale_12": {
+              "width": 256,
+              "height": 256,
+              "digest": "85f2e92c6ec26c81375972b89776142fd8884eb526fcc4733f7389855adae409"
+            },
+            "scale_13": {
+              "width": 256,
+              "height": 256,
+              "digest": "9ffbc6b7d459962d33519433ef48489dae8f5315cb982cd08f49cf7d9acb33e5"
+            },
+            "scale_14": {
+              "width": 256,
+              "height": 256,
+              "digest": "789e57a0d0654677a9c4b8c3005c92724e40c5e662fc2fb51e017d8249321e86"
+            },
+            "scale_15": {
+              "width": 256,
+              "height": 256,
+              "digest": "10131e61f6b36cee19508868f908fbeb8447635a0f59f06e2dc2bc16ba03337c"
+            },
+            "scale_16": {
+              "width": 256,
+              "height": 256,
+              "digest": "a94cdc48ede4fcd98e07664ce0914e476b36fcd543df395c7035d06b44cd2a6a"
+            },
+            "scale_17": {
+              "width": 256,
+              "height": 256,
+              "digest": "d305c84e33d11914678e81183ed271527ae59589b0a4f081183f11e764060c92"
+            },
+            "scale_18": {
+              "width": 256,
+              "height": 256,
+              "digest": "8d72a16b92feb5898f0e4cbdd7d5d026c3d6ae63ac4f715a652ec5b772868e2c"
+            },
+            "scale_19": {
+              "width": 256,
+              "height": 256,
+              "digest": "f44c5029b13e06e3322b0a0eec958d12d7d9038892f05be2cb25ee1b6d0f45b2"
+            },
+            "scale_20": {
+              "width": 256,
+              "height": 256,
+              "digest": "6471d6276870ad7f6f34facc989e1b0777b759ef909c389f1076f93962dfdaad"
+            },
+            "scale_21": {
+              "width": 256,
+              "height": 256,
+              "digest": "9242aa81c6112ff4ba3739d849fdadeb2d354b3c3b5f70ccb680164b84c29e2e"
+            },
+            "scale_22": {
+              "width": 256,
+              "height": 256,
+              "digest": "9a3b9e987d2dffc034aa6c1ef9ec8f5b03d7fcb38c6c26dbd3eb4e9babddd09e"
+            },
+            "scale_23": {
+              "width": 256,
+              "height": 256,
+              "digest": "35dd6f449da7aaf88ce51c4b8e541f9ac253e27f851cc759248b8e7b8d650a08"
+            },
+            "scale_24": {
+              "width": 256,
+              "height": 256,
+              "digest": "74bdae222c52e9d8fbbd8015ec80f1e64ac92bd432a0768004d9116b9024b690"
+            },
+            "scale_25": {
+              "width": 256,
+              "height": 256,
+              "digest": "0e0d8046ba8fdd187bab97b06ebb4031c7e753eac153f10a09aacb1f7c14954a"
+            },
+            "scale_26": {
+              "width": 256,
+              "height": 256,
+              "digest": "a24dde1376f52a8a7066ef6cd66b8baab4aafeea91717764a1a0c2ddf83ce4cf"
+            },
+            "scale_27": {
+              "width": 256,
+              "height": 256,
+              "digest": "34993360199b842489e23c403b16109295b35886e8a17a8cb4f9939b6edc682d"
+            },
+            "scale_28": {
+              "width": 256,
+              "height": 256,
+              "digest": "0085d984525a8961cc8ee47cff4a7edb8946e8ecee9e974671216fa41ab081ea"
+            },
+            "scale_29": {
+              "width": 256,
+              "height": 256,
+              "digest": "21c75ac689a5200c6feddbd55a7572e2fd9e22a4a314fb477a76b8ca78dd4165"
+            }
+          },
+          "count": 30
+        },
+        {
+          "name": "corrupt-page",
+          "mode": "fallback",
+          "assets": {
+            "media_sunset": {
+              "width": 256,
+              "height": 256,
+              "digest": "b6c6b4f301b18bb9e91aab46aec0fda15b25a8e70c7047cc16ba7d6bab1533b4"
+            },
+            "media_actor_sprite": {
+              "width": 256,
+              "height": 256,
+              "digest": "5e4c4e6c948296c91e3f17ba72699d9b98b6d6c4cb494650eaf7de0377613ed2"
+            },
+            "scale_2": {
+              "width": 256,
+              "height": 256,
+              "digest": "e49e754b217215b4b7c33888b3d792ea10c0da801ce7f12f3da67b0e971b3b9d"
+            },
+            "scale_3": {
+              "width": 256,
+              "height": 256,
+              "digest": "9213b6306f842da34edbb506e54546935be8be756f2ee1304080c0263b1ab9ea"
+            },
+            "scale_4": {
+              "width": 256,
+              "height": 256,
+              "digest": "c86a461c9b86af3f3b746e82e042eb2808e4dbe0cc7ac6f5671d855f3c6c8d8e"
+            },
+            "scale_5": {
+              "width": 256,
+              "height": 256,
+              "digest": "6cba1ab53d70f07ab8a1d62e9690a4f5e541dcacffd048bf1800bccd15798311"
+            },
+            "scale_6": {
+              "width": 256,
+              "height": 256,
+              "digest": "548939f0f8a537b35adbb6ef2dde4306a83f03c6a5469dda5327f58055fede57"
+            },
+            "scale_7": {
+              "width": 256,
+              "height": 256,
+              "digest": "f197952879e2002ab023c7ec5436d074690df6b38673ea3f35d0273b49563838"
+            },
+            "scale_8": {
+              "width": 256,
+              "height": 256,
+              "digest": "1d74d7cd8c779fbf583e027bf308e466ef94bfcc48886dd8dd1e0a05c8f9a3ac"
+            },
+            "scale_9": {
+              "width": 256,
+              "height": 256,
+              "digest": "bc4423bee313c5296553100ea569874e413130f2125b09043996729477892fde"
+            },
+            "scale_10": {
+              "width": 256,
+              "height": 256,
+              "digest": "cd8190bfdb74173a8990b0e16de541d08b69c838ec0d09fcf497d37deae690d0"
+            },
+            "scale_11": {
+              "width": 256,
+              "height": 256,
+              "digest": "dbd36c32a1ce4bae39cb93a99ce11fd36599f29cbdfe71feed7ad1452c5b0a70"
+            },
+            "scale_12": {
+              "width": 256,
+              "height": 256,
+              "digest": "85f2e92c6ec26c81375972b89776142fd8884eb526fcc4733f7389855adae409"
+            },
+            "scale_13": {
+              "width": 256,
+              "height": 256,
+              "digest": "9ffbc6b7d459962d33519433ef48489dae8f5315cb982cd08f49cf7d9acb33e5"
+            },
+            "scale_14": {
+              "width": 256,
+              "height": 256,
+              "digest": "789e57a0d0654677a9c4b8c3005c92724e40c5e662fc2fb51e017d8249321e86"
+            },
+            "scale_15": {
+              "width": 256,
+              "height": 256,
+              "digest": "10131e61f6b36cee19508868f908fbeb8447635a0f59f06e2dc2bc16ba03337c"
+            },
+            "scale_16": {
+              "width": 256,
+              "height": 256,
+              "digest": "a94cdc48ede4fcd98e07664ce0914e476b36fcd543df395c7035d06b44cd2a6a"
+            },
+            "scale_17": {
+              "width": 256,
+              "height": 256,
+              "digest": "d305c84e33d11914678e81183ed271527ae59589b0a4f081183f11e764060c92"
+            },
+            "scale_18": {
+              "width": 256,
+              "height": 256,
+              "digest": "8d72a16b92feb5898f0e4cbdd7d5d026c3d6ae63ac4f715a652ec5b772868e2c"
+            },
+            "scale_19": {
+              "width": 256,
+              "height": 256,
+              "digest": "f44c5029b13e06e3322b0a0eec958d12d7d9038892f05be2cb25ee1b6d0f45b2"
+            },
+            "scale_20": {
+              "width": 256,
+              "height": 256,
+              "digest": "6471d6276870ad7f6f34facc989e1b0777b759ef909c389f1076f93962dfdaad"
+            },
+            "scale_21": {
+              "width": 256,
+              "height": 256,
+              "digest": "9242aa81c6112ff4ba3739d849fdadeb2d354b3c3b5f70ccb680164b84c29e2e"
+            },
+            "scale_22": {
+              "width": 256,
+              "height": 256,
+              "digest": "9a3b9e987d2dffc034aa6c1ef9ec8f5b03d7fcb38c6c26dbd3eb4e9babddd09e"
+            },
+            "scale_23": {
+              "width": 256,
+              "height": 256,
+              "digest": "35dd6f449da7aaf88ce51c4b8e541f9ac253e27f851cc759248b8e7b8d650a08"
+            },
+            "scale_24": {
+              "width": 256,
+              "height": 256,
+              "digest": "74bdae222c52e9d8fbbd8015ec80f1e64ac92bd432a0768004d9116b9024b690"
+            },
+            "scale_25": {
+              "width": 256,
+              "height": 256,
+              "digest": "0e0d8046ba8fdd187bab97b06ebb4031c7e753eac153f10a09aacb1f7c14954a"
+            },
+            "scale_26": {
+              "width": 256,
+              "height": 256,
+              "digest": "a24dde1376f52a8a7066ef6cd66b8baab4aafeea91717764a1a0c2ddf83ce4cf"
+            },
+            "scale_27": {
+              "width": 256,
+              "height": 256,
+              "digest": "34993360199b842489e23c403b16109295b35886e8a17a8cb4f9939b6edc682d"
+            },
+            "scale_28": {
+              "width": 256,
+              "height": 256,
+              "digest": "0085d984525a8961cc8ee47cff4a7edb8946e8ecee9e974671216fa41ab081ea"
+            },
+            "scale_29": {
+              "width": 256,
+              "height": 256,
+              "digest": "21c75ac689a5200c6feddbd55a7572e2fd9e22a4a314fb477a76b8ca78dd4165"
+            }
+          },
+          "count": 30
+        },
+        {
+          "name": "unsupported",
+          "mode": "fallback",
+          "assets": {
+            "media_sunset": {
+              "width": 256,
+              "height": 256,
+              "digest": "b6c6b4f301b18bb9e91aab46aec0fda15b25a8e70c7047cc16ba7d6bab1533b4"
+            },
+            "media_actor_sprite": {
+              "width": 256,
+              "height": 256,
+              "digest": "5e4c4e6c948296c91e3f17ba72699d9b98b6d6c4cb494650eaf7de0377613ed2"
+            },
+            "scale_2": {
+              "width": 256,
+              "height": 256,
+              "digest": "e49e754b217215b4b7c33888b3d792ea10c0da801ce7f12f3da67b0e971b3b9d"
+            },
+            "scale_3": {
+              "width": 256,
+              "height": 256,
+              "digest": "9213b6306f842da34edbb506e54546935be8be756f2ee1304080c0263b1ab9ea"
+            },
+            "scale_4": {
+              "width": 256,
+              "height": 256,
+              "digest": "c86a461c9b86af3f3b746e82e042eb2808e4dbe0cc7ac6f5671d855f3c6c8d8e"
+            },
+            "scale_5": {
+              "width": 256,
+              "height": 256,
+              "digest": "6cba1ab53d70f07ab8a1d62e9690a4f5e541dcacffd048bf1800bccd15798311"
+            },
+            "scale_6": {
+              "width": 256,
+              "height": 256,
+              "digest": "548939f0f8a537b35adbb6ef2dde4306a83f03c6a5469dda5327f58055fede57"
+            },
+            "scale_7": {
+              "width": 256,
+              "height": 256,
+              "digest": "f197952879e2002ab023c7ec5436d074690df6b38673ea3f35d0273b49563838"
+            },
+            "scale_8": {
+              "width": 256,
+              "height": 256,
+              "digest": "1d74d7cd8c779fbf583e027bf308e466ef94bfcc48886dd8dd1e0a05c8f9a3ac"
+            },
+            "scale_9": {
+              "width": 256,
+              "height": 256,
+              "digest": "bc4423bee313c5296553100ea569874e413130f2125b09043996729477892fde"
+            },
+            "scale_10": {
+              "width": 256,
+              "height": 256,
+              "digest": "cd8190bfdb74173a8990b0e16de541d08b69c838ec0d09fcf497d37deae690d0"
+            },
+            "scale_11": {
+              "width": 256,
+              "height": 256,
+              "digest": "dbd36c32a1ce4bae39cb93a99ce11fd36599f29cbdfe71feed7ad1452c5b0a70"
+            },
+            "scale_12": {
+              "width": 256,
+              "height": 256,
+              "digest": "85f2e92c6ec26c81375972b89776142fd8884eb526fcc4733f7389855adae409"
+            },
+            "scale_13": {
+              "width": 256,
+              "height": 256,
+              "digest": "9ffbc6b7d459962d33519433ef48489dae8f5315cb982cd08f49cf7d9acb33e5"
+            },
+            "scale_14": {
+              "width": 256,
+              "height": 256,
+              "digest": "789e57a0d0654677a9c4b8c3005c92724e40c5e662fc2fb51e017d8249321e86"
+            },
+            "scale_15": {
+              "width": 256,
+              "height": 256,
+              "digest": "10131e61f6b36cee19508868f908fbeb8447635a0f59f06e2dc2bc16ba03337c"
+            },
+            "scale_16": {
+              "width": 256,
+              "height": 256,
+              "digest": "a94cdc48ede4fcd98e07664ce0914e476b36fcd543df395c7035d06b44cd2a6a"
+            },
+            "scale_17": {
+              "width": 256,
+              "height": 256,
+              "digest": "d305c84e33d11914678e81183ed271527ae59589b0a4f081183f11e764060c92"
+            },
+            "scale_18": {
+              "width": 256,
+              "height": 256,
+              "digest": "8d72a16b92feb5898f0e4cbdd7d5d026c3d6ae63ac4f715a652ec5b772868e2c"
+            },
+            "scale_19": {
+              "width": 256,
+              "height": 256,
+              "digest": "f44c5029b13e06e3322b0a0eec958d12d7d9038892f05be2cb25ee1b6d0f45b2"
+            },
+            "scale_20": {
+              "width": 256,
+              "height": 256,
+              "digest": "6471d6276870ad7f6f34facc989e1b0777b759ef909c389f1076f93962dfdaad"
+            },
+            "scale_21": {
+              "width": 256,
+              "height": 256,
+              "digest": "9242aa81c6112ff4ba3739d849fdadeb2d354b3c3b5f70ccb680164b84c29e2e"
+            },
+            "scale_22": {
+              "width": 256,
+              "height": 256,
+              "digest": "9a3b9e987d2dffc034aa6c1ef9ec8f5b03d7fcb38c6c26dbd3eb4e9babddd09e"
+            },
+            "scale_23": {
+              "width": 256,
+              "height": 256,
+              "digest": "35dd6f449da7aaf88ce51c4b8e541f9ac253e27f851cc759248b8e7b8d650a08"
+            },
+            "scale_24": {
+              "width": 256,
+              "height": 256,
+              "digest": "74bdae222c52e9d8fbbd8015ec80f1e64ac92bd432a0768004d9116b9024b690"
+            },
+            "scale_25": {
+              "width": 256,
+              "height": 256,
+              "digest": "0e0d8046ba8fdd187bab97b06ebb4031c7e753eac153f10a09aacb1f7c14954a"
+            },
+            "scale_26": {
+              "width": 256,
+              "height": 256,
+              "digest": "a24dde1376f52a8a7066ef6cd66b8baab4aafeea91717764a1a0c2ddf83ce4cf"
+            },
+            "scale_27": {
+              "width": 256,
+              "height": 256,
+              "digest": "34993360199b842489e23c403b16109295b35886e8a17a8cb4f9939b6edc682d"
+            },
+            "scale_28": {
+              "width": 256,
+              "height": 256,
+              "digest": "0085d984525a8961cc8ee47cff4a7edb8946e8ecee9e974671216fa41ab081ea"
+            },
+            "scale_29": {
+              "width": 256,
+              "height": 256,
+              "digest": "21c75ac689a5200c6feddbd55a7572e2fd9e22a4a314fb477a76b8ca78dd4165"
+            }
+          },
+          "count": 30
+        }
+      ]
+    }
+  ],
+  "previewRuns": [
+    {
+      "expectNative": false,
+      "elapsedMs": 1455.1435000000001,
+      "scheduler": {
+        "maxConcurrentLoads": 1,
+        "maxResidentBytes": 67108864,
+        "activeLoads": 0,
+        "queuedLoads": 0,
+        "residentResources": 0,
+        "referencedResources": 0,
+        "residentBytes": 0,
+        "reservedBytes": 0,
+        "peakAccountedBytes": 0,
+        "cacheHits": 0,
+        "deduplicatedRequests": 0,
+        "evictions": 0,
+        "cancellations": 0
+      }
+    },
+    {
+      "expectNative": true,
+      "elapsedMs": 1456.9343999999983,
+      "scheduler": {
+        "maxConcurrentLoads": 1,
+        "maxResidentBytes": 67108864,
+        "activeLoads": 0,
+        "queuedLoads": 0,
+        "residentResources": 1,
+        "referencedResources": 0,
+        "residentBytes": 2138730,
+        "reservedBytes": 0,
+        "peakAccountedBytes": 67108864,
+        "cacheHits": 3,
+        "deduplicatedRequests": 0,
+        "evictions": 0,
+        "cancellations": 0
+      }
+    },
+    {
+      "expectNative": true,
+      "elapsedMs": 1483.931099999998,
+      "scheduler": {
+        "maxConcurrentLoads": 1,
+        "maxResidentBytes": 67108864,
+        "activeLoads": 0,
+        "queuedLoads": 0,
+        "residentResources": 1,
+        "referencedResources": 0,
+        "residentBytes": 2138730,
+        "reservedBytes": 0,
+        "peakAccountedBytes": 67108864,
+        "cacheHits": 6,
+        "deduplicatedRequests": 0,
+        "evictions": 0,
+        "cancellations": 0
+      }
+    },
+    {
+      "expectNative": true,
+      "elapsedMs": 1483.1378000000004,
+      "scheduler": {
+        "maxConcurrentLoads": 1,
+        "maxResidentBytes": 67108864,
+        "activeLoads": 0,
+        "queuedLoads": 0,
+        "residentResources": 1,
+        "referencedResources": 0,
+        "residentBytes": 2138730,
+        "reservedBytes": 0,
+        "peakAccountedBytes": 67108864,
+        "cacheHits": 9,
+        "deduplicatedRequests": 0,
+        "evictions": 0,
+        "cancellations": 0
+      }
+    },
+    {
+      "expectNative": true,
+      "elapsedMs": 1496.0723000000035,
+      "scheduler": {
+        "maxConcurrentLoads": 1,
+        "maxResidentBytes": 67108864,
+        "activeLoads": 0,
+        "queuedLoads": 0,
+        "residentResources": 1,
+        "referencedResources": 0,
+        "residentBytes": 2138730,
+        "reservedBytes": 0,
+        "peakAccountedBytes": 67108864,
+        "cacheHits": 12,
+        "deduplicatedRequests": 0,
+        "evictions": 0,
+        "cancellations": 0
+      }
+    },
+    {
+      "expectNative": true,
+      "elapsedMs": 1348.4847000000009,
+      "scheduler": {
+        "maxConcurrentLoads": 1,
+        "maxResidentBytes": 67108864,
+        "activeLoads": 0,
+        "queuedLoads": 0,
+        "residentResources": 1,
+        "referencedResources": 0,
+        "residentBytes": 2138730,
+        "reservedBytes": 0,
+        "peakAccountedBytes": 67108864,
+        "cacheHits": 15,
+        "deduplicatedRequests": 0,
+        "evictions": 0,
+        "cancellations": 0
+      }
+    }
+  ],
+  "windowsValidated": true,
+  "sourceProject": "rainy-promise-media.zip",
+  "actualProductionWorker": true,
+  "authoredThroughUi": true,
+  "settingSurvivesReopen": true,
+  "oldDownloadInvalidated": true,
+  "originalBlobInPortableZip": true,
+  "originalExportRestoredByteExactly": true,
+  "migratedFallback": true,
+  "migratedRebuilt": true,
+  "staleGroupFallback": true,
+  "editorPreviewBefore": "sha256:fc57361aee0a3a3a86ae3b4df4a67ed8487ac892e456c664c052404691fd8ed6",
+  "editorPreviewAfter": "sha256:fc57361aee0a3a3a86ae3b4df4a67ed8487ac892e456c664c052404691fd8ed6",
+  "pixels": {
+    "original": {
+      "width": 256,
+      "height": 256,
+      "digest": "b6c6b4f301b18bb9e91aab46aec0fda15b25a8e70c7047cc16ba7d6bab1533b4"
+    },
+    "optimized": {
+      "width": 256,
+      "height": 256,
+      "digest": "b6c6b4f301b18bb9e91aab46aec0fda15b25a8e70c7047cc16ba7d6bab1533b4"
+    }
+  },
+  "report": {
+    "schemaVersion": 1,
+    "mode": "native-atlas",
+    "sourceHash": "c6ff6e0f546391f7ee59e65c9408d44070fa788e9f098362e485fb727cbd9afe",
+    "rows": [
+      {
+        "assetId": "media_actor_sprite",
+        "name": "小夏（测试立绘）",
+        "originalDigest": "sha256:2efbb8141d5871e3574f9923514aacc86e27faa66505c0011743c676a3d5259e",
+        "exportDigest": "sha256:2efbb8141d5871e3574f9923514aacc86e27faa66505c0011743c676a3d5259e",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "media_sunset",
+        "name": "海边夕色（测试背景）",
+        "originalDigest": "sha256:ebc5a2021e4435ed1cfd9481d99e9b0886b4ed9ece6a7de85a2088ee45544167",
+        "exportDigest": "sha256:ebc5a2021e4435ed1cfd9481d99e9b0886b4ed9ece6a7de85a2088ee45544167",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "media_theme",
+        "name": "雨后旋律（测试音）",
+        "originalDigest": "sha256:5f5d65d220facb3d7b93aa5d9de2e7421fe7a2de954182e5aa1052e24572c423",
+        "exportDigest": "sha256:5f5d65d220facb3d7b93aa5d9de2e7421fe7a2de954182e5aa1052e24572c423",
+        "originalBytes": 1644,
+        "exportBytes": 1644,
+        "savedBytes": 0,
+        "verified": false,
+        "reason": "已选择原素材导出"
+      },
+      {
+        "assetId": "scale_10",
+        "name": "透明差分 10",
+        "originalDigest": "sha256:decf90c120fc7f3f458c232883d7242f13372e77510dd84af3bdda63551890c7",
+        "exportDigest": "sha256:decf90c120fc7f3f458c232883d7242f13372e77510dd84af3bdda63551890c7",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_11",
+        "name": "透明差分 11",
+        "originalDigest": "sha256:816ea522bcc3eb5f5d01e824c6fbb2532b11379f38541d27c84e946180fca661",
+        "exportDigest": "sha256:816ea522bcc3eb5f5d01e824c6fbb2532b11379f38541d27c84e946180fca661",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_12",
+        "name": "透明差分 12",
+        "originalDigest": "sha256:894efe48486e2a347a3299a553672f710f86234dfff2115a80b523d62da4cc97",
+        "exportDigest": "sha256:894efe48486e2a347a3299a553672f710f86234dfff2115a80b523d62da4cc97",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_13",
+        "name": "透明差分 13",
+        "originalDigest": "sha256:539d3b804b424fdd17c7be9822ae64fcc404c6ccae7bfa638a5a1f37d534f5ae",
+        "exportDigest": "sha256:539d3b804b424fdd17c7be9822ae64fcc404c6ccae7bfa638a5a1f37d534f5ae",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_14",
+        "name": "透明差分 14",
+        "originalDigest": "sha256:81f48487fcf4ea6fcc03b75fd3a51c40a04c01127e59b9761a522efc6b8dfbcd",
+        "exportDigest": "sha256:81f48487fcf4ea6fcc03b75fd3a51c40a04c01127e59b9761a522efc6b8dfbcd",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_15",
+        "name": "透明差分 15",
+        "originalDigest": "sha256:0e3199ad26787a27708935a9b2e2f7c2d771b9178a8cad209136ca258f351d3d",
+        "exportDigest": "sha256:0e3199ad26787a27708935a9b2e2f7c2d771b9178a8cad209136ca258f351d3d",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_16",
+        "name": "透明差分 16",
+        "originalDigest": "sha256:a33fbb14a4f2ebe4387671a49a71c784fc4798ac0f21cd19b7f315d5e077d25f",
+        "exportDigest": "sha256:a33fbb14a4f2ebe4387671a49a71c784fc4798ac0f21cd19b7f315d5e077d25f",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_17",
+        "name": "透明差分 17",
+        "originalDigest": "sha256:d685a803f5b820a8c59d81fae1c24d6b5446fd62789ffe8cd489a55401ef2bee",
+        "exportDigest": "sha256:d685a803f5b820a8c59d81fae1c24d6b5446fd62789ffe8cd489a55401ef2bee",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_18",
+        "name": "透明差分 18",
+        "originalDigest": "sha256:40a39453c65d877a18672277a4c38e9020d8c254a1146a25ef9ca46fade2a90e",
+        "exportDigest": "sha256:40a39453c65d877a18672277a4c38e9020d8c254a1146a25ef9ca46fade2a90e",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_19",
+        "name": "透明差分 19",
+        "originalDigest": "sha256:8711619b9051cd4684487c9316439e759ecd3d76d2f6bbf7d10fe0c107542279",
+        "exportDigest": "sha256:8711619b9051cd4684487c9316439e759ecd3d76d2f6bbf7d10fe0c107542279",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_2",
+        "name": "透明差分 2",
+        "originalDigest": "sha256:073f86f8788d330d19c313452546864a62c550fc01d526e6cfee58cb4ba95651",
+        "exportDigest": "sha256:073f86f8788d330d19c313452546864a62c550fc01d526e6cfee58cb4ba95651",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_20",
+        "name": "透明差分 20",
+        "originalDigest": "sha256:f1f586df85c855a13df64ea1681adbde94b7bb9822fa49b39b5f18190fe66ed8",
+        "exportDigest": "sha256:f1f586df85c855a13df64ea1681adbde94b7bb9822fa49b39b5f18190fe66ed8",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_21",
+        "name": "透明差分 21",
+        "originalDigest": "sha256:8262b0d71d21d4ae543dc1311c4b4b16d2565673d73d57038b5b7c762c1a18e7",
+        "exportDigest": "sha256:8262b0d71d21d4ae543dc1311c4b4b16d2565673d73d57038b5b7c762c1a18e7",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_22",
+        "name": "透明差分 22",
+        "originalDigest": "sha256:73786b004c9631fb7ea8878638a29bc7536651d34d379915fc4b688e06296577",
+        "exportDigest": "sha256:73786b004c9631fb7ea8878638a29bc7536651d34d379915fc4b688e06296577",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_23",
+        "name": "透明差分 23",
+        "originalDigest": "sha256:9fff885a3063a6ef15dc677920dd3bc1001865ab222310b40f8c25eddb421cec",
+        "exportDigest": "sha256:9fff885a3063a6ef15dc677920dd3bc1001865ab222310b40f8c25eddb421cec",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_24",
+        "name": "透明差分 24",
+        "originalDigest": "sha256:100996a91244620425d1592bb553fe94f14f3594d1c82629ee91350e7d5630f3",
+        "exportDigest": "sha256:100996a91244620425d1592bb553fe94f14f3594d1c82629ee91350e7d5630f3",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_25",
+        "name": "透明差分 25",
+        "originalDigest": "sha256:56747e3e30de650ecec4bf6e635eda4e8a7a276213b6a74d0698c3ce2cda39f0",
+        "exportDigest": "sha256:56747e3e30de650ecec4bf6e635eda4e8a7a276213b6a74d0698c3ce2cda39f0",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_26",
+        "name": "透明差分 26",
+        "originalDigest": "sha256:30ef7f1e8c2aee050ff80b89377460f9b96b00240fd4f37d54270b2c87159ae9",
+        "exportDigest": "sha256:30ef7f1e8c2aee050ff80b89377460f9b96b00240fd4f37d54270b2c87159ae9",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_27",
+        "name": "透明差分 27",
+        "originalDigest": "sha256:320de163c8739f03f7b90a8461e7630b2d045b8056e97f871aead26cb35e87b6",
+        "exportDigest": "sha256:320de163c8739f03f7b90a8461e7630b2d045b8056e97f871aead26cb35e87b6",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_28",
+        "name": "透明差分 28",
+        "originalDigest": "sha256:55334c9a1badfc2637a961b8f2f43015544e82c8ae9dffc1fb808237fbe545d3",
+        "exportDigest": "sha256:55334c9a1badfc2637a961b8f2f43015544e82c8ae9dffc1fb808237fbe545d3",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_29",
+        "name": "透明差分 29",
+        "originalDigest": "sha256:b4c370a5696d36eb6574cb0fd5af13352bb82298f24b3475c59bc427f89064b3",
+        "exportDigest": "sha256:b4c370a5696d36eb6574cb0fd5af13352bb82298f24b3475c59bc427f89064b3",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_3",
+        "name": "透明差分 3",
+        "originalDigest": "sha256:2d60fd2c3602cb0343d505784030a729614017953054ef86de5505c11b2ad845",
+        "exportDigest": "sha256:2d60fd2c3602cb0343d505784030a729614017953054ef86de5505c11b2ad845",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_30",
+        "name": "不适合切块的噪声背景",
+        "originalDigest": "sha256:c832701b3235b848febe8920fc301e14cb7b62fec403e1c3b2518cf24ec9583b",
+        "exportDigest": "sha256:c832701b3235b848febe8920fc301e14cb7b62fec403e1c3b2518cf24ec9583b",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": false,
+        "reason": "已选择原素材导出"
+      },
+      {
+        "assetId": "scale_4",
+        "name": "透明差分 4",
+        "originalDigest": "sha256:f0f9cd97f2f896d7e7db4ccba74127f6a7b54a59f43637bebecade01c0eda4c8",
+        "exportDigest": "sha256:f0f9cd97f2f896d7e7db4ccba74127f6a7b54a59f43637bebecade01c0eda4c8",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_5",
+        "name": "透明差分 5",
+        "originalDigest": "sha256:fc4a0d1ea38e347697c123a0f69553d72da35536eb2bb5a9e10c616d32eb96fd",
+        "exportDigest": "sha256:fc4a0d1ea38e347697c123a0f69553d72da35536eb2bb5a9e10c616d32eb96fd",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_6",
+        "name": "透明差分 6",
+        "originalDigest": "sha256:44e51768737f1e33d5f0947cca307037a4750a062c1f8afd103bc592fedf41e4",
+        "exportDigest": "sha256:44e51768737f1e33d5f0947cca307037a4750a062c1f8afd103bc592fedf41e4",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_7",
+        "name": "透明差分 7",
+        "originalDigest": "sha256:9fe6377505726f371ae6483bdb6a3647548eb99ee9c678f149e0100f0b6963c0",
+        "exportDigest": "sha256:9fe6377505726f371ae6483bdb6a3647548eb99ee9c678f149e0100f0b6963c0",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_8",
+        "name": "透明差分 8",
+        "originalDigest": "sha256:c52bf63a2e55b9a8635e54a7bbea26e2b1c37c5a1add6a75af37404abd20c1ae",
+        "exportDigest": "sha256:c52bf63a2e55b9a8635e54a7bbea26e2b1c37c5a1add6a75af37404abd20c1ae",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_9",
+        "name": "透明差分 9",
+        "originalDigest": "sha256:533e148266c42c22fa99e4694036f17d8c0cf5e1ac1106ec4a0c4754f37f4be5",
+        "exportDigest": "sha256:533e148266c42c22fa99e4694036f17d8c0cf5e1ac1106ec4a0c4754f37f4be5",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      }
+    ],
+    "atlasGroups": [],
+    "nativeAtlasGroups": [
+      {
+        "groupId": "dicing-35f1413e417e",
+        "adopted": true,
+        "detail": "复用本会话组交付缓存，未重复压缩；当前源与派生完整性、跨组收益及预算重新核对。原生 Canvas 图块绘制；随包压缩原图可离线回退。内存统计为预算记账，不是实际 GPU 测量。",
+        "payloadBytes": 284945,
+        "pageRgbaBytes": 166464,
+        "fallbackRawBytes": 2099904
+      },
+      {
+        "groupId": "dicing-83663a9227f5",
+        "adopted": true,
+        "detail": "复用本会话组交付缓存，未重复压缩；当前源与派生完整性、跨组收益及预算重新核对。原生 Canvas 图块绘制；随包压缩原图可离线回退。内存统计为预算记账，不是实际 GPU 测量。",
+        "payloadBytes": 284937,
+        "pageRgbaBytes": 166464,
+        "fallbackRawBytes": 2099904
+      },
+      {
+        "groupId": "dicing-a304fdb07e3a",
+        "adopted": true,
+        "detail": "复用本会话组交付缓存，未重复压缩；当前源与派生完整性、跨组收益及预算重新核对。原生 Canvas 图块绘制；随包压缩原图可离线回退。内存统计为预算记账，不是实际 GPU 测量。",
+        "payloadBytes": 284991,
+        "pageRgbaBytes": 166464,
+        "fallbackRawBytes": 2099904
+      },
+      {
+        "groupId": "dicing-e855de1bda8b",
+        "adopted": true,
+        "detail": "复用本会话组交付缓存，未重复压缩；当前源与派生完整性、跨组收益及预算重新核对。原生 Canvas 图块绘制；随包压缩原图可离线回退。内存统计为预算记账，不是实际 GPU 测量。",
+        "payloadBytes": 214487,
+        "pageRgbaBytes": 129472,
+        "fallbackRawBytes": 1574928
+      }
+    ],
+    "uniqueOriginalBytes": 8138772,
+    "uniqueExportBytes": 1333492,
+    "limits": "IDAT 优化保留其他 PNG 块；Atlas 兼容模式重建普通 PNG，原生模式由 Preview/Player 直接绘制共享图集图块，异常使用随包普通纹理回退。原生组按整体交付成本计账（含 Base64、清单、压缩回退包），组内单素材行仅描述普通纹理，不可与组成本重复相加。统计不等于 ZIP/HTML 总大小；原生图集/画布/读回预算 64 MiB，回退解压合计上限 32 MiB，不包含普通图片回退解码、JS/Blob/驱动开销，不是整个浏览器或实际 GPU 测量，不保证降低内存或 Draw Call。源工程原 Blob 不修改，恢复原素材导出后重新构建即可恢复原文件。"
+  },
+  "artifactBytes": {
+    "originalHtml": 11382369,
+    "optimizedHtml": 1956404,
+    "optimizedZip": 1895749
+  },
+  "baselinePlay": {
+    "ended": true,
+    "ending": "海风结局",
+    "renderedPixels": {
+      "width": 256,
+      "height": 256,
+      "digest": "5e4c4e6c948296c91e3f17ba72699d9b98b6d6c4cb494650eaf7de0377613ed2"
+    },
+    "stageScreenshot": "0fce93bfd6c9ad93eab18f9bbbdeb3ce5882d45053e8a1c9786a567bb76a002b"
+  },
+  "optimizedPlay": {
+    "ended": true,
+    "ending": "海风结局",
+    "renderedPixels": {
+      "width": 256,
+      "height": 256,
+      "digest": "5e4c4e6c948296c91e3f17ba72699d9b98b6d6c4cb494650eaf7de0377613ed2"
+    },
+    "stageScreenshot": "0fce93bfd6c9ad93eab18f9bbbdeb3ce5882d45053e8a1c9786a567bb76a002b"
+  },
+  "runtimeEvidence": [
+    {
+      "name": "original",
+      "mode": "ordinary",
+      "memory": {}
+    },
+    {
+      "name": "optimized",
+      "mode": "ready",
+      "memory": {
+        "nativeAtlasBytes": "1547968",
+        "nativeAtlasPeakBytes": "1547968",
+        "nativeAtlasGroups": "1",
+        "nativeAtlasScheduler": "{\"groups\":1,\"accountedBytes\":1547968,\"peakBytes\":1547968,\"budgetBytes\":67108864,\"activeDecodes\":0,\"queuedDecodes\":0,\"peakDecodes\":1,\"decodedGroups\":1,\"cacheHits\":1}"
+      }
+    },
+    {
+      "name": "directory",
+      "mode": "ready",
+      "memory": {
+        "nativeAtlasBytes": "1547968",
+        "nativeAtlasPeakBytes": "1547968",
+        "nativeAtlasGroups": "1",
+        "nativeAtlasScheduler": "{\"groups\":1,\"accountedBytes\":1547968,\"peakBytes\":1547968,\"budgetBytes\":67108864,\"activeDecodes\":0,\"queuedDecodes\":0,\"peakDecodes\":1,\"decodedGroups\":1,\"cacheHits\":1}"
+      }
+    },
+    {
+      "name": "windows",
+      "mode": "ready",
+      "memory": {
+        "nativeAtlasBytes": "1547968",
+        "nativeAtlasPeakBytes": "1547968",
+        "nativeAtlasGroups": "1",
+        "nativeAtlasScheduler": "{\"groups\":1,\"accountedBytes\":1547968,\"peakBytes\":1547968,\"budgetBytes\":67108864,\"activeDecodes\":0,\"queuedDecodes\":0,\"peakDecodes\":1,\"decodedGroups\":1,\"cacheHits\":1}"
+      }
+    },
+    {
+      "name": "corrupt-page",
+      "mode": "fallback",
+      "memory": {
+        "nativeAtlasBytes": "0",
+        "nativeAtlasPeakBytes": "1547968",
+        "nativeAtlasGroups": "0",
+        "nativeAtlasScheduler": "{\"groups\":0,\"accountedBytes\":0,\"peakBytes\":1547968,\"budgetBytes\":67108864,\"activeDecodes\":0,\"queuedDecodes\":0,\"peakDecodes\":1,\"decodedGroups\":1,\"cacheHits\":1}"
+      }
+    },
+    {
+      "name": "unsupported",
+      "mode": "fallback",
+      "memory": {}
+    }
+  ],
+  "samplingComparisons": [
+    {
+      "name": "ordinary-img-vs-canvas-control",
+      "ordinaryPixels": "dc06110596816db3919f62b865653768b6a6d03776b997c4d87d17263f442557",
+      "canvasPixels": "0fce93bfd6c9ad93eab18f9bbbdeb3ce5882d45053e8a1c9786a567bb76a002b"
+    },
+    {
+      "name": "optimized",
+      "sameDimensions": true,
+      "width": 1100,
+      "height": 583,
+      "changed": 0,
+      "max": 0,
+      "mean": 0,
+      "bounds": [
+        1100,
+        583,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "directory",
+      "sameDimensions": true,
+      "width": 1100,
+      "height": 583,
+      "changed": 0,
+      "max": 0,
+      "mean": 0,
+      "bounds": [
+        1100,
+        583,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "corrupt-page",
+      "sameDimensions": true,
+      "width": 1100,
+      "height": 583,
+      "changed": 50804,
+      "max": 87,
+      "mean": 0.0401777639170435,
+      "bounds": [
+        0,
+        52,
+        888,
+        582
+      ]
+    },
+    {
+      "name": "unsupported",
+      "sameDimensions": true,
+      "width": 1100,
+      "height": 583,
+      "changed": 50804,
+      "max": 87,
+      "mean": 0.0401777639170435,
+      "bounds": [
+        0,
+        52,
+        888,
+        582
+      ]
+    }
+  ],
+  "exceptions": [],
+  "limits": "Native shared Atlas bitmap tile drawing into per-image Canvas; compressed original fallback embedded. CSS IMG and Canvas sampling differs: native screenshot is compared exactly to an ordinary-source Canvas control, not claimed identical to IMG. Preview and intrinsic pixels remain exact. Budget accounting is not GPU/heap measurement. Deterministic uncompressed fixture is not a production savings claim; device/human validation outstanding. Process snapshots are aggregate private/working-set bytes, not isolated asset allocation or guaranteed peaks; end-to-end timings include harness pacing. Per-asset playback coverage is recorded in dicing-sequence when requested; scale mode alone verifies 30 variants at build, not playback."
+}

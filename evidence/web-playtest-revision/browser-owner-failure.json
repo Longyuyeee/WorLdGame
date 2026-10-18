@@ -1,0 +1,10 @@
+{
+  "checks": [
+    "capture/cancel creates only local notes; stable origin/excerpt; direct editing guards drafts, keeps 1/1 history; cross-scene note editing returns to the original route",
+    "fixing and manual verification are distinct; exact-location replay is labelled partial; editing story makes a verified record pending; real light/dark and 390px board",
+    "portable record export/import retains identity and status; foreign project and conflicting duplicate refuse atomically; home/reload/reopen retains notes"
+  ],
+  "errors": [],
+  "error": "TimeoutError: page.waitForEvent: Timeout 20000ms exceeded while waiting for event \"download\"\n=========================== logs ===========================\nwaiting for event \"download\"\n============================================================",
+  "stack": "page.waitForEvent: Timeout 20000ms exceeded while waiting for event \"download\"\n=========================== logs ===========================\nwaiting for event \"download\"\n============================================================\n    at download (E:\\Project\\AIProject\\ClaudeProject\\WorLdGame\\tools\\run-web-playtest-revision.mjs:27:76)\n    at E:\\Project\\AIProject\\ClaudeProject\\WorLdGame\\tools\\run-web-playtest-revision.mjs:68:77"
+}

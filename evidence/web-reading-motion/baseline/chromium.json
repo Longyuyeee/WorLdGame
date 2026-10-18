@@ -1,0 +1,43 @@
+{
+  "baseline": true,
+  "engine": "chromium",
+  "identity": {
+    "baselineCommit": "aab617c007950fd2fd14d23f6a84e95a5aecb4e8",
+    "sourceHashes": {
+      "apps/player-shell/src/PlayerShell.tsx": "114f63804d0bde70c3f8343c8f69cc33d1bb35ccf3a7cd1cc43bd3ad2720b68c",
+      "apps/player-shell/src/player-shell.css": "633d00ed24ee5105a890c88718d749eb67e4b4dcad92056223e0c9ec7f5d039a",
+      "apps/player-shell/src/player-skin.css": "780246a0bf365d2547fa1ad6ad271839d197d7297b5a2ccc39bfedc039eecddc",
+      "apps/player-shell/src/use-replay-reading-return.ts": "0f80f60cf19c49076a0a718cf493631c0a8c7ae57991dbe7d34e659a55f110cb"
+    },
+    "codeSha256": "7545d2d4c4ffb0ebe2c17e876cb2d46aa8fcb3b11c0d1d9e34acac00e3aaf9a7",
+    "cssSha256": "52bf2e567137644d53b3718e75971f2b4d3deb0100386940fc6d7c2a1a1dc8bc",
+    "fixtureSha256": "0179722cf23f9046beb7b8eb84bdc74f1a93f781399f48a5a396beff45acd207"
+  },
+  "checks": [
+    {
+      "name": "explicit-full-text-is-actually-visible-with-letter-ink",
+      "beforeFull": {
+        "hash": "cb6d87146848c41f5dbdb6453d056fc124b69eae419e3b6b2b47a0206e308a22",
+        "host": "f54b5eb474f9ef52719d2d36e70e76699864f341c4d3a1b75eee8b3328706258",
+        "cursor": "1",
+        "text": "雨声渐渐落在窗外，信纸仍然摊在桌上。雨声渐渐落在窗外，信纸仍然摊在桌上。雨声渐渐落在窗外，信纸仍然摊在桌上。雨声渐渐落在窗外，信纸仍然摊在桌上。雨声渐渐落在窗外，信纸仍然摊在桌上。雨声渐渐落在窗外，信纸仍然摊在桌上。雨声渐渐落在窗外，信纸仍然摊在桌上。雨声渐渐落在窗外，信纸仍然摊在桌上。雨声渐渐落在窗外，信纸仍然摊在桌上。雨声渐渐落在窗外，信纸仍然摊在桌上。雨声渐渐落在窗外，信纸仍然摊在桌上。雨声渐渐落在窗外，信纸仍然摊在桌上。雨声渐渐落在窗外，信纸仍然摊在桌上。雨声渐渐落在窗外，信纸仍然摊在桌上。",
+        "replay": "inactive"
+      },
+      "paint": {
+        "ready": "true",
+        "opacity": "1",
+        "clipPath": "inset(0px 90.2211% 0px 0px)",
+        "animation": "player-text-reveal, skin-ink",
+        "filter": "blur(0px)",
+        "progress": 0.0977891156462585,
+        "offset": 0,
+        "hostOpacity": "1",
+        "hostAnimation": "none"
+      }
+    }
+  ],
+  "errors": [
+    "locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: '后退一步', exact: true })\u001b[22m\n\n    at E:\\ProjectSave\\GeminiProject\\WorLdGame\\tools\\run-web-reading-motion.mjs:43:124"
+  ],
+  "scope": "Real UI text completion, ordinary history, replay return and personal/system reduced-motion in isolated letter/ocean preset fixtures. Native CSS paint and timers, not simulated animation/media events. No Rain source change, physical phone, natural listening or real OS background acceptance."
+}

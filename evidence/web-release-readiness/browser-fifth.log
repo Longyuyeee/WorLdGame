@@ -1,0 +1,52 @@
+playtest receipt: 最近一次试玩尚未从入口完成全程
+
+只记录最近一次试玩；请分别确认每条分支、声音与存读档。
+
+回到故事试玩
+查看路线
+"22 actual sources inspected; light/dark and 1180/800/390 layout; route/preview return retains directory format; partial playtest is not marked complete"
+"real HTML/directory exports preserve semantic project identity, full payload, player bundles and media of 1.5.4; inventory hashes valid; JSON key order may differ; format changes invalidate links and draft settings hide both links; local HTML starts"
+import state: W
+WorLd
+Studio
+主题
+
+你的故事工作室
+
+每个世界，都始于一个故事。
+
+选择项目即可开始写作。你的作品保存在本机。
+
+新建项目
+本地目录
+打开文件夹里的故事项目
+导入项目
+继续编辑已有的 ZIP 工程
+探索示例
+打开一个故事，边看边学
+我的项目
+0
+
+点击卡片，直接进入创作。
+
+下一段故事，等你开启
+
+新建一个项目，或者打开示例寻找灵感。
+
+本地创作 · 随时导出 · 无需账户
+开发与验收工程
+
+Only stored ZIP entries are accepted
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+page.waitForFunction: Timeout 20000ms exceeded.
+    at ready (E:\Project\AIProject\ClaudeProject\WorLdGame\tools\run-web-release-readiness.mjs:35:28)
+    at importProject (E:\Project\AIProject\ClaudeProject\WorLdGame\tools\run-web-release-readiness.mjs:42:15)
+    at async file:///E:/Project/AIProject/ClaudeProject/WorLdGame/tools/run-web-release-readiness.mjs:132:3 {
+  log: [],
+  name: 'TimeoutError'
+}
+
+Node.js v24.14.0

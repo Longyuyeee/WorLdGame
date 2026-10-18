@@ -1,0 +1,123 @@
+{
+  "baseline": false,
+  "engine": "firefox",
+  "identity": {
+    "baselineCommit": null,
+    "sourceHashes": {
+      "apps/player-shell/src/PlayerShell.tsx": "42f89878d0a2d7dbf4d2c3307d2b7516e168d79460b663b68285ce67efa87cfd",
+      "apps/player-shell/src/player-shell.css": "c398184a226fe385ec80cf3ed9df8e7061d20bb12d4bb957286c42f8c3377ec9",
+      "apps/player-shell/src/player-skin.css": "603f209f867f946c8fd2f33fd5eb65187afa529401714613ab7f3fe916f343e7",
+      "apps/player-shell/src/use-replay-reading-return.ts": "50cdc88812e1cc758468beadf415525672756e3a88fbc72a34d6b98f19029a9f"
+    },
+    "codeSha256": "89bd59d5c6c50ee4838b02105944928e4765c44f66c54326590edf9ed6b1cf7d",
+    "cssSha256": "6a0a9dcc7261255d3e12b4ece5fb083c9da54c455f88257b81e8d78d5306e189",
+    "fixtureSha256": "0179722cf23f9046beb7b8eb84bdc74f1a93f781399f48a5a396beff45acd207"
+  },
+  "checks": [
+    {
+      "name": "explicit-full-text-is-actually-visible-with-letter-ink",
+      "beforeFull": {
+        "hash": "cb6d87146848c41f5dbdb6453d056fc124b69eae419e3b6b2b47a0206e308a22",
+        "host": "f54b5eb474f9ef52719d2d36e70e76699864f341c4d3a1b75eee8b3328706258",
+        "cursor": "1",
+        "text": "雨声渐渐落在窗外，信纸仍然摊在桌上。雨声渐渐落在窗外，信纸仍然摊在桌上。雨声渐渐落在窗外，信纸仍然摊在桌上。雨声渐渐落在窗外，信纸仍然摊在桌上。雨声渐渐落在窗外，信纸仍然摊在桌上。雨声渐渐落在窗外，信纸仍然摊在桌上。雨声渐渐落在窗外，信纸仍然摊在桌上。雨声渐渐落在窗外，信纸仍然摊在桌上。雨声渐渐落在窗外，信纸仍然摊在桌上。雨声渐渐落在窗外，信纸仍然摊在桌上。雨声渐渐落在窗外，信纸仍然摊在桌上。雨声渐渐落在窗外，信纸仍然摊在桌上。雨声渐渐落在窗外，信纸仍然摊在桌上。雨声渐渐落在窗外，信纸仍然摊在桌上。",
+        "replay": "inactive"
+      },
+      "paint": {
+        "ready": "true",
+        "opacity": "1",
+        "clipPath": "none",
+        "animation": "none",
+        "filter": "none",
+        "progress": null,
+        "offset": 0,
+        "hostOpacity": "1",
+        "hostAnimation": "none"
+      }
+    },
+    {
+      "name": "partial-parent-replay-return-keeps-visible-progress",
+      "parent": {
+        "hash": "17cded5db6da6f6d4c691f5b2fb3eea5d7e57cf06ff3c30ae7c798a6f0dfd83c",
+        "host": "1cf13c2c0bbaac46c0799156d15cd2196c8392c37e64d0ec8d5661447f7aeb73",
+        "cursor": "2",
+        "text": "回信写到一半，他想起还没有说完的约定。下一次见面，不必等雨停。回信写到一半，他想起还没有说完的约定。下一次见面，不必等雨停。回信写到一半，他想起还没有说完的约定。下一次见面，不必等雨停。回信写到一半，他想起还没有说完的约定。下一次见面，不必等雨停。回信写到一半，他想起还没有说完的约定。下一次见面，不必等雨停。回信写到一半，他想起还没有说完的约定。下一次见面，不必等雨停。回信写到一半，他想起还没有说完的约定。下一次见面，不必等雨停。回信写到一半，他想起还没有说完的约定。下一次见面，不必等雨停。回信写到一半，他想起还没有说完的约定。下一次见面，不必等雨停。回信写到一半，他想起还没有说完的约定。下一次见面，不必等雨停。回信写到一半，他想起还没有说完的约定。下一次见面，不必等雨停。回信写到一半，他想起还没有说完的约定。下一次见面，不必等雨停。",
+        "replay": "inactive"
+      },
+      "before": {
+        "ready": "false",
+        "opacity": "1",
+        "clipPath": "inset(0px 92.712% 0px 0px)",
+        "animation": "player-text-reveal, skin-ink",
+        "filter": "blur(0px)",
+        "progress": 0.07287995594713656,
+        "offset": 0,
+        "hostOpacity": "1",
+        "hostAnimation": "none"
+      },
+      "after": {
+        "ready": "false",
+        "opacity": "1",
+        "clipPath": "inset(0px 92.2201% 0px 0px)",
+        "animation": "player-text-reveal, skin-ink",
+        "filter": "blur(0px)",
+        "progress": 0.07779845814977973,
+        "offset": 1382,
+        "hostOpacity": "1",
+        "hostAnimation": "none"
+      }
+    },
+    {
+      "name": "completed-parent-is-not-recovered-by-a-new-ink-animation",
+      "paint": {
+        "ready": "true",
+        "opacity": "1",
+        "clipPath": "none",
+        "animation": "none",
+        "filter": "none",
+        "progress": null,
+        "offset": 0,
+        "hostOpacity": "1",
+        "hostAnimation": "none"
+      }
+    },
+    {
+      "name": "personal-reduction-removes-skin-motion-and-hover-displacement",
+      "hover": {
+        "transform": "none",
+        "transition": "0s"
+      },
+      "paint": {
+        "ready": "true",
+        "opacity": "1",
+        "clipPath": "none",
+        "animation": "none",
+        "filter": "none",
+        "progress": null,
+        "offset": 0,
+        "hostOpacity": "1",
+        "hostAnimation": "none"
+      }
+    },
+    {
+      "name": "system-reduction-removes-skin-motion-and-hover-displacement",
+      "hover": {
+        "transform": "none",
+        "transition": "0s"
+      },
+      "paint": {
+        "ready": "true",
+        "opacity": "1",
+        "clipPath": "none",
+        "animation": "none",
+        "filter": "none",
+        "progress": null,
+        "offset": 0,
+        "hostOpacity": "1",
+        "hostAnimation": "none"
+      }
+    }
+  ],
+  "errors": [],
+  "scope": "Real UI text completion, ordinary history, replay return and personal/system reduced-motion in isolated letter/ocean preset fixtures. Native CSS paint and timers, not simulated animation/media events. No Rain source change, physical phone, natural listening or real OS background acceptance."
+}

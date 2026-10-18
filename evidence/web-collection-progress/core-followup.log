@@ -1,0 +1,26 @@
+
+ RUN  v4.1.10 E:/Project/AIProject/ClaudeProject/WorLdGame
+
+ ❯ packages/player-core/src/player-collection-progress.test.ts (4 tests | 1 failed) 88ms
+   × preserves title knowledge when loading an older route save and isolates replay changes 24ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/player-core/src/player-collection-progress.test.ts > preserves title knowledge when loading an older route save and isolates replay changes
+AssertionError: 当前记录中找不到可安全开始的场景位置，原剧情未改变。: expected null not to be null
+ ❯ packages/player-core/src/player-collection-progress.test.ts:39:62
+     37|   const replayId = createPlayerCoreSnapshotV1(loaded.state).additional…
+     38|   const replay = dispatchPlayerCoreIntentV1(loaded.state, source, { ki…
+     39|   expect(replay.replaySession, replay.replayError ?? '').not.toBeNull(…
+       |                                                              ^
+     40|   expect(mergePlayerCoreMetaProgressV1(replay, playerCoreMetaProgressV…
+     41|   expect(dispatchPlayerCoreIntentV1(replay, source, { kind: 'exit-scen…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 3 passed (4)
+   Start at  10:44:48
+   Duration  2.73s (transform 744ms, setup 208ms, import 1.58s, tests 88ms, environment 656ms)
+

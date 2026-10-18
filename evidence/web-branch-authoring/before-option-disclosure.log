@@ -1,0 +1,6 @@
+"draft cancel keeps two options; add/remove/reorder apply once; one Undo/Redo restores full option group; only real scenes offered; light/dark and 390px controls fit"
+"enter selected target, edit its narration with pending-input protection, return to exact original choice"
+"numeric increase, boolean and quoted Chinese text applied; declared boolean comparison locked to type; complex condition preserved until explicit generation, discard restores it; wrong-type/incomplete expressions show errors without source changes"
+"actual Editor Runtime follows the generated condition and all three edited options to their distinct endings"
+"edited source ZIP and real HTML exported; surviving IDs/order/typed expressions and target text verified in ZIP; saved project survives home/reload/reopen"
+"exported local HTML plays all three edited branches to distinct endings in isolated contexts, including 390px; this is a short authoring fixture, not a rerun of Rain Before candidate"

@@ -24,6 +24,7 @@ import {
 } from "@world-studio/project-persistence";
 import type { CanonicalProject } from "@world-studio/project-domain";
 import { projectCanonicalForEditor } from "./canonical-project-adapter";
+import { replacementFields, textReplaceOperations, type TextReplacePlan, type TextReplaceGroup } from './project-text-replace';
 
 export type StudioMode = "sequence" | "script" | "flow";
 
@@ -41,6 +42,8 @@ export interface StudioNotice {
 }
 
 export interface StudioSession {
+  readonly historyBoundary?: { readonly resetSceneNames: readonly string[]; readonly reason: string };
+  readonly textReplaceGroups?: readonly TextReplaceGroup[];
   readonly project: StoryProject;
   readonly sourceSessions: Readonly<Record<EntityId, ScriptSourceSession>>;
   readonly sourceDrafts: Readonly<Record<EntityId, string>>;
@@ -52,6 +55,7 @@ export interface StudioSession {
 }
 
 export type StudioAction =
+  | { readonly type: 'replace-project-text'; readonly commandId: EntityId; readonly plan: TextReplacePlan }
   | { readonly type: "select-scene"; readonly sceneId: EntityId }
   | { readonly type: "select-project-result"; readonly sceneId: EntityId; readonly statementId: EntityId }
   | { readonly type: "select-statement"; readonly statementId: EntityId }
@@ -323,6 +327,11 @@ export function hasPendingDraft(session: StudioSession): boolean {
   return activeSourceDraft(session) !== activeSourceSession(session).committedSource;
 }
 
+export function pendingDraftSceneIds(session: StudioSession): readonly EntityId[] {
+  return Object.keys(session.sourceDrafts).filter((sceneId) =>
+    session.sourceSessions[sceneId] !== undefined && session.sourceDrafts[sceneId] !== session.sourceSessions[sceneId]!.committedSource);
+}
+
 function withActiveSource(
   session: StudioSession,
   sourceSession: ScriptSourceSession,
@@ -521,6 +530,14 @@ function executeStructuralCommand(
 }
 
 function restoreSourceHistory(session: StudioSession, direction: "undo" | "redo"): StudioSession {
+  const group = studioHistoryGroup(session, direction);
+  if (group) {
+    const blocked = group.sceneIds.filter(id => session.sourceSessions[id]?.[direction === 'undo' ? 'history' : 'future'].at(-1)?.commandId !== group.commandId);
+    if (pendingDraftSceneIds(session).length || blocked.length) return { ...session, notice: { tone: 'error', title: '整批历史暂不可用', detail: blocked.length ? `请先处理这些场景的后续修改：${blocked.map(id => session.project.scenes.find(scene => scene.id === id)?.title ?? id).join('、')}。如果结构修改已重建历史，本批不能再整批恢复；其他内容保持不变。` : '请先处理未提交的脚本草稿，再整批撤销或重做。' } };
+    const sourceSessions = { ...session.sourceSessions }, sourceDrafts = { ...session.sourceDrafts };
+    for (const id of group.sceneIds) { sourceSessions[id] = reduceScriptSourceSession(sourceSessions[id]!, { type: direction }); sourceDrafts[id] = sourceSessions[id]!.committedSource; }
+    return { ...session, sourceSessions, sourceDrafts, project: buildProject(session.project, sourceSessions), notice: { tone: 'success', title: direction === 'undo' ? '已撤销整批替换' : '已重做整批替换', detail: `${group.sceneIds.length} 个场景一起恢复；当前选择位置保留。` } };
+  }
   if (hasPendingDraft(session)) {
     return {
       ...session,
@@ -543,12 +560,37 @@ function restoreSourceHistory(session: StudioSession, direction: "undo" | "redo"
   });
 }
 
+function studioHistoryGroup(session: StudioSession, direction: 'undo' | 'redo') {
+  const commandId = activeSourceSession(session)[direction === 'undo' ? 'history' : 'future'].at(-1)?.commandId;
+  return session.textReplaceGroups?.find(group => group.commandId === commandId);
+}
+export const studioHistorySceneIds = (session: StudioSession, direction: 'undo' | 'redo'): readonly string[] => studioHistoryGroup(session, direction)?.sceneIds ?? [session.activeSceneId];
+
+export function replaceProjectText(session: StudioSession, commandId: string, plan: TextReplacePlan): StudioSession {
+  try {
+    if (pendingDraftSceneIds(session).length) throw Error('请先应用、修复或放弃脚本草稿，再批量替换。');
+    const groups = textReplaceOperations(session, plan);
+    let candidate = session;
+    for (const [sceneId, operations] of groups) {
+      candidate = executeStructuralCommand({ ...candidate, activeSceneId: sceneId }, { schemaVersion: 0, kind: 'script.p0-batch', commandId, baseRevision: candidate.sourceSessions[sceneId]!.revision, operations });
+      if (candidate.notice.tone === 'error') throw Error(candidate.notice.detail);
+    }
+    const resulting = new Map(replacementFields(candidate.project).map(row => [row.key, row.before]));
+    if (plan.matches.some(row => resulting.get(row.key) !== row.after)) throw Error('替换后的文字与预览不一致，本批未应用。请调整内容。');
+    const sceneId = groups.has(session.activeSceneId) ? session.activeSceneId : plan.matches[0]!.sceneId;
+    const selected = candidate.project.scenes.find(scene => scene.id === sceneId)!.statements;
+    const statementId = sceneId === session.activeSceneId ? session.selectedStatementId : plan.matches[0]!.statementId;
+    return { ...candidate, activeSceneId: sceneId, selectedStatementId: statementId, previewIndex: Math.max(0, selected.findIndex(row => row.id === statementId)), textReplaceGroups: [...(session.textReplaceGroups ?? []), { commandId, sceneIds: [...groups.keys()] }], notice: { tone: 'success', title: '文字已整批替换', detail: `${plan.matches.length} 条文字、${groups.size} 个场景。顶部撤销/重做会一起处理本批。` } };
+  } catch (error) { return { ...session, notice: { tone: 'error', title: '本批替换未应用', detail: error instanceof Error ? error.message : String(error) } }; }
+}
+
 export function reduceStudioSession(
   session: StudioSession,
   action: StudioAction
 ): StudioSession {
   const currentSourceSession = activeSourceSession(session);
   switch (action.type) {
+    case 'replace-project-text': return replaceProjectText(session, action.commandId, action.plan);
     case "restore-session":
       return action.session;
     case "select-scene": {

@@ -1,0 +1,40 @@
+{
+  "date": "2026-10-16",
+  "scope": "Seven additional game pages, ending copy, real isolated previews and exported directory user flow",
+  "tests": {
+    "report": "focused-tests-final.json",
+    "files": 9,
+    "passed": 47,
+    "failed": 0,
+    "distinctTests": 47
+  },
+  "initialFailures": {
+    "report": "focused-tests.json",
+    "newTestAttributeMistakes": 6,
+    "oldMountFailures": 5
+  },
+  "baselineProbe": {
+    "report": "mount-baseline-tests.json",
+    "filesRestored": true,
+    "failed": 5
+  },
+  "mountFix": {
+    "report": "mount-current-tests.json",
+    "change": "Wrap React mount API calls in act; no production host behavior changed"
+  },
+  "typecheck": "passed",
+  "editorBuild": "passed",
+  "playerBuild": "passed",
+  "artifactChecks": "artifact-checks.json",
+  "browserWalkthrough": "browser-walkthrough.json",
+  "silentTests": true,
+  "independentGameEndingCoverage": "1/2",
+  "editorEndingCoverage": "0/2; not rerun after UI/version updates",
+  "notRun": [
+    "Full-repository audits and long-story performance",
+    "Physical phones and Safari",
+    "Audio/natural reading review",
+    "Direct file:// HTML launch",
+    "Public deployment"
+  ]
+}

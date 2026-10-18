@@ -1,0 +1,78 @@
+{
+  "passed": true,
+  "profiles": [
+    {
+      "label": "baseline",
+      "bundleHash": "280245186af01970bf1f0dce33415ee83cd5fa6671178f13aa87319f7b05a43a",
+      "sizes": [
+        {
+          "count": 120,
+          "wallMs": 175.70000000298023,
+          "workerPrepareMs": 28,
+          "runtimeLoadMs": 17.80000001192093,
+          "resultEncodeMs": 0,
+          "receiveDecodeMs": 0,
+          "receiveCallbackMs": 0.19999998807907104,
+          "maximumObservedHeartbeatGapMs": 29.700000002980232
+        },
+        {
+          "count": 480,
+          "wallMs": 294,
+          "workerPrepareMs": 144.3999999910593,
+          "runtimeLoadMs": 91.40000000596046,
+          "resultEncodeMs": 0.3999999910593033,
+          "receiveDecodeMs": 2.2999999970197678,
+          "receiveCallbackMs": 2.3999999910593033,
+          "maximumObservedHeartbeatGapMs": 26.5
+        },
+        {
+          "count": 960,
+          "wallMs": 657.2999999970198,
+          "workerPrepareMs": 471,
+          "runtimeLoadMs": 319.40000000596046,
+          "resultEncodeMs": 1.7000000029802322,
+          "receiveDecodeMs": 5.399999991059303,
+          "receiveCallbackMs": 5.5,
+          "maximumObservedHeartbeatGapMs": 49.5
+        }
+      ]
+    },
+    {
+      "label": "current",
+      "bundleHash": "10ac0944c964fdb2ee8a89e18a7096d69f1c0dc9c3318454ea0a5c357daab6f4",
+      "sizes": [
+        {
+          "count": 120,
+          "wallMs": 164,
+          "workerPrepareMs": 24.299999997019768,
+          "runtimeLoadMs": 15.099999994039536,
+          "resultEncodeMs": 0,
+          "receiveDecodeMs": 0,
+          "receiveCallbackMs": 0.09999999403953552,
+          "maximumObservedHeartbeatGapMs": 30.19999998807907
+        },
+        {
+          "count": 480,
+          "wallMs": 294.6000000089407,
+          "workerPrepareMs": 146.5,
+          "runtimeLoadMs": 94.20000000298023,
+          "resultEncodeMs": 0.5999999940395355,
+          "receiveDecodeMs": 1.6000000089406967,
+          "receiveCallbackMs": 1.7999999970197678,
+          "maximumObservedHeartbeatGapMs": 28.099999994039536
+        },
+        {
+          "count": 960,
+          "wallMs": 641.1000000089407,
+          "workerPrepareMs": 443.1000000089407,
+          "runtimeLoadMs": 292.5,
+          "resultEncodeMs": 1.7000000029802322,
+          "receiveDecodeMs": 4.5999999940395355,
+          "receiveCallbackMs": 4.5999999940395355,
+          "maximumObservedHeartbeatGapMs": 41
+        }
+      ]
+    }
+  ],
+  "scope": "Same-machine Chromium, real UI to 120/480/960 histories and three complete loads each. Runtime load is a subset of worker preparation; receive decode is a subset of receiver callback. Wall includes UI confirmation, IO, queue, validation, transport, rendering and frame observations; not the sum of medians. Timers are test-build-only wrappers; no validation shortcut, speed threshold, physical phone or total speedup claim."
+}

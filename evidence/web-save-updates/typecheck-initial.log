@@ -1,0 +1,70 @@
+
+> world-studio@0.0.0-s0.41 typecheck
+> tsc -b
+
+packages/project-domain/src/web-save-compatibility.ts(18,76): error TS2339: Property 'schemaVersion' does not exist on type 'JsonObject | readonly JsonValue[]'.
+  Property 'schemaVersion' does not exist on type 'readonly JsonValue[]'.
+packages/project-domain/src/web-save-compatibility.ts(19,20): error TS2339: Property 'name' does not exist on type 'JsonObject | readonly JsonValue[]'.
+  Property 'name' does not exist on type 'readonly JsonValue[]'.
+packages/project-domain/src/web-save-compatibility.ts(19,54): error TS2339: Property 'iconAssetId' does not exist on type 'JsonObject | readonly JsonValue[]'.
+  Property 'iconAssetId' does not exist on type 'readonly JsonValue[]'.
+packages/project-domain/src/web-save-compatibility.ts(19,95): error TS2339: Property 'version' does not exist on type 'JsonObject | readonly JsonValue[]'.
+  Property 'version' does not exist on type 'readonly JsonValue[]'.
+packages/project-domain/src/web-save-compatibility.ts(19,146): error TS2339: Property 'version' does not exist on type 'JsonObject | readonly JsonValue[]'.
+  Property 'version' does not exist on type 'readonly JsonValue[]'.
+packages/project-domain/src/web-save-compatibility.ts(46,95): error TS2339: Property 'schemaVersion' does not exist on type 'JsonObject | readonly JsonValue[]'.
+  Property 'schemaVersion' does not exist on type 'readonly JsonValue[]'.
+packages/project-domain/src/web-save-compatibility.ts(47,22): error TS2339: Property 'fingerprint' does not exist on type 'JsonObject | readonly JsonValue[]'.
+  Property 'fingerprint' does not exist on type 'readonly JsonValue[]'.
+packages/project-domain/src/web-save-compatibility.ts(47,80): error TS2339: Property 'fingerprint' does not exist on type 'JsonObject | readonly JsonValue[]'.
+  Property 'fingerprint' does not exist on type 'readonly JsonValue[]'.
+packages/project-domain/src/web-save-compatibility.ts(48,30): error TS2339: Property 'versions' does not exist on type 'JsonObject | readonly JsonValue[]'.
+  Property 'versions' does not exist on type 'readonly JsonValue[]'.
+packages/project-domain/src/web-save-compatibility.ts(48,49): error TS2339: Property 'versions' does not exist on type 'JsonObject | readonly JsonValue[]'.
+  Property 'versions' does not exist on type 'readonly JsonValue[]'.
+packages/project-domain/src/web-save-compatibility.ts(48,80): error TS2339: Property 'versions' does not exist on type 'JsonObject | readonly JsonValue[]'.
+  Property 'versions' does not exist on type 'readonly JsonValue[]'.
+packages/project-domain/src/web-save-compatibility.ts(49,15): error TS2339: Property 'versions' does not exist on type 'JsonObject | readonly JsonValue[]'.
+  Property 'versions' does not exist on type 'readonly JsonValue[]'.
+packages/project-domain/src/web-save-compatibility.ts(49,29): error TS7006: Parameter 'version' implicitly has an 'any' type.
+packages/project-domain/src/web-save-compatibility.ts(50,23): error TS2339: Property 'versions' does not exist on type 'JsonObject | readonly JsonValue[]'.
+  Property 'versions' does not exist on type 'readonly JsonValue[]'.
+packages/project-domain/src/web-save-compatibility.ts(50,48): error TS2339: Property 'versions' does not exist on type 'JsonObject | readonly JsonValue[]'.
+  Property 'versions' does not exist on type 'readonly JsonValue[]'.
+packages/project-domain/src/web-save-compatibility.ts(51,15): error TS2339: Property 'fingerprint' does not exist on type 'JsonObject | readonly JsonValue[]'.
+  Property 'fingerprint' does not exist on type 'readonly JsonValue[]'.
+packages/project-domain/src/web-save-compatibility.ts(52,50): error TS2339: Property 'versions' does not exist on type 'JsonObject | readonly JsonValue[]'.
+  Property 'versions' does not exist on type 'readonly JsonValue[]'.
+packages/project-domain/src/web-save-compatibility.ts(18,76): error TS2339: Property 'schemaVersion' does not exist on type 'JsonObject | readonly JsonValue[]'.
+  Property 'schemaVersion' does not exist on type 'readonly JsonValue[]'.
+packages/project-domain/src/web-save-compatibility.ts(19,20): error TS2339: Property 'name' does not exist on type 'JsonObject | readonly JsonValue[]'.
+  Property 'name' does not exist on type 'readonly JsonValue[]'.
+packages/project-domain/src/web-save-compatibility.ts(19,54): error TS2339: Property 'iconAssetId' does not exist on type 'JsonObject | readonly JsonValue[]'.
+  Property 'iconAssetId' does not exist on type 'readonly JsonValue[]'.
+packages/project-domain/src/web-save-compatibility.ts(19,95): error TS2339: Property 'version' does not exist on type 'JsonObject | readonly JsonValue[]'.
+  Property 'version' does not exist on type 'readonly JsonValue[]'.
+packages/project-domain/src/web-save-compatibility.ts(19,146): error TS2339: Property 'version' does not exist on type 'JsonObject | readonly JsonValue[]'.
+  Property 'version' does not exist on type 'readonly JsonValue[]'.
+packages/project-domain/src/web-save-compatibility.ts(46,95): error TS2339: Property 'schemaVersion' does not exist on type 'JsonObject | readonly JsonValue[]'.
+  Property 'schemaVersion' does not exist on type 'readonly JsonValue[]'.
+packages/project-domain/src/web-save-compatibility.ts(47,22): error TS2339: Property 'fingerprint' does not exist on type 'JsonObject | readonly JsonValue[]'.
+  Property 'fingerprint' does not exist on type 'readonly JsonValue[]'.
+packages/project-domain/src/web-save-compatibility.ts(47,80): error TS2339: Property 'fingerprint' does not exist on type 'JsonObject | readonly JsonValue[]'.
+  Property 'fingerprint' does not exist on type 'readonly JsonValue[]'.
+packages/project-domain/src/web-save-compatibility.ts(48,30): error TS2339: Property 'versions' does not exist on type 'JsonObject | readonly JsonValue[]'.
+  Property 'versions' does not exist on type 'readonly JsonValue[]'.
+packages/project-domain/src/web-save-compatibility.ts(48,49): error TS2339: Property 'versions' does not exist on type 'JsonObject | readonly JsonValue[]'.
+  Property 'versions' does not exist on type 'readonly JsonValue[]'.
+packages/project-domain/src/web-save-compatibility.ts(48,80): error TS2339: Property 'versions' does not exist on type 'JsonObject | readonly JsonValue[]'.
+  Property 'versions' does not exist on type 'readonly JsonValue[]'.
+packages/project-domain/src/web-save-compatibility.ts(49,15): error TS2339: Property 'versions' does not exist on type 'JsonObject | readonly JsonValue[]'.
+  Property 'versions' does not exist on type 'readonly JsonValue[]'.
+packages/project-domain/src/web-save-compatibility.ts(49,29): error TS7006: Parameter 'version' implicitly has an 'any' type.
+packages/project-domain/src/web-save-compatibility.ts(50,23): error TS2339: Property 'versions' does not exist on type 'JsonObject | readonly JsonValue[]'.
+  Property 'versions' does not exist on type 'readonly JsonValue[]'.
+packages/project-domain/src/web-save-compatibility.ts(50,48): error TS2339: Property 'versions' does not exist on type 'JsonObject | readonly JsonValue[]'.
+  Property 'versions' does not exist on type 'readonly JsonValue[]'.
+packages/project-domain/src/web-save-compatibility.ts(51,15): error TS2339: Property 'fingerprint' does not exist on type 'JsonObject | readonly JsonValue[]'.
+  Property 'fingerprint' does not exist on type 'readonly JsonValue[]'.
+packages/project-domain/src/web-save-compatibility.ts(52,50): error TS2339: Property 'versions' does not exist on type 'JsonObject | readonly JsonValue[]'.
+  Property 'versions' does not exist on type 'readonly JsonValue[]'.

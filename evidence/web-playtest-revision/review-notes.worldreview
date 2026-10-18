@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "kind": "world-playtest-notes",
+  "projectId": "project_ea1cb829977aff18fce5",
+  "notes": [
+    {
+      "sceneId": "entry",
+      "statementId": "intro",
+      "sceneTitle": "车站选择",
+      "excerpt": "雨声渐渐停下，你会走向哪里？",
+      "sourceHash": "73ee1863c20245c2d14a3314e9588ee60806d10a48804ed4b3239d48058c4215",
+      "id": "449fd30a-d5e7-4cd1-b793-b68ced2125e8",
+      "text": "这句需要更自然，修改后重新确认。<script>不会作为脚本运行</script>",
+      "category": "text",
+      "status": "verified",
+      "checkedSourceHash": "77f2f9dcaf76714d945843b3ed6331a62282c41f4df0ec9bdb50968bedb25f57",
+      "createdAt": 1791966451972,
+      "updatedAt": 1791966453042
+    }
+  ]
+}

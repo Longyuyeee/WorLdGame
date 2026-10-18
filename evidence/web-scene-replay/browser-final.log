@@ -1,0 +1,14 @@
+route 留下等雨停: step 0
+route 留下等雨停: step 30
+route 留下等雨停: step 60
+route 留下等雨停: step 0
+desktop HTML: full stay route creates the actual Rain replay entry; replay starts, reaches its ending, and Space restores exactly the parent Runtime hash, host hash, history cursor and ending; save entry stays hidden during replay
+desktop HTML: refreshed title starts replay directly and returns to title; after deliberately removing only new replay records in the test profile, reading the actual existing ending slot rebuilds the entrance without replay data in that slot; Escape restores the loaded ending exactly
+route 去追最后一班车: step 0
+route 去追最后一班车: step 30
+route 去追最后一班车: step 60
+desktop HTML: both real routes accumulate independently; after restart and refresh both ending-scene replays remain available, including replaying the earlier route after finishing the other
+route 去追最后一班车: step 0
+route 去追最后一班车: step 30
+route 去追最后一班车: step 60
+390px HTTP directory: full go route, actual replay and 844x390 banner/exit, original ending restored exactly; refreshed title starts the saved replay without a story load and exits back to title

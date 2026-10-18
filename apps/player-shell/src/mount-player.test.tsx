@@ -1,11 +1,11 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { fireEvent, screen } from "@testing-library/react";
+import { act, fireEvent, screen, waitFor } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { loadProject, migrateS0Project, type CanonicalProject, type S0Project } from "@world-studio/project-domain";
 import { mountWorldPlayerV1, WORLD_PLAYER_EMBED_API_VERSION, type WorldPlayerHandleV1 } from "@world-studio/player-shell";
-import { createPlayerMediaDemoV1 } from "./media-demo";
+import { createPlayerMediaDemoV1, createPlayerMediaMultichannelDemoV1 } from "./media-demo";
 
 const mounted: WorldPlayerHandleV1[] = [];
 const containers: HTMLElement[] = [];
@@ -13,6 +13,7 @@ const containers: HTMLElement[] = [];
 afterEach(() => {
   for (const handle of mounted.splice(0)) handle.unmount();
   for (const container of containers.splice(0)) container.remove();
+  vi.restoreAllMocks();
 });
 
 function branching(): CanonicalProject {
@@ -28,18 +29,79 @@ function connectedContainer(): HTMLElement {
 }
 
 function mount(container = connectedContainer(), project = branching()): WorldPlayerHandleV1 {
-  const handle = mountWorldPlayerV1(container, { project });
+  let handle!: WorldPlayerHandleV1;
+  act(() => { handle = mountWorldPlayerV1(container, { project }); });
   mounted.push(handle);
   return handle;
 }
 
 describe("N50-E6 versioned Player host embedding API", () => {
+  it("suspends synchronously for pagehide and respects host/visibility ceilings on pageshow", () => {
+    const visibility = vi.spyOn(document, "visibilityState", "get").mockReturnValue("visible");
+    const container = connectedContainer(), handle = mount(container); fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    const hash = container.querySelector('main')!.dataset.runtimeStateHash;
+    fireEvent(window, new Event("pagehide")); expect(handle.getObservation().hostActivity).toBe("suspended");
+    handle.setHostActivity("active"); expect(handle.getObservation().hostActivity).toBe("suspended");
+    visibility.mockReturnValue("hidden"); fireEvent(window, new Event("pageshow")); expect(handle.getObservation().hostActivity).toBe("suspended");
+    visibility.mockReturnValue("visible"); fireEvent(window, new Event("pageshow")); expect(handle.getObservation().hostActivity).toBe("active");
+    expect(container.querySelector('main')!.dataset.runtimeStateHash).toBe(hash);
+    fireEvent(window, new Event("pagehide")); handle.setHostActivity("suspended"); fireEvent(window, new Event("pageshow"));
+    expect(handle.getObservation().hostActivity).toBe("suspended");
+    handle.unmount(); fireEvent(window, new Event("pagehide")); fireEvent(window, new Event("pageshow"));
+  });
+  it("does not let pageshow clear freeze or resume clear pagehide", () => {
+    vi.spyOn(document, "visibilityState", "get").mockReturnValue("visible"); const handle = mount();
+    fireEvent(document, new Event("freeze")); fireEvent(window, new Event("pagehide")); fireEvent(window, new Event("pageshow"));
+    expect(handle.getObservation().hostActivity).toBe("suspended");
+    fireEvent(document, new Event("resume")); expect(handle.getObservation().hostActivity).toBe("active");
+    fireEvent(window, new Event("pagehide")); fireEvent(document, new Event("resume")); expect(handle.getObservation().hostActivity).toBe("suspended");
+    fireEvent(window, new Event("pageshow")); expect(handle.getObservation().hostActivity).toBe("active");
+  });
+  it("reports actual voice waiting as active and suspends it through the host API", async () => {
+    const demo = createPlayerMediaMultichannelDemoV1();
+    const container = connectedContainer();
+    let handle!: WorldPlayerHandleV1;
+    act(() => { handle = mountWorldPlayerV1(container, { project: demo.project, mediaAssets: demo.mediaAssets }); });
+    mounted.push(handle);
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    fireEvent.click(screen.getByRole("button", { name: "继续下一句" }));
+    fireEvent.click(screen.getByRole("button", { name: "自动播放" }));
+    await waitFor(() => expect(container.querySelector("main")).toHaveAttribute("data-auto-playback", "waiting-voice"));
+    expect(screen.getByText("等待语音结束，可关闭自动播放切回手动")).toBeVisible();
+    expect(handle.getObservation().playback.active).toBe(true);
+    handle.setHostActivity("suspended");
+    expect(handle.getObservation().playback.active).toBe(false);
+  });
+  it("suspends synchronously for freeze and keeps host/visibility restrictions after resume", () => {
+    const visibility=vi.spyOn(document,"visibilityState","get").mockReturnValue("visible");
+    const handle=mount();
+    fireEvent.click(screen.getByRole("button",{name:/开始故事/u}));
+    fireEvent(document,new Event("freeze"));expect(handle.getObservation().hostActivity).toBe("suspended");
+    handle.setHostActivity("active");expect(handle.getObservation().hostActivity).toBe("suspended");
+    visibility.mockReturnValue("hidden");fireEvent(document,new Event("resume"));expect(handle.getObservation().hostActivity).toBe("suspended");
+    visibility.mockReturnValue("visible");fireEvent(document,new Event("visibilitychange"));expect(handle.getObservation().hostActivity).toBe("active");
+    fireEvent(document,new Event("freeze"));handle.setHostActivity("suspended");
+    fireEvent(document,new Event("resume"));expect(handle.getObservation()).toMatchObject({hostActivity:"suspended",status:"waiting-choice"});
+    handle.unmount();fireEvent(document,new Event("freeze"));fireEvent(document,new Event("resume"));
+  });
+  it("treats real document visibility as a ceiling even with an explicit active host", () => {
+    const visibility=vi.spyOn(document,"visibilityState","get").mockReturnValue("visible");
+    const handle=mount();
+    fireEvent.click(screen.getByRole("button",{name:/开始故事/u}));
+    visibility.mockReturnValue("hidden");fireEvent(document,new Event("visibilitychange"));
+    expect(handle.getObservation()).toMatchObject({hostActivity:"suspended",status:"waiting-choice"});
+    handle.setHostActivity("active");expect(handle.getObservation().hostActivity).toBe("suspended");
+    handle.setHostActivity("suspended");visibility.mockReturnValue("visible");fireEvent(document,new Event("visibilitychange"));
+    expect(handle.getObservation().hostActivity).toBe("suspended");
+    handle.setHostActivity("active");expect(handle.getObservation()).toMatchObject({hostActivity:"active",status:"waiting-choice"});
+  });
   it("mounts the formal Core and exposes a stable observation contract", () => {
     const handle = mount();
     expect(handle.apiVersion).toBe(WORLD_PLAYER_EMBED_API_VERSION);
     expect(handle.getObservation()).toEqual({
       schemaVersion: 1,
-      embedApiVersion: "1.2.0",
+      embedApiVersion: "1.3.0",
+      memoryPressure: "idle",
       mounted: true,
       status: "title",
       hostActivity: "active",

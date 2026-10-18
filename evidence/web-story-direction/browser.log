@@ -1,0 +1,34 @@
+replace the test station source without changing its stable ID; import five new illustrations, icon and nine explicitly synthetic character voices
+Directed 车站的雨
+Directed 候车室的旧信
+Directed 站台前的约定
+Directed 留下
+Directed 灯下的回信
+Directed 雨后的天明
+Directed 远行
+Directed 车窗与海
+Directed 再一次见面
+name-based media changes, actual image preview, draft protection/discard, undo/redo, nine source-preserving scene direction passes and play/stop cues around every spoken line
+save/reopen and source ZIP audit: all original text and stable IDs unchanged; 22 inspected media assets, version, cover and icon persisted
+desktop-stay: 车站的雨
+desktop-stay: 候车室的旧信
+desktop-stay: 站台前的约定
+desktop-stay: 留下
+desktop-stay: 灯下的回信
+desktop-stay: 雨后的天明
+desktop-stay: six scenes / 60 paragraphs / six completed TTS lines / expected stages / save-refresh / ending cleanup
+mobile-leave: 车站的雨
+mobile-leave: 候车室的旧信
+mobile-leave: 站台前的约定
+mobile-leave: 远行
+mobile-leave: 车窗与海
+mobile-leave: 再一次见面
+mobile-leave: six scenes / 60 paragraphs / six completed TTS lines / expected stages / save-refresh / ending cleanup
+http-stay: 车站的雨
+http-stay: 候车室的旧信
+http-stay: 站台前的约定
+http-stay: 留下
+http-stay: 灯下的回信
+http-stay: 雨后的天明
+http-stay: six scenes / 60 paragraphs / six completed TTS lines / expected stages / save-refresh / ending cleanup
+{"passed":true,"checks":6,"story":{"scenes":9,"paragraphs":90,"dialogue":9,"textCharacters":9544,"statements":179,"assets":22,"originalTextAndStableIdsUnchanged":true}}

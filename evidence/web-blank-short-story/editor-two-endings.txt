@@ -1,0 +1,77 @@
+- banner:
+  - generic: W
+  - strong: WorLd Studio
+  - generic "项目菜单":
+    - heading "给明天的回信" [level=1]
+  - generic "编辑器设置":
+    - generic: 编辑器设置
+  - generic "脚本历史":
+    - button "撤销" [disabled]: ↶
+    - button "重做" [disabled]: ↷
+    - generic: 修改已同步
+    - button "备份 5/5"
+    - button "已保存 · s32"
+- navigation "主要功能":
+  - button "故事":
+    - generic: 故事
+  - button "素材":
+    - generic: 素材
+  - button "游戏外观":
+    - generic: 游戏外观
+  - button "检查" [active]:
+    - generic: 检查
+  - button "发布":
+    - generic: 发布
+- region "作品生成返回入口":
+  - generic: 修复或试玩完成后，继续生成作品。
+  - button "返回生成游戏":
+    - text: 返回生成游戏
+- main:
+  - region "结局试玩进度":
+    - heading "结局试玩进度" [level=3]
+    - strong: 当前版本已从开头到达 2 / 2 个结局
+    - paragraph: 最近从入口试玩到结局：把明天写进信里
+    - progressbar "已到达结局数量"
+    - button "从头试玩当前版本"
+    - button "查看路线"
+    - generic "查看结局进度 · 0 个待试玩"
+    - generic "备份或合并试玩进度"
+    - generic: 这是编辑器中的运行记录，不代表全部分支、阅读听感或导出后的游戏已验收。平时保存在本浏览器，换机前请备份。
+  - region "试玩校订清单":
+    - paragraph: 作品校订
+    - heading "试玩中发现的问题 0 待跟进" [level=2]:
+      - text: 试玩中发现的问题
+      - generic: 0 待跟进
+    - paragraph: 修改后标记待复核，重新试玩后由你确认。工程内容变化会提醒再次复核。
+    - button "导出校订记录"
+    - text: 导入记录
+    - button "导入校订记录"
+    - paragraph: 记录只保存在本浏览器，另行导入/导出，不包含在工程 ZIP 或玩家存档中。
+    - button "待跟进 0" [pressed]
+    - button "全部 0"
+    - generic "筛选与搜索"
+    - option "全部类型" [selected]
+    - option "文字"
+    - option "画面与演出"
+    - option "声音"
+    - option "路线与交互"
+    - option "其他"
+    - paragraph: 试玩时点击“记录问题”，文字、演出和声音的问题就能在这里集中处理。
+  - region "检查与调试":
+    - paragraph: CHECKS
+    - heading "检查与调试" [level=2]
+    - paragraph: 检查故事中的断路、缺失素材和运行问题，定位后返回原文修复。
+    - button "运行正式 QA 检查"
+    - navigation "检查工作区":
+      - button "问题检查" [pressed]
+      - button "运行调试"
+    - status:
+      - generic: ◎
+      - generic: 当前检查目标
+      - strong: scene_7047edf88b1c4dc4 / stmt_ui_102
+      - button "在 Sequence 检查当前语句"
+    - strong: 尚未运行检查
+    - paragraph: 检查不会使用另一份测试剧情；它直接消费当前工程、当前草稿诊断与正式 Runtime。
+- contentinfo:
+  - generic: 本地优先
+  - generic: 无账户

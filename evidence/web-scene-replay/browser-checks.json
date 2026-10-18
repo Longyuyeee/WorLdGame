@@ -1,0 +1,23 @@
+{
+  "passed": true,
+  "browser": "155.0.8059.41",
+  "checks": [
+    "desktop HTML: full stay route creates the actual Rain replay entry; replay starts, reaches its ending, and Space restores exactly the parent Runtime hash, host hash, history cursor and ending; save entry stays hidden during replay",
+    "desktop HTML: refreshed title starts replay directly and returns to title; after deliberately removing only new replay records in the test profile, reading the actual existing ending slot rebuilds the entrance without replay data in that slot; Escape restores the loaded ending exactly",
+    "desktop HTML: both real routes accumulate independently; after restart and refresh both ending-scene replays remain available, including replaying the earlier route after finishing the other",
+    "390px HTTP directory: full go route, actual replay and 844x390 banner/exit, original ending restored exactly; refreshed title starts the saved replay without a story load and exits back to title"
+  ],
+  "errors": [],
+  "exports": {
+    "rain.html": {
+      "bytes": 32829761,
+      "sha256": "e41af9e776fba3c6d543406694ea295c9c89a6b99cdba7c20bb6a3c2f6dd7c96"
+    },
+    "rain-web.zip": {
+      "bytes": 24818740,
+      "sha256": "11b9c96faadd8470d36fe1a60a3505aa2c09851efe91e2dc67404791a191f5ae"
+    }
+  },
+  "artifactsRetained": false,
+  "scope": "Rain 1.5.4 real UI HTML/directory exports; desktop both routes and complete stay replay, title/reload and native-slot entrance rebuilding; mobile other route/replay/layout; isolated test archive removed to simulate old data; no injected unlocks, human reading/listening acceptance, physical phone, service-worker lifecycle, cross-device archive migration or public deployment"
+}

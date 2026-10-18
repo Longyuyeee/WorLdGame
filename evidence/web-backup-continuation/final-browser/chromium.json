@@ -1,0 +1,213 @@
+{
+  "passed": true,
+  "engine": "chromium",
+  "browser": "151.0.7922.34",
+  "artifacts": {
+    "html": {
+      "bytes": 46805164,
+      "sha256": "48cc3c4f2cd96ba30fc25ed9dad774882e433d5aeccaab69c7acacbe053c1447"
+    },
+    "website": {
+      "bytes": 35391613,
+      "sha256": "43cfbfecb69eb4f8e2d086047e05bc85ef4b405a9b2233619e903ad7ee24761e"
+    }
+  },
+  "checks": [
+    {
+      "name": "long-file-preparation-retains-four-viewport-cancel-and-close-actions",
+      "layouts": [
+        {
+          "viewport": {
+            "width": 320,
+            "height": 740
+          },
+          "controls": [
+            {
+              "name": "取消备份准备",
+              "height": 45.1875,
+              "inViewport": true
+            },
+            {
+              "name": "关闭存读档",
+              "height": 44,
+              "inViewport": true
+            }
+          ],
+          "textGeometry": {
+            "height": 108.75,
+            "belowStickyHeader": true,
+            "inViewport": true
+          }
+        },
+        {
+          "viewport": {
+            "width": 568,
+            "height": 320
+          },
+          "controls": [
+            {
+              "name": "取消备份准备",
+              "height": 45.1875,
+              "inViewport": true
+            },
+            {
+              "name": "关闭存读档",
+              "height": 44,
+              "inViewport": true
+            }
+          ],
+          "textGeometry": {
+            "height": 81.5625,
+            "belowStickyHeader": true,
+            "inViewport": true
+          }
+        },
+        {
+          "viewport": {
+            "width": 844,
+            "height": 390
+          },
+          "controls": [
+            {
+              "name": "取消备份准备",
+              "height": 45.1875,
+              "inViewport": true
+            },
+            {
+              "name": "关闭存读档",
+              "height": 44,
+              "inViewport": true
+            }
+          ],
+          "textGeometry": {
+            "height": 54.375,
+            "belowStickyHeader": true,
+            "inViewport": true
+          }
+        },
+        {
+          "viewport": {
+            "width": 1280,
+            "height": 900
+          },
+          "controls": [
+            {
+              "name": "取消备份准备",
+              "height": 45.1875,
+              "inViewport": true
+            },
+            {
+              "name": "关闭存读档",
+              "height": 44,
+              "inViewport": true
+            }
+          ],
+          "textGeometry": {
+            "height": 54.375,
+            "belowStickyHeader": true,
+            "inViewport": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "escape-cancels-native-file-preparation-and-ignores-its-late-real-bytes-without-writing",
+      "events": [
+        {
+          "trusted": true,
+          "bytes": 64571
+        }
+      ],
+      "before": {
+        "status": "title",
+        "hash": "none",
+        "cursor": "0",
+        "save": "idle",
+        "auto": "off"
+      },
+      "after": {
+        "status": "title",
+        "hash": "none",
+        "cursor": "0",
+        "save": "idle",
+        "auto": "off"
+      }
+    },
+    {
+      "name": "same-file-retry-uses-native-session-worker-full-validation-and-imports-only-after-explicit-action",
+      "workerBefore": {},
+      "workerAfter": {
+        "active": 0,
+        "peakActive": 1,
+        "started": 1,
+        "completed": 1,
+        "cancelled": 0,
+        "fallback": 0,
+        "failed": 0
+      },
+      "saved": [
+        {
+          "slotId": "manual-1",
+          "hash": "92734b15d85213f16dff5be1b0d4d3b76b4346e94133891f5168b790534a78d8",
+          "savedAt": 1792280752230,
+          "bytes": 38242,
+          "storedSha256": "34b039da9f92a3cae08a85de14c2a1e1f50a39c5cc2d608a72b13b74bbc06799"
+        }
+      ],
+      "actualSourceBackupSha256": "bd882800bb2d8bf8b29b315eb8812364c1994f4e80c4d1b25930d3c92b06d6a2"
+    },
+    {
+      "name": "canceled-export-discards-late-real-crypto-result-and-never-downloads-a-retired-file",
+      "savedUnchanged": true,
+      "downloads": 0
+    },
+    {
+      "name": "explicit-retry-downloads-an-exact-schema-one-portable-slot-backup-with-original-slot-bytes-kept",
+      "portable": {
+        "file": "chromium-slot-backup.worldsave",
+        "bytes": 64568,
+        "sha256": "cfe5527e20c71b78a3688345984814935a720e3e87d70a33f50c94ff7eb55729",
+        "origin": "slot",
+        "savedHash": "92734b15d85213f16dff5be1b0d4d3b76b4346e94133891f5168b790534a78d8"
+      }
+    },
+    {
+      "name": "actual-downloaded-file-imports-and-explicitly-restores-the-same-progress-in-a-clean-device-context",
+      "portable": {
+        "file": "chromium-slot-backup.worldsave",
+        "bytes": 64568,
+        "sha256": "cfe5527e20c71b78a3688345984814935a720e3e87d70a33f50c94ff7eb55729",
+        "origin": "slot",
+        "savedHash": "92734b15d85213f16dff5be1b0d4d3b76b4346e94133891f5168b790534a78d8"
+      },
+      "restored": {
+        "status": "presenting",
+        "hash": "92734b15d85213f16dff5be1b0d4d3b76b4346e94133891f5168b790534a78d8",
+        "cursor": "16",
+        "save": "loaded",
+        "auto": "off"
+      }
+    },
+    {
+      "name": "current-progress-export-uses-the-real-captured-story-without-overwriting-the-existing-manual-slot",
+      "current": {
+        "file": "chromium-current-progress.worldsave",
+        "bytes": 53686,
+        "sha256": "b2d2ef575650a149cd9e1e2674260796b8290c56fc98da8a7f1dbfedac6aeb8e",
+        "origin": "current",
+        "savedHash": "92734b15d85213f16dff5be1b0d4d3b76b4346e94133891f5168b790534a78d8"
+      },
+      "manual": [
+        {
+          "slotId": "manual-1",
+          "hash": "92734b15d85213f16dff5be1b0d4d3b76b4346e94133891f5168b790534a78d8",
+          "savedAt": 1792280752230,
+          "bytes": 38242,
+          "storedSha256": "34b039da9f92a3cae08a85de14c2a1e1f50a39c5cc2d608a72b13b74bbc06799"
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "scope": "Actual exported game and actual original same-content backup. Controlled delays retain native file bytes/start or actual Web Crypto results, never replace a validated save or write fake database state. Not OS file-system failure, human reading/listening, physical phone/Safari/background/lock, public deployment, rights or long soak."
+}

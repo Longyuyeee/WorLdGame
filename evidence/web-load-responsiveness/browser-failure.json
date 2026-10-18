@@ -1,0 +1,11 @@
+{
+  "checks": [
+    {
+      "name": "actual-editor-save-reopen-formal-1.7.13-dual-export"
+    }
+  ],
+  "errors": [],
+  "error": "Error: page.goto: net::ERR_UNSAFE_PORT at http://127.0.0.1:1719/gal/\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:1719/gal/\", waiting until \"load\"\u001b[22m\n",
+  "stack": "page.goto: net::ERR_UNSAFE_PORT at http://127.0.0.1:1719/gal/\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:1719/gal/\", waiting until \"load\"\u001b[22m\n\n    at recovery (E:\\Project\\AIProject\\ClaudeProject\\WorLdGame\\tools\\run-web-audio-recovery.mjs:95:124)\n    at async file:///E:/Project/AIProject/ClaudeProject/WorLdGame/tools/run-web-audio-recovery.mjs:150:122",
+  "diagnostic": null
+}

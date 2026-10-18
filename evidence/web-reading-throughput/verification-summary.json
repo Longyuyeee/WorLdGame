@@ -1,0 +1,26 @@
+{
+  "passed": true,
+  "distinctTests": 164,
+  "files": 12,
+  "sourceReports": [
+    "related-tests.json",
+    "final-focused-tests.json",
+    "memory-pressure-tests.json"
+  ],
+  "excludedWithdrawnShaExperiment": 1,
+  "testsByFile": {
+    "apps/player-shell/src/player-history-page.test.tsx": 3,
+    "apps/player-shell/src/player-history-search.test.tsx": 4,
+    "apps/player-shell/src/player-shell.test.tsx": 80,
+    "packages/player-core/src/history-navigation.test.ts": 4,
+    "packages/player-core/src/player-core.test.ts": 25,
+    "packages/player-core/src/player-replay-entry.test.ts": 5,
+    "packages/player-core/src/web-save-compatibility.test.ts": 5,
+    "packages/runtime/src/canonical.test.ts": 13,
+    "packages/runtime/src/history-navigation.test.ts": 6,
+    "packages/runtime/src/history-presentation.test.ts": 5,
+    "packages/runtime/src/sha256.test.ts": 2,
+    "apps/player-shell/src/memory-pressure.test.tsx": 12
+  },
+  "scope": "Union of relevant passing cases; latest focused result supersedes earlier result for the same case. Not a full-repository run."
+}

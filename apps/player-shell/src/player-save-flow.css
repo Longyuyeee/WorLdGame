@@ -1,0 +1,44 @@
+.player-save-intent { display: flex; gap: 8px; padding: 6px; border-radius: 12px; background: #8881; }
+.player-save-intent button { flex: 1; min-height: 44px; padding: 8px; border: 1px solid transparent; border-radius: 9px; color: inherit; background: transparent; cursor: pointer; }
+.player-save-intent button[aria-pressed="true"] { border-color: var(--player-accent, #b9a1ff); background: var(--player-panel, #111425); font-weight: 700; }
+.player-save-intent button:disabled { opacity: .4; cursor: not-allowed; }
+.player-save-intro { margin: 0; font-size: 13px; line-height: 1.7; color: var(--player-muted, #c1bed2); }
+.player-backup-inspection, .player-backup-destination { display: grid; gap: 8px; min-width: 0; padding: 12px; border: 1px solid var(--player-muted, #77758b); border-radius: 12px; background: #8881; }
+.player-backup-inspection h3, .player-backup-destination h3, .player-backup-inspection p { margin: 0; }
+.player-backup-inspection dl { margin: 0; }
+.player-backup-inspection img { max-width: 100%; width: min(100%, 320px); height: auto; justify-self: start; border-radius: 8px; }
+.player-backup-inspection :is(p,small,dd), .player-backup-destination :is(span,small) { overflow-wrap: anywhere; line-height: 1.6; }
+.player-backup-inspection__excerpt { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.7; }
+.player-backup-slot-details { display: grid; gap: 6px; min-width: 0; }
+.player-save-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.player-save__panel .player-save-card { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; margin: 0; padding: 12px; border-radius: 14px; color: var(--player-ink, #f8f7ff); border: 1px solid var(--player-muted, #77758b); background: #8881; }
+.player-save-card__preview { grid-column: 1 / -1; aspect-ratio: 16 / 9; display: grid; overflow: hidden; border-radius: 8px; background: #8881; }
+.player-save-card__preview .player-save__preview { width: 100%; height: 100%; object-fit: contain; }
+.player-save-card__preview span { display: grid; place-items: center; color: var(--player-muted, #c1bed2); font-size: 12px; }
+.player-save-card__preview span::after { content: '暂无截图'; }.player-save-card__preview span[data-preview-status="available"]::after { content: '正在读取截图…'; }
+.player-save-card__preview span[data-preview-status="error"]::after { content: '截图读取失败，仍可读取进度'; }
+.player-save-card__details { display: grid; align-content: start; gap: 4px; min-width: 0; }
+.player-save-card__excerpt { overflow-wrap: anywhere; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; }
+.player-save-card__details small, .player-save-card__details time { color: var(--player-muted, #c1bed2); font-size: 11px; line-height: 1.6; }
+.player-save-card__details span { font-size: 12px; line-height: 1.6; }.player-save-card__scene { font-size: 15px; overflow-wrap: anywhere; }
+.player-save__panel .player-save-card > button { align-self: end; min-height: 44px; padding: 8px 12px; border-radius: 9px; }
+.player-load-confirm { display: grid; gap: 14px; padding: 16px; border: 1px solid var(--player-accent, #b9a1ff); border-radius: 16px; background: #8881; }
+.player-load-confirm h3, .player-load-confirm p { margin: 0; line-height: 1.7; }
+.player-load-confirm__target { display: grid; gap: 10px; padding: 14px; border-radius: 12px; background: var(--player-panel, #111425); }
+.player-load-confirm__target > div { display: grid; gap: 6px; }.player-load-confirm__target time { font-size: 12px; color: var(--player-muted, #c1bed2); }
+.player-load-confirm footer { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+.player-load-confirm button { min-height: 44px; padding: 10px 16px; border: 1px solid var(--player-muted, #c1bed2); border-radius: 10px; color: inherit; background: var(--player-panel, #111425); cursor: pointer; }
+.player-load-confirm button:last-child { border-color: var(--player-accent, #b9a1ff); font-weight: 700; }
+.player-recent-save { display: grid; gap: 6px; margin-bottom: 14px; }.player-recent-save p { margin: 0; font-size: 12px; line-height: 1.7; color: var(--player-muted, #c1bed2); }
+.player-recent-save .player-primary { width: 100%; }
+.player-load-wait { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px; margin-block: 10px; border: 1px solid var(--player-accent, #b9a1ff); border-radius: 12px; line-height: 1.7; }
+.player-load-wait span { flex: 1 1 200px; min-width: 0; overflow-wrap: anywhere; }
+.player-load-wait button { flex: 0 0 auto; min-height: 44px; padding: 8px 14px; border: 1px solid currentColor; border-radius: 8px; color: inherit; background: var(--player-panel, #111425); cursor: pointer; }
+.player-shell[data-settings-high-contrast="true"] :is(.player-save-intro, .player-save-card__details time, .player-save-card__details small, .player-load-confirm__target time, .player-recent-save p) { color: #fff; }
+@media (max-width: 560px) { .player-save-grid { grid-template-columns: minmax(0, 1fr); }.player-save-card__preview { aspect-ratio: 2.5; }.player-load-confirm { padding: 12px; } }
+@media (max-height: 480px) {
+  .player-save__panel { padding: 12px; gap: 8px; }
+  .player-save__panel > header { display: flex; flex-wrap: nowrap; align-items: center; gap: 10px; top: -12px; padding: 0; }
+  .player-save__panel > header [data-save-message]:not([role="alert"]), .player-save__panel > .player-save-intro { display: none; }
+  .player-save-intent { padding: 2px; }.player-save__views { margin: 0; }.player-save__views button { min-height: 36px; }
+}

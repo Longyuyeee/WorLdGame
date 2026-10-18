@@ -33,3 +33,35 @@ export function browserGamepadFrameV1(gamepad: Gamepad): PlayerGamepadFrameV1 {
     axes: [...gamepad.axes]
   };
 }
+
+/** One edge history per active polling session. New/reconnected devices must release
+ * mapped controls before they can advance the story; held controls never repeat.
+ */
+export function createPlayerGamepadTrackerV1() {
+  let device: string | null = null;
+  let previous = createEmptyPlayerGamepadFrameV1();
+  let armed = false;
+  return (sample: { device: string; frame: PlayerGamepadFrameV1 } | null): PlayerGamepadActionV1 | null => {
+    if (sample === null) {
+      device = null;
+      armed = false;
+      previous = createEmptyPlayerGamepadFrameV1();
+      return null;
+    }
+    const neutral = ![0, 1, 12, 13].some(index => pressed(sample.frame, index)) && Math.abs(sample.frame.axes[1] ?? 0) <= 0.65;
+    if (device !== sample.device) {
+      device = sample.device;
+      previous = sample.frame;
+      armed = neutral;
+      return null;
+    }
+    if (!armed) {
+      previous = sample.frame;
+      armed = neutral;
+      return null;
+    }
+    const action = playerGamepadActionV1(previous, sample.frame);
+    previous = sample.frame;
+    return action;
+  };
+}

@@ -1,0 +1,42 @@
+{
+  "checks": [
+    {
+      "name": "release-ui-saved-reopened-exported-1.7.1-with-verified-1.7.0",
+      "detail": {}
+    },
+    {
+      "name": "exact-unchanged-content-media-notes-and-real-dual-artifacts",
+      "detail": {}
+    },
+    {
+      "name": "chromium-editor-ime-shortcuts-rotation-chinese-save-reopen-and-all-media",
+      "detail": {
+        "nativeComposition": [
+          {
+            "type": "compositionstart",
+            "trusted": true,
+            "composing": null
+          },
+          {
+            "type": "input",
+            "trusted": true,
+            "composing": true
+          },
+          {
+            "type": "input",
+            "trusted": true,
+            "composing": true
+          },
+          {
+            "type": "compositionend",
+            "trusted": false,
+            "composing": null
+          }
+        ],
+        "systemPhoneKeyboard": false
+      }
+    }
+  ],
+  "errors": [],
+  "failure": "AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:\n\n  assert.ok(events.some(e => e.trusted && e.activity === 'suspended' && e.paused))\n\n    at playerRoute (file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-mobile-continuity.mjs:155:12)\n    at runNextTicks (node:internal/process/task_queues:65:5)\n    at process.processImmediate (node:internal/timers:459:9)\n    at process.callbackTrampoline (node:internal/async_hooks:130:17)\n    at async file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-mobile-continuity.mjs:205:7"
+}

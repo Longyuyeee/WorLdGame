@@ -1,0 +1,54 @@
+{
+  "passed": false,
+  "checks": [
+    "UI import, version 1.5.0, source ZIP, production HTML and directory export",
+    {
+      "width": 320,
+      "portraitFrame": {
+        "width": 320,
+        "height": 180,
+        "ratio": 1.7777777777777777,
+        "inside": true
+      },
+      "landscapeFrame": {
+        "width": 650.65625,
+        "height": 365.984375,
+        "ratio": 1.7777777777777777,
+        "inside": true
+      },
+      "touchContext": true,
+      "compactToolbar": true,
+      "menuFocusAndNoProgress": true,
+      "saveRefresh": true,
+      "paceRestored": true,
+      "history": true,
+      "viewportRotation": true
+    },
+    {
+      "width": 390,
+      "portraitFrame": {
+        "width": 390,
+        "height": 219.375,
+        "ratio": 1.7777777777777777,
+        "inside": true
+      },
+      "landscapeFrame": {
+        "width": 650.65625,
+        "height": 365.984375,
+        "ratio": 1.7777777777777777,
+        "inside": true
+      },
+      "touchContext": true,
+      "compactToolbar": true,
+      "menuFocusAndNoProgress": true,
+      "saveRefresh": true,
+      "paceRestored": true,
+      "history": true,
+      "viewportRotation": true
+    },
+    "desktop-stay: complete route, all 60 paragraphs, voices and menu-based save/refresh",
+    "touch-leave: complete route, all 60 paragraphs, voices and menu-based save/refresh"
+  ],
+  "errors": [],
+  "failure": "AssertionError [ERR_ASSERTION]: {\"passed\":false,\"text\":{\"x\":14,\"y\":465.375,\"width\":362,\"height\":408.625,\"top\":465.375,\"right\":376,\"bottom\":874,\"left\":14},\"stage\":{\"x\":0,\"y\":170,\"width\":390,\"height\":776,\"top\":170,\"right\":390,\"bottom\":946,\"left\":0},\"toolbar\":{\"x\":295.25,\"y\":80,\"width\":80.75,\"height\":44,\"top\":80,\"right\":376,\"bottom\":124,\"left\":295.25},\"playback\":{\"x\":0,\"y\":0,\"width\":0,\"height\":0,\"top\":0,\"right\":0,\"bottom\":0,\"left\":0},\"save\":{\"x\":288,\"y\":782,\"width\":88,\"height\":48,\"top\":782,\"right\":376,\"bottom\":830,\"left\":288},\"viewport\":844,\"offset\":\"170px\"}\n    at bounds (file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-reading-mobile.mjs:35:10)\n    at async route (file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-reading-mobile.mjs:50:5)\n    at async file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-reading-mobile.mjs:99:3"
+}

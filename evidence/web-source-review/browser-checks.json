@@ -1,0 +1,82 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "name": "chromium-current-work-grouped-entry-hidden-error-three-viewports-apply-continue-discard-save-reopen-replacement-return",
+      "detail": {
+        "engineVersion": "151.0.7922.34",
+        "pending": 25,
+        "permissionConfirmed": 0
+      }
+    },
+    {
+      "name": "original-64-nonmanifest-entries-and-all25-media-preserved-private-evidence-survives-fresh-source-import-and-both-production-exports",
+      "detail": {
+        "localValidationOnly": true
+      }
+    },
+    {
+      "name": "firefox-current-work-grouped-entry-hidden-error-three-viewports-apply-continue-discard-save-reopen-replacement-return",
+      "detail": {
+        "engineVersion": "153.0",
+        "pending": 25,
+        "permissionConfirmed": 0
+      }
+    },
+    {
+      "name": "webkit-current-work-grouped-entry-hidden-error-three-viewports-apply-continue-discard-save-reopen-replacement-return",
+      "detail": {
+        "engineVersion": "26.5",
+        "pending": 25,
+        "permissionConfirmed": 0
+      }
+    }
+  ],
+  "errors": [],
+  "results": [
+    {
+      "engine": "chromium",
+      "version": "151.0.7922.34",
+      "passed": true
+    },
+    {
+      "engine": "firefox",
+      "version": "153.0",
+      "passed": true
+    },
+    {
+      "engine": "webkit",
+      "version": "26.5",
+      "passed": true
+    }
+  ],
+  "artifacts": {
+    "editor": {
+      "/assets/index-B2fthxx_.js": "cdc7f103ea17dbbe1d78bda51e55501b2ebc6f604f4a4fb7af42805d2decfc5b",
+      "/assets/index-CcVETxYI.css": "bc9c485039c35e2f2593cb02e5d4a3b8b44161c897949e17975e5123ef86d45d"
+    },
+    "source": {
+      "bytes": 31683194,
+      "sha256": "a97894a008fd0bb4658ca6189dc9df32bc13a7663dfacd4dab77b42a0091907b",
+      "unchangedNonManifestEntries": 64,
+      "changedOnlyPrivatePendingEvidence": "day_cafe"
+    },
+    "html": {
+      "bytes": 74748063,
+      "sha256": "63672991d0f241dc761f276d6d0ff123cfcb6384c288ad811d60c4295b222f8a",
+      "gameProjectDigest": "3485a72873713fc3ee796341950c7867adbea6f09db901c12cd6ab2abca93325",
+      "publicFiles": 1,
+      "sourceRoundtrip": true,
+      "privateReportOnly": true
+    },
+    "directory": {
+      "bytes": 64271285,
+      "sha256": "5c39947a1135f69f45d69a43a8e60fb7259fe0bb0a090284c26b8a3676acbaa9",
+      "gameProjectDigest": "3485a72873713fc3ee796341950c7867adbea6f09db901c12cd6ab2abca93325",
+      "publicFiles": 41,
+      "sourceRoundtrip": true,
+      "privateReportOnly": true
+    }
+  },
+  "scope": "Original 1.7.14 author publishing workflow; desktop-engine responsive viewports, not physical phones/Safari. Private pending evidence is a test marker only. No original source/media changed, no permission approval, human story review, public deployment, full-game reading or offline-update acceptance. Temporary verification downloads removed."
+}

@@ -1,0 +1,272 @@
+- banner:
+  - generic: W
+  - strong: WorLd Studio
+  - generic "项目菜单":
+    - heading "给明天的回信" [level=1]
+  - generic "编辑器设置":
+    - generic: 编辑器设置
+  - generic "脚本历史":
+    - button "撤销" [disabled]: ↶
+    - button "重做" [disabled]: ↷
+    - generic: 修改已同步
+    - button "备份 5/5"
+    - button "已恢复 · s35"
+- navigation "主要功能":
+  - button "故事":
+    - generic: 故事
+  - button "素材":
+    - generic: 素材
+  - button "游戏外观":
+    - generic: 游戏外观
+  - button "检查":
+    - generic: 检查
+  - button "发布":
+    - generic: 发布
+- navigation "故事工作区":
+  - button "查找替换":
+    - text: 查找替换
+  - button "添加内容":
+    - text: 添加内容
+  - button "写作":
+    - text: 写作
+  - button "演出":
+    - text: 演出
+  - button "路线":
+    - text: 路线
+  - button "脚本":
+    - text: 脚本
+  - button "收起预览" [pressed]
+- main:
+  - complementary "场景列表":
+    - heading "章节与场景" [level=2]
+    - generic: "3"
+    - search "搜索全部场景":
+      - generic: ⌕
+      - searchbox "全局搜索"
+    - button "01 候车室的来信 21 个步骤":
+      - generic: "01"
+      - strong: 候车室的来信
+      - generic: 21 个步骤
+    - button "02 留下的灯 18 个步骤":
+      - generic: "02"
+      - strong: 留下的灯
+      - generic: 18 个步骤
+    - button "03 寄往远方 19 个步骤":
+      - generic: "03"
+      - strong: 寄往远方
+      - generic: 19 个步骤
+  - region "寄往远方":
+    - paragraph: 场景写作
+    - heading "寄往远方" [level=2]
+    - paragraph: 15 段文字 · 0 处选择 · 每一段，都是故事的一部分
+    - generic: 19 个步骤
+    - button "添加成段文字"
+    - generic "场景演出快捷操作":
+      - generic: 场景演出
+      - button "添加背景":
+        - text: 添加背景
+      - button "添加角色":
+        - text: 添加角色
+      - button "添加声音":
+        - text: 添加声音
+      - button "添加镜头":
+        - text: 添加镜头
+      - button "添加对白框":
+        - text: 添加对白框
+    - generic "＋ 插入与整理内容 复制、移动与多选":
+      - text: ＋ 插入与整理内容
+      - generic: 复制、移动与多选
+    - option "对白" [selected]
+    - option "旁白"
+    - option "两选项选择"
+    - option "标签"
+    - option "跳转"
+    - option "调用"
+    - option "返回"
+    - option "设置变量"
+    - option "条件分支"
+    - option "等待"
+    - option "结局"
+    - option "背景"
+    - option "角色演出"
+    - option "镜头"
+    - option "音频"
+    - option "文本框模板"
+    - group "图形化演出轨道":
+      - generic "演出时间线与工具 背景、角色、音频和镜头":
+        - text: 演出时间线与工具
+        - generic: 背景、角色、音频和镜头
+      - text: ＋
+    - dialog "添加角色演出":
+      - form "新增角色演出":
+        - strong: 新增角色演出
+        - button "关闭演出插入面板" [active]: ×
+        - paragraph: 寄往远方 · 在当前步骤之后插入
+        - generic "技术信息"
+        - generic: 动作
+        - combobox "新增演出动作":
+          - option "角色入场"
+          - option "移动角色"
+          - option "角色退场" [selected]
+        - generic: 操作哪位角色
+        - combobox "新增角色槽位选择":
+          - option "请选择舞台上的角色" [selected]
+          - option "可能继承：林晚·微笑 · actor_1"
+        - generic: 优先列出本场景此前的角色；其他步骤中的角色需要主动选择，不代表当前路线一定在场。请用完整试玩确认。
+        - generic "角色位置标识（高级）"
+        - text: 槽位必须是稳定标识符
+        - generic: 添加后会自动选中新步骤，故事与预览同步更新
+        - button "插入演出" [disabled]
+    - generic "剧情步骤，当前显示 1 至 19，共 19 步":
+      - article:
+        - button "选择演出：切换背景 · 驶向明天的列车 · 溶解 600ms":
+          - strong: 演出
+          - generic: 切换背景 · 驶向明天的列车 · 溶解 600ms
+      - article:
+        - button "选择旁白：你把蓝伞留在柜台边，把旧信和空白明信片一起装进背包。":
+          - strong: 旁白
+          - generic: "02"
+          - generic: 你把蓝伞留在柜台边，把旧信和空白明信片一起装进背包。
+      - article:
+        - button "选择旁白：车票上的目的地没有改变，出发的理由却终于可以由自己来写。你告诉林晚，下一次回来，希望能给她看一本画完的小册子。":
+          - strong: 旁白
+          - generic: "03"
+          - generic: 车票上的目的地没有改变，出发的理由却终于可以由自己来写。你告诉林晚，下一次回来，希望能给她看一本画完的小册子。
+      - article:
+        - button "选择旁白：站务员吹响口哨。你们提着最后一箱糖果穿过雨棚，箱角把两个人的袖子都打湿了。":
+          - strong: 旁白
+          - generic: "04"
+          - generic: 站务员吹响口哨。你们提着最后一箱糖果穿过雨棚，箱角把两个人的袖子都打湿了。
+      - article:
+        - button "选择旁白：林晚在检票口停下，把一颗橘子糖塞进你的手心。那是小时候你总舍不得吃的味道。":
+          - strong: 旁白
+          - generic: "05"
+          - generic: 林晚在检票口停下，把一颗橘子糖塞进你的手心。那是小时候你总舍不得吃的味道。
+      - article:
+        - button "选择旁白：你走进车厢，隔着起雾的窗向她挥手。她指了指你的背包，做了一个写字的动作。":
+          - strong: 旁白
+          - generic: "06"
+        - generic: 旁白文本
+        - textbox "旁白文本": 你走进车厢，隔着起雾的窗向她挥手。她指了指你的背包，做了一个写字的动作。
+        - generic "连续文字编辑":
+          - button "上一段文字"
+          - generic: 本场景 5 / 15 段
+          - button "下一段文字"
+          - button "应用修改"
+        - generic: 文字已应用到工程；本地保存状态见顶部。 上下段仅定位本场景文字（Alt+PageUp / PageDown），不改变剧情路线。
+      - article:
+        - button "选择演出：停止环境声":
+          - strong: 演出
+          - generic: 停止环境声
+      - article:
+        - button "选择演出：角色退场 · 淡入淡出 300ms":
+          - strong: 演出
+          - generic: 角色退场 · 淡入淡出 300ms
+      - article:
+        - button "选择旁白：列车驶过车站背后的河。水面上的灯一点点拉长，又在转弯处消失。":
+          - strong: 旁白
+          - generic: "09"
+          - generic: 列车驶过车站背后的河。水面上的灯一点点拉长，又在转弯处消失。
+      - article:
+        - button "选择旁白：你打开明信片，写下第一句：给明天的我，今天我又出发了。":
+          - strong: 旁白
+          - generic: "10"
+          - generic: 你打开明信片，写下第一句：给明天的我，今天我又出发了。
+      - article:
+        - button "选择旁白：这一次，我想去的地方不一定很远。先去画材店买一支新笔，再把那个讲了一半的故事继续画下去。":
+          - strong: 旁白
+          - generic: "11"
+          - generic: 这一次，我想去的地方不一定很远。先去画材店买一支新笔，再把那个讲了一半的故事继续画下去。
+      - article:
+        - button "选择对白：到了记得告诉我。不是汇报成绩，报个平安就行。":
+          - generic: 林
+          - strong: 林晚
+          - generic: "12"
+          - generic: 到了记得告诉我。不是汇报成绩，报个平安就行。
+      - article:
+        - button "选择对白：我把新地址写在信封背面了，想寄的时候就寄。":
+          - generic: 林
+          - strong: 林晚
+          - generic: "13"
+          - generic: 我把新地址写在信封背面了，想寄的时候就寄。
+      - article:
+        - button "选择对白：还有，明年见。车站不在了，约定还在。":
+          - generic: 林
+          - strong: 林晚
+          - generic: "14"
+          - generic: 还有，明年见。车站不在了，约定还在。
+      - article:
+        - button "选择旁白：那几句临别的话仍留在耳边。你把糖纸抚平，夹进旧信。":
+          - strong: 旁白
+          - generic: "15"
+          - generic: 那几句临别的话仍留在耳边。你把糖纸抚平，夹进旧信。
+      - article:
+        - button "选择旁白：手机屏幕亮起，你给林晚发去一张明信片的照片，又补了一句：明年夏天，我们去看海吧。":
+          - strong: 旁白
+          - generic: "16"
+          - generic: 手机屏幕亮起，你给林晚发去一张明信片的照片，又补了一句：明年夏天，我们去看海吧。
+      - article:
+        - button "选择旁白：消息很快回过来：好，我也会把自己的那封信带上。":
+          - strong: 旁白
+          - generic: "17"
+          - generic: 消息很快回过来：好，我也会把自己的那封信带上。
+      - article:
+        - button "选择旁白：窗外的城市渐渐亮了。你写下明天的小小计划，把明信片收好。远方不再只意味着离开，它也可以是一封正在寄出的回信。":
+          - strong: 旁白
+          - generic: "18"
+          - generic: 窗外的城市渐渐亮了。你写下明天的小小计划，把明信片收好。远方不再只意味着离开，它也可以是一封正在寄出的回信。
+      - article:
+        - button "选择结局：结局 · 把明天写进信里":
+          - strong: 结局
+          - generic: "19"
+          - generic: 结局 · 把明天写进信里
+    - button "＋ 添加内容"
+  - complementary "即时预览":
+    - heading "即时预览" [level=2]
+    - generic: LIVE
+    - generic: 预览尺寸
+    - combobox "预览尺寸":
+      - option "16:9 · 标准横屏" [selected]
+      - option "16:10 · 桌面宽屏"
+      - option "4:3 · 经典画幅"
+      - option "21:9 · 超宽银幕"
+      - option "9:16 · 手机竖屏"
+      - option "自定义 · 精确尺寸"
+    - checkbox "安全区"
+    - text: 安全区
+    - generic "只影响本机编辑器预览；会记住选择。":
+      - checkbox "预览静音" [checked]
+      - text: 预览静音
+    - generic: 寄往远方
+    - img "Canvas 2D 舞台画面"
+    - generic: 旁白
+    - paragraph: 你走进车厢，隔着起雾的窗向她挥手。她指了指你的背包，做了一个写字的动作。
+    - generic "预览核心控制":
+      - button "上一步": ←
+      - strong: 6 / 19
+      - button "下一步": →
+      - generic "预览运行控制":
+        - button "开始预览":
+          - generic: ▶
+          - text: 运行
+        - generic: 测试倍率
+        - combobox "预览测试倍率":
+          - option "0.5×"
+          - option "1×" [selected]
+          - option "2×"
+          - option "4×"
+          - option "∞"
+        - status: 准备运行
+    - generic "完整流程试玩":
+      - strong: 完整故事试玩
+      - generic: 从故事开头出发，体验选择与结局。
+      - button "试玩完整流程"
+    - generic "选择试玩起点"
+    - generic "调试详情 变量、调用记录与问题定位 r— · h—/— ＋":
+      - strong: 调试详情
+      - generic: 变量、调用记录与问题定位
+      - generic: r— · h—/—
+      - text: ＋
+- contentinfo:
+  - generic: 本地优先
+  - generic: 无账户

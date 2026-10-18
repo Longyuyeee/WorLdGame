@@ -1,0 +1,22 @@
+{
+  "passed": true,
+  "browser": "155.0.8059.41",
+  "checks": [
+    "desktop HTML: save/load modes, card metadata, cancel and Escape preserve current story; a real second window replaces the selected slot, stale confirmation refuses without progress change; fresh selection loads new content with Auto off",
+    "title recent-save entry reads the latest actual saved scene; selecting a slot does not write or replace another manual slot",
+    "390px HTTP directory: native save cards and read confirmation fit portrait/landscape; cancellation keeps progress, confirm restores the selected paragraph; automatic saves and the existing backup page remain reachable"
+  ],
+  "errors": [],
+  "exports": {
+    "rain.html": {
+      "bytes": 32814186,
+      "sha256": "3e3fbb42677900322d480af3c02926fae32e0a6cf51da0724be7b68579fc65bb"
+    },
+    "rain-web.zip": {
+      "bytes": 24803165,
+      "sha256": "3d03a101e7015a8875823600977e3012428b30daa04bd6bbd75f4204072b51d2"
+    }
+  },
+  "artifactsRetained": false,
+  "scope": "Rain 1.5.4 real HTML/directory save/read/reload and shared-browser two-window interaction; no full route rerun, physical phone, service-worker lifecycle, public deployment or human reading/listening acceptance"
+}

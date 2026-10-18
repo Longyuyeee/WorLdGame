@@ -1,8 +1,8 @@
 import type { JsonObject, JsonValue } from "@world-studio/project-domain";
 
 export const PROJECT_COMPILER_VERSION = "0.2.0" as const;
-export const RUNTIME_IR_VERSION = "1.1.0" as const;
-export type RuntimeIrVersionV1 = "1.0.0" | typeof RUNTIME_IR_VERSION;
+export const RUNTIME_IR_VERSION = "1.2.0" as const;
+export type RuntimeIrVersionV1 = "1.0.0" | "1.1.0" | typeof RUNTIME_IR_VERSION;
 
 export type CompileProfile = "debug" | "release";
 export type CompilerDiagnosticSeverity = "error" | "warning";
@@ -20,9 +20,16 @@ export type CompilerDiagnosticCode =
   | "INVALID_WAIT_DURATION"
   | "MISSING_ASSET"
   | "INVALID_ASSET"
+  | "INVALID_CATALOG_OVERRIDE"
+  | "MISSING_CATALOG_ENTRY"
+  | "MISSING_CATALOG_COVER"
   | "UNREACHABLE_SCENE"
   | "UNREACHABLE_STATEMENT"
   | "NON_INTERACTIVE_LOOP"
+  | "CROSS_SCENE_CLOSED_CYCLE"
+  | "CROSS_SCENE_NO_EXIT"
+  | "CONSTANT_CONDITION_TRUE"
+  | "CONSTANT_CONDITION_FALSE"
   | "SCENE_NO_EXIT"
   | "NO_REACHABLE_ENDING";
 
@@ -67,6 +74,10 @@ export interface RuntimeStoryIrV1 {
   readonly projectId: string;
   readonly entrySceneId: string;
   readonly scenes: readonly RuntimeSceneV1[];
+  readonly variableLifecycle?: {
+    readonly variables: readonly { readonly id: string; readonly scope: "story" | "chapter" | "scene" | "meta"; readonly defaultValue: null | boolean | number | string }[];
+    readonly chapterByScene: Readonly<Record<string, string>>;
+  };
 }
 
 export interface SourceMapEntryV1 {
@@ -89,10 +100,10 @@ export interface RuntimeAssetManifestV1 {
 
 export interface RuntimeCatalogsV1 {
   readonly schemaVersion: 1;
-  readonly endings: readonly { readonly endingId: string; readonly name: string; readonly sceneId: string }[];
-  readonly gallery: readonly { readonly assetId: string; readonly displayName: string; readonly kind: string }[];
-  readonly music: readonly { readonly assetId: string; readonly displayName: string }[];
-  readonly replay: readonly { readonly replayId: string; readonly title: string; readonly sceneId: string; readonly endingIds: readonly string[] }[];
+  readonly endings: readonly { readonly endingId: string; readonly name: string; readonly sceneId: string; readonly coverAssetId: string | null; readonly revealBeforeUnlock: boolean }[];
+  readonly gallery: readonly { readonly assetId: string; readonly displayName: string; readonly kind: string; readonly coverAssetId: string | null; readonly revealBeforeUnlock: boolean }[];
+  readonly music: readonly { readonly assetId: string; readonly displayName: string; readonly coverAssetId: string | null; readonly revealBeforeUnlock: boolean }[];
+  readonly replay: readonly { readonly replayId: string; readonly title: string; readonly sceneId: string; readonly endingIds: readonly string[]; readonly coverAssetId: string | null; readonly revealBeforeUnlock: boolean }[];
   readonly localization: readonly JsonObject[];
 }
 

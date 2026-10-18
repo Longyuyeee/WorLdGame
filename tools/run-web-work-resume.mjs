@@ -1,0 +1,52 @@
+import { createRequire } from 'node:module';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { homedir } from 'node:os';
+import path from 'node:path';
+import { createHash } from 'node:crypto';
+import assert from 'node:assert/strict';
+import { unzipSync, strFromU8 } from 'fflate';
+const require = createRequire(import.meta.url); let chromium;
+try { ({ chromium } = require('playwright')); } catch { ({ chromium } = require(path.join(homedir(), '.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright'))); }
+const root = path.resolve(import.meta.dirname, '..'), output = path.join(root, 'evidence/web-work-resume'); await mkdir(output, { recursive: true });
+const browser = await chromium.launch({ headless: true, executablePath: process.env.STUDIO_CHROME ?? 'C:/Program Files/Google/Chrome/Application/chrome.exe' });
+const page = await browser.newPage({ viewport: { width: 1440, height: 1000 }, reducedMotion: 'reduce', timezoneId: 'Asia/Hong_Kong' }); page.setDefaultTimeout(20000);
+const checks = [], errors = [], artifacts = {}; page.on('pageerror', error => errors.push(error.message));
+const nav = name => page.getByRole('navigation', { name: '主要功能' }).getByRole('button', { name, exact: true }).click();
+const ready = () => page.waitForFunction(() => document.querySelector('.local-save-button')?.disabled === false);
+const check = value => { checks.push(value); console.log(value); };
+const shot = name => page.screenshot({ path: path.join(output, `${name}.png`), animations: 'disabled' });
+const card = () => page.getByRole('button', { name: /^打开项目：分支创作流程/ });
+const shell = () => page.getByTestId('workspace-shell');
+const pageIs = expected => page.waitForFunction(expected => document.querySelector('[data-testid="workspace-shell"]')?.getAttribute('data-studio-page') === expected, expected);
+async function home() { await ready(); await page.getByLabel('项目菜单', { exact: true }).click(); await page.getByRole('button', { name: /所有项目/ }).click(); await card().first().waitFor(); }
+async function reopen(expected = 'story') { await card().first().click(); await ready(); await pageIs(expected); }
+async function exportOptions() { await page.getByRole('navigation', { name: '发布流程' }).getByRole('button', { name: /导出方式/ }).click(); }
+async function optionsRetained() { await exportOptions(); for (const label of ['同时生成制作交付包', '附带校订记录', '附带试玩进度']) assert.ok(await page.getByLabel(label, { exact: true }).isChecked(), label); assert.ok(await page.getByRole('radio', { name: /网页目录 ZIP/ }).isChecked()); }
+async function generation() { await page.getByRole('navigation', { name: '发布流程' }).getByRole('button', { name: /生成游戏/ }).click(); await page.getByText('故事与素材检查通过', { exact: true }).waitFor(); }
+async function download(name) { const pending = page.waitForEvent('download'); await page.getByRole('link', { name, exact: true }).click(); const bytes = await readFile(await (await pending).path()); return bytes; }
+async function fit(locator) { const r = await locator.evaluate(el => { const r = el.getBoundingClientRect(); return { left: r.left, right: r.right, viewport: innerWidth, client: el.clientWidth, scroll: el.scrollWidth }; }); assert.ok(r.left >= -1 && r.right <= r.viewport + 1 && r.scroll <= r.client + 1, JSON.stringify(r)); }
+try {
+  await page.goto(process.env.STUDIO_UI_URL ?? 'http://127.0.0.1:5194/'); await page.getByLabel('导入工程 ZIP', { exact: true }).setInputFiles(path.join(root, 'evidence/web-playtest-revision/revised-source.zip')); await ready();
+  const targetScene = page.locator('.scene-list .scene-item').filter({ hasText: '远行' }); if (!await targetScene.isVisible()) await page.getByRole('button', { name: '场景列表', exact: true }).click(); await targetScene.click(); await page.getByRole('navigation', { name: '故事工作区' }).getByRole('button', { name: '脚本', exact: true }).click(); await page.getByRole('button', { name: '收起预览', exact: true }).click();
+  await page.reload(); await card().getByText('继续写作', { exact: true }).waitFor(); await shot('desktop-home-continue-writing'); await reopen(); assert.equal(await shell().getAttribute('data-context-scene-id'), 'scene_b'); assert.equal(await shell().getAttribute('data-editor-view'), 'script'); await page.getByRole('button', { name: '打开预览', exact: true }).waitFor(); await shot('desktop-writing-position-restored');
+  check('without editing or manually saving source: select another scene and script view, collapse preview, reload and reopen from one home card; scene/view/preview choice all restore');
+  await nav('发布'); await page.getByRole('button', { name: '继续：导出方式 →', exact: true }).click(); await page.getByRole('radio', { name: /网页目录 ZIP/ }).check(); for (const label of ['同时生成制作交付包', '附带校订记录', '附带试玩进度']) await page.getByLabel(label, { exact: true }).check(); await generation();
+  await nav('检查'); await nav('故事'); await nav('发布'); await page.getByRole('region', { name: '生成可运行的游戏', exact: true }).waitFor(); await optionsRetained(); await generation();
+  await page.getByRole('region', { name: '结局试玩进度', exact: true }).getByRole('button', { name: '从头试玩当前版本', exact: true }).click(); await page.getByRole('button', { name: '继续故事', exact: true }).click(); await page.getByRole('button', { name: '选择路线：留在车站', exact: true }).waitFor(); await page.reload(); await reopen();
+  await page.getByRole('button', { name: '试玩完整流程', exact: true }).waitFor(); assert.equal(await page.locator('.playable-preview--ended').count(), 0); await page.getByRole('button', { name: '返回生成游戏', exact: true }).click(); await page.getByRole('button', { name: '构建目录 ZIP', exact: true }).waitFor(); await optionsRetained(); await shot('desktop-export-choices-restored'); await generation();
+  check('checks/story navigation retains publishing step and all optional author choices; reload during an unfinished real entry playtest keeps return-to-generation with directory and choices, while runtime starts fresh');
+  await page.getByRole('button', { name: '构建目录 ZIP', exact: true }).click(); await page.getByRole('link', { name: '下载制作交付包', exact: true }).waitFor({ timeout: 60000 }); const delivery = await download('下载制作交付包'), files = unzipSync(delivery), manifest = JSON.parse(strFromU8(files['delivery.json'])); assert.equal(manifest.format, 'directory'); assert.equal(manifest.reviewEntry, 'review/playtest-notes.worldreview'); assert.equal(manifest.progressEntry, 'review/playtest-progress.worldplaytest');
+  artifacts.delivery = { bytes: delivery.length, sha256: createHash('sha256').update(delivery).digest('hex'), format: manifest.format }; await page.getByRole('button', { name: '继续：试玩与部署 →', exact: true }).click();
+  await page.locator('.editor-preferences > summary').click(); await page.getByRole('button', { name: '石墨', exact: true }).click(); await page.locator('.editor-preferences > summary').click(); await home(); await card().getByText('继续发布 · 生成游戏 · 目录 ZIP', { exact: true }).waitFor(); await shot('desktop-home-publish-dark');
+  await page.setViewportSize({ width: 390, height: 844 }); await fit(card().first()); await shot('mobile-home-publish-dark'); await page.reload(); await reopen('publish'); await page.getByRole('region', { name: '生成可运行的游戏', exact: true }).waitFor(); assert.equal(await page.getByRole('link', { name: '下载游戏', exact: true }).count(), 0); assert.equal(await page.getByRole('link', { name: '下载制作交付包', exact: true }).count(), 0); await optionsRetained(); await page.locator('.production-delivery-options').scrollIntoViewIfNeeded(); await fit(page.locator('.production-delivery-options')); await shot('mobile-publish-choices-restored-dark');
+  check('resumed options really generate directory plus production ZIP with both author files; home card names the saved task; after deployment step/reload, mobile dark editor resumes generation with no expired blob links or automatic build');
+  await page.setViewportSize({ width: 1440, height: 1000 }); await home(); await page.getByLabel('导入工程 ZIP', { exact: true }).setInputFiles(path.join(root, 'evidence/web-playtest-revision/revised-source.zip')); await ready(); await pageIs('story'); await nav('发布'); await page.getByRole('region', { name: '作品发布信息', exact: true }).waitFor(); await exportOptions(); assert.ok(await page.getByRole('radio', { name: /单文件 HTML/ }).isChecked()); assert.equal(await page.getByLabel('同时生成制作交付包', { exact: true }).isChecked(), false);
+  await home(); const old = card().filter({ hasText: '继续发布 · 导出方式 · 目录 ZIP' }); await old.click(); await ready(); await pageIs('publish'); await optionsRetained();
+  await page.getByLabel('项目菜单', { exact: true }).click(); await page.getByRole('button', { name: /章节与角色/ }).click(); await page.getByRole('button', { name: '编辑场景：留下', exact: true }).click(); await ready(); await pageIs('story'); assert.equal(await shell().getAttribute('data-context-scene-id'), 'scene_a'); await nav('发布'); await optionsRetained();
+  check('reimporting the same project creates separate navigation/export choices; original workspace still has its directory and author choices; explicit structure scene opens writing at that scene and later publishing still retains choices');
+  await nav('素材'); await page.getByRole('navigation', { name: '素材工作区' }).getByRole('button', { name: '翻译与配音', exact: true }).click(); await page.reload(); await card().filter({ hasText: '继续翻译与配音' }).click(); await ready(); await pageIs('assets'); assert.equal(await page.getByRole('navigation', { name: '素材工作区' }).getByRole('button', { name: '翻译与配音', exact: true }).getAttribute('aria-current'), 'page');
+  await nav('游戏外观'); await home(); await card().filter({ hasText: '继续设置游戏外观' }).click(); await ready(); await pageIs('appearance'); await shot('desktop-appearance-restored');
+  check('asset subpage and appearance task also resume through reload or home; task cards guide directly back to the selected area');
+  assert.deepEqual(errors, []); await writeFile(path.join(output, 'browser-checks.json'), JSON.stringify({ passed: true, browser: browser.version(), checks, errors, artifacts, scope: 'Existing short source and actual editor UI, isolated browser storage, real directory production export. No Player runtime changes, long Rain replay, physical phone, human acceptance, public deployment or full repository audit.' }, null, 2));
+} catch (error) { await writeFile(path.join(output, 'browser-failure.json'), JSON.stringify({ checks, errors, error: String(error), stack: error.stack }, null, 2)); await shot('failure'); throw error; }
+finally { await browser.close(); }

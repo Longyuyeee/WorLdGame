@@ -1,0 +1,160 @@
+{
+  "passed": true,
+  "contentVersion": "1.11.0",
+  "technicalVersion": "S0.41",
+  "promoted": true,
+  "artifacts": {
+    "html": {
+      "bytes": 46788329,
+      "sha256": "00feefe7cdd763bdea8924b5dbdd664dc6f7be03f565025746bd4d3725343f74"
+    },
+    "website": {
+      "bytes": 35374778,
+      "sha256": "d322ab25ade9bcc897dca6b17dc7288e777b8f9438170e113b0da815593e6de3"
+    }
+  },
+  "sourceAndNotes": "evidence/web-story-plans-and-farewell",
+  "pendingNotes": 25,
+  "retained": [
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops-project.zip",
+      "sha256": "43ef6e1673ed3dffbf705b4f178b2122fc960971eaf47286b33742fa285f0576"
+    },
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops.worldreview",
+      "sha256": "747534249345da6ce337054b4e7f47a1516556beda7079ef7b6d093e590bce8f"
+    },
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops.html",
+      "sha256": "6e5dfb4dfb88b5e210354fbcaeb8ccc4e79d50aa935a1d449f750bde8fc822fa"
+    },
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops-website.zip",
+      "sha256": "25ef0ab90a396f01dcfb09e60f754fb31a82f59aedb8da869b4a199a59e8f19e"
+    },
+    {
+      "file": "evidence/web-choice-keyboard/before-rain-stops.html",
+      "sha256": "1993d4da00f96063f1f25d0cca382f630c874e5d11055f2665f3c73221c11c93"
+    },
+    {
+      "file": "evidence/web-choice-keyboard/before-rain-stops-website.zip",
+      "sha256": "eeec07e8152cc7613886f8d4f85dd0d7936f5677bdfd24856b8441c4452eb92c"
+    }
+  ],
+  "browsers": [
+    {
+      "engine": "chromium",
+      "version": "151.0.7922.34",
+      "mediaReadingAndRecoveryPassed": true,
+      "priorChoiceAndPressProtectionPassed": true,
+      "nativeSoundRetry": {
+        "currentTime": 0.005897,
+        "error": null,
+        "playback": "playing",
+        "failureCode": null,
+        "paused": false,
+        "readyState": 4,
+        "networkState": 1,
+        "src": "data:audio/wav;base64,UklGRqSIFQBXQVZFZm",
+        "settledWithinObservation": true,
+        "nativePlaybackConfirmed": true
+      }
+    },
+    {
+      "engine": "firefox",
+      "version": "153.0",
+      "mediaReadingAndRecoveryPassed": true,
+      "priorChoiceAndPressProtectionPassed": true,
+      "nativeSoundRetry": {
+        "currentTime": 0.054107,
+        "error": null,
+        "playback": "playing",
+        "failureCode": null,
+        "paused": false,
+        "readyState": 4,
+        "networkState": 2,
+        "src": "data:audio/wav;base64,UklGRqSIFQBXQVZFZm",
+        "settledWithinObservation": true,
+        "nativePlaybackConfirmed": true
+      }
+    },
+    {
+      "engine": "webkit",
+      "version": "26.5",
+      "mediaReadingAndRecoveryPassed": true,
+      "priorChoiceAndPressProtectionPassed": true,
+      "nativeSoundRetry": {
+        "currentTime": 0,
+        "error": null,
+        "playback": "playing",
+        "failureCode": null,
+        "paused": true,
+        "readyState": 0,
+        "networkState": 2,
+        "src": "data:audio/wav;base64,UklGRqSIFQBXQVZFZm",
+        "settledWithinObservation": false,
+        "nativePlaybackConfirmed": false
+      }
+    }
+  ],
+  "tests": {
+    "files": 140,
+    "distinctTests": 1281,
+    "newReadingMediaTests": 11,
+    "nodeTests": 48,
+    "baselineFailures": 9
+  },
+  "architecture": {
+    "audit-architecture": {
+      "status": "PASS",
+      "auditedPortableFiles": 118,
+      "auditedNodeAdapterFiles": 4,
+      "guarantees": [
+        "narrative-vm-spike has no UI, DOM, platform-shell, filesystem, process, crypto-provider, wall-clock, or ambient-random dependency",
+        "story-core has no UI, DOM, platform-shell, filesystem, or process dependency",
+        "story-language has no UI, DOM, platform-shell, filesystem, or process dependency",
+        "story-language depends only on story-core",
+        "project-compiler is portable and depends only on project-domain/story-language, never the VM spike or platform APIs",
+        "runtime is portable and depends only on project-compiler, never the VM spike, editor, filesystem, wall clock, randomness, or platform APIs",
+        "runtime-host is portable and depends only on formal runtime, never UI, DOM, shell, filesystem, wall clock, randomness, or platform APIs",
+        "player-core is portable and consumes only canonical project, formal Compiler IR, Runtime, and Runtime Host without a parallel StoryStatement interpreter",
+        "gal-settings is dependency-free and portable with no UI, DOM, filesystem, process, shell, wall-clock, or ambient-random dependency",
+        "route-graph is portable and projects only canonical project and compiler facts through the Project Service boundary",
+        "project-persistence has no UI, DOM, platform-shell, filesystem, process, or runtime third-party dependency",
+        "project-domain depends only on portable Gal settings and has no UI, DOM, platform-shell, filesystem, process, crypto-provider, or runtime third-party dependency",
+        "project-persistence-node is isolated from the web editor and depends only on portable project-domain/project-persistence contracts",
+        "editor declares the Gal settings dependency explicitly",
+        "editor declares the story-core dependency explicitly",
+        "editor declares the story-language dependency explicitly",
+        "editor declares the project-persistence dependency explicitly",
+        "web editor does not bundle the Node filesystem adapter",
+        "VM Web Worker conformance Harness depends only on the portable Spike, formal Runtime, and portable Runtime Host and imports no shell or Node adapter",
+        "VM conformance CLI is an isolated Node reference host and depends only on the portable narrative VM",
+        "Windows Electron host keeps isolation and sandboxing enabled with the frozen WindowsHostV1 storage bridge",
+        "Windows Tauri host exposes only the frozen WindowsHostV1 storage commands and no generic privileged plugin",
+        "Windows project grant roots stay native-only and both hosts reject reparse roots and existing reparse path segments",
+        "story-core has no runtime third-party dependency"
+      ]
+    },
+    "audit-n52-e5b-runtime-history-v2": {
+      "status": "PASS",
+      "node": "N52-E5b-runtime-history-v2",
+      "engineeringStatus": "complete",
+      "productAcceptance": "blocked",
+      "continuation": {
+        "node": "N52-E5c-gal-history-policy-and-player-core-projection",
+        "gate": "only-after-e5b-exact-head-windows-ci-is-green"
+      },
+      "violations": []
+    }
+  },
+  "knownControlledClockFailure": {
+    "engine": "firefox",
+    "realTimeRetestIsNotAControlledTimePass": true,
+    "report": "press/isolated-firefox-controlled-storage-timeout.json",
+    "status": "open"
+  },
+  "pendingMediaPermissions": 26,
+  "approvedMediaPermissions": 0,
+  "scope": "Actual ordinary reading with failed sound/Canvas pictures, explicit menu recovery and preserved paragraph/offset; three desktop engines, previous choice/press protections (press under real time, Firefox controlled-clock storage failure remains open), two full routes, original same-content backups, source save/reopen and dual export. Not every custom layout/color or full format/route matrix, physical phone/Safari, natural timing/listening, media approval, public HTTPS, long soak or complete update-chain acceptance."
+}

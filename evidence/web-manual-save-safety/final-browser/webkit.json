@@ -1,0 +1,270 @@
+{
+  "passed": true,
+  "engine": "webkit",
+  "browser": "26.5",
+  "artifacts": {
+    "html": {
+      "bytes": 46810141,
+      "sha256": "6f05b517be7b5cb03bb21b7116977d55ff2879b90fdaac8aff651587419affae"
+    },
+    "website": {
+      "bytes": 35396590,
+      "sha256": "2869f4f492c354e663f33e66fb65b4decb7bcd05b8212a5dedb8403ca16cf8c1"
+    }
+  },
+  "sourceBackupSha256": "2c0b50617f69ed5f6a1af29ae30aa41588ef1d0b88d87a7828519c66ca7f782b",
+  "checks": [
+    {
+      "name": "stale-confirmation-refuses-write-and-keeps-external-payload-and-current-line",
+      "external": {
+        "slotId": "manual-1",
+        "hash": "c04d22711f179366e27943f8f4a0619af369c7416adeec2a0e30b059f06274c3",
+        "savedAt": 1792286704866,
+        "storedSha256": "c26c66f5e86aadd7cc25a4ab1284ea8a64e2e63d5c9a139507c3fa18c5693e42"
+      },
+      "beforeHash": "ae1db2ee1b60050eef3dd18dc56c357a1c0a3e1d611a2df8339026df699d5373",
+      "beforeText": "进去读吧。我想先把今天的话说完。",
+      "afterText": "进去读吧。我想先把今天的话说完。",
+      "beforePosition": {
+        "cursor": "16",
+        "length": "16",
+        "archives": "0",
+        "status": "presenting"
+      },
+      "afterPosition": {
+        "cursor": "16",
+        "length": "16",
+        "archives": "0",
+        "status": "presenting"
+      },
+      "state": {
+        "hash": "ae1db2ee1b60050eef3dd18dc56c357a1c0a3e1d611a2df8339026df699d5373",
+        "save": "error",
+        "list": "ready",
+        "auto": "off"
+      }
+    },
+    {
+      "name": "formerly-empty-slot-refuses-concurrent-fill-without-automatic-retry",
+      "filled": {
+        "slotId": "manual-2",
+        "hash": "c04d22711f179366e27943f8f4a0619af369c7416adeec2a0e30b059f06274c3",
+        "savedAt": 1792286705611,
+        "storedSha256": "c26c66f5e86aadd7cc25a4ab1284ea8a64e2e63d5c9a139507c3fa18c5693e42"
+      },
+      "state": {
+        "hash": "ae1db2ee1b60050eef3dd18dc56c357a1c0a3e1d611a2df8339026df699d5373",
+        "save": "error",
+        "list": "ready",
+        "auto": "off"
+      }
+    },
+    {
+      "name": "conflict-result-and-return-control-readable-at-four-window-sizes",
+      "layouts": [
+        {
+          "viewport": {
+            "width": 320,
+            "height": 740
+          },
+          "message": {
+            "x": 40,
+            "y": 101,
+            "width": 240,
+            "height": 67.171875
+          },
+          "close": {
+            "x": 166.671875,
+            "y": 45,
+            "width": 113.328125,
+            "height": 44
+          }
+        },
+        {
+          "viewport": {
+            "width": 568,
+            "height": 320
+          },
+          "message": {
+            "x": 185.625,
+            "y": 38.609375,
+            "width": 350.359375,
+            "height": 44.78125
+          },
+          "close": {
+            "x": 86.484375,
+            "y": 29,
+            "width": 89.140625,
+            "height": 64
+          }
+        },
+        {
+          "viewport": {
+            "width": 844,
+            "height": 390
+          },
+          "message": {
+            "x": 210.8125,
+            "y": 38.609375,
+            "width": 588.1875,
+            "height": 44.78125
+          },
+          "close": {
+            "x": 104.921875,
+            "y": 29,
+            "width": 95.890625,
+            "height": 64
+          }
+        },
+        {
+          "viewport": {
+            "width": 1280,
+            "height": 900
+          },
+          "message": {
+            "x": 271,
+            "y": 101,
+            "width": 738,
+            "height": 22.390625
+          },
+          "close": {
+            "x": 895.671875,
+            "y": 45,
+            "width": 113.328125,
+            "height": 44
+          }
+        }
+      ]
+    },
+    {
+      "name": "save-to-another-empty-slot-preserves-both-conflicting-progress-records",
+      "slots": [
+        {
+          "slotId": "manual-1",
+          "hash": "c04d22711f179366e27943f8f4a0619af369c7416adeec2a0e30b059f06274c3",
+          "savedAt": 1792286704866,
+          "storedSha256": "c26c66f5e86aadd7cc25a4ab1284ea8a64e2e63d5c9a139507c3fa18c5693e42"
+        },
+        {
+          "slotId": "manual-2",
+          "hash": "c04d22711f179366e27943f8f4a0619af369c7416adeec2a0e30b059f06274c3",
+          "savedAt": 1792286705611,
+          "storedSha256": "c26c66f5e86aadd7cc25a4ab1284ea8a64e2e63d5c9a139507c3fa18c5693e42"
+        },
+        {
+          "slotId": "manual-3",
+          "hash": "ae1db2ee1b60050eef3dd18dc56c357a1c0a3e1d611a2df8339026df699d5373",
+          "savedAt": 1792286707826,
+          "storedSha256": "d8495d01334886aab0789d33a4ca80e26479721ff2d400572a47f3c659a7634e"
+        }
+      ]
+    },
+    {
+      "name": "fresh-explicit-double-confirmation-can-replace-the-reviewed-new-slot",
+      "slots": [
+        {
+          "slotId": "manual-1",
+          "hash": "c04d22711f179366e27943f8f4a0619af369c7416adeec2a0e30b059f06274c3",
+          "savedAt": 1792286704866,
+          "storedSha256": "c26c66f5e86aadd7cc25a4ab1284ea8a64e2e63d5c9a139507c3fa18c5693e42"
+        },
+        {
+          "slotId": "manual-2",
+          "hash": "ae1db2ee1b60050eef3dd18dc56c357a1c0a3e1d611a2df8339026df699d5373",
+          "savedAt": 1792286708460,
+          "storedSha256": "d8495d01334886aab0789d33a4ca80e26479721ff2d400572a47f3c659a7634e"
+        },
+        {
+          "slotId": "manual-3",
+          "hash": "ae1db2ee1b60050eef3dd18dc56c357a1c0a3e1d611a2df8339026df699d5373",
+          "savedAt": 1792286707826,
+          "storedSha256": "d8495d01334886aab0789d33a4ca80e26479721ff2d400572a47f3c659a7634e"
+        }
+      ]
+    },
+    {
+      "name": "two-real-windows-racing-for-the-same-empty-slot-produce-one-winner-and-one-conflict",
+      "pair": [
+        {
+          "hash": "ae1db2ee1b60050eef3dd18dc56c357a1c0a3e1d611a2df8339026df699d5373",
+          "save": "saved",
+          "list": "ready",
+          "auto": "off"
+        },
+        {
+          "hash": "c04d22711f179366e27943f8f4a0619af369c7416adeec2a0e30b059f06274c3",
+          "save": "error",
+          "list": "ready",
+          "auto": "off"
+        }
+      ],
+      "raceHashes": [
+        "ae1db2ee1b60050eef3dd18dc56c357a1c0a3e1d611a2df8339026df699d5373",
+        "c04d22711f179366e27943f8f4a0619af369c7416adeec2a0e30b059f06274c3"
+      ],
+      "slots": [
+        {
+          "slotId": "manual-1",
+          "hash": "c04d22711f179366e27943f8f4a0619af369c7416adeec2a0e30b059f06274c3",
+          "savedAt": 1792286704866,
+          "storedSha256": "c26c66f5e86aadd7cc25a4ab1284ea8a64e2e63d5c9a139507c3fa18c5693e42"
+        },
+        {
+          "slotId": "manual-2",
+          "hash": "ae1db2ee1b60050eef3dd18dc56c357a1c0a3e1d611a2df8339026df699d5373",
+          "savedAt": 1792286708460,
+          "storedSha256": "d8495d01334886aab0789d33a4ca80e26479721ff2d400572a47f3c659a7634e"
+        },
+        {
+          "slotId": "manual-3",
+          "hash": "ae1db2ee1b60050eef3dd18dc56c357a1c0a3e1d611a2df8339026df699d5373",
+          "savedAt": 1792286707826,
+          "storedSha256": "d8495d01334886aab0789d33a4ca80e26479721ff2d400572a47f3c659a7634e"
+        },
+        {
+          "slotId": "manual-4",
+          "hash": "ae1db2ee1b60050eef3dd18dc56c357a1c0a3e1d611a2df8339026df699d5373",
+          "savedAt": 1792286708833,
+          "storedSha256": "d8495d01334886aab0789d33a4ca80e26479721ff2d400572a47f3c659a7634e"
+        }
+      ]
+    },
+    {
+      "name": "reopen-and-explicit-read-restore-the-external-story-with-all-four-slots-intact",
+      "slots": [
+        {
+          "slotId": "manual-1",
+          "hash": "c04d22711f179366e27943f8f4a0619af369c7416adeec2a0e30b059f06274c3",
+          "savedAt": 1792286704866,
+          "storedSha256": "c26c66f5e86aadd7cc25a4ab1284ea8a64e2e63d5c9a139507c3fa18c5693e42"
+        },
+        {
+          "slotId": "manual-2",
+          "hash": "ae1db2ee1b60050eef3dd18dc56c357a1c0a3e1d611a2df8339026df699d5373",
+          "savedAt": 1792286708460,
+          "storedSha256": "d8495d01334886aab0789d33a4ca80e26479721ff2d400572a47f3c659a7634e"
+        },
+        {
+          "slotId": "manual-3",
+          "hash": "ae1db2ee1b60050eef3dd18dc56c357a1c0a3e1d611a2df8339026df699d5373",
+          "savedAt": 1792286707826,
+          "storedSha256": "d8495d01334886aab0789d33a4ca80e26479721ff2d400572a47f3c659a7634e"
+        },
+        {
+          "slotId": "manual-4",
+          "hash": "ae1db2ee1b60050eef3dd18dc56c357a1c0a3e1d611a2df8339026df699d5373",
+          "savedAt": 1792286708833,
+          "storedSha256": "d8495d01334886aab0789d33a4ca80e26479721ff2d400572a47f3c659a7634e"
+        }
+      ],
+      "state": {
+        "hash": "c04d22711f179366e27943f8f4a0619af369c7416adeec2a0e30b059f06274c3",
+        "save": "loaded",
+        "list": "ready",
+        "auto": "off"
+      }
+    }
+  ],
+  "errors": [],
+  "scope": "Actual exported website, two pages sharing real IndexedDB and UI-generated saves; no database writes or storage/playback event injection by the test. Desktop engines and phone-sized windows, not physical phones/Safari, natural listening, system interruption, rights or public deployment acceptance."
+}

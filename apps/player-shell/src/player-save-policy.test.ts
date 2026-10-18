@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
-import { createWorldPlayerSaveSlotV3, type WorldPlayerSaveKindV3, type WorldPlayerSaveSlotV3, type WorldPlayerSaveStoreV3 } from "./player-save-store";
+import { describe, expect, it, vi } from "vitest";
+import { createWorldPlayerSaveSlotV3, worldPlayerSaveSummaryV3, type WorldPlayerSaveKindV3, type WorldPlayerSaveSlotV3, type WorldPlayerSaveStoreV3 } from "./player-save-store";
 import { createWorldPlayerRecoveryRecordV1, type WorldPlayerRecoveryRecordV1, type WorldPlayerRecoveryStoreV1 } from "./player-recovery-store";
 import { WorldPlayerRecoveryWriteCoordinatorV1, WorldPlayerSaveWriteCoordinatorV1, worldPlayerAutoSaveAllowedV1, worldPlayerSaveSceneIdentityV1 } from "./player-save-policy";
 
@@ -25,6 +25,21 @@ function memoryStore(records = new Map<string, WorldPlayerSaveSlotV3>()): WorldP
 }
 
 describe("N52-E3b save policy", () => {
+  it.each(["valid", "missing", "changed", "corrupt"])("verifies the single reuse candidate before catalog-based auto-save coalescing (%s)", async mode => {
+    const saved = slot("auto", "auto-1", "scene-1", 1), store = memoryStore();
+    store.list = vi.fn(async () => { throw Error("full list not needed"); });
+    store.listSummaries = async () => [worldPlayerSaveSummaryV3(saved)];
+    store.read = vi.fn(async () => {
+      if (mode === "corrupt") throw Error("bad payload");
+      return mode === "missing" ? null : mode === "changed" ? { ...saved, sceneId: "scene-2" } : saved;
+    });
+    const write = vi.fn(async () => {}), coordinator = new WorldPlayerSaveWriteCoordinatorV1(store);
+    const result = coordinator.writeAuto("golden_branching", worldPlayerSaveSceneIdentityV1(hash, "scene-1"), write);
+    if (mode === "corrupt") { await expect(result).rejects.toThrow("bad payload"); expect(write).not.toHaveBeenCalled(); }
+    else if (mode === "valid") { expect(await result).toEqual({ status: "coalesced", slotId: "auto-1" }); expect(write).not.toHaveBeenCalled(); }
+    else { expect(await result).toEqual({ status: "written", slotId: "auto-2" }); expect(write).toHaveBeenCalledWith("auto-2"); }
+    expect(store.read).toHaveBeenCalledOnce(); expect(store.list).not.toHaveBeenCalled();
+  });
   it("allows only the frozen stable presentable boundaries", () => {
     expect(worldPlayerAutoSaveAllowedV1("presenting", "dialogue")).toBe(true);
     expect(worldPlayerAutoSaveAllowedV1("presenting", "narration")).toBe(true);

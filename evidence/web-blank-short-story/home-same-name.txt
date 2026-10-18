@@ -1,0 +1,50 @@
+- main "项目首页":
+  - generic: W
+  - text: WorLd
+  - generic: Studio
+  - generic "主题":
+    - text: 主题
+  - paragraph: 你的故事工作室
+  - heading "继续，把故事写下去。" [level=1]
+  - paragraph: 选择项目即可开始写作。你的作品保存在本机。
+  - button "新建项目":
+    - text: 新建项目
+  - region "开始创作":
+    - button "打开工程目录":
+      - strong: 本地目录
+      - generic: 打开文件夹里的故事项目
+    - button "导入项目 打开工程 ZIP 或制作交付包继续编辑":
+      - strong: 导入项目
+      - generic: 打开工程 ZIP 或制作交付包继续编辑
+    - button "打开示例工程":
+      - strong: 探索示例
+      - generic: 打开一个故事，边看边学
+    - button "导入工程 ZIP"
+  - region "我的项目 2":
+    - heading "我的项目 2" [level=2]:
+      - text: 我的项目
+      - generic: "2"
+    - paragraph: 点击卡片，直接进入创作。
+    - textbox "搜索项目":
+      - /placeholder: 搜索项目…
+    - list:
+      - button "打开项目：给明天的回信（最近打开）":
+        - generic: 给
+        - generic: STORY PROJECT
+        - strong: 给明天的回信
+        - generic: 同名项目 · 最近打开
+        - text: 本机项目
+        - generic: 10月16日 15:15:51 打开
+        - text: 继续检查与校订
+      - generic "给明天的回信（最近打开）的更多选项": •••
+      - button "打开项目：给明天的回信（同名项目 2）":
+        - generic: 给
+        - generic: STORY PROJECT
+        - strong: 给明天的回信
+        - generic: 同名项目 · 2
+        - text: 本机项目
+        - generic: 10月16日 14:55:49 打开
+        - text: 继续检查与校订
+      - generic "给明天的回信（同名项目 2）的更多选项": •••
+  - text: 本地创作 · 随时导出 · 无需账户
+  - generic "开发与验收工程"

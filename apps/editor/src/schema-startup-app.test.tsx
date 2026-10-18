@@ -43,7 +43,7 @@ describe("S0.13 schema startup gate", () => {
     await store.release(acquisition.lease);
 
     render(<App />);
-    expect(await screen.findByText("Sequence")).toBeVisible();
+    expect(await screen.findByRole("button", { name: "写作" })).toBeVisible();
     await waitFor(async () => {
       const migrated = JSON.parse(await store.read("project.json") ?? "{}") as Record<string, unknown>;
       expect(migrated.schemaVersion).toBe(2);

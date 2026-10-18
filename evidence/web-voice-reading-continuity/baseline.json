@@ -1,0 +1,34 @@
+{
+  "passed": true,
+  "browser": "151.0.7922.34",
+  "htmlSha256": "ee53d1b3c66bf0489c12cea67cbb2b4e926ac6acc64ccf0a3da1ec88fc56deb6",
+  "checks": [
+    {
+      "name": "reproduced-completed-voice-reused-on-load",
+      "after": {
+        "sameOwner": true,
+        "ended": true,
+        "completed": "true",
+        "musicUnchanged": true
+      },
+      "saved": {
+        "bytes": 38242,
+        "sha256": "f275403be60b891099890c33d2d63b07d69355eccae56d800293d7dd0dcf75d4",
+        "artifactHash": "820ba049b53d0f41a916dd5d3835050ec0a86e1451b5ad98778ac0c8f2471e77",
+        "hash": "06a2114ecdb8dd78c27df1894a8714e79c27790bb772a52cea099ffe5233e815"
+      }
+    },
+    {
+      "name": "reproduced-late-native-play-bypasses-suspension",
+      "lateState": {
+        "paused": false,
+        "playback": "playing",
+        "host": "suspended"
+      },
+      "injectedPlayRequestDelay": true,
+      "syntheticNativeEvents": false
+    }
+  ],
+  "errors": [],
+  "scope": "Actual 1.10.0 production export, native audio at accelerated/slowed rates, public controls and unchanged IndexedDB quick slot. Lifecycle events and a held play request are explicit fault injections; native play/pause/ended are not synthesized. Desktop engines/phone-sized windows are not human listening, physical-phone/Safari or long-soak acceptance."
+}

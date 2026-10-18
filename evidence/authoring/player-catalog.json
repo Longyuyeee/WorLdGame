@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 1,
+  "baselineCommit": "f52bb773615402ef37e37c92295979defd55d106",
+  "fixture": {
+    "slots": 18,
+    "history": 480,
+    "bytesPerSave": 1949763,
+    "artifactHash": "ed71810599238151372816e0ae6fb39d728e7f690edcf194755a050e10762c22",
+    "stateHash": "534768fefe43b1788c1e195ddd30dd0fe81f146ad2c5447f6198800fbf689b5c"
+  },
+  "bundles": {
+    "before": "a4ce806ce8b2c6ce08148c32777b7c6983fffee0e16c62fcea2df4b2fe9014ce",
+    "after": "94b0c35921b5b08df2f7f7114046739e905673eeafbd99d3405bfef8f6c7ed01",
+    "ui": "838fe48b6060dadb5e4121ee70e53b07dc87a77a6b261ac4dedc93450fe4e50b"
+  },
+  "samples": [
+    {
+      "before": {
+        "listMilliseconds": 213.39999999850988,
+        "previewMilliseconds": 220.39999999850988,
+        "retainedPayloadCharacters": 34801974,
+        "decodes": 36
+      },
+      "after": {
+        "listMilliseconds": 4.300000004470348,
+        "previewMilliseconds": 12.599999994039536,
+        "retainedPayloadCharacters": 0,
+        "decodes": 0
+      }
+    },
+    {
+      "before": {
+        "listMilliseconds": 205.29999999701977,
+        "previewMilliseconds": 206.40000000596046,
+        "retainedPayloadCharacters": 34801974,
+        "decodes": 36
+      },
+      "after": {
+        "listMilliseconds": 3.6999999955296516,
+        "previewMilliseconds": 12.300000004470348,
+        "retainedPayloadCharacters": 0,
+        "decodes": 0
+      }
+    },
+    {
+      "before": {
+        "listMilliseconds": 201.39999999850988,
+        "previewMilliseconds": 232.60000000149012,
+        "retainedPayloadCharacters": 34801974,
+        "decodes": 36
+      },
+      "after": {
+        "listMilliseconds": 3.7000000029802322,
+        "previewMilliseconds": 12.599999994039536,
+        "retainedPayloadCharacters": 0,
+        "decodes": 0
+      }
+    },
+    {
+      "before": {
+        "listMilliseconds": 198.59999999403954,
+        "previewMilliseconds": 228.20000000298023,
+        "retainedPayloadCharacters": 34801974,
+        "decodes": 36
+      },
+      "after": {
+        "listMilliseconds": 4.399999998509884,
+        "previewMilliseconds": 16.200000002980232,
+        "retainedPayloadCharacters": 0,
+        "decodes": 0
+      }
+    },
+    {
+      "before": {
+        "listMilliseconds": 209.40000000596046,
+        "previewMilliseconds": 255,
+        "retainedPayloadCharacters": 34801974,
+        "decodes": 36
+      },
+      "after": {
+        "listMilliseconds": 3.2999999970197678,
+        "previewMilliseconds": 12.5,
+        "retainedPayloadCharacters": 0,
+        "decodes": 0
+      }
+    }
+  ],
+  "headersEqual": true,
+  "corruptPayloadRejectedWithoutStateChange": true,
+  "coldProcessLoad": true,
+  "fullHistory": 480,
+  "counts": {
+    "reads": 3,
+    "lists": 3
+  },
+  "exceptions": [],
+  "limits": "18 real IndexedDB packed saves, 480 history each; one warmup and five alternating samples. Metadata browsing is not payload validation. Natural GC, no device/memory/frame-budget acceptance. CLI DOM clicks exercise actual buttons; not physical touch. Current UI only; fixed baseline compares storage adapter list and previews."
+}

@@ -1,0 +1,35 @@
+
+ RUN  v4.1.10 E:/Project/AIProject/ClaudeProject/WorLdGame
+
+ ❯ apps/editor/src/web-credits.test.tsx (3 tests | 2 failed) 1303ms
+   × protects a draft on Escape, checks links, orders contributors and explicitly applies or discards 161ms
+   × carries credits through source and both game formats, lists the text file for deployment and blocks malformed imported credits 39ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  apps/editor/src/web-credits.test.tsx > protects a draft on Escape, checks links, orders contributors and explicitly applies or discards
+TypeError: fireEvent.cancel is not a function
+ ❯ apps/editor/src/web-credits.test.tsx:16:93
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  apps/editor/src/web-credits.test.tsx > carries credits through source and both game formats, lists the text file for deployment and blocks malformed imported credits
+AssertionError: expected '' to contain 'credits.txt'
+
+- Expected
++ Received
+
+- credits.txt
+
+ ❯ apps/editor/src/web-credits.test.tsx:32:361
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed | 5 passed (6)
+      Tests  2 failed | 23 passed (25)
+   Start at  16:34:10
+   Duration  42.80s (transform 3.11s, setup 5.75s, import 8.71s, tests 6.00s, environment 20.52s)
+

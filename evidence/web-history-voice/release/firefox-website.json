@@ -1,0 +1,157 @@
+{
+  "passed": true,
+  "engine": "firefox",
+  "browser": "153.0",
+  "fileMode": false,
+  "artifacts": {
+    "html": {
+      "bytes": 46796876,
+      "sha256": "e36bed9690c371f7b13f31c5a160ab2594397ba0f6bde24be7544501038fee93"
+    },
+    "website": {
+      "bytes": 35383325,
+      "sha256": "ec0be847598dedd22caa12ceb2d2dbbf45bbe73283f0fa4f97448fc1fbec2ae6"
+    }
+  },
+  "checks": [
+    {
+      "name": "past-voice-audition-owns-only-temporary-sound-not-story-music-or-slots",
+      "before": {
+        "hash": "a44c449acea9ab2bcf89a4448d21cb40cbc88141f347cb1764b7bd17b15edef5",
+        "cursor": "32",
+        "auto": "off",
+        "host": "active",
+        "text": "把那个日期圈起来，变化了我们提前说。"
+      },
+      "owned": {
+        "currentPaused": true,
+        "currentTime": 0.094569,
+        "sameVoice": true,
+        "sameMusic": true,
+        "musicPlaying": true,
+        "muted": true
+      },
+      "saved": [
+        {
+          "slotId": "auto-1",
+          "hash": "82e2acf507042ca294db18181ea77af0e7eed1889ee86690bac318ce59634412",
+          "artifactHash": "2369ad0bebc828efba458571abc4dbd59a1c09d3b959cb99e5eccad2abe452b5",
+          "savedAt": 1792279622341,
+          "bytes": 10666,
+          "storedSha256": "74d56960893156335a3949b26664751931030aa2572b80bf8170a15b37a0f52a"
+        },
+        {
+          "slotId": "auto-2",
+          "hash": "990c7b6d164d4aecd2113de3a9d467df9890f67e8defe2764f9f6963370b8269",
+          "artifactHash": "19be8af97cf845b0730c1ea6d999c7f9b7c8f3a9c4cd840ae8c17790bf0fe8cc",
+          "savedAt": 1792279628402,
+          "bytes": 53060,
+          "storedSha256": "003edcd468730b58bf829576ded42f276e3527d5fdd635392ea5ecf7e96321a4"
+        },
+        {
+          "slotId": "quick-1",
+          "hash": "a44c449acea9ab2bcf89a4448d21cb40cbc88141f347cb1764b7bd17b15edef5",
+          "artifactHash": "f2b22c7362a545931d0feb50f2e8f77f04a2c62fc790c538dcb07b09e9d2527a",
+          "savedAt": 1792279629101,
+          "bytes": 11894,
+          "storedSha256": "567982650858bf327c780a9ee67dffbc8aaf4c9a15a98b38b8da02afd3e42300"
+        }
+      ]
+    },
+    {
+      "name": "explicit-pause-resume-and-native-ended-do-not-complete-the-current-story-voice",
+      "pausedAt": 0.098379,
+      "ended": [
+        {
+          "trusted": true,
+          "time": 5.038005,
+          "duration": 5.038005,
+          "src": "http://127.0.0.1:37582/gal/media/26be1da92d18729069c0fda981697a09631fbe7525d4517af5f3633824bf13c0.wav"
+        }
+      ]
+    },
+    {
+      "name": "audition-controls-remain-readable-and-reachable-in-four-viewports",
+      "layouts": [
+        {
+          "viewport": {
+            "width": 320,
+            "height": 740
+          },
+          "geometry": {
+            "height": 44,
+            "inViewport": true
+          },
+          "paneHeight": 350,
+          "recordControl": {
+            "height": 44,
+            "inViewport": true
+          }
+        },
+        {
+          "viewport": {
+            "width": 568,
+            "height": 320
+          },
+          "geometry": {
+            "height": 44,
+            "inViewport": true
+          },
+          "paneHeight": 145,
+          "recordControl": {
+            "height": 44,
+            "inViewport": true
+          }
+        },
+        {
+          "viewport": {
+            "width": 844,
+            "height": 390
+          },
+          "geometry": {
+            "height": 44,
+            "inViewport": true
+          },
+          "paneHeight": 219,
+          "recordControl": {
+            "height": 44,
+            "inViewport": true
+          }
+        },
+        {
+          "viewport": {
+            "width": 1280,
+            "height": 900
+          },
+          "geometry": {
+            "height": 44,
+            "inViewport": true
+          },
+          "paneHeight": 326,
+          "recordControl": {
+            "height": 44,
+            "inViewport": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "native-preview-decode-error-is-local-and-explicit-retry-uses-the-recorded-source",
+      "sameStory": true,
+      "nativeErrorEventInjected": false
+    },
+    {
+      "name": "closing-history-releases-the-preview-and-resumes-the-same-current-voice-position",
+      "returned": {
+        "currentTime": 0.09457,
+        "sameVoice": true,
+        "sameMusic": true
+      }
+    },
+    {
+      "name": "validated-reload-reconstructs-the-past-voice-from-committed-history-without-rewriting-the-slot"
+    }
+  ],
+  "errors": [],
+  "scope": "Actual unchanged 1.11 story in exported game; real voice playback/ended/error, real IndexedDB payload digests, native history actions and viewport checks. Current story voice slowed to 0.2 for ownership checks, audition at natural speed, all output muted. No synthetic media/narrative events or geometry. Desktop engines/phone-sized windows are not natural listening/timing, physical phone/Safari/background/lock, rights, public HTTPS or long soak."
+}

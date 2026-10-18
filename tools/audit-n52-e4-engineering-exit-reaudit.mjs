@@ -27,7 +27,7 @@ for (const token of ["schedulePlayerCorePlaybackV1", 'mode: "auto"', 'mode: skip
 for (const token of ['WORLD_PLAYER_PLAYBACK_POLICY_VERSION = "1.2.0"', "defaultActivation", "defaultSpeed", 'video: "wait-for-end"', 'video: "cancel-and-continue"']) {
   if (!policy.includes(token)) violations.push(`Playback policy token missing: ${token}`);
 }
-for (const token of ["N52-E4b Shell Auto real clock", "N52-E4c Shell Skip controls and cleanup", "real voice element duration", "restores audio and presentation policy"]) {
+for (const token of ["N52-E4b Shell Auto real clock", "N52-E4c Shell Skip controls and cleanup", "actual voice completion plus tail", "restores audio and presentation policy"]) {
   if (!tests.includes(token)) violations.push(`Real playback test token missing: ${token}`);
 }
 

@@ -1,0 +1,24 @@
+{
+  "contentVersion": "1.12.0",
+  "technicalVersion": "S0.41",
+  "status": "inventory-only-acceptance-pending",
+  "artifacts": {
+    "source": {
+      "bytes": 38560984,
+      "sha256": "75453d918fa5ef47d5038b397b3aeeb4c5ad67e5dbab0594e696f29020e25f4c"
+    },
+    "html": {
+      "bytes": 52288411,
+      "sha256": "f5527aaa073f11982aa10bcacd4c8e85b6212920e4d6ab07c528d5698746da2b"
+    },
+    "website": {
+      "bytes": 39516021,
+      "sha256": "e2ce402c7a0ce4558d627d0379c3c8c0f19fb4913026aea0cc145ca84715cf6b"
+    },
+    "notes": {
+      "bytes": 25590,
+      "sha256": "1ad95d42c7960ee4db48f50a10108069c35d61e08a1470ec45f582c5a8ad9624"
+    }
+  },
+  "scope": "Actual Editor export byte inventory for matrix inputs. Not the final acceptance gate; final audit.json and delivery.json will record completed checks."
+}

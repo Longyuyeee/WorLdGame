@@ -1,0 +1,27 @@
+{
+  "passed": true,
+  "sourcesUnchanged": true,
+  "oldAndCurrentContentUnchanged": true,
+  "artifacts": [
+    {
+      "version": "1.9.0",
+      "filename": "../web-version-retention/before-rain-stops.html",
+      "byteLength": 46745525,
+      "sha256": "9466b66ee583376162de42f0941813d20a02b2c3a68f70a336b4180bb11f5354",
+      "originalMedia": 26,
+      "identicalProjectAndOriginalMedia": true
+    },
+    {
+      "version": "1.9.0",
+      "filename": "before-rain-stops-website.zip",
+      "byteLength": 35331971,
+      "sha256": "72ad9b526b9f5e729ba5da8b202aa1f44bb13db4fbab861ca3ac2c36deb3d6c5",
+      "sourcePath": "evidence/web-story-branch-context/before-rain-stops-project.zip",
+      "sourceSha256": "e4b13a27dc72fda43efe655d49a9b5ca5091c01382b9d0cd0c79932eaa86400d",
+      "sourceEntries": 66,
+      "publicFiles": 37,
+      "originalMedia": 26,
+      "releaseId": "sha256:3af1c02c899a3f03e574380326acfcf5f98b6bc651bcd4297f4daad1a63a1679"
+    }
+  ]
+}

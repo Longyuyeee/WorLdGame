@@ -1,20 +1,25 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { Blob as NodeBlob } from "node:buffer";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { useState } from "react";
 import "@testing-library/jest-dom/vitest";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { withPlatformSettings, withProjectSettings } from "@world-studio/gal-settings";
 import { loadProject, migrateS0Project, saveProject, type CanonicalProject, type S0Project } from "@world-studio/project-domain";
-import { PlayerShell } from "./PlayerShell";
+import { PlayerShell, type WorldPlayerPreviewCaptureRequestV1 } from "./PlayerShell";
+import { testSaveComparison } from './test-save-store';
 import { createPlayerMediaDemoV1, createPlayerMediaMultichannelDemoV1, createPlayerVideoDemoV1 } from "./media-demo";
 import { WebPlayerHost, type WebPlayerHostProps } from "./player-host";
-import type { WorldPlayerSaveSlotV3, WorldPlayerSaveStoreV3 } from "./player-save-store";
+import { worldPlayerSaveSummaryV3, type WorldPlayerSaveSlotV3, type WorldPlayerSaveStoreV3 } from "./player-save-store";
 import type { WorldPlayerRecoveryRecordV1, WorldPlayerRecoveryStoreV1 } from "./player-recovery-store";
 import type { WorldPlayerPlaybackPolicyV1 } from "./player-playback-policy";
+import type { NativeAtlasSource } from "./native-atlas";
+import * as nativeAtlas from "./native-atlas";
+import { IMAGE_LOAD_TIMEOUT_MS } from "./image-load-policy";
+import { ImageResourceBudgetError } from "./image-resource-policy";
 
-afterEach(() => vi.restoreAllMocks());
+afterEach(() => { vi.useRealTimers(); vi.restoreAllMocks(); localStorage.clear(); });
 
 function branching(): CanonicalProject {
   const source = JSON.parse(readFileSync(join(process.cwd(), "fixtures/projects/branching/project.s0.json"), "utf8")) as S0Project;
@@ -118,6 +123,101 @@ function videoStory() {
 const realDelay = (milliseconds: number) => new Promise<void>((resolve) => window.setTimeout(resolve, milliseconds));
 
 describe("N50-E1 shared Player Shell", () => {
+  function gamepadHarness() {
+    const pending = new Map<number, FrameRequestCallback>();
+    let sequence = 0;
+    let buttons: number[] = [];
+    let connected = true;
+    let id = "test-pad";
+    const original = Object.getOwnPropertyDescriptor(navigator, "getGamepads");
+    Object.defineProperty(navigator, "getGamepads", { configurable: true, value: () => connected ? [{
+      index: 0, id, connected: true, axes: [0, 0],
+      buttons: Array.from({ length: 16 }, (_, index) => ({ pressed: buttons.includes(index) }))
+    }] : [] });
+    vi.spyOn(window, "requestAnimationFrame").mockImplementation(callback => { pending.set(++sequence, callback); return sequence; });
+    vi.spyOn(window, "cancelAnimationFrame").mockImplementation(key => { pending.delete(key); });
+    return {
+      press: (...next: number[]) => { buttons = next; },
+      connect: (value: boolean, nextId = id) => { connected = value; id = nextId; },
+      frame: () => act(() => { const batch = [...pending.values()]; pending.clear(); batch.forEach(callback => callback(performance.now())); }),
+      pending: () => pending.size,
+      restore: () => { if (original) Object.defineProperty(navigator, "getGamepads", original); else Reflect.deleteProperty(navigator, "getGamepads"); }
+    };
+  }
+
+  it("does not replay held gamepad buttons across title, selection and text-ready renders", async () => {
+    const pad = gamepadHarness();
+    const base = branching();
+    const project = { ...base, settings: withProjectSettings(base.settings, { text: { revealMode: "typewriter", charactersPerSecond: 200, minimumDisplayMilliseconds: 80, punctuationDelayMilliseconds: 0 } }) };
+    const view = render(<PlayerShell project={project} />);
+    try {
+      pad.press(0); pad.frame(); pad.frame();
+      expect(screen.getByRole("button", { name: /开始故事/u })).toBeVisible();
+      pad.press(); pad.frame(); pad.press(0); pad.frame();
+      for (let i = 0; i < 8; i++) pad.frame();
+      expect(screen.getByRole("button", { name: /Left/u })).toBeVisible();
+      pad.press(); pad.frame(); pad.press(13); pad.frame();
+      for (let i = 0; i < 9; i++) pad.frame();
+      expect(screen.getByRole("button", { name: /Right/u })).toHaveAttribute("data-player-selected", "true");
+      pad.press(); pad.frame(); pad.press(0); pad.frame();
+      await waitFor(() => expect(screen.getByRole("button", { name: "继续下一句" })).toHaveAttribute("data-text-ready", "true"));
+      for (let i = 0; i < 8; i++) pad.frame();
+      expect(screen.getByRole("button", { name: "继续下一句" })).toHaveTextContent("The bright route.");
+      pad.press(); pad.frame(); pad.press(0); pad.frame();
+      expect(screen.queryByRole("button", { name: "继续下一句" })).not.toBeInTheDocument();
+    } finally { view.unmount(); expect(pad.pending()).toBe(0); pad.restore(); }
+  });
+
+  it("requires neutral after panels, host suspension and gamepad reconnection", async () => {
+    const pad = gamepadHarness();
+    const base = autoStory();
+    const project = { ...base, settings: withProjectSettings(base.settings, { text: { revealMode: "instant" } }) };
+    const store: WorldPlayerSaveStoreV3 = { version: "3.0.0", backend: "memory-test", async list() { return []; }, async read() { return null; }, async readPreview() { return null; }, async write() {} };
+    const view = render(<PlayerShell project={project} saveStore={store} />);
+    try {
+      fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+      await waitFor(() => expect(screen.getByRole("button", { name: "继续下一句" })).toHaveAttribute("data-text-ready", "true"));
+      pad.frame();
+      for (const panel of ["打开剧情历史", "存读档"]) {
+        fireEvent.click(screen.getByRole("button", { name: panel }));
+        expect(pad.pending()).toBe(0);
+        pad.press(0);
+        if (panel === "存读档") fireEvent.click(screen.getByRole("button", { name: panel }));
+        else fireEvent.keyDown(window, { key: "Escape" });
+        pad.frame(); pad.frame();
+        expect(screen.getByRole("button", { name: "继续下一句" })).toHaveTextContent("A");
+        pad.press(); pad.frame();
+      }
+      view.rerender(<PlayerShell project={project} saveStore={store} hostActivity="suspended" />);
+      expect(pad.pending()).toBe(0);
+      pad.press(0);
+      view.rerender(<PlayerShell project={project} saveStore={store} hostActivity="active" />);
+      pad.frame(); pad.frame();
+      pad.connect(false); pad.frame(); pad.connect(true); pad.frame(); pad.frame();
+      pad.connect(true, "replacement-pad"); pad.frame(); pad.frame();
+      expect(screen.getByRole("button", { name: "继续下一句" })).toHaveTextContent("A");
+      pad.press(); pad.frame(); pad.press(0); pad.frame();
+      await waitFor(() => expect(screen.getByRole("button", { name: "继续下一句" })).toHaveTextContent("B"));
+    } finally { view.unmount(); expect(pad.pending()).toBe(0); pad.restore(); }
+  });
+
+  it("releases dialogue animations at a story boundary without cancelling live text on panel changes", async () => {
+    const project=branching();
+    render(<PlayerShell project={{...project,settings:withProjectSettings(project.settings,{text:{revealMode:"instant"}})}} />);
+    fireEvent.click(screen.getByRole("button",{name:/开始故事/u}));
+    fireEvent.click(screen.getByRole("button",{name:/Left/u}));
+    const dialogue=screen.getByRole("button",{name:"继续下一句"});
+    const cancel=vi.fn(()=>expect(dialogue.isConnected).toBe(false));
+    Object.defineProperty(dialogue,"getAnimations",{value:()=>[{cancel}]});
+    fireEvent.click(screen.getByRole("button",{name:"打开剧情历史"}));
+    fireEvent.keyDown(window,{key:"Escape"});
+    expect(cancel).not.toHaveBeenCalled();
+    fireEvent.click(dialogue);
+    if(screen.queryByRole("button",{name:"继续下一句"}))fireEvent.click(dialogue);
+    expect(screen.getByRole("status")).toHaveTextContent("Left");
+    await Promise.resolve();
+    expect(cancel).toHaveBeenCalledOnce();
+  });
   it("exposes formal identities and supports pointer input from title through choice", () => {
     const { container } = render(<PlayerShell project={branching()} />);
     const shell = container.querySelector("main");
@@ -191,6 +291,116 @@ describe("N50-E1 shared Player Shell", () => {
     expect(audio).toHaveAttribute("data-applied-volume", "0.48");
     expect(audio?.volume).toBe(0.48);
     expect(container.querySelector("main")).toHaveAttribute("data-effect-operation", "execute");
+  });
+
+  it("stops automatic playback when deferred picture integrity fails", async () => {
+    const demo=createPlayerMediaDemoV1();let fail!:(error:Error)=>void;
+    const atlas={group:{},assetId:"media_sunset",acquireFallback:()=>new Promise((_resolve,reject)=>{fail=reject;})} as unknown as NativeAtlasSource;
+    const media=demo.mediaAssets.map(asset=>asset.assetId==="media_sunset"?{...asset,atlas}:asset);
+    render(<PlayerShell project={demo.project} mediaAssets={media} />);
+    fireEvent.click(screen.getByRole("button",{name:/开始故事/u}));
+    fireEvent.animationEnd(screen.getByTestId("player-effect-progress"));
+    const auto=screen.getByRole("button",{name:"自动播放"});fireEvent.click(auto);
+    expect(auto).toHaveAttribute("aria-pressed","true");
+    fail(Error("source mismatch"));
+    await waitFor(()=>expect(auto).toHaveAttribute("aria-pressed","false"));
+    fireEvent.click(screen.getByRole("button", { name: "查看媒体问题" }));
+    expect(screen.getByRole("button",{name:"重试画面资源"})).toBeInTheDocument();
+  });
+
+  it.each(["自动播放","快进全部"])("%s waits for the current picture and resumes only after actual rendering",async control=>{
+    const demo=createPlayerMediaDemoV1();let finish!:(lease:{url:string;release:()=>void})=>void;
+    const atlas={group:{},assetId:"media_sunset",acquireFallback:()=>new Promise(resolve=>{finish=resolve;})} as unknown as NativeAtlasSource;
+    vi.spyOn(nativeAtlas,"acquireNativeAtlasImage").mockImplementation(async(_source,canvas)=>({source:canvas!,width:8,height:8,release:vi.fn()}));
+    const project={...demo.project,settings:withProjectSettings(demo.project.settings,{text:{revealMode:"instant"}})};
+    const {container}=render(<PlayerShell project={project} mediaAssets={demo.mediaAssets.map(asset=>asset.assetId==="media_sunset"?{...asset,atlas}:asset)} playbackPolicy={playbackPolicy(10)} />);
+    fireEvent.click(screen.getByRole("button",{name:/开始故事/u}));fireEvent.animationEnd(screen.getByTestId("player-effect-progress"));
+    fireEvent.click(screen.getByRole("button",{name:control}));
+    await act(async()=>new Promise(resolve=>setTimeout(resolve,80)));
+    expect(container.querySelector("main")).toHaveAttribute("data-stage-images-pending","true");
+    expect(screen.getByText("Every cue must remain ordered.")).toBeInTheDocument();
+    await act(async()=>finish({url:"blob:ready",release:vi.fn()}));
+    await waitFor(()=>expect(container.querySelector("main")).toHaveAttribute("data-stage-images-pending","false"));
+    await waitFor(()=>expect(screen.queryByText("Every cue must remain ordered.")).not.toBeInTheDocument());
+  });
+
+  it.each(["自动播放", "快进全部"])("%s stops on timeout across host suspension and retry requires explicit playback", async control => {
+    vi.useFakeTimers(); const demo = createPlayerMediaDemoV1();
+    const acquireFallback = vi.fn().mockImplementationOnce(() => new Promise(() => {})).mockResolvedValue({ url: "blob:retry", release: vi.fn() });
+    const atlas = { group: {}, assetId: "media_sunset", acquireFallback } as unknown as NativeAtlasSource;
+    vi.spyOn(nativeAtlas, "acquireNativeAtlasImage").mockImplementation(async (_source, canvas) => ({ source: canvas!, width: 8, height: 8, release: vi.fn() }));
+    const project = { ...demo.project, settings: withProjectSettings(demo.project.settings, { text: { revealMode: "instant" } }) };
+    const mediaAssets = demo.mediaAssets.map(asset => asset.assetId === "media_sunset" ? { ...asset, atlas } : asset);
+    const props = { project, mediaAssets, playbackPolicy: playbackPolicy(10) };
+    const view = render(<PlayerShell {...props} />);
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u })); fireEvent.animationEnd(screen.getByTestId("player-effect-progress"));
+    fireEvent.click(screen.getByRole("button", { name: control }));
+    for (let i = 0; i < 20; i++) {
+      view.rerender(<PlayerShell {...props} hostActivity="suspended" />);
+      await act(async () => { await vi.advanceTimersByTimeAsync(100); });
+      view.rerender(<PlayerShell {...props} hostActivity="active" />);
+      expect(screen.getByText("Every cue must remain ordered.")).toBeInTheDocument();
+    }
+    await act(async () => { await vi.advanceTimersByTimeAsync(IMAGE_LOAD_TIMEOUT_MS); });
+    fireEvent.click(screen.getByRole("button", { name: "查看媒体问题" }));
+    expect(screen.getByRole("alert")).toHaveTextContent("加载超时");
+    expect(view.container.querySelector("main")).toHaveAttribute("data-skip-active", "false");
+    expect(screen.getByRole("button", { name: "自动播放" })).toHaveAttribute("aria-pressed", "false");
+    expect(acquireFallback.mock.calls[0]![0].aborted).toBe(true);
+    await act(async () => { fireEvent.click(screen.getByRole("button", { name: "重试画面资源" })); });
+    await act(async () => { await vi.advanceTimersByTimeAsync(1000); });
+    expect(view.container.querySelector("main")).toHaveAttribute("data-stage-images-pending", "false");
+    expect(screen.getByText("Every cue must remain ordered.")).toBeInTheDocument(); view.unmount();
+  });
+
+  it("retries all failed stage pictures from one prompt without restarting audio or changing the story", async () => {
+    const demo = createPlayerMediaDemoV1();
+    const mediaAssets = demo.mediaAssets.map(asset => asset.mimeType.startsWith("image/") ? { ...asset, atlas: {
+      group: {}, assetId: asset.assetId,
+      acquireFallback: vi.fn().mockRejectedValueOnce(Error("shared failure")).mockResolvedValue({ url: "blob:retry", release: vi.fn() })
+    } as unknown as NativeAtlasSource } : asset);
+    vi.spyOn(nativeAtlas, "acquireNativeAtlasImage").mockImplementation(async (_source, canvas) => ({ source: canvas!, width: 8, height: 8, release: vi.fn() }));
+    const view = render(<PlayerShell project={demo.project} mediaAssets={mediaAssets} />);
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    await screen.findByRole("alert");
+    const hash = view.container.querySelector("main")!.getAttribute("data-runtime-state-hash"), audio = view.container.querySelector("audio");
+    expect(screen.getAllByRole("button", { name: "重试画面资源" })).toHaveLength(1);
+    fireEvent.click(screen.getByRole("button", { name: "重试画面资源" }));
+    await waitFor(() => expect(view.container.querySelector("main")).toHaveAttribute("data-stage-images-pending", "false"));
+    expect(view.container.querySelectorAll('canvas[data-canvas-sampling="ready"]')).toHaveLength(2);
+    expect(view.container.querySelector("main")).toHaveAttribute("data-runtime-state-hash", hash);
+    expect(view.container.querySelector("audio")).toBe(audio); expect(screen.queryByRole("alert")).toBeNull();
+  });
+
+  it("shows budget guidance in the real stage and retries without changing progress or audio",async()=>{
+    const demo=createPlayerMediaDemoV1();
+    vi.spyOn(nativeAtlas,"acquireOrdinaryCanvasImage").mockRejectedValue(new ImageResourceBudgetError("budget"));
+    const view=render(<PlayerShell project={demo.project} mediaAssets={demo.mediaAssets.map(asset=>({...asset,canvasSampling:asset.mimeType.startsWith("image/")}))} />);
+    fireEvent.click(screen.getByRole("button",{name:/开始故事/u}));
+    await screen.findByRole("alert");
+    expect(screen.getAllByRole("alert")).toHaveLength(1);expect(screen.getByRole("alert")).toHaveTextContent("安全预算");
+    expect(screen.getByRole("alert")).not.toHaveTextContent("重新下载");expect(view.container.querySelector('img[data-canvas-sampling="emergency-img"]')).toBeNull();
+    expect(screen.getByRole("button",{name:"自动播放"})).toHaveAttribute("aria-pressed","false");
+    const hash=view.container.querySelector("main")!.getAttribute("data-runtime-state-hash"),audio=view.container.querySelector("audio");
+    vi.mocked(nativeAtlas.acquireOrdinaryCanvasImage).mockImplementation(async(_url,canvas)=>({source:canvas,width:8,height:8,release:vi.fn()}));
+    fireEvent.click(screen.getByRole("button",{name:"重试画面资源"}));
+    await waitFor(()=>expect(view.container.querySelector("main")).toHaveAttribute("data-stage-images-pending","false"));
+    expect(screen.queryByRole("alert")).toBeNull();expect(view.container.querySelector("main")).toHaveAttribute("data-runtime-state-hash",hash);
+    expect(view.container.querySelector("audio")).toBe(audio);expect(screen.getByRole("button",{name:"自动播放"})).toHaveAttribute("aria-pressed","false");
+  });
+
+  it("does not leave a second media error blocking effects after emergency IMG retry", async () => {
+    const demo = createPlayerMediaDemoV1();
+    vi.spyOn(nativeAtlas, "acquireOrdinaryCanvasImage").mockRejectedValue(Error("no Canvas"));
+    const view = render(<PlayerShell project={demo.project} mediaAssets={demo.mediaAssets.map(asset => ({ ...asset, canvasSampling: asset.mimeType.startsWith("image/") }))} />);
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    await waitFor(() => expect(view.container.querySelectorAll('img[data-canvas-sampling="emergency-img"]')).toHaveLength(2));
+    fireEvent.error(view.container.querySelector('img[data-canvas-sampling="emergency-img"]')!);
+    expect(screen.getAllByRole("alert")).toHaveLength(1);
+    vi.mocked(nativeAtlas.acquireOrdinaryCanvasImage).mockImplementation(async (_url, canvas) => ({ source: canvas, width: 8, height: 8, release: vi.fn() }));
+    fireEvent.click(screen.getByRole("button", { name: "重试画面资源" }));
+    await waitFor(() => expect(view.container.querySelector("main")).toHaveAttribute("data-stage-images-pending", "false"));
+    expect(screen.queryByRole("alert")).toBeNull(); expect(screen.getByRole("button", { name: "完成动效" })).toBeEnabled();
   });
 
   it("fails visibly when a required media asset is unavailable instead of auto-completing the Effect", () => {
@@ -348,12 +558,12 @@ describe("N50-E1 shared Player Shell", () => {
 describe("N52-E1 Player History controls", () => {
   it("exposes accessible Back and Forward controls with truthful disabled state", () => {
     const { container } = render(<PlayerShell project={branching()} />);
+    expect(screen.queryByRole("button", { name: "后退一步" })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
     const back = screen.getByRole("button", { name: "后退一步" });
     const forward = screen.getByRole("button", { name: "前进一步" });
-    expect(back).toBeDisabled();
     expect(forward).toBeDisabled();
 
-    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
     expect(back).toBeEnabled();
     fireEvent.click(screen.getByRole("button", { name: /Right/u }));
     expect(screen.getByText("The bright route.")).toBeInTheDocument();
@@ -396,7 +606,7 @@ describe("N52-E5d Shell History user journey", () => {
     fireEvent.click(screen.getByRole("button", { name: /Right/u }));
 
     fireEvent.click(screen.getByRole("button", { name: "打开剧情历史" }));
-    expect(screen.getByRole("heading", { name: "旧分支 1" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "归档记录 1" })).toBeInTheDocument();
     expect(screen.getByText("The quiet route.")).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "回退到：The quiet route." })).not.toBeInTheDocument();
   });
@@ -445,6 +655,7 @@ describe("N52-E5d Shell History user journey", () => {
     const store: WorldPlayerSaveStoreV3 = {
       version: "3.0.0",
       backend: "memory-test",
+      writeIfUnchanged: testSaveComparison(() => store),
       async list(projectId) { return [...records.values()].filter((slot) => slot.projectId === projectId); },
       async read(projectId, slotId) { return records.get(`${projectId}\0${slotId}`) ?? null; },
       async readPreview() { return null; },
@@ -459,22 +670,53 @@ describe("N52-E5d Shell History user journey", () => {
     fireEvent.click(screen.getByRole("button", { name: "后退一步" }));
     fireEvent.click(screen.getByRole("button", { name: /Right/u }));
     fireEvent.click(screen.getByRole("button", { name: "存读档" }));
+    await waitFor(() => expect(screen.getAllByRole("button", { name: "保存" })[0]).toBeEnabled());
     fireEvent.click(screen.getAllByRole("button", { name: "保存" })[0]!);
     await waitFor(() => expect(records.has("golden_branching\0manual-1")).toBe(true));
     first.unmount();
 
     render(<PlayerShell project={branching()} saveStore={store} />);
-    fireEvent.click(screen.getByRole("button", { name: "存读档" }));
+    fireEvent.click(screen.getByRole("button", { name: "读取存档" }));
     await waitFor(() => expect(screen.getAllByRole("button", { name: "读取" })[0]).toBeEnabled());
     fireEvent.click(screen.getAllByRole("button", { name: "读取" })[0]!);
     await waitFor(() => expect(screen.getByText("The bright route.")).toBeInTheDocument());
     fireEvent.click(screen.getByRole("button", { name: "打开剧情历史" }));
-    expect(screen.getByRole("heading", { name: "旧分支 1" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "归档记录 1" })).toBeInTheDocument();
     expect(screen.getByText("The quiet route.")).toBeInTheDocument();
   });
 });
 
 describe("N52-E4b Shell Auto real clock", () => {
+  it.each(["打开剧情历史","存读档"])("holds Auto while reading %s and restarts a full delay on close", async label => {
+    vi.useFakeTimers();
+    const source=autoStory(),project={...source,settings:withProjectSettings(source.settings,{text:{revealMode:"instant"}})};
+    const store: WorldPlayerSaveStoreV3={version:"3.0.0",backend:"memory-test",async list(){return [];},async read(){return null;},async readPreview(){return null;},async write(){}};
+    const view=render(<PlayerShell project={project} saveStore={store} playbackPolicy={playbackPolicy(100)} />);
+    fireEvent.click(screen.getByRole("button",{name:/开始故事/u}));fireEvent.click(screen.getByRole("button",{name:"自动播放"}));
+    await act(async()=>{await vi.advanceTimersByTimeAsync(25);});
+    fireEvent.click(screen.getByRole("button",{name:label}));
+    const hash=view.container.querySelector("main")!.dataset.runtimeStateHash;
+    fireEvent.keyDown(window,{key:" "});fireEvent.keyDown(window,{key:"Enter"});
+    await act(async()=>{await vi.advanceTimersByTimeAsync(5000);});
+    expect(view.container.querySelector("main")).toHaveAttribute("data-auto-playback","suspended");
+    expect(view.container.querySelector("main")!.dataset.runtimeStateHash).toBe(hash);
+    if(label==="打开剧情历史")fireEvent.click(screen.getAllByRole("button",{name:"关闭剧情历史"})[0]!);
+    else fireEvent.click(screen.getByRole("button",{name:label}));
+    await act(async()=>{await vi.advanceTimersByTimeAsync(99);});expect(screen.getByText("A")).toBeInTheDocument();
+    await act(async()=>{await vi.advanceTimersByTimeAsync(1);});expect(screen.getByText("B")).toBeInTheDocument();
+  });
+  it("does not cancel an awaited video when Skip is requested in the background", () => {
+    const demo=videoStory();
+    const view=render(<PlayerShell project={demo.project} mediaAssets={demo.mediaAssets} hostActivity="suspended" />);
+    // Start while active, then suspend at the awaited video boundary.
+    view.rerender(<PlayerShell project={demo.project} mediaAssets={demo.mediaAssets} hostActivity="active" />);
+    fireEvent.click(screen.getByRole("button",{name:/开始故事/u}));
+    view.rerender(<PlayerShell project={demo.project} mediaAssets={demo.mediaAssets} hostActivity="suspended" />);
+    const hash=view.container.querySelector("main")!.dataset.runtimeStateHash;
+    fireEvent.click(screen.getByRole("button",{name:"快进全部"}));
+    expect(view.container.querySelector("main")!.dataset.runtimeStateHash).toBe(hash);
+    expect(view.container.querySelector("main")).toHaveAttribute("data-skip-active","false");
+  });
   it("stops Auto on the build-authored Player Stop Point", async () => {
     const source = stopPointStory();
     const project = { ...source, settings: withProjectSettings(source.settings, { text: { revealMode: "instant" } }) };
@@ -515,7 +757,7 @@ describe("N52-E4b Shell Auto real clock", () => {
     await screen.findByText("B", {}, { timeout: 350 });
   });
 
-  it("uses the real voice element duration plus tail and stops Auto at the terminal boundary", async () => {
+  it("waits for actual voice completion plus tail, not estimated duration, and stops at the terminal boundary", async () => {
     const demo = createPlayerMediaMultichannelDemoV1();
     const project = { ...demo.project, settings: withProjectSettings(demo.project.settings, { text: { revealMode: "instant" } }) };
     const { container } = render(<PlayerShell project={project} mediaAssets={demo.mediaAssets} playbackPolicy={playbackPolicy(10, 40)} />);
@@ -527,11 +769,35 @@ describe("N52-E4b Shell Auto real clock", () => {
     fireEvent.play(voice);
     fireEvent.click(screen.getByRole("button", { name: "自动播放" }));
 
-    await realDelay(80);
+    await realDelay(200);
+    expect(screen.getByText("Every cue must remain ordered.")).toBeInTheDocument();
+    fireEvent.ended(voice);
+    await realDelay(20);
     expect(screen.getByText("Every cue must remain ordered.")).toBeInTheDocument();
     await screen.findByText("Curtain", {}, { timeout: 350 });
     expect(container.querySelector("main")).toHaveAttribute("data-playback-stop-reason", "terminal");
     await waitFor(() => expect(container.querySelector("main")).toHaveAttribute("data-auto-playback", "stopped"));
+  });
+
+  it("recovers Auto from a failed voice and never replays completed voice on host resume", async () => {
+    vi.spyOn(HTMLMediaElement.prototype, "pause").mockImplementation(() => undefined);
+    const play = vi.spyOn(HTMLMediaElement.prototype, "play").mockImplementation(() => Promise.resolve());
+    const demo = createPlayerMediaMultichannelDemoV1();
+    const project = { ...demo.project, settings: withProjectSettings(demo.project.settings, { text: { revealMode: "instant" } }) };
+    const props = { project, mediaAssets: demo.mediaAssets, playbackPolicy: playbackPolicy(20, 40) };
+    const view = render(<PlayerShell {...props} />);
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    const voice = view.container.querySelector<HTMLAudioElement>('audio[data-audio-bus="voice"]')!;
+    fireEvent.play(voice); fireEvent.ended(voice);
+    view.rerender(<PlayerShell {...props} hostActivity="suspended" />);
+    view.rerender(<PlayerShell {...props} hostActivity="active" />);
+    expect(play.mock.contexts).not.toContain(voice);
+    fireEvent.play(voice);
+    fireEvent.click(screen.getByRole("button", { name: "自动播放" }));
+    await realDelay(60);
+    expect(screen.getByText("Every cue must remain ordered.")).toBeInTheDocument();
+    fireEvent.error(voice);
+    await screen.findByText("Curtain", {}, { timeout: 350 });
   });
 
   it("clears its owned timer during Host suspend and only starts a fresh delay after resume", async () => {
@@ -552,6 +818,22 @@ describe("N52-E4b Shell Auto real clock", () => {
 });
 
 describe("N52-E4c Shell Skip controls and cleanup", () => {
+  it.each(["打开剧情历史","存读档"])("stops queued Skip behind %s without resuming it on close", async label=>{
+    vi.useFakeTimers();
+    const source=longSkipStory(),project={...source,settings:withProjectSettings(source.settings,{text:{revealMode:"instant"}})};
+    const store: WorldPlayerSaveStoreV3={version:"3.0.0",backend:"memory-test",async list(){return [];},async read(){return null;},async readPreview(){return null;},async write(){}};
+    const view=render(<PlayerShell project={project} saveStore={store} />);
+    fireEvent.click(screen.getByRole("button",{name:/开始故事/u}));
+    const hash=view.container.querySelector("main")!.dataset.runtimeStateHash;
+    fireEvent.click(screen.getByRole("button",{name:"快进全部"}));
+    fireEvent.click(screen.getByRole("button",{name:label}));
+    await act(async()=>{await vi.advanceTimersByTimeAsync(1000);});
+    expect(view.container.querySelector("main")).toHaveAttribute("data-skip-active","false");
+    expect(view.container.querySelector("main")!.dataset.runtimeStateHash).toBe(hash);
+    fireEvent.keyDown(window,{key:"Escape"});
+    await act(async()=>{await vi.advanceTimersByTimeAsync(1000);});
+    expect(view.container.querySelector("main")!.dataset.runtimeStateHash).toBe(hash);
+  });
   it.each([
     ["skipRead", "toggle"],
     ["skipAll", "toggle"],
@@ -652,6 +934,91 @@ describe("N52-E4c Shell Skip controls and cleanup", () => {
 });
 
 describe("N52-E4e formal Player video policy", () => {
+  it("allows manual video resume when automatic interruption recovery is disabled", async () => {
+    const play = vi.spyOn(HTMLMediaElement.prototype, "play").mockResolvedValue(undefined);
+    vi.spyOn(HTMLMediaElement.prototype, "pause").mockImplementation(() => undefined);
+    const demo = videoStory();
+    const project = { ...demo.project, settings: withProjectSettings(demo.project.settings, { audio: { resumeAfterInterruption: false } }) };
+    const view = render(<PlayerShell project={project} mediaAssets={demo.mediaAssets} />);
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    await waitFor(() => expect(screen.getByRole("button", { name: "继续下一句" })).toHaveAttribute("data-text-ready", "true"));
+    fireEvent.click(screen.getByRole("button", { name: "继续下一句" }));
+    const video = view.container.querySelector("video")!;
+    const before = view.container.querySelector("main")!.dataset.runtimeStateHash;
+    view.rerender(<PlayerShell project={project} mediaAssets={demo.mediaAssets} hostActivity="suspended" />);
+    view.rerender(<PlayerShell project={project} mediaAssets={demo.mediaAssets} hostActivity="active" />);
+    expect(video.dataset.playerPlayback).toBe("paused-by-policy");
+    expect(play).not.toHaveBeenCalled();
+    fireEvent.canPlay(video);
+    expect(play).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button", { name: "恢复视频" }));
+    await waitFor(() => expect(video.dataset.playerPlayback).toBe("playing"));
+    expect(play).toHaveBeenCalledTimes(1);
+    expect(view.container.querySelector("main")).toHaveAttribute("data-runtime-state-hash", before);
+  });
+
+  it("offers a gesture retry for blocked video without advancing its awaited boundary", async () => {
+    const play = vi.spyOn(HTMLMediaElement.prototype, "play").mockRejectedValueOnce(new DOMException("denied", "NotAllowedError")).mockResolvedValue(undefined);
+    vi.spyOn(HTMLMediaElement.prototype, "pause").mockImplementation(() => undefined);
+    const demo = videoStory();
+    const view = render(<PlayerShell project={demo.project} mediaAssets={demo.mediaAssets} />);
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    await waitFor(() => expect(screen.getByRole("button", { name: "继续下一句" })).toHaveAttribute("data-text-ready", "true"));
+    fireEvent.click(screen.getByRole("button", { name: "继续下一句" }));
+    const video = view.container.querySelector("video")!;
+    const before = view.container.querySelector("main")!.dataset.runtimeStateHash;
+    fireEvent.canPlay(video);
+    fireEvent.click(await screen.findByRole("button", { name: "恢复视频" }));
+    await waitFor(() => expect(video.dataset.playerPlayback).toBe("playing"));
+    expect(play).toHaveBeenCalledTimes(2);
+    expect(view.container.querySelector("main")).toHaveAttribute("data-runtime-state-hash", before);
+    expect(screen.queryByRole("button", { name: "恢复视频" })).not.toBeInTheDocument();
+    fireEvent.ended(video);
+    expect(await screen.findByText("After video")).toBeInTheDocument();
+  });
+
+  it("ignores late video permission rejection and playing events after suspension", async () => {
+    let reject!: (error: unknown) => void;
+    vi.spyOn(HTMLMediaElement.prototype, "play").mockImplementation(() => new Promise<void>((_, fail) => { reject = fail; }));
+    vi.spyOn(HTMLMediaElement.prototype, "pause").mockImplementation(() => undefined);
+    const demo = videoStory();
+    const view = render(<PlayerShell project={demo.project} mediaAssets={demo.mediaAssets} />);
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    await waitFor(() => expect(screen.getByRole("button", { name: "继续下一句" })).toHaveAttribute("data-text-ready", "true"));
+    fireEvent.click(screen.getByRole("button", { name: "继续下一句" }));
+    const video = view.container.querySelector("video")!;
+    fireEvent.canPlay(video);
+    view.rerender(<PlayerShell project={demo.project} mediaAssets={demo.mediaAssets} hostActivity="suspended" />);
+    await act(async () => { reject(new DOMException("late", "NotAllowedError")); await Promise.resolve(); });
+    expect(video.dataset.playerPlayback).toBe("suspended");
+    fireEvent.playing(video);
+    expect(video.dataset.playerPlayback).toBe("suspended");
+    expect(screen.queryByRole("button", { name: "恢复视频" })).not.toBeInTheDocument();
+  });
+
+  it("does not pause an attached video on UI ref replay, but releases the detached video", async () => {
+    const demo = videoStory();
+    const view = render(<PlayerShell project={demo.project} mediaAssets={demo.mediaAssets} />);
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    await waitFor(() => expect(screen.getByRole("button", { name: "继续下一句" })).toHaveAttribute("data-text-ready", "true"));
+    fireEvent.click(screen.getByRole("button", { name: "继续下一句" }));
+    const video = view.container.querySelector<HTMLVideoElement>("video")!;
+    Object.defineProperty(video, "paused", { configurable: true, value: false });
+    const pause = vi.spyOn(video, "pause").mockImplementation(() => undefined);
+    video.dataset.playerPlayback = "playing";
+    view.rerender(<PlayerShell project={demo.project} mediaAssets={demo.mediaAssets} />);
+    await act(async () => { await Promise.resolve(); });
+    expect(view.container.querySelector("video")).toBe(video);
+    expect(pause).not.toHaveBeenCalled();
+    // React rendering is not permission to overwrite an observed transport state.
+    video.dataset.playerPlayback = "blocked";
+    view.rerender(<PlayerShell project={demo.project} mediaAssets={demo.mediaAssets} />);
+    expect(video.dataset.playerPlayback).toBe("blocked");
+    view.unmount();
+    await act(async () => { await Promise.resolve(); });
+    expect(pause).toHaveBeenCalled();
+  });
+
   it("renders an authored video asset at the existing awaited Effect boundary", async () => {
     const demo = videoStory();
     const { container } = render(<PlayerShell project={demo.project} mediaAssets={demo.mediaAssets} />);
@@ -868,12 +1235,13 @@ describe("N51-E5 Player settings application", () => {
     expect(container.querySelector("main")).toHaveStyle({ "--gal-stage-aspect": "1080 / 1920" });
   });
 
-  it("saves and loads a manual Host slot through the formal Session Save bridge", async () => {
+  it.each([false, true])("saves and loads a manual Host slot through the formal bridge (summary API: %s)", async summaries => {
     const records = new Map<string, WorldPlayerSaveSlotV3>();
     const previews = new Map<string, Blob>();
     const store: WorldPlayerSaveStoreV3 = {
       version: "3.0.0",
       backend: "memory-test",
+      writeIfUnchanged: testSaveComparison(() => store),
       async list(projectId) { return [...records.values()].filter((slot) => slot.projectId === projectId); },
       async read(projectId, slotId) { return records.get(`${projectId}\0${slotId}`) ?? null; },
       async readPreview(projectId, slotId) { return previews.get(`${projectId}\0${slotId}`) ?? null; },
@@ -884,17 +1252,27 @@ describe("N51-E5 Player settings application", () => {
         else previews.set(`${slot.projectId}\0${slot.slotId}`, preview);
       }
     };
+    if (summaries) store.listSummaries = async projectId => [...records.values()].filter(slot => slot.projectId === projectId).map(worldPlayerSaveSummaryV3);
+    const list = vi.spyOn(store, "list");
     const { container } = render(<PlayerShell project={branching()} saveStore={store} now={() => 1_788_000_000_000} />);
     fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
     expect(container.querySelector("main")).toHaveAttribute("data-player-status", "waiting-choice");
     fireEvent.click(screen.getByRole("button", { name: "存读档" }));
+    await waitFor(() => expect(screen.getAllByRole("button", { name: "保存" })[0]).toBeEnabled());
     fireEvent.click(screen.getAllByRole("button", { name: "保存" })[0]!);
     await waitFor(() => expect(container.querySelector("main")).toHaveAttribute("data-save-operation", "saved"));
-    expect(screen.getByText(/Main \/ Fork/u)).toBeInTheDocument();
+    expect(screen.getByText("Fork")).toBeInTheDocument(); expect(screen.getByText("Main")).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /Left/u }));
+    expect(container.querySelector("main")).toHaveAttribute("data-player-status", "waiting-choice");
+    fireEvent.click(screen.getByRole("button", { name: "关闭存读档" }));
+    fireEvent.click(screen.getByRole("button", { name: /Left/u }));
     expect(container.querySelector("main")).toHaveAttribute("data-player-status", "presenting");
+    fireEvent.click(screen.getByRole("button", { name: "存读档" }));
+    fireEvent.click(screen.getByRole("button", { name: "读取进度" }));
+    await waitFor(() => expect(screen.getAllByRole("button", { name: "读取" })[0]).toBeEnabled());
     fireEvent.click(screen.getAllByRole("button", { name: "读取" })[0]!);
+    fireEvent.click(screen.getByRole("button", { name: "确认读取" }));
     await waitFor(() => expect(container.querySelector("main")).toHaveAttribute("data-player-status", "waiting-choice"));
     expect(container.querySelector("main")).toHaveAttribute("data-save-operation", "loaded");
 
@@ -902,10 +1280,14 @@ describe("N51-E5 Player settings application", () => {
     records.set("golden_branching\0manual-1", { ...stored, sceneId: "tampered-scene" });
     fireEvent.click(screen.getByRole("button", { name: /Left/u }));
     fireEvent.click(screen.getByRole("button", { name: "存读档" }));
+    fireEvent.click(screen.getByRole("button", { name: "读取进度" }));
+    await waitFor(() => expect(screen.getAllByRole("button", { name: "读取" })[0]).toBeEnabled());
     fireEvent.click(screen.getAllByRole("button", { name: "读取" })[0]!);
+    fireEvent.click(screen.getByRole("button", { name: "确认读取" }));
     await waitFor(() => expect(container.querySelector("main")).toHaveAttribute("data-save-operation", "error"));
     expect(container.querySelector("main")).toHaveAttribute("data-player-status", "presenting");
     expect(screen.getByText("存档损坏或与当前构建不兼容")).toBeInTheDocument();
+    if (summaries) expect(list).not.toHaveBeenCalled();
   });
 
   it("paginates twelve manual slots six at a time", () => {
@@ -918,15 +1300,15 @@ describe("N51-E5 Player settings application", () => {
       async write() {}
     };
     render(<PlayerShell project={branching()} saveStore={store} />);
-    fireEvent.click(screen.getByRole("button", { name: "存读档" }));
-    expect(screen.getByText("槽位 1")).toBeInTheDocument();
-    expect(screen.getByText("槽位 6")).toBeInTheDocument();
-    expect(screen.queryByText("槽位 7")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "读取存档" }));
+    expect(screen.getByText("手动存档 1")).toBeInTheDocument();
+    expect(screen.getByText("手动存档 6")).toBeInTheDocument();
+    expect(screen.queryByText("手动存档 7")).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "下一页" }));
     expect(screen.getByText("第 2 / 2 页")).toBeInTheDocument();
-    expect(screen.getByText("槽位 7")).toBeInTheDocument();
-    expect(screen.getByText("槽位 12")).toBeInTheDocument();
-    expect(screen.queryByText("槽位 6")).not.toBeInTheDocument();
+    expect(screen.getByText("手动存档 7")).toBeInTheDocument();
+    expect(screen.getByText("手动存档 12")).toBeInTheDocument();
+    expect(screen.queryByText("手动存档 6")).not.toBeInTheDocument();
   });
 
   it("requires explicit overwrite confirmation and commits Host-composited preview metadata", async () => {
@@ -935,6 +1317,7 @@ describe("N51-E5 Player settings application", () => {
     const store: WorldPlayerSaveStoreV3 = {
       version: "3.0.0",
       backend: "memory-test",
+      writeIfUnchanged: testSaveComparison(() => store),
       async list(projectId) { return [...records.values()].filter((slot) => slot.projectId === projectId); },
       async read(projectId, slotId) { return records.get(`${projectId}\0${slotId}`) ?? null; },
       async readPreview() { return null; },
@@ -949,6 +1332,7 @@ describe("N51-E5 Player settings application", () => {
     const { container } = render(<PlayerShell project={branching()} saveStore={store} previewCapture={previewCapture} now={() => 1_788_000_000_000} />);
     fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
     fireEvent.click(screen.getByRole("button", { name: "存读档" }));
+    await waitFor(() => expect(screen.getAllByRole("button", { name: "保存" })[0]).toBeEnabled());
     fireEvent.click(screen.getAllByRole("button", { name: "保存" })[0]!);
     await waitFor(() => expect(container.querySelector("main")).toHaveAttribute("data-save-operation", "saved"));
     expect(writes.filter((write) => write.slot.kind === "manual")).toHaveLength(1);
@@ -970,6 +1354,7 @@ describe("N51-E5 Player settings application", () => {
     const store: WorldPlayerSaveStoreV3 = {
       version: "3.0.0",
       backend: "memory-test",
+      writeIfUnchanged: testSaveComparison(() => store),
       async list() { return writes; },
       async read() { return null; },
       async readPreview() { return null; },
@@ -982,11 +1367,48 @@ describe("N51-E5 Player settings application", () => {
     const { container } = render(<PlayerShell project={branching()} saveStore={store} previewCapture={previewCapture} />);
     fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
     fireEvent.click(screen.getByRole("button", { name: "存读档" }));
+    await waitFor(() => expect(screen.getAllByRole("button", { name: "保存" })[0]).toBeEnabled());
     fireEvent.click(screen.getAllByRole("button", { name: "保存" })[0]!);
     await waitFor(() => expect(container.querySelector("main")).toHaveAttribute("data-save-operation", "saved"));
     expect(writes[0]?.preview).toEqual({ status: "unavailable", reason: "capture-failed" });
     expect(screen.getByText(/预览不可用/u)).toBeInTheDocument();
   });
+
+  it("freezes manual and auto previews before waiting in the save queue", async () => {
+    const writes: WorldPlayerSaveSlotV3[] = [], releases: Array<() => void> = [];
+    const store: WorldPlayerSaveStoreV3 = { version: "3.0.0", backend: "memory-test", writeIfUnchanged: testSaveComparison(() => store), async list() { return writes; }, async read() { return null; }, async readPreview() { return null; }, async write(slot) { if (slot.schemaVersion === 3) writes.push(slot); } };
+    const preview = new NodeBlob([new Uint8Array([1, 2, 3])], { type: "image/webp" }) as Blob;
+    const capture = vi.fn((_request: WorldPlayerPreviewCaptureRequestV1) => new Promise<{ blob: Blob; width: number; height: number }>(resolve => releases.push(() => resolve({ blob: preview, width: 32, height: 18 }))));
+    const { container } = render(<PlayerShell project={branching()} saveStore={store} previewCapture={{ version: "1.0.0", owner: "player-host-compositor", capture }} />);
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    const firstHash = container.querySelector("main")!.dataset.runtimeStateHash;
+    expect(capture).toHaveBeenCalledTimes(1);
+    fireEvent.click(screen.getByRole("button", { name: "存读档" }));
+    await waitFor(() => expect(screen.getAllByRole("button", { name: "保存" })[0]).toBeEnabled());
+    fireEvent.click(screen.getAllByRole("button", { name: "保存" })[0]!);
+    // The catalog is verified before a manual save is available. Neither save
+    // has completed, and both captures still own the same trigger-time frame.
+    expect(capture).toHaveBeenCalledTimes(2);
+    expect(writes).toHaveLength(0);
+    expect(capture.mock.calls.every(args => (args[0] as unknown as { runtimeStateHash: string })?.runtimeStateHash === firstHash)).toBe(true);
+    await act(async () => { releases.forEach(release => release()); });
+    await waitFor(() => expect(container.querySelector("main")).toHaveAttribute("data-save-operation", "saved"));
+    expect(writes.filter(slot => slot.kind === "manual")).toHaveLength(1);
+    expect(writes.every(slot => slot.runtimeStateHash === firstHash)).toBe(true);
+    expect(writes.find(slot => slot.kind === "manual")?.readingExcerpt).toBeTruthy();
+  });
+
+  it("does not let a host capture that never settles block a valid save", async () => {
+    const writes: WorldPlayerSaveSlotV3[] = [];
+    const store: WorldPlayerSaveStoreV3 = { version: "3.0.0", backend: "memory-test", writeIfUnchanged: testSaveComparison(() => store), async list() { return writes; }, async read() { return null; }, async readPreview() { return null; }, async write(slot) { if (slot.schemaVersion === 3) writes.push(slot); } };
+    const { container } = render(<PlayerShell project={branching()} saveStore={store} previewCapture={{ version: "1.0.0", owner: "player-host-compositor", capture: () => new Promise(() => {}) }} />);
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    fireEvent.click(screen.getByRole("button", { name: "存读档" }));
+    await waitFor(() => expect(screen.getAllByRole("button", { name: "保存" })[0]).toBeEnabled());
+    fireEvent.click(screen.getAllByRole("button", { name: "保存" })[0]!);
+    await waitFor(() => expect(container.querySelector("main")).toHaveAttribute("data-save-operation", "saved"), { timeout: 4500 });
+    expect(writes.find(slot => slot.kind === "manual")?.preview).toEqual({ status: "unavailable", reason: "capture-unavailable" });
+  }, 6000);
 
   it("writes one automatic save per scene identity and exposes the five-slot view", async () => {
     const records = new Map<string, WorldPlayerSaveSlotV3>();
@@ -999,7 +1421,7 @@ describe("N51-E5 Player settings application", () => {
       async write(value) { if (value.schemaVersion !== 3) throw new Error("legacy"); records.set(`${value.projectId}\0${value.slotId}`, value); }
     };
     render(<PlayerShell project={branching()} saveStore={store} now={() => clock++} />);
-    expect(screen.getByRole("button", { name: "快速保存" })).toBeDisabled();
+    expect(screen.queryByRole("button", { name: "快速保存" })).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
     await waitFor(() => expect(records.get("golden_branching\0auto-1")).toMatchObject({ kind: "auto", sceneId: "branch_start", presentationKind: "choice" }));
     fireEvent.click(screen.getByRole("button", { name: /Left/u }));
@@ -1010,8 +1432,8 @@ describe("N51-E5 Player settings application", () => {
     expect([...records.values()].filter((slot) => slot.kind === "auto")).toHaveLength(2);
     fireEvent.click(screen.getByRole("button", { name: "存读档" }));
     fireEvent.click(screen.getByRole("button", { name: "自动" }));
-    expect(screen.getByText("自动 1")).toBeInTheDocument();
-    expect(screen.getByText("自动 5")).toBeInTheDocument();
+    expect(screen.getByText("自动存档 1")).toBeInTheDocument();
+    expect(screen.getByText("自动存档 5")).toBeInTheDocument();
   });
 
   it("replaces and loads the fixed quick slot without overwrite confirmation", async () => {
@@ -1031,8 +1453,23 @@ describe("N51-E5 Player settings application", () => {
     fireEvent.click(screen.getByRole("button", { name: /Left/u }));
     expect(container.querySelector("main")).toHaveAttribute("data-player-status", "presenting");
     fireEvent.click(screen.getByRole("button", { name: "快速读取" }));
+    fireEvent.click(screen.getByRole("button", { name: "确认读取" }));
     await waitFor(() => expect(container.querySelector("main")).toHaveAttribute("data-player-status", "waiting-choice"));
     expect(container.querySelector("main")).toHaveAttribute("data-save-operation", "loaded");
+    const original = records.get("golden_branching\0quick-1")!;
+    const invalid = { ...original, sceneId: "removed-scene" };
+    records.set("golden_branching\0quick-1", invalid);
+    fireEvent.click(screen.getByRole("button", { name: /Left/u }));
+    const hash = container.querySelector("main")?.getAttribute("data-runtime-state-hash");
+    fireEvent.click(screen.getByRole("button", { name: "快速读取" }));
+    fireEvent.click(screen.getByRole("button", { name: "确认读取" }));
+    await waitFor(() => expect(screen.getByRole("alert")).toHaveTextContent("存档损坏或与当前构建不兼容"));
+    expect(container.querySelector(".player-save")).toHaveAttribute("data-open", "true");
+    expect(screen.getByRole("button", { name: "快速" })).toHaveAttribute("aria-pressed", "true");
+    expect(container.querySelector("main")).toHaveAttribute("data-runtime-state-hash", hash);
+    expect(records.get("golden_branching\0quick-1")).toEqual(invalid);
+    fireEvent.click(screen.getByRole("button", { name: "关闭存读档" }));
+    expect(container.querySelector(".player-save")).toHaveAttribute("data-open", "false");
   });
 
   it("persists, lists, and loads an exact build-authored checkpoint without stopping presentation", async () => {
@@ -1054,13 +1491,19 @@ describe("N51-E5 Player settings application", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "存读档" }));
     fireEvent.click(screen.getByRole("button", { name: "检查点" }));
-    expect(screen.getByText("检查点 1")).toBeInTheDocument();
-    expect(screen.getByText(/Fork · checkpoint_fork/u)).toBeInTheDocument();
-    expect(screen.getByText("检查点 3")).toBeInTheDocument();
+    expect(screen.getByText("剧情检查点 1")).toBeInTheDocument();
+    expect(screen.getByText("Fork")).toBeInTheDocument();
+    expect(screen.getByText("剧情检查点 3")).toBeInTheDocument();
 
+    fireEvent.click(screen.getByRole("button", { name: "关闭存读档" }));
     fireEvent.click(screen.getByRole("button", { name: /Left/u }));
     expect(container.querySelector("main")).toHaveAttribute("data-player-status", "presenting");
+    fireEvent.click(screen.getByRole("button", { name: "存读档" }));
+    fireEvent.click(screen.getByRole("button", { name: "读取进度" }));
+    fireEvent.click(screen.getByRole("button", { name: "检查点" }));
+    await waitFor(() => expect(screen.getAllByRole("button", { name: "读取" })[0]).toBeEnabled());
     fireEvent.click(screen.getAllByRole("button", { name: "读取" })[0]!);
+    fireEvent.click(screen.getByRole("button", { name: "确认读取" }));
     await waitFor(() => expect(container.querySelector("main")).toHaveAttribute("data-player-status", "waiting-choice"));
     expect(container.querySelector("main")).toHaveAttribute("data-save-operation", "loaded");
     expect([...records.values()].filter((slot) => slot.kind === "checkpoint")).toHaveLength(1);
@@ -1069,6 +1512,7 @@ describe("N51-E5 Player settings application", () => {
   it("writes isolated recovery boundaries and restores them only after an explicit player decision", async () => {
     const saves = new Map<string, WorldPlayerSaveSlotV3>();
     let recovery: WorldPlayerRecoveryRecordV1 | null = null;
+    let failClear = false;
     let clock = 1_788_000_000_000;
     const saveStore: WorldPlayerSaveStoreV3 = {
       version: "3.0.0", backend: "memory-save",
@@ -1081,13 +1525,16 @@ describe("N51-E5 Player settings application", () => {
       version: "1.0.0", backend: "memory-recovery",
       async read(projectId) { return recovery?.projectId === projectId ? recovery : null; },
       async write(value) { recovery = value; },
-      async clear() { recovery = null; }
+      async clear() { if (failClear) throw new Error("disk busy"); recovery = null; }
     };
     const first = render(<PlayerShell project={branching()} saveStore={saveStore} recoveryStore={recoveryStore} now={() => clock++} />);
+    await waitFor(() => expect(screen.getByRole("button", { name: /开始故事/u })).toBeEnabled());
     fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
     await waitFor(() => expect(recovery).toMatchObject({ format: "world.player-recovery", sceneId: "branch_start", presentationKind: "choice" }));
     fireEvent.click(screen.getByRole("button", { name: /Left/u }));
     await waitFor(() => expect(recovery).toMatchObject({ sceneId: "branch_left", presentationKind: "dialogue" }));
+    fireEvent.click(screen.getByRole("button", { name: "快速保存" }));
+    await waitFor(() => expect(first.container.querySelector("main")).toHaveAttribute("data-save-operation", "saved"));
     first.unmount();
 
     const second = render(<PlayerShell project={branching()} saveStore={saveStore} recoveryStore={recoveryStore} now={() => clock++} />);
@@ -1098,6 +1545,108 @@ describe("N51-E5 Player settings application", () => {
     await waitFor(() => expect(second.container.querySelector("main")).toHaveAttribute("data-player-status", "presenting"));
     expect(screen.getByText("The quiet route.")).toBeInTheDocument();
     expect(second.container.querySelector("main")).toHaveAttribute("data-recovery-operation", "loaded");
+    second.unmount();
+    const third = render(<PlayerShell project={branching()} saveStore={saveStore} recoveryStore={recoveryStore} now={() => clock++} />);
+    await screen.findByRole("button", { name: "恢复上次进度" });
+    const original = recovery;
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    expect(screen.getByText("确认开始新故事？")).toBeVisible();
+    fireEvent.keyDown(window, { key: "Enter" });
+    expect(recovery).toBe(original);
+    fireEvent.click(screen.getByRole("button", { name: "保留原进度" }));
+    expect(recovery).toBe(original);
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    failClear = true;
+    fireEvent.click(screen.getByRole("button", { name: "确认开始新故事" }));
+    await waitFor(() => expect(third.container.querySelector("main")).toHaveAttribute("data-recovery-operation", "error"));
+    expect(third.container.querySelector("main")).toHaveAttribute("data-player-status", "title");
+    expect(recovery).toBe(original);
+    failClear = false;
+    fireEvent.click(screen.getByRole("button", { name: "确认开始新故事" }));
+    await waitFor(() => expect(third.container.querySelector("main")).toHaveAttribute("data-player-status", "waiting-choice"));
+    await waitFor(() => expect(recovery).toMatchObject({ sceneId: "branch_start", presentationKind: "choice" }));
+    third.unmount();
+    let finishScan!: (record: WorldPlayerRecoveryRecordV1 | null) => void;
+    const delayedStore: WorldPlayerRecoveryStoreV1 = { ...recoveryStore, read: () => new Promise(resolve => { finishScan = resolve; }) };
+    const fourth = render(<PlayerShell project={branching()} saveStore={saveStore} recoveryStore={delayedStore} now={() => clock++} />);
+    fireEvent.click(screen.getByRole("button", { name: "读取存档" }));
+    fireEvent.click(screen.getByRole("button", { name: "快速" }));
+    await waitFor(() => expect(screen.getByRole("button", { name: "读取" })).toBeEnabled());
+    fireEvent.click(screen.getByRole("button", { name: "读取" }));
+    await screen.findByText("The quiet route.");
+    await act(async () => finishScan(original));
+    expect(screen.queryByRole("button", { name: "恢复上次进度" })).not.toBeInTheDocument();
+    expect(fourth.container.querySelector("main")).not.toHaveAttribute("data-recovery-operation", "available");
+  });
+
+  it("gates all title input during scanning and ignores a stale same-store scan", async () => {
+    const reads: Array<(value: WorldPlayerRecoveryRecordV1 | null) => void> = [];
+    const store: WorldPlayerRecoveryStoreV1 = { version: "1.0.0", backend: "slow", read: () => new Promise(resolve => reads.push(resolve)), async write() {}, async clear() {} };
+    const other: WorldPlayerRecoveryStoreV1 = { ...store, async read() { return null; } };
+    const project = branching();
+    const view = render(<PlayerShell project={project} recoveryStore={store} />);
+    expect(screen.getByRole("button", { name: /开始故事/u })).toBeDisabled();
+    fireEvent.keyDown(window, { key: "Enter" });
+    expect(view.container.querySelector("main")).toHaveAttribute("data-player-status", "title");
+    view.rerender(<PlayerShell project={project} recoveryStore={other} />);
+    view.rerender(<PlayerShell project={project} recoveryStore={store} />);
+    await act(async () => reads[0]!(null));
+    expect(screen.getByRole("button", { name: /开始故事/u })).toBeDisabled();
+    await act(async () => reads[1]!(null));
+    expect(screen.getByRole("button", { name: /开始故事/u })).toBeEnabled();
+  });
+
+  it("offers an explicit audio retry after permission rejection without advancing the story", async () => {
+    const play = vi.spyOn(HTMLMediaElement.prototype, "play").mockRejectedValueOnce(new DOMException("gesture required", "NotAllowedError")).mockResolvedValue(undefined);
+    const demo = createPlayerMediaMultichannelDemoV1();
+    const view = render(<PlayerShell project={demo.project} mediaAssets={demo.mediaAssets} />);
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    const voice = view.container.querySelector<HTMLAudioElement>('audio[data-audio-bus="voice"]')!;
+    const hash = view.container.querySelector("main")!.dataset.runtimeStateHash;
+    fireEvent.canPlay(voice);
+    await screen.findByRole("button", { name: "恢复声音" });
+    fireEvent.click(screen.getByRole("button", { name: "恢复声音" }));
+    await waitFor(() => expect(voice.dataset.playerPlayback).toBe("playing"));
+    expect(play).toHaveBeenCalled();
+    expect(view.container.querySelector("main")!.dataset.runtimeStateHash).toBe(hash);
+  });
+
+  it("releases replaced audio owners without pausing connected nodes during ref replay", async () => {
+    const demo = createPlayerMediaMultichannelDemoV1();
+    const view = render(<PlayerShell project={demo.project} mediaAssets={demo.mediaAssets} />);
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    const old = view.container.querySelector<HTMLAudioElement>('audio[data-audio-bus="voice"]')!;
+    let paused = false;
+    Object.defineProperty(old, "paused", { configurable: true, get: () => paused });
+    const pause = vi.spyOn(old, "pause").mockImplementation(() => { paused = true; });
+    fireEvent.play(old);
+    await act(async () => { await Promise.resolve(); });
+    expect(pause).not.toHaveBeenCalled();
+    fireEvent.error(old);
+    fireEvent.click(screen.getByRole("button", { name: "查看媒体问题" }));
+    fireEvent.click(screen.getByRole("button", { name: "重试媒体" }));
+    await act(async () => { await Promise.resolve(); });
+    expect(old.isConnected).toBe(false);
+    expect(pause).toHaveBeenCalledTimes(1);
+    expect(view.container.querySelector('audio[data-audio-bus="voice"]')).not.toBe(old);
+  });
+
+  it("lets a timed-out recovery scan retry without deleting or applying its late result", async () => {
+    vi.useFakeTimers();
+    let finish!: (record: WorldPlayerRecoveryRecordV1 | null) => void;
+    const read = vi.fn().mockImplementationOnce(() => new Promise(resolve => { finish = resolve; })).mockResolvedValue(null);
+    const clear = vi.fn();
+    const store: WorldPlayerRecoveryStoreV1 = { version: "1.0.0", backend: "slow", read, clear, async write() {} };
+    const view = render(<PlayerShell project={branching()} recoveryStore={store} />);
+    await act(async () => vi.advanceTimersByTime(8000));
+    expect(screen.getByText(/恢复检查超时/u)).toBeVisible();
+    expect(clear).not.toHaveBeenCalled();
+    await act(async () => finish(null));
+    expect(view.container.querySelector("main")).toHaveAttribute("data-recovery-operation", "error");
+    fireEvent.click(screen.getByRole("button", { name: "重新检查恢复记录" }));
+    await act(async () => { await Promise.resolve(); });
+    expect(view.container.querySelector("main")).toHaveAttribute("data-recovery-operation", "idle");
+    expect(clear).not.toHaveBeenCalled();
   });
 
   it("isolates corrupt recovery and lets the player clear it without touching formal slots", async () => {

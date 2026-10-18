@@ -1,0 +1,628 @@
+{
+  "passed": true,
+  "label": "baseline",
+  "browser": "151.0.7922.34",
+  "identity": {
+    "baselineCommit": "0ae9cfe0fabeeb535acc587cc1806b659bb8f8d5",
+    "bundleHash": "f87cea20071215692271c3acf5a337e0c0e5ca6b1198be355acd4042cacf5b80",
+    "cssHash": "6d26d35ba789994b63aa6cf67db4eee5c334f2290ac73e27c0430dc1204697f3",
+    "fixtureHash": "9681155629618e6b5ed052ff2d1f56290251304568648b8cd82027cc0525716c",
+    "frozenSourcesHash": "4f637aa7beabf7a15c51f41aa4444fc4d1d3e7facf165e1db109b4bcfa82b6b5"
+  },
+  "rows": [
+    {
+      "count": 480,
+      "mode": "auto",
+      "round": 0,
+      "state": {
+        "hash": "742c5192d82767fa1cb0ea9eba325bf7985c6a86f34158ca64e35b8b36ef153f",
+        "cursor": "481",
+        "length": "481",
+        "text": "长篇第 480 句：保存与恢复不能丢失历史。",
+        "stopReason": "storyBoundary"
+      },
+      "wallMs": 1428.2999999970198,
+      "tasks": [
+        {
+          "start": 29347.59999999404,
+          "duration": 72
+        }
+      ],
+      "packets": [],
+      "frames": [
+        {
+          "changed": 29410.40000000596,
+          "frame": 29420.29999999702
+        }
+      ],
+      "commitMs": 1354.6000000089407,
+      "saved": {
+        "bytes": 1949763,
+        "sha256": "891f447acd35d103fd16622086c8d3671ceb8414f130259ba4c25cc679bdc372",
+        "sessionArtifactHash": "94bdfd6895e9bdda64ae35796382d1103f2388e12854d1a98395536368787cb1",
+        "runtimeStateHash": "6c032d7727f8ebcb27cee07d4107104345d2c3b633910a97964a7b937308fa9c"
+      }
+    },
+    {
+      "count": 480,
+      "mode": "auto",
+      "round": 1,
+      "state": {
+        "hash": "742c5192d82767fa1cb0ea9eba325bf7985c6a86f34158ca64e35b8b36ef153f",
+        "cursor": "481",
+        "length": "481",
+        "text": "长篇第 480 句：保存与恢复不能丢失历史。",
+        "stopReason": "storyBoundary"
+      },
+      "wallMs": 1410.4000000059605,
+      "tasks": [
+        {
+          "start": 31094.40000000596,
+          "duration": 65
+        }
+      ],
+      "packets": [],
+      "frames": [
+        {
+          "changed": 31155.90000000596,
+          "frame": 31160.70000000298
+        }
+      ],
+      "commitMs": 1348.4000000059605,
+      "saved": {
+        "bytes": 1949763,
+        "sha256": "891f447acd35d103fd16622086c8d3671ceb8414f130259ba4c25cc679bdc372",
+        "sessionArtifactHash": "94bdfd6895e9bdda64ae35796382d1103f2388e12854d1a98395536368787cb1",
+        "runtimeStateHash": "6c032d7727f8ebcb27cee07d4107104345d2c3b633910a97964a7b937308fa9c"
+      }
+    },
+    {
+      "count": 480,
+      "mode": "auto",
+      "round": 2,
+      "state": {
+        "hash": "742c5192d82767fa1cb0ea9eba325bf7985c6a86f34158ca64e35b8b36ef153f",
+        "cursor": "481",
+        "length": "481",
+        "text": "长篇第 480 句：保存与恢复不能丢失历史。",
+        "stopReason": "storyBoundary"
+      },
+      "wallMs": 1429.7000000029802,
+      "tasks": [
+        {
+          "start": 32776.79999999702,
+          "duration": 82
+        }
+      ],
+      "packets": [],
+      "frames": [
+        {
+          "changed": 32852.5,
+          "frame": 32859.90000000596
+        }
+      ],
+      "commitMs": 1365.4000000059605,
+      "saved": {
+        "bytes": 1949763,
+        "sha256": "891f447acd35d103fd16622086c8d3671ceb8414f130259ba4c25cc679bdc372",
+        "sessionArtifactHash": "94bdfd6895e9bdda64ae35796382d1103f2388e12854d1a98395536368787cb1",
+        "runtimeStateHash": "6c032d7727f8ebcb27cee07d4107104345d2c3b633910a97964a7b937308fa9c"
+      }
+    },
+    {
+      "count": 480,
+      "mode": "skipRead",
+      "round": 0,
+      "state": {
+        "hash": "d934251aeb41c3a5c61f20d82ba2edec4848b0dc96f6a456880a219340fc0f63",
+        "cursor": "482",
+        "length": "482",
+        "text": "长篇第 481 句：保存与恢复不能丢失历史。",
+        "stopReason": "unreadBoundary"
+      },
+      "wallMs": 230.09999999403954,
+      "tasks": [
+        {
+          "start": 33284.5,
+          "duration": 82
+        }
+      ],
+      "packets": [],
+      "frames": [
+        {
+          "changed": 33407.5,
+          "frame": 33409.70000000298
+        }
+      ],
+      "commitMs": 204,
+      "saved": {
+        "bytes": 1949763,
+        "sha256": "891f447acd35d103fd16622086c8d3671ceb8414f130259ba4c25cc679bdc372",
+        "sessionArtifactHash": "94bdfd6895e9bdda64ae35796382d1103f2388e12854d1a98395536368787cb1",
+        "runtimeStateHash": "6c032d7727f8ebcb27cee07d4107104345d2c3b633910a97964a7b937308fa9c"
+      }
+    },
+    {
+      "count": 480,
+      "mode": "skipRead",
+      "round": 1,
+      "state": {
+        "hash": "291fc48db218743b3c8a861417ce77513ff9898ff072521e1471af997121e026",
+        "cursor": "483",
+        "length": "483",
+        "text": "长篇第 482 句：保存与恢复不能丢失历史。",
+        "stopReason": "unreadBoundary"
+      },
+      "wallMs": 212.20000000298023,
+      "tasks": [
+        {
+          "start": 33816.79999999702,
+          "duration": 59
+        }
+      ],
+      "packets": [],
+      "frames": [
+        {
+          "changed": 33909.20000000298,
+          "frame": 33913.5
+        }
+      ],
+      "commitMs": 170.6000000089407,
+      "saved": {
+        "bytes": 1949763,
+        "sha256": "891f447acd35d103fd16622086c8d3671ceb8414f130259ba4c25cc679bdc372",
+        "sessionArtifactHash": "94bdfd6895e9bdda64ae35796382d1103f2388e12854d1a98395536368787cb1",
+        "runtimeStateHash": "6c032d7727f8ebcb27cee07d4107104345d2c3b633910a97964a7b937308fa9c"
+      }
+    },
+    {
+      "count": 480,
+      "mode": "skipRead",
+      "round": 2,
+      "state": {
+        "hash": "4be07feca821907e1d8770689d4639637d43f109b2c6932b5e0277bb9bcd7aaf",
+        "cursor": "484",
+        "length": "484",
+        "text": "长篇第 483 句：保存与恢复不能丢失历史。",
+        "stopReason": "unreadBoundary"
+      },
+      "wallMs": 199.59999999403954,
+      "tasks": [
+        {
+          "start": 34317.59999999404,
+          "duration": 58
+        }
+      ],
+      "packets": [],
+      "frames": [
+        {
+          "changed": 34405.79999999702,
+          "frame": 34408.59999999404
+        }
+      ],
+      "commitMs": 168.3999999910593,
+      "saved": {
+        "bytes": 1949763,
+        "sha256": "891f447acd35d103fd16622086c8d3671ceb8414f130259ba4c25cc679bdc372",
+        "sessionArtifactHash": "94bdfd6895e9bdda64ae35796382d1103f2388e12854d1a98395536368787cb1",
+        "runtimeStateHash": "6c032d7727f8ebcb27cee07d4107104345d2c3b633910a97964a7b937308fa9c"
+      }
+    },
+    {
+      "count": 480,
+      "mode": "skipAll",
+      "round": 0,
+      "state": {
+        "hash": "48091e59af3e7bc9b4ab8b4f905c74fc712361883710a2187786c348f96101da",
+        "cursor": "500",
+        "length": "500",
+        "text": "长篇第 499 句：保存与恢复不能丢失历史。",
+        "stopReason": "budget"
+      },
+      "wallMs": 208.79999999701977,
+      "tasks": [
+        {
+          "start": 34817.09999999404,
+          "duration": 71
+        }
+      ],
+      "packets": [],
+      "frames": [
+        {
+          "changed": 34917.40000000596,
+          "frame": 34919.59999999404
+        }
+      ],
+      "commitMs": 176.40000000596046,
+      "saved": {
+        "bytes": 1949763,
+        "sha256": "891f447acd35d103fd16622086c8d3671ceb8414f130259ba4c25cc679bdc372",
+        "sessionArtifactHash": "94bdfd6895e9bdda64ae35796382d1103f2388e12854d1a98395536368787cb1",
+        "runtimeStateHash": "6c032d7727f8ebcb27cee07d4107104345d2c3b633910a97964a7b937308fa9c"
+      }
+    },
+    {
+      "count": 480,
+      "mode": "skipAll",
+      "round": 1,
+      "state": {
+        "hash": "48091e59af3e7bc9b4ab8b4f905c74fc712361883710a2187786c348f96101da",
+        "cursor": "500",
+        "length": "500",
+        "text": "长篇第 499 句：保存与恢复不能丢失历史。",
+        "stopReason": "budget"
+      },
+      "wallMs": 194.5,
+      "tasks": [
+        {
+          "start": 35316.79999999702,
+          "duration": 61
+        }
+      ],
+      "packets": [],
+      "frames": [
+        {
+          "changed": 35407.29999999702,
+          "frame": 35409.20000000298
+        }
+      ],
+      "commitMs": 168.5,
+      "saved": {
+        "bytes": 1949763,
+        "sha256": "891f447acd35d103fd16622086c8d3671ceb8414f130259ba4c25cc679bdc372",
+        "sessionArtifactHash": "94bdfd6895e9bdda64ae35796382d1103f2388e12854d1a98395536368787cb1",
+        "runtimeStateHash": "6c032d7727f8ebcb27cee07d4107104345d2c3b633910a97964a7b937308fa9c"
+      }
+    },
+    {
+      "count": 480,
+      "mode": "skipAll",
+      "round": 2,
+      "state": {
+        "hash": "48091e59af3e7bc9b4ab8b4f905c74fc712361883710a2187786c348f96101da",
+        "cursor": "500",
+        "length": "500",
+        "text": "长篇第 499 句：保存与恢复不能丢失历史。",
+        "stopReason": "budget"
+      },
+      "wallMs": 197.1000000089407,
+      "tasks": [
+        {
+          "start": 35816.59999999404,
+          "duration": 59
+        }
+      ],
+      "packets": [],
+      "frames": [
+        {
+          "changed": 35904.59999999404,
+          "frame": 35906.70000000298
+        }
+      ],
+      "commitMs": 167.5,
+      "saved": {
+        "bytes": 1949763,
+        "sha256": "891f447acd35d103fd16622086c8d3671ceb8414f130259ba4c25cc679bdc372",
+        "sessionArtifactHash": "94bdfd6895e9bdda64ae35796382d1103f2388e12854d1a98395536368787cb1",
+        "runtimeStateHash": "6c032d7727f8ebcb27cee07d4107104345d2c3b633910a97964a7b937308fa9c"
+      }
+    },
+    {
+      "count": 960,
+      "mode": "auto",
+      "round": 0,
+      "state": {
+        "hash": "b63fb31b196eb0191de7bda01a05e55dd97417d8a9083ad5a8a5c0cb1870ccd5",
+        "cursor": "961",
+        "length": "961",
+        "text": "长篇第 960 句：保存与恢复不能丢失历史。",
+        "stopReason": "storyBoundary"
+      },
+      "wallMs": 1531.2000000029802,
+      "tasks": [
+        {
+          "start": 107309.29999999702,
+          "duration": 97
+        },
+        {
+          "start": 108249.40000000596,
+          "duration": 203
+        }
+      ],
+      "packets": [],
+      "frames": [
+        {
+          "changed": 108450.79999999702,
+          "frame": 108453.29999999702
+        }
+      ],
+      "commitMs": 1466.5,
+      "saved": {
+        "bytes": 6430233,
+        "sha256": "2bb8210b142ad92cf8c968eec95c637954518397d51419c834cff78a118d7382",
+        "sessionArtifactHash": "15674712006f7700292dc338c1f7967210a160ae60d63c953fa0eb14a6bf7ae2",
+        "runtimeStateHash": "739bcd3640e4a88a7d036cfc3acf352d961cf18f946ce1aef0b9b31ddcf85cfe"
+      }
+    },
+    {
+      "count": 960,
+      "mode": "auto",
+      "round": 1,
+      "state": {
+        "hash": "b63fb31b196eb0191de7bda01a05e55dd97417d8a9083ad5a8a5c0cb1870ccd5",
+        "cursor": "961",
+        "length": "961",
+        "text": "长篇第 960 句：保存与恢复不能丢失历史。",
+        "stopReason": "storyBoundary"
+      },
+      "wallMs": 1495.3999999910593,
+      "tasks": [
+        {
+          "start": 109480.09999999404,
+          "duration": 91
+        },
+        {
+          "start": 110429.79999999702,
+          "duration": 164
+        }
+      ],
+      "packets": [],
+      "frames": [
+        {
+          "changed": 110592,
+          "frame": 110594.5
+        }
+      ],
+      "commitMs": 1423.5999999940395,
+      "saved": {
+        "bytes": 6430233,
+        "sha256": "2bb8210b142ad92cf8c968eec95c637954518397d51419c834cff78a118d7382",
+        "sessionArtifactHash": "15674712006f7700292dc338c1f7967210a160ae60d63c953fa0eb14a6bf7ae2",
+        "runtimeStateHash": "739bcd3640e4a88a7d036cfc3acf352d961cf18f946ce1aef0b9b31ddcf85cfe"
+      }
+    },
+    {
+      "count": 960,
+      "mode": "auto",
+      "round": 2,
+      "state": {
+        "hash": "b63fb31b196eb0191de7bda01a05e55dd97417d8a9083ad5a8a5c0cb1870ccd5",
+        "cursor": "961",
+        "length": "961",
+        "text": "长篇第 960 句：保存与恢复不能丢失历史。",
+        "stopReason": "storyBoundary"
+      },
+      "wallMs": 1495.5,
+      "tasks": [
+        {
+          "start": 111616.09999999404,
+          "duration": 88
+        },
+        {
+          "start": 112566.09999999404,
+          "duration": 169
+        }
+      ],
+      "packets": [],
+      "frames": [
+        {
+          "changed": 112733.29999999702,
+          "frame": 112735.79999999702
+        }
+      ],
+      "commitMs": 1431.7999999970198,
+      "saved": {
+        "bytes": 6430233,
+        "sha256": "2bb8210b142ad92cf8c968eec95c637954518397d51419c834cff78a118d7382",
+        "sessionArtifactHash": "15674712006f7700292dc338c1f7967210a160ae60d63c953fa0eb14a6bf7ae2",
+        "runtimeStateHash": "739bcd3640e4a88a7d036cfc3acf352d961cf18f946ce1aef0b9b31ddcf85cfe"
+      }
+    },
+    {
+      "count": 960,
+      "mode": "skipRead",
+      "round": 0,
+      "state": {
+        "hash": "2f783c4e32a6ec71ba32bfce508365645947da6065fab5b93b97d36818c07032",
+        "cursor": "962",
+        "length": "962",
+        "text": "长篇第 961 句：保存与恢复不能丢失历史。",
+        "stopReason": "unreadBoundary"
+      },
+      "wallMs": 296.90000000596046,
+      "tasks": [
+        {
+          "start": 113546.70000000298,
+          "duration": 188
+        }
+      ],
+      "packets": [],
+      "frames": [
+        {
+          "changed": 113737.09999999404,
+          "frame": 113739.40000000596
+        }
+      ],
+      "commitMs": 269,
+      "saved": {
+        "bytes": 6430233,
+        "sha256": "2bb8210b142ad92cf8c968eec95c637954518397d51419c834cff78a118d7382",
+        "sessionArtifactHash": "15674712006f7700292dc338c1f7967210a160ae60d63c953fa0eb14a6bf7ae2",
+        "runtimeStateHash": "739bcd3640e4a88a7d036cfc3acf352d961cf18f946ce1aef0b9b31ddcf85cfe"
+      }
+    },
+    {
+      "count": 960,
+      "mode": "skipRead",
+      "round": 1,
+      "state": {
+        "hash": "e240fe3c2deaf166e7ec56c15a20ddcc674205ee551985e7f82efe3117830295",
+        "cursor": "963",
+        "length": "963",
+        "text": "长篇第 962 句：保存与恢复不能丢失历史。",
+        "stopReason": "unreadBoundary"
+      },
+      "wallMs": 296.3999999910593,
+      "tasks": [
+        {
+          "start": 114613,
+          "duration": 177
+        }
+      ],
+      "packets": [],
+      "frames": [
+        {
+          "changed": 114792,
+          "frame": 114795.79999999702
+        }
+      ],
+      "commitMs": 257.79999999701977,
+      "saved": {
+        "bytes": 6430233,
+        "sha256": "2bb8210b142ad92cf8c968eec95c637954518397d51419c834cff78a118d7382",
+        "sessionArtifactHash": "15674712006f7700292dc338c1f7967210a160ae60d63c953fa0eb14a6bf7ae2",
+        "runtimeStateHash": "739bcd3640e4a88a7d036cfc3acf352d961cf18f946ce1aef0b9b31ddcf85cfe"
+      }
+    },
+    {
+      "count": 960,
+      "mode": "skipRead",
+      "round": 2,
+      "state": {
+        "hash": "f48ce86a288cdcf05fa27efb3ed6c3b260f7024dbd10aef4cd3fb02b11de1445",
+        "cursor": "964",
+        "length": "964",
+        "text": "长篇第 963 句：保存与恢复不能丢失历史。",
+        "stopReason": "unreadBoundary"
+      },
+      "wallMs": 295.5,
+      "tasks": [
+        {
+          "start": 115630.59999999404,
+          "duration": 189
+        }
+      ],
+      "packets": [],
+      "frames": [
+        {
+          "changed": 115822,
+          "frame": 115825.20000000298
+        }
+      ],
+      "commitMs": 270.59999999403954,
+      "saved": {
+        "bytes": 6430233,
+        "sha256": "2bb8210b142ad92cf8c968eec95c637954518397d51419c834cff78a118d7382",
+        "sessionArtifactHash": "15674712006f7700292dc338c1f7967210a160ae60d63c953fa0eb14a6bf7ae2",
+        "runtimeStateHash": "739bcd3640e4a88a7d036cfc3acf352d961cf18f946ce1aef0b9b31ddcf85cfe"
+      }
+    },
+    {
+      "count": 960,
+      "mode": "skipAll",
+      "round": 0,
+      "state": {
+        "hash": "edf2bfef92c4b918965a75f45d77ac67ece951c2de3ff4221e8461b2cb9ceff2",
+        "cursor": "973",
+        "length": "973",
+        "text": "",
+        "stopReason": "terminal"
+      },
+      "wallMs": 331.09999999403954,
+      "tasks": [
+        {
+          "start": 116647.29999999702,
+          "duration": 208
+        }
+      ],
+      "packets": [],
+      "frames": [
+        {
+          "changed": 116859.20000000298,
+          "frame": 116867.70000000298
+        }
+      ],
+      "commitMs": 292.70000000298023,
+      "saved": {
+        "bytes": 6430233,
+        "sha256": "2bb8210b142ad92cf8c968eec95c637954518397d51419c834cff78a118d7382",
+        "sessionArtifactHash": "15674712006f7700292dc338c1f7967210a160ae60d63c953fa0eb14a6bf7ae2",
+        "runtimeStateHash": "739bcd3640e4a88a7d036cfc3acf352d961cf18f946ce1aef0b9b31ddcf85cfe"
+      }
+    },
+    {
+      "count": 960,
+      "mode": "skipAll",
+      "round": 1,
+      "state": {
+        "hash": "edf2bfef92c4b918965a75f45d77ac67ece951c2de3ff4221e8461b2cb9ceff2",
+        "cursor": "973",
+        "length": "973",
+        "text": "",
+        "stopReason": "terminal"
+      },
+      "wallMs": 328.6000000089407,
+      "tasks": [
+        {
+          "start": 117746.79999999702,
+          "duration": 207
+        }
+      ],
+      "packets": [],
+      "frames": [
+        {
+          "changed": 117958.59999999404,
+          "frame": 117961.40000000596
+        }
+      ],
+      "commitMs": 289.5,
+      "saved": {
+        "bytes": 6430233,
+        "sha256": "2bb8210b142ad92cf8c968eec95c637954518397d51419c834cff78a118d7382",
+        "sessionArtifactHash": "15674712006f7700292dc338c1f7967210a160ae60d63c953fa0eb14a6bf7ae2",
+        "runtimeStateHash": "739bcd3640e4a88a7d036cfc3acf352d961cf18f946ce1aef0b9b31ddcf85cfe"
+      }
+    },
+    {
+      "count": 960,
+      "mode": "skipAll",
+      "round": 2,
+      "state": {
+        "hash": "edf2bfef92c4b918965a75f45d77ac67ece951c2de3ff4221e8461b2cb9ceff2",
+        "cursor": "973",
+        "length": "973",
+        "text": "",
+        "stopReason": "terminal"
+      },
+      "wallMs": 295.70000000298023,
+      "tasks": [
+        {
+          "start": 118814.20000000298,
+          "duration": 185
+        }
+      ],
+      "packets": [],
+      "frames": [
+        {
+          "changed": 119002.59999999404,
+          "frame": 119004.90000000596
+        }
+      ],
+      "commitMs": 267.5,
+      "saved": {
+        "bytes": 6430233,
+        "sha256": "2bb8210b142ad92cf8c968eec95c637954518397d51419c834cff78a118d7382",
+        "sessionArtifactHash": "15674712006f7700292dc338c1f7967210a160ae60d63c953fa0eb14a6bf7ae2",
+        "runtimeStateHash": "739bcd3640e4a88a7d036cfc3acf352d961cf18f946ce1aef0b9b31ddcf85cfe"
+      }
+    }
+  ],
+  "checks": [],
+  "packets": [],
+  "workers": {
+    "live": 0,
+    "peak": 2
+  },
+  "errors": [],
+  "scope": "Serial desktop Chromium, fixed old-then-current, 3 batches per mode and history size. Accelerated 40ms host reading clock, not natural reading or physical phone acceptance. Mutation observer opens the real menu at first committed change; wallMs and commitMs include UI automation (and wallMs includes frames), not pure computation."
+}

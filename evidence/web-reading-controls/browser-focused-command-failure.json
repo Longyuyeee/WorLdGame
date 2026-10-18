@@ -1,0 +1,8 @@
+{
+  "checks": [
+    "actual production UI exports HTML and directory with the new reading controls; source remains Rain 1.5.4"
+  ],
+  "errors": [],
+  "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\n0 !== 1\n",
+  "stack": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\n0 !== 1\n\n    at route (file:///E:/Project/AIProject/ClaudeProject/WorLdGame/tools/run-web-reading-controls.mjs:52:108)\n    at async file:///E:/Project/AIProject/ClaudeProject/WorLdGame/tools/run-web-reading-controls.mjs:78:3"
+}

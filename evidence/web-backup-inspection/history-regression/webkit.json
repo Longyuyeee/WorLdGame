@@ -1,0 +1,274 @@
+{
+  "passed": true,
+  "baseline": false,
+  "engine": "webkit",
+  "browser": "26.5",
+  "artifacts": {
+    "html": {
+      "bytes": 46841743,
+      "sha256": "bd453092147827d1d37b5642794441afabbc69b6ea56f10fb6dc28aaadba6bf7"
+    },
+    "website": {
+      "bytes": 35428192,
+      "sha256": "09427c7a0b7e3c148bae5933874f39ba1ab639bfbfd8cd9834e0ed189060d790"
+    }
+  },
+  "checks": [
+    {
+      "name": "both-tab-directions-stay-in-history-without-changing-story-or-slots",
+      "before": {
+        "hash": "17eaca6a3105a9c2519abb89a93ee5aa0e126fab965cd19452500481ffcfe5ad",
+        "cursor": "11",
+        "text": "“我带了另一件东西。”小夏从包里取出一个没有封口的信封，“本来约好明年再拆，可现在先给你也可以。”她没有把信塞到他手里，只放在他们中间的长椅上。信封被雨气浸得有一点软，林远盯着那个角，突然觉得自己不能再用赶车来结束今天的谈话。",
+        "auto": "off"
+      },
+      "trace": [
+        {
+          "label": "关闭剧情历史",
+          "inHistory": true,
+          "tag": "BUTTON"
+        },
+        {
+          "label": "回退到：站台的雨味让他想起那间租了三年的房间。窗边原本留着摆画架的位置，后来堆满了纸箱。他给这次换工作起名叫重新开始，仿佛只要把地址换掉，箱子里那些没画完的东西就会自己展开。小夏知道那些画，却从没催他交一张能被称作作品的结果。",
+          "inHistory": true,
+          "tag": "BUTTON"
+        },
+        {
+          "label": "回退到：他想过许多合理的理由。项目赶进度，新工作的面试，还有一张要交房租的账单。生活确实忙，也确实不容易，可那些理由越整齐，他越清楚自己遗漏了什么：他在所有能回答的事情上回答得很快，只有在小夏问他想不想再约一次的时候，总是说等忙完这一阵。",
+          "inHistory": true,
+          "tag": "BUTTON"
+        },
+        {
+          "label": "回退到：照片上是一片没有拍到人的海。去年他们各自请了半天假，到了车站才知道列车停运，只能在便利店买两杯热饮，坐着听了一下午雨。后来小夏独自去了那片海，把拍下的照片寄给他，背面写着：没到的地方不必作废。林远把它夹进书里，每次搬家都带着，却一次也没有认真回复。",
+          "inHistory": true,
+          "tag": "BUTTON"
+        },
+        {
+          "label": "回退到：小夏不是来阻止他出发的。她在短信里只说，要把借了半年那本书还给他，顺便把书里的照片也还给他。林远原以为这是一件很容易的事：收下书，认真道谢，等广播响起后挥手。可当她撑着伞从街对面走来，他忽然不记得自己排练过的第一句话是什么了。",
+          "inHistory": true,
+          "tag": "BUTTON"
+        },
+        {
+          "label": "回退到：售票员把窗口里的灯关掉时，雨正沿着站台的屋檐连成一条线。站台上的钟比手机慢了三分钟。林远核对了两次，没有走去询问值班员。他看见玻璃上自己的倒影，才发现他已经穿着这件外套站了很久。行李箱旁挂着新公司的地址，手机里存着一份还没签字的合同；这些东西都能说明他要去哪里，却没有一样能替他解释为什么迟迟不肯往前走。",
+          "inHistory": true,
+          "tag": "BUTTON"
+        },
+        {
+          "label": "",
+          "inHistory": true,
+          "tag": "INPUT"
+        },
+        {
+          "label": "关闭剧情历史",
+          "inHistory": true,
+          "tag": "BUTTON"
+        },
+        {
+          "label": "回退到：站台的雨味让他想起那间租了三年的房间。窗边原本留着摆画架的位置，后来堆满了纸箱。他给这次换工作起名叫重新开始，仿佛只要把地址换掉，箱子里那些没画完的东西就会自己展开。小夏知道那些画，却从没催他交一张能被称作作品的结果。",
+          "inHistory": true,
+          "tag": "BUTTON"
+        },
+        {
+          "label": "回退到：他想过许多合理的理由。项目赶进度，新工作的面试，还有一张要交房租的账单。生活确实忙，也确实不容易，可那些理由越整齐，他越清楚自己遗漏了什么：他在所有能回答的事情上回答得很快，只有在小夏问他想不想再约一次的时候，总是说等忙完这一阵。",
+          "inHistory": true,
+          "tag": "BUTTON"
+        },
+        {
+          "label": "回退到：照片上是一片没有拍到人的海。去年他们各自请了半天假，到了车站才知道列车停运，只能在便利店买两杯热饮，坐着听了一下午雨。后来小夏独自去了那片海，把拍下的照片寄给他，背面写着：没到的地方不必作废。林远把它夹进书里，每次搬家都带着，却一次也没有认真回复。",
+          "inHistory": true,
+          "tag": "BUTTON"
+        },
+        {
+          "label": "回退到：小夏不是来阻止他出发的。她在短信里只说，要把借了半年那本书还给他，顺便把书里的照片也还给他。林远原以为这是一件很容易的事：收下书，认真道谢，等广播响起后挥手。可当她撑着伞从街对面走来，他忽然不记得自己排练过的第一句话是什么了。",
+          "inHistory": true,
+          "tag": "BUTTON"
+        },
+        {
+          "label": "回退到：售票员把窗口里的灯关掉时，雨正沿着站台的屋檐连成一条线。站台上的钟比手机慢了三分钟。林远核对了两次，没有走去询问值班员。他看见玻璃上自己的倒影，才发现他已经穿着这件外套站了很久。行李箱旁挂着新公司的地址，手机里存着一份还没签字的合同；这些东西都能说明他要去哪里，却没有一样能替他解释为什么迟迟不肯往前走。",
+          "inHistory": true,
+          "tag": "BUTTON"
+        }
+      ],
+      "originalSlots": [
+        {
+          "slotId": "auto-1",
+          "hash": "82e2acf507042ca294db18181ea77af0e7eed1889ee86690bac318ce59634412",
+          "digest": "74d56960893156335a3949b26664751931030aa2572b80bf8170a15b37a0f52a"
+        },
+        {
+          "slotId": "quick-1",
+          "hash": "17eaca6a3105a9c2519abb89a93ee5aa0e126fab965cd19452500481ffcfe5ad",
+          "digest": "749faee48a119a26b0721093a622e35e8a9ed325e54b86c0e82ded4f5dfe296e"
+        }
+      ]
+    },
+    {
+      "name": "escape-clears-query-then-closes-and-restores-visible-desktop-trigger",
+      "before": {
+        "hash": "17eaca6a3105a9c2519abb89a93ee5aa0e126fab965cd19452500481ffcfe5ad",
+        "cursor": "11",
+        "text": "“我带了另一件东西。”小夏从包里取出一个没有封口的信封，“本来约好明年再拆，可现在先给你也可以。”她没有把信塞到他手里，只放在他们中间的长椅上。信封被雨气浸得有一点软，林远盯着那个角，突然觉得自己不能再用赶车来结束今天的谈话。",
+        "auto": "off"
+      }
+    },
+    {
+      "name": "portrait-landscape-and-desktop-keyboard-targets-visible-and-return-current-paragraph",
+      "layouts": [
+        {
+          "viewport": {
+            "width": 320,
+            "height": 568
+          },
+          "current": {
+            "label": "回退到：站台的雨味让他想起那间租了三年的房间。窗边原本留着摆画架的位置，后来堆满了纸箱。他给这次换工作起名叫重新开始，仿佛只要把地址换掉，箱子里那些没画完的东西就会自己展开。小夏知道那些画，却从没催他交一张能被称作作品的结果。",
+            "height": 44,
+            "y": 355.0625,
+            "bottom": 399.0625
+          }
+        },
+        {
+          "viewport": {
+            "width": 568,
+            "height": 320
+          },
+          "current": {
+            "label": "回退到：站台的雨味让他想起那间租了三年的房间。窗边原本留着摆画架的位置，后来堆满了纸箱。他给这次换工作起名叫重新开始，仿佛只要把地址换掉，箱子里那些没画完的东西就会自己展开。小夏知道那些画，却从没催他交一张能被称作作品的结果。",
+            "height": 44,
+            "y": 205.71875,
+            "bottom": 249.71875
+          }
+        },
+        {
+          "viewport": {
+            "width": 844,
+            "height": 390
+          },
+          "current": {
+            "label": "回退到：站台的雨味让他想起那间租了三年的房间。窗边原本留着摆画架的位置，后来堆满了纸箱。他给这次换工作起名叫重新开始，仿佛只要把地址换掉，箱子里那些没画完的东西就会自己展开。小夏知道那些画，却从没催他交一张能被称作作品的结果。",
+            "height": 44,
+            "y": 201.71875,
+            "bottom": 245.71875
+          }
+        },
+        {
+          "viewport": {
+            "width": 1280,
+            "height": 900
+          },
+          "current": {
+            "label": "回退到：站台的雨味让他想起那间租了三年的房间。窗边原本留着摆画架的位置，后来堆满了纸箱。他给这次换工作起名叫重新开始，仿佛只要把地址换掉，箱子里那些没画完的东西就会自己展开。小夏知道那些画，却从没催他交一张能被称作作品的结果。",
+            "height": 44,
+            "y": 684.40625,
+            "bottom": 728.40625
+          }
+        }
+      ],
+      "before": {
+        "hash": "17eaca6a3105a9c2519abb89a93ee5aa0e126fab965cd19452500481ffcfe5ad",
+        "cursor": "11",
+        "text": "“我带了另一件东西。”小夏从包里取出一个没有封口的信封，“本来约好明年再拆，可现在先给你也可以。”她没有把信塞到他手里，只放在他们中间的长椅上。信封被雨气浸得有一点软，林远盯着那个角，突然觉得自己不能再用赶车来结束今天的谈话。",
+        "auto": "off"
+      }
+    },
+    {
+      "name": "only-explicit-history-row-rolls-back-and-returns-focus-to-reading",
+      "before": {
+        "hash": "17eaca6a3105a9c2519abb89a93ee5aa0e126fab965cd19452500481ffcfe5ad",
+        "cursor": "11",
+        "text": "“我带了另一件东西。”小夏从包里取出一个没有封口的信封，“本来约好明年再拆，可现在先给你也可以。”她没有把信塞到他手里，只放在他们中间的长椅上。信封被雨气浸得有一点软，林远盯着那个角，突然觉得自己不能再用赶车来结束今天的谈话。",
+        "auto": "off"
+      },
+      "afterRollback": {
+        "hash": "ef8e3edaf81eb43e97f947b695598ba3817566d0c4e1bcb0a5c2c7ffadcf5b60",
+        "cursor": "8",
+        "text": "他想过许多合理的理由。项目赶进度，新工作的面试，还有一张要交房租的账单。生活确实忙，也确实不容易，可那些理由越整齐，他越清楚自己遗漏了什么：他在所有能回答的事情上回答得很快，只有在小夏问他想不想再约一次的时候，总是说等忙完这一阵。",
+        "auto": "off"
+      },
+      "originalSlots": [
+        {
+          "slotId": "auto-1",
+          "hash": "82e2acf507042ca294db18181ea77af0e7eed1889ee86690bac318ce59634412",
+          "digest": "74d56960893156335a3949b26664751931030aa2572b80bf8170a15b37a0f52a"
+        },
+        {
+          "slotId": "quick-1",
+          "hash": "17eaca6a3105a9c2519abb89a93ee5aa0e126fab965cd19452500481ffcfe5ad",
+          "digest": "749faee48a119a26b0721093a622e35e8a9ed325e54b86c0e82ded4f5dfe296e"
+        }
+      ]
+    },
+    {
+      "name": "save-reopen-returns-original-progress-after-explicit-history-rollback",
+      "before": {
+        "hash": "17eaca6a3105a9c2519abb89a93ee5aa0e126fab965cd19452500481ffcfe5ad",
+        "cursor": "11",
+        "text": "“我带了另一件东西。”小夏从包里取出一个没有封口的信封，“本来约好明年再拆，可现在先给你也可以。”她没有把信塞到他手里，只放在他们中间的长椅上。信封被雨气浸得有一点软，林远盯着那个角，突然觉得自己不能再用赶车来结束今天的谈话。",
+        "auto": "off"
+      },
+      "loaded": {
+        "hash": "17eaca6a3105a9c2519abb89a93ee5aa0e126fab965cd19452500481ffcfe5ad",
+        "cursor": "11",
+        "text": "“我带了另一件东西。”小夏从包里取出一个没有封口的信封，“本来约好明年再拆，可现在先给你也可以。”她没有把信塞到他手里，只放在他们中间的长椅上。信封被雨气浸得有一点软，林远盯着那个角，突然觉得自己不能再用赶车来结束今天的谈话。",
+        "auto": "off"
+      },
+      "originalSlots": [
+        {
+          "slotId": "auto-1",
+          "hash": "82e2acf507042ca294db18181ea77af0e7eed1889ee86690bac318ce59634412",
+          "digest": "74d56960893156335a3949b26664751931030aa2572b80bf8170a15b37a0f52a"
+        },
+        {
+          "slotId": "quick-1",
+          "hash": "17eaca6a3105a9c2519abb89a93ee5aa0e126fab965cd19452500481ffcfe5ad",
+          "digest": "749faee48a119a26b0721093a622e35e8a9ed325e54b86c0e82ded4f5dfe296e"
+        }
+      ]
+    },
+    {
+      "name": "native-keyboard-audition-filter-stop-and-return-retain-story-and-formal-slots",
+      "voiced": {
+        "hash": "92734b15d85213f16dff5be1b0d4d3b76b4346e94133891f5168b790534a78d8",
+        "cursor": "16",
+        "text": "进去读吧。我想先把今天的话说完。",
+        "auto": "off"
+      },
+      "audio": {
+        "currentTime": 0.0603125,
+        "error": null,
+        "paused": false,
+        "duration": 5.0380045
+      },
+      "dynamicTrace": [
+        {
+          "label": "清除查找",
+          "inHistory": true,
+          "tag": "BUTTON"
+        },
+        {
+          "label": "暂停重听",
+          "inHistory": true,
+          "tag": "BUTTON"
+        },
+        {
+          "label": "停止重听",
+          "inHistory": true,
+          "tag": "BUTTON"
+        }
+      ],
+      "voicedSlots": [
+        {
+          "slotId": "auto-1",
+          "hash": "82e2acf507042ca294db18181ea77af0e7eed1889ee86690bac318ce59634412",
+          "digest": "74d56960893156335a3949b26664751931030aa2572b80bf8170a15b37a0f52a"
+        },
+        {
+          "slotId": "quick-1",
+          "hash": "17eaca6a3105a9c2519abb89a93ee5aa0e126fab965cd19452500481ffcfe5ad",
+          "digest": "749faee48a119a26b0721093a622e35e8a9ed325e54b86c0e82ded4f5dfe296e"
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "scope": "Actual unmodified exported website, native keyboard Tab/Shift+Tab/Enter/Escape and UI save/load. Readonly IndexedDB digests; no synthetic input/lifecycle/media events, injected database or story state. Desktop engines and viewport resizing, not screen reader, physical phone/Safari, OS interruptions or natural full reading acceptance."
+}

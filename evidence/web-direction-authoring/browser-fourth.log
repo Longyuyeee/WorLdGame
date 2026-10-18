@@ -1,0 +1,18 @@
+visual background search/cancel protects canonical draft; 390px gallery fits; new actor uses a distinct slot; insertion Undo/Redo
+multiple actors require an explicit move/exit target; positions are human-readable; precision fields collapsed; dark and 390px inspector
+music can be listened to before insertion; music/ambient loop and voice/effects one-shot defaults
+source ZIP retains target IDs and all original media bytes; saved project survives home/reload/reopen
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+locator.click: Timeout 30000ms exceeded.
+Call log:
+  - waiting for getByRole('button', { name: /^开始故事/ })
+
+    at E:\Project\AIProject\ClaudeProject\WorLdGame\tools\run-web-direction-authoring.mjs:117:112 {
+  log: [ "  - waiting for getByRole('button', { name: /^开始故事/ })" ],
+  name: 'TimeoutError'
+}
+
+Node.js v24.14.0

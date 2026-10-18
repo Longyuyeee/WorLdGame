@@ -1,0 +1,25 @@
+
+ RUN  v4.1.10 E:/Project/AIProject/ClaudeProject/WorLdGame
+
+ ❯ apps/editor/src/branch-authoring.test.ts (9 tests | 1 failed) 295ms
+     × checks syntax, declared references and result type using the existing expression parser 12ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  apps/editor/src/branch-authoring.test.ts > typed value authoring > checks syntax, declared references and result type using the existing expression parser
+TypeError: Cannot read properties of undefined (reading 'kind')
+ ❯ primary packages/story-language/src/expression.ts:9:857
+
+ ❯ parse packages/story-language/src/expression.ts:9:1243
+ ❯ parseTypedExpression packages/story-language/src/expression.ts:9:1580
+ ❯ expressionProblem apps/editor/src/expression-edit.ts:51:18
+ ❯ apps/editor/src/branch-authoring.test.ts:92:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 8 passed (9)
+   Start at  15:02:51
+   Duration  10.65s (transform 2.70s, setup 1.15s, import 5.02s, tests 295ms, environment 3.20s)
+

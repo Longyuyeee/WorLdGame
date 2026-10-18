@@ -1,0 +1,11 @@
+{
+  "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\n0 !== 1\n",
+  "stack": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\n0 !== 1\n\n    at file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-preview-reading.mjs:127:104",
+  "checks": [
+    "Long original Rain paragraph is outside the unchanged-ratio stage; focus widens it, preserves native canvas pixels, current sentence and history, and never approves the note.",
+    "390/844/320 viewports and four aspect presets retain geometry; native text scrolling reaches the end without advancing; Escape returns to the same editor toggle.",
+    "Director stage no longer collapses; repeated focus/return retains the actual two playing muted audio nodes and their time without a playback restart.",
+    "Both complete editor routes and distinct endings work with choices in the readable pane; eleven original fixed/null notes stay unapproved."
+  ],
+  "errors": []
+}

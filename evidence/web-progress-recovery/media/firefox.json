@@ -1,0 +1,230 @@
+{
+  "passed": true,
+  "engine": "firefox",
+  "browser": "153.0",
+  "artifactSha256": "d63fc9280774f6260ee4a85b6496e08c86666a655f28af7d1b0464015181c864",
+  "checks": [
+    {
+      "name": "error-does-not-cover-reading-and-menu-actions-remain-reachable",
+      "layouts": [
+        {
+          "viewport": {
+            "width": 568,
+            "height": 320
+          },
+          "entrance": {
+            "x": 423.933349609375,
+            "y": 12,
+            "width": 66,
+            "height": 44,
+            "inViewport": true
+          },
+          "menuButton": {
+            "x": 497.933349609375,
+            "y": 12,
+            "width": 56.06666564941406,
+            "height": 44,
+            "inViewport": true
+          },
+          "recovery": {
+            "x": 46,
+            "y": 227.8000030517578,
+            "width": 78,
+            "height": 44,
+            "inViewport": true
+          }
+        },
+        {
+          "viewport": {
+            "width": 320,
+            "height": 740
+          },
+          "entrance": {
+            "x": 167.93333435058594,
+            "y": 12,
+            "width": 70,
+            "height": 44,
+            "inViewport": true
+          },
+          "menuButton": {
+            "x": 245.93333435058594,
+            "y": 12,
+            "width": 60.06666564941406,
+            "height": 44,
+            "inViewport": true
+          },
+          "recovery": {
+            "x": 46,
+            "y": 261.79998779296875,
+            "width": 78,
+            "height": 44,
+            "inViewport": true
+          }
+        },
+        {
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "entrance": {
+            "x": 245.93333435058594,
+            "y": 12,
+            "width": 66,
+            "height": 44,
+            "inViewport": true
+          },
+          "menuButton": {
+            "x": 319.933349609375,
+            "y": 12,
+            "width": 56.06666564941406,
+            "height": 44,
+            "inViewport": true
+          },
+          "recovery": {
+            "x": 46,
+            "y": 244.8000030517578,
+            "width": 78,
+            "height": 44,
+            "inViewport": true
+          }
+        },
+        {
+          "viewport": {
+            "width": 844,
+            "height": 390
+          },
+          "entrance": {
+            "x": 699.933349609375,
+            "y": 12,
+            "width": 66,
+            "height": 44,
+            "inViewport": true
+          },
+          "menuButton": {
+            "x": 773.933349609375,
+            "y": 12,
+            "width": 56.06666564941406,
+            "height": 44,
+            "inViewport": true
+          },
+          "recovery": {
+            "x": 46,
+            "y": 227.8000030517578,
+            "width": 78,
+            "height": 44,
+            "inViewport": true
+          }
+        },
+        {
+          "viewport": {
+            "width": 1280,
+            "height": 900
+          },
+          "entrance": {
+            "x": 898.25,
+            "y": 139.11666870117188,
+            "width": 94,
+            "height": 44,
+            "inViewport": true
+          },
+          "menuButton": {
+            "x": 1124.25,
+            "y": 139.11666870117188,
+            "width": 80.75,
+            "height": 44,
+            "inViewport": true
+          },
+          "recovery": {
+            "x": 300,
+            "y": 251.8000030517578,
+            "width": 78,
+            "height": 44,
+            "inViewport": true
+          }
+        }
+      ],
+      "original": {
+        "hash": "82e2acf507042ca294db18181ea77af0e7eed1889ee86690bac318ce59634412",
+        "cursor": "4",
+        "audio": "enabled",
+        "auto": "off",
+        "text": "售票员把窗口里的灯关掉时，雨正沿着站台的屋檐连成一条线。站台上的钟比手机慢了三分钟。林远核对了两次，没有走去询问值班员。他看见玻璃上自己的倒影，才发现他已经穿着这件外套站了很久。行李箱旁挂着新公司的地址，手机里存着一份还没签字的合同；这些东西都能说明他要去哪里，却没有一样能替他解释为什么迟迟不肯往前走。"
+      }
+    },
+    {
+      "name": "native-tap-pages-with-error-and-menu-return-preserves-current-reading-offset",
+      "beforeTop": 0,
+      "pagedTop": 139,
+      "afterMenu": 139
+    },
+    {
+      "name": "explicit-retry-returns-to-same-paragraph-offset-and-native-transport",
+      "retried": {
+        "currentTime": 0.053213,
+        "error": null,
+        "playback": "playing",
+        "failureCode": null,
+        "paused": false,
+        "readyState": 4,
+        "networkState": 2,
+        "src": "data:audio/wav;base64,UklGRqSIFQBXQVZFZm",
+        "settledWithinObservation": true,
+        "nativePlaybackConfirmed": true
+      },
+      "sameOffset": true,
+      "audioAcceptance": "native muted time progressed; not natural listening"
+    },
+    {
+      "name": "explicit-silence-returns-to-same-offset-without-changing-personal-settings",
+      "final": {
+        "hash": "82e2acf507042ca294db18181ea77af0e7eed1889ee86690bac318ce59634412",
+        "cursor": "4",
+        "audio": "silent",
+        "auto": "off",
+        "text": "售票员把窗口里的灯关掉时，雨正沿着站台的屋檐连成一条线。站台上的钟比手机慢了三分钟。林远核对了两次，没有走去询问值班员。他看见玻璃上自己的倒影，才发现他已经穿着这件外套站了很久。行李箱旁挂着新公司的地址，手机里存着一份还没签字的合同；这些东西都能说明他要去哪里，却没有一样能替他解释为什么迟迟不肯往前走。"
+      }
+    },
+    {
+      "name": "native-canvas-picture-failure-survives-silence-and-explicit-picture-retry",
+      "pictureState": {
+        "hash": "82e2acf507042ca294db18181ea77af0e7eed1889ee86690bac318ce59634412",
+        "cursor": "4",
+        "audio": "enabled",
+        "auto": "stopped",
+        "text": "售票员把窗口里的灯关掉时，雨正沿着站台的屋檐连成一条线。站台上的钟比手机慢了三分钟。林远核对了两次，没有走去询问值班员。他看见玻璃上自己的倒影，才发现他已经穿着这件外套站了很久。行李箱旁挂着新公司的地址，手机里存着一份还没签字的合同；这些东西都能说明他要去哪里，却没有一样能替他解释为什么迟迟不肯往前走。"
+      },
+      "crowded": [
+        {
+          "label": "查看媒体问题",
+          "height": 44,
+          "inViewport": true
+        },
+        {
+          "label": "恢复当前声音",
+          "height": 44,
+          "inViewport": true
+        },
+        {
+          "label": "停止自动阅读",
+          "height": 44,
+          "inViewport": true
+        },
+        {
+          "label": "打开阅读菜单",
+          "height": 44,
+          "inViewport": true
+        }
+      ],
+      "nativeImageFaults": 6,
+      "final": {
+        "hash": "82e2acf507042ca294db18181ea77af0e7eed1889ee86690bac318ce59634412",
+        "cursor": "4",
+        "audio": "silent",
+        "auto": "off",
+        "text": "售票员把窗口里的灯关掉时，雨正沿着站台的屋檐连成一条线。站台上的钟比手机慢了三分钟。林远核对了两次，没有走去询问值班员。他看见玻璃上自己的倒影，才发现他已经穿着这件外套站了很久。行李箱旁挂着新公司的地址，手机里存着一份还没签字的合同；这些东西都能说明他要去哪里，却没有一样能替他解释为什么迟迟不肯往前走。"
+      }
+    }
+  ],
+  "errors": [],
+  "scope": "Actual complete game, invalid native WAV and PNG sources, native touch/keyboard/menu interactions and phone-sized desktop geometry. No fabricated native error/ended events, narrative state or DOM geometry; not physical phone/Safari, natural timing/listening, permissions or public deployment."
+}

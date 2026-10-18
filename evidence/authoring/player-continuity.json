@@ -1,0 +1,965 @@
+{
+  "rows": [
+    {
+      "round": 0,
+      "historyHeld": true,
+      "backgroundHeld": true,
+      "fullDelay": true,
+      "historyRoundTrip": true,
+      "quickSaveRestored": true
+    },
+    {
+      "round": 0,
+      "scene": 0,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 8,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 524288,
+        "peakBytes": 524288,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 0,
+      "scene": 1,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 16,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 524288,
+        "peakBytes": 524288,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 0,
+      "scene": 2,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 24,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 524288,
+        "peakBytes": 524288,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 0,
+      "scene": 3,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 32,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 524288,
+        "peakBytes": 524288,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 0,
+      "scene": 4,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 40,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 524288,
+        "peakBytes": 524288,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 0,
+      "scene": 5,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 48,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 524288,
+        "peakBytes": 524288,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 0,
+      "scene": 6,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 56,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 524288,
+        "peakBytes": 524288,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 0,
+      "scene": 7,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 64,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 524288,
+        "peakBytes": 524288,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 0,
+      "scene": 8,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 72,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 524288,
+        "peakBytes": 524288,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 0,
+      "scene": 9,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 80,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 524288,
+        "peakBytes": 524288,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 0,
+      "scene": 10,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 88,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 524288,
+        "peakBytes": 524288,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 0,
+      "scene": 11,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 96,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 524288,
+        "peakBytes": 524288,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 1,
+      "historyHeld": true,
+      "backgroundHeld": true,
+      "fullDelay": true,
+      "historyRoundTrip": true,
+      "quickSaveRestored": true
+    },
+    {
+      "round": 1,
+      "scene": 0,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 8,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 524288,
+        "peakBytes": 524288,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 1,
+      "scene": 1,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 16,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 524288,
+        "peakBytes": 524288,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 1,
+      "scene": 2,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 24,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 524288,
+        "peakBytes": 524288,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 1,
+      "scene": 3,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 32,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 524288,
+        "peakBytes": 524288,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 1,
+      "scene": 4,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 40,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 524288,
+        "peakBytes": 524288,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 1,
+      "scene": 5,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 48,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 524288,
+        "peakBytes": 524288,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 1,
+      "scene": 6,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 56,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 524288,
+        "peakBytes": 524288,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 1,
+      "scene": 7,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 64,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 524288,
+        "peakBytes": 524288,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 1,
+      "scene": 8,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 72,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 524288,
+        "peakBytes": 524288,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 1,
+      "scene": 9,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 80,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 524288,
+        "peakBytes": 524288,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 1,
+      "scene": 10,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 88,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 524288,
+        "peakBytes": 524288,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 1,
+      "scene": 11,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 96,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 524288,
+        "peakBytes": 524288,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 2,
+      "historyHeld": true,
+      "backgroundHeld": true,
+      "fullDelay": true,
+      "historyRoundTrip": true,
+      "quickSaveRestored": true
+    },
+    {
+      "round": 2,
+      "scene": 0,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 8,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 524288,
+        "peakBytes": 524288,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 2,
+      "scene": 1,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 16,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 524288,
+        "peakBytes": 524288,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 2,
+      "scene": 2,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 24,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 524288,
+        "peakBytes": 524288,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 2,
+      "scene": 3,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 32,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 524288,
+        "peakBytes": 524288,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 2,
+      "scene": 4,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 40,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 524288,
+        "peakBytes": 524288,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 2,
+      "scene": 5,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 48,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 524288,
+        "peakBytes": 524288,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 2,
+      "scene": 6,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 56,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 524288,
+        "peakBytes": 524288,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 2,
+      "scene": 7,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 64,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 524288,
+        "peakBytes": 524288,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 2,
+      "scene": 8,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 72,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 524288,
+        "peakBytes": 524288,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 2,
+      "scene": 9,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 80,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 524288,
+        "peakBytes": 524288,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 2,
+      "scene": 10,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 88,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 524288,
+        "peakBytes": 524288,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 2,
+      "scene": 11,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 96,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 524288,
+        "peakBytes": 524288,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 3,
+      "historyHeld": true,
+      "backgroundHeld": true,
+      "fullDelay": true,
+      "historyRoundTrip": true,
+      "quickSaveRestored": true
+    },
+    {
+      "round": 3,
+      "scene": 0,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 8,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 524288,
+        "peakBytes": 524288,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 3,
+      "scene": 1,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 16,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 524288,
+        "peakBytes": 524288,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 3,
+      "scene": 2,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 24,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 524288,
+        "peakBytes": 524288,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 3,
+      "scene": 3,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 32,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 524288,
+        "peakBytes": 524288,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 3,
+      "scene": 4,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 40,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 524288,
+        "peakBytes": 524288,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 3,
+      "scene": 5,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 48,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 524288,
+        "peakBytes": 524288,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 3,
+      "scene": 6,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 56,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 524288,
+        "peakBytes": 524288,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 3,
+      "scene": 7,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 64,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 524288,
+        "peakBytes": 524288,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 3,
+      "scene": 8,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 72,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 524288,
+        "peakBytes": 524288,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 3,
+      "scene": 9,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 80,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 524288,
+        "peakBytes": 524288,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 3,
+      "scene": 10,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 88,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 524288,
+        "peakBytes": 524288,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 3,
+      "scene": 11,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 96,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 524288,
+        "peakBytes": 524288,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    }
+  ],
+  "native": {
+    "groups": 0,
+    "accountedBytes": 0,
+    "peakBytes": 524288,
+    "budgetBytes": 67108864,
+    "activeDecodes": 0,
+    "queuedDecodes": 0,
+    "peakDecodes": 0,
+    "decodedGroups": 0,
+    "cacheHits": 0,
+    "quarantinedGroups": 0
+  },
+  "scope": "12-scene-production-player-controlled-visibility-synthetic-PNG-not-device-soak",
+  "elapsedMilliseconds": 128664.0035,
+  "rounds": 4,
+  "scenes": 12,
+  "exceptions": []
+}

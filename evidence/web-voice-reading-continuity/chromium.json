@@ -1,0 +1,176 @@
+{
+  "passed": true,
+  "browser": "151.0.7922.34",
+  "delivery": "http-html",
+  "artifactSha256": "c6569ac9b41370d3a5d8eb54906214047e3908644a23d8c50fe2d160b4972a3b",
+  "htmlSha256": "c6569ac9b41370d3a5d8eb54906214047e3908644a23d8c50fe2d160b4972a3b",
+  "checks": [
+    {
+      "name": "validated-load-restarts-only-current-voice",
+      "after": {
+        "sameOwner": false,
+        "ended": false,
+        "completed": "false",
+        "musicUnchanged": true
+      },
+      "saved": {
+        "bytes": 38242,
+        "sha256": "f275403be60b891099890c33d2d63b07d69355eccae56d800293d7dd0dcf75d4",
+        "artifactHash": "820ba049b53d0f41a916dd5d3835050ec0a86e1451b5ad98778ac0c8f2471e77",
+        "hash": "06a2114ecdb8dd78c27df1894a8714e79c27790bb772a52cea099ffe5233e815"
+      }
+    },
+    {
+      "name": "auto-waits-for-new-native-voice-after-load",
+      "controlledClockMilliseconds": 120000
+    },
+    {
+      "name": "three-lifecycle-ceilings-resume-native-position",
+      "interruptions": [
+        {
+          "paused": {
+            "paused": true,
+            "time": 0.010159
+          },
+          "resumed": 0.019
+        },
+        {
+          "paused": {
+            "paused": true,
+            "time": 0.019
+          },
+          "resumed": 0.020621
+        },
+        {
+          "paused": {
+            "paused": true,
+            "time": 0.122779
+          },
+          "resumed": 0.140679
+        }
+      ],
+      "injectedLifecycleEvents": true
+    },
+    {
+      "name": "public-relisten-current-voice-without-story-or-music-reset"
+    },
+    {
+      "name": "interruption-notice-does-not-occlude-reading-or-save",
+      "viewport": {
+        "width": 320,
+        "height": 740
+      },
+      "notice": {
+        "x": 12.796875,
+        "y": 76,
+        "width": 294.40625,
+        "height": 99
+      },
+      "paragraph": {
+        "x": 14,
+        "y": 256,
+        "width": 292,
+        "height": 412
+      },
+      "save": {
+        "x": 218,
+        "y": 678,
+        "width": 88,
+        "height": 48
+      }
+    },
+    {
+      "name": "interruption-notice-does-not-occlude-reading-or-save",
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "notice": {
+        "x": 14,
+        "y": 328,
+        "width": 700,
+        "height": 62
+      },
+      "paragraph": {
+        "x": 103.046875,
+        "y": 232.828125,
+        "width": 637.890625,
+        "height": 85.15625
+      },
+      "save": {
+        "x": 742,
+        "y": 332,
+        "width": 88,
+        "height": 44
+      }
+    },
+    {
+      "name": "interruption-notice-does-not-occlude-reading-or-save",
+      "viewport": {
+        "width": 568,
+        "height": 320
+      },
+      "notice": {
+        "x": 14,
+        "y": 258,
+        "width": 424,
+        "height": 62
+      },
+      "paragraph": {
+        "x": 22.71875,
+        "y": 162.59375,
+        "width": 522.5625,
+        "height": 85.15625
+      },
+      "save": {
+        "x": 466,
+        "y": 258,
+        "width": 88,
+        "height": 48
+      }
+    },
+    {
+      "name": "interruption-notice-does-not-occlude-reading-or-save",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "notice": {
+        "x": 15.59375,
+        "y": 76,
+        "width": 358.8125,
+        "height": 122
+      },
+      "paragraph": {
+        "x": 14,
+        "y": 295.375,
+        "width": 362,
+        "height": 476.625
+      },
+      "save": {
+        "x": 288,
+        "y": 782,
+        "width": 88,
+        "height": 48
+      }
+    },
+    {
+      "name": "interrupted-audio-silent-choice-retains-progress-slot-and-preferences"
+    },
+    {
+      "name": "reload-recovery-starts-current-voice-with-auto-off-and-slot-unchanged"
+    },
+    {
+      "name": "late-native-play-is-paused-by-owner-ceiling",
+      "lateState": {
+        "paused": true,
+        "playback": "suspended",
+        "host": "suspended"
+      },
+      "injectedPlayRequestDelay": true,
+      "syntheticNativeEvents": false
+    }
+  ],
+  "errors": [],
+  "scope": "Actual 1.10.0 production export, native audio at accelerated/slowed rates, public controls and unchanged IndexedDB quick slot. Persisted page-transition events and a held play request are explicit fault injections; native play/pause/ended are not synthesized. WebKit HTTP website playback does not prove embedded HTML/data/Blob or offline audio. Desktop engines/phone-sized windows are not human listening, physical-phone/Safari or long-soak acceptance."
+}

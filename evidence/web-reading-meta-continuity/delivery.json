@@ -1,0 +1,72 @@
+{
+  "passed": true,
+  "contentVersion": "1.11.0",
+  "technicalVersion": "S0.41",
+  "promoted": true,
+  "artifacts": {
+    "html": {
+      "bytes": 46811136,
+      "sha256": "d8fc175fc672e3f53b488b2c3ac6da03924bc029e31042be5f9c7259b5cecec8"
+    },
+    "website": {
+      "bytes": 35397585,
+      "sha256": "8dfb434a6e8e503c8a02bb10d3fb4d953489fbbd51ff16f992f5ddf05fa4383c"
+    }
+  },
+  "sourceAndNotes": "evidence/web-story-plans-and-farewell",
+  "pendingNotes": 25,
+  "retained": [
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops-project.zip",
+      "sha256": "43ef6e1673ed3dffbf705b4f178b2122fc960971eaf47286b33742fa285f0576"
+    },
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops.worldreview",
+      "sha256": "747534249345da6ce337054b4e7f47a1516556beda7079ef7b6d093e590bce8f"
+    },
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops.html",
+      "sha256": "6e5dfb4dfb88b5e210354fbcaeb8ccc4e79d50aa935a1d449f750bde8fc822fa"
+    },
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops-website.zip",
+      "sha256": "25ef0ab90a396f01dcfb09e60f754fb31a82f59aedb8da869b4a199a59e8f19e"
+    },
+    {
+      "file": "evidence/web-manual-save-safety/before-rain-stops.html",
+      "sha256": "6f05b517be7b5cb03bb21b7116977d55ff2879b90fdaac8aff651587419affae"
+    },
+    {
+      "file": "evidence/web-manual-save-safety/before-rain-stops-website.zip",
+      "sha256": "2869f4f492c354e663f33e66fb65b4decb7bcd05b8212a5dedb8403ca16cf8c1"
+    },
+    {
+      "file": "evidence/web-backup-continuation/final-work/original-1.11.0.worldsave",
+      "sha256": "2c0b50617f69ed5f6a1af29ae30aa41588ef1d0b88d87a7828519c66ca7f782b"
+    }
+  ],
+  "browsers": [
+    {
+      "engine": "chromium",
+      "browser": "151.0.7922.34",
+      "passed": true,
+      "checks": 7
+    },
+    {
+      "engine": "firefox",
+      "browser": "153.0",
+      "passed": true,
+      "checks": 7
+    },
+    {
+      "engine": "webkit",
+      "browser": "26.5",
+      "passed": true,
+      "checks": 7
+    }
+  ],
+  "manualSaveRegression": {
+    "engine": "chromium",
+    "checks": 7
+  }
+}

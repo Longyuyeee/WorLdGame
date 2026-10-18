@@ -1,0 +1,20 @@
+{
+  "passed": true,
+  "browser": "155.0.8059.41",
+  "checks": [
+    "without editing or manually saving source: select another scene and script view, collapse preview, reload and reopen from one home card; scene/view/preview choice all restore",
+    "checks/story navigation retains publishing step and all optional author choices; reload during an unfinished real entry playtest keeps return-to-generation with directory and choices, while runtime starts fresh",
+    "resumed options really generate directory plus production ZIP with both author files; home card names the saved task; after deployment step/reload, mobile dark editor resumes generation with no expired blob links or automatic build",
+    "reimporting the same project creates separate navigation/export choices; original workspace still has its directory and author choices; explicit structure scene opens writing at that scene and later publishing still retains choices",
+    "asset subpage and appearance task also resume through reload or home; task cards guide directly back to the selected area"
+  ],
+  "errors": [],
+  "artifacts": {
+    "delivery": {
+      "bytes": 662466,
+      "sha256": "f8a1586f1990d19a6540b2fa8b13cfebdbafe425c82fffa0042a5869096797ac",
+      "format": "directory"
+    }
+  },
+  "scope": "Existing short source and actual editor UI, isolated browser storage, real directory production export. No Player runtime changes, long Rain replay, physical phone, human acceptance, public deployment or full repository audit."
+}

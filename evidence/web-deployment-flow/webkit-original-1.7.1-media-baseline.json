@@ -1,0 +1,19 @@
+{
+  "passed": false,
+  "error": "Error: Native media failed after offline save restore",
+  "media": [
+    {
+      "bus": "ambient",
+      "error": 4,
+      "paused": true
+    },
+    {
+      "bus": "bgm",
+      "error": 4,
+      "paused": true
+    }
+  ],
+  "originalDirectorySha256": "2fe7df77fd75b3ad7fb063a08af4da619f1334f08b0b1a90398782662e901ca4",
+  "outageMechanism": "origin-stopped",
+  "physicalDevice": false
+}

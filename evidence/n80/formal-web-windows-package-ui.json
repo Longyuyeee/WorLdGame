@@ -1,0 +1,42 @@
+{
+  "date": "2026-10-10",
+  "path": "production Editor ZIP → actual packaging UI → error and retry → build → click play → actual game starts → exit restores play button → packaged game save/move/restart/load/ending",
+  "filename": "星光旅程-web.zip",
+  "bytes": 503378,
+  "mediaCount": 1,
+  "imageDimensions": [
+    512,
+    512
+  ],
+  "extrasPreservedState": true,
+  "reachedEnding": true,
+  "mobileOverflow": 0,
+  "exceptions": [],
+  "publication": {
+    "name": "星光旅程",
+    "version": "2.3.0",
+    "iconSize": 512,
+    "savedInEditor": true
+  },
+  "desktop": {
+    "runtimeBundled": true,
+    "automaticBundledGame": true,
+    "saveAfterRestartAndMove": true,
+    "existingOutputProtected": true,
+    "missingMediaRejectedBeforeOutput": true,
+    "authorHelpersExcluded": true,
+    "nativeFolderPicker": "not needed for bundled launch",
+    "changedStorySaveCompatibility": "not tested",
+    "visibleWindow": "not exercised (--test-hidden)"
+  },
+  "packagingUi": {
+    "invalidSourceRecovered": true,
+    "realBuilder": true,
+    "playButtonLaunchedGame": true,
+    "exitRestoredPlayButton": true,
+    "nativeWindowIcon": "not visually verified",
+    "nativeFolderPicker": "not exercised (typed paths)",
+    "explorerOpen": "not exercised",
+    "cmdLauncher": "not exercised"
+  }
+}

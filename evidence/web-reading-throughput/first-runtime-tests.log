@@ -1,0 +1,61 @@
+
+ RUN  v4.1.10 E:/Project/AIProject/ClaudeProject/WorLdGame
+
+ ✓ packages/runtime/src/history-navigation.test.ts (6 tests) 443ms
+ ❯ packages/runtime/src/canonical.test.ts (13 tests | 2 failed) 325ms
+     ✓ keeps strict portable UTF-8 encoding when the native encoder is missing 3ms
+     ✓ keeps strict portable UTF-8 encoding when the native encoder is restricted 1ms
+     ✓ reuses only primitive quotes within a validation and reencodes changed records 2ms
+     ✓ restores nested scopes and discards quotes after successful or failed validation 1ms
+     ✓ bounds scoped primitive retention and still encodes strings beyond either bound 4ms
+     ✓ retains scalar key order, nested serialization and SHA-256 bytes 46ms
+     ✓ matches UTF-8 boundaries, every valid scalar and multi-megabyte inputs 175ms
+     ✓ still rejects noncanonical values rather than silently repairing them 2ms
+     ✓ encodes exact canonical bytes and keeps the final text boundary validated 1ms
+     ✓ rejects JSON escape/combining sequences that the original text encoder rejects 1ms
+     ✓ reuses only immutable string encodings within one operation 1ms
+     × keeps scalar ordering and validation after the bounded string table fills 83ms
+     × does not let input array methods bypass canonical string validation 2ms
+ ✓ packages/player-core/src/player-core.test.ts (25 tests) 238ms
+ ✓ packages/runtime/src/history-presentation.test.ts (5 tests) 116ms
+ ✓ packages/runtime/src/sha256.test.ts (3 tests) 384ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/runtime/src/canonical.test.ts > canonical allocation optimization compatibility > keeps scalar ordering and validation after the bounded string table fills
+AssertionError: expected { …(2) } to deeply equal { …(2) }
+
+Compared values have no visual difference.
+
+ ❯ packages/runtime/src/canonical.test.ts:158:45
+    156|     const value = Array.from({ length: 700 }, (_, i) => ({ [`key-${i}�…
+    157|     const expected = reference(value);
+    158|     expect(canonicalRuntimeEncoding(value)).toEqual({ serialized: expe…
+       |                                             ^
+    159|     expect(() => canonicalRuntimeBytes([...value, { invalid: "e\u0301"…
+    160|     expect(() => canonicalRuntimeBytes([...value, { "\ud800": true }])…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  packages/runtime/src/canonical.test.ts > canonical allocation optimization compatibility > does not let input array methods bypass canonical string validation
+AssertionError: expected { serialized: '["中文😀"]', …(1) } to deeply equal { serialized: '["中文😀"]', …(1) }
+
+Compared values have no visual difference.
+
+ ❯ packages/runtime/src/canonical.test.ts:170:62
+    168|       static override get [Symbol.species](): ArrayConstructor { throw…
+    169|     }
+    170|     expect(canonicalRuntimeEncoding(new OwnSpecies("中文😀"))).toEqual({…
+       |                                                              ^
+    171|   });
+    172| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed | 4 passed (5)
+      Tests  2 failed | 50 passed (52)
+   Start at  14:01:08
+   Duration  8.38s (transform 793ms, setup 880ms, import 1.81s, tests 1.51s, environment 3.24s)
+
+JSON report written to E:/Project/AIProject/ClaudeProject/WorLdGame/evidence/web-reading-throughput/runtime-tests.json

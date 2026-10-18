@@ -1,0 +1,27 @@
+{
+  "sourceProject": "rainy-promise-repaired.zip",
+  "authoredThroughUi": true,
+  "originalItem": "CHARACTER小夏（测试立绘）media_actor_sprite109 B · PASS · PNG · 4×865e9353dfd69…验证源文件改名 / 替换文件使用位置 · 1海边 · stmt_ui_4 · asset生成缩略图生成 Sidecar",
+  "renamed": true,
+  "invalidReplacementRejected": true,
+  "stableId": "media_actor_sprite",
+  "assetUndoRedo": true,
+  "usageNavigation": true,
+  "missingReferenceRepair": true,
+  "scriptUndoRedo": true,
+  "exactSourceAfterReopen": true,
+  "before": {
+    "pixelDigest": "56fe8180c49c50620ac3bf2021ec1b1cb484936dc2802fd310137419c8e3a902",
+    "width": 1920,
+    "x": 65
+  },
+  "after": {
+    "pixelDigest": "2e68375b5254b414778c1a7a41104a630d9f173c0adf1e434ace6c21639b57c5",
+    "width": 1920,
+    "x": 65
+  },
+  "ending": "平常的告别",
+  "exceptions": [],
+  "experienceLevel": "beginner",
+  "projectArchive": "rainy-promise-beginner-assets.zip"
+}

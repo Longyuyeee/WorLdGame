@@ -2,11 +2,17 @@ import type { StoryStatement } from "@world-studio/story-core";
 import type { P0EditableNode } from "@world-studio/story-language";
 
 export type SequenceInsertKind = "dialogue" | "narration" | "choice" | "label" | "jump" | "call" | "return" | "set" | "condition" | "wait" | "end" | "background" | "show" | "camera" | "audio" | "textbox";
-export interface SequenceReferences { readonly characterIds: readonly string[]; readonly sceneIds: readonly string[]; readonly labelIds: readonly string[]; readonly variableIds: readonly string[]; readonly assetIds: readonly string[]; }
+export interface SequenceReferences { readonly characterIds: readonly string[]; readonly sceneIds: readonly string[]; readonly labelIds: readonly string[]; readonly variableIds: readonly string[]; readonly assetIds: readonly string[]; readonly variableDefaults?: Readonly<Record<string, string>>; readonly variableTypes?: Readonly<Record<string, "boolean" | "number" | "string">>; }
 export interface SequenceInsertStep { readonly afterId: string; readonly node: P0EditableNode; }
 export type SequenceIdFactory = (prefix: string) => string;
 
 const quote = (value: string) => JSON.stringify(value);
+export function sequenceInsertionAnchor(statements: readonly StoryStatement[], sceneId: string, selectedId: string, before=false): string {
+  const index=statements.findIndex(item=>item.id===selectedId);
+  const selected=statements[index];
+  const anchor=before || selected?.kind==='end' ? statements[index-1] : selected;
+  return anchor===undefined ? sceneId : anchor.kind==='choice' ? anchor.options.at(-1)?.id ?? anchor.id : anchor.id;
+}
 const stable = (values: readonly string[], fallback: string) => values[0] ?? fallback;
 export function createSequenceInsertPlan(kind: SequenceInsertKind, afterId: string, refs: SequenceReferences, createId: SequenceIdFactory): readonly SequenceInsertStep[] {
   const statementId=createId("stmt"), textId=createId("txt"), target=stable(refs.labelIds,stable(refs.sceneIds,"label_start")), asset=stable(refs.assetIds,"asset_missing"), variable=stable(refs.variableIds,"flag"), character=stable(refs.characterIds,"character_missing");
@@ -20,15 +26,16 @@ export function createSequenceInsertPlan(kind: SequenceInsertKind, afterId: stri
   if(kind==="jump")return one({kind:"jump",targetLabel:target,id:statementId,trailingMetadata:""});
   if(kind==="call")return one({kind:"call",targetLabel:target,id:statementId,trailingMetadata:""});
   if(kind==="return")return one({kind:"return",id:statementId,trailingMetadata:""});
-  if(kind==="set")return one({kind:"set",variable,expressionRaw:"true",id:statementId,trailingMetadata:""});
-  if(kind==="condition")return one({kind:"condition",expressionRaw:variable,targetLabel:target,id:statementId,trailingMetadata:""});
+  if(kind==="set")return one({kind:"set",variable,expressionRaw:refs.variableDefaults?.[variable] ?? "true",id:statementId,trailingMetadata:""});
+  if(kind==="condition")return one({kind:"condition",expressionRaw:refs.variableTypes?.[variable] === "number" ? `${variable} > 0` : refs.variableTypes?.[variable] === "string" ? `${variable} != ""` : variable,targetLabel:target,id:statementId,trailingMetadata:""});
   if(kind==="wait")return one({kind:"wait",durationRaw:"500ms",id:statementId,trailingMetadata:""});
   if(kind==="end")return one({kind:"end",nameRaw:quote("新结局"),id:statementId,trailingMetadata:""});
   const optionA=createId("option"),optionB=createId("option");
+  const choiceTarget = stable(refs.sceneIds, "scene_missing");
   return [
     {afterId,node:{kind:"choice",promptRaw:quote("请选择"),id:statementId,trailingMetadata:""}},
-    {afterId:statementId,node:{kind:"choice-option",labelRaw:quote("选项 A"),targetLabel:target,id:optionA,trailingMetadata:""}},
-    {afterId:optionA,node:{kind:"choice-option",labelRaw:quote("选项 B"),targetLabel:target,id:optionB,trailingMetadata:""}}
+    {afterId:statementId,node:{kind:"choice-option",labelRaw:quote("选项 A"),targetLabel:choiceTarget,id:optionA,trailingMetadata:""}},
+    {afterId:optionA,node:{kind:"choice-option",labelRaw:quote("选项 B"),targetLabel:choiceTarget,id:optionB,trailingMetadata:""}}
   ];
 }
 

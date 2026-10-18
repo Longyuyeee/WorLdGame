@@ -1,0 +1,31 @@
+{
+  "version": "1.5.1",
+  "artifacts": {
+    "source": {
+      "path": "evidence/web-authoring-polish/before-rain-stops-project.zip",
+      "bytes": 24180489,
+      "sha256": "fcb349ad44cb30a97b8f5a2a15fc15c20549086741878a887ac798d2f1a6aa91"
+    },
+    "html": {
+      "path": "evidence/web-authoring-polish/before-rain-stops.html",
+      "bytes": 32764246,
+      "sha256": "74689f279d7e3ca697def5a682a400a4ccad0f46218cbdb7eb9b5db232438c6f"
+    },
+    "directory": {
+      "path": "evidence/web-authoring-polish/before-rain-stops-web.zip",
+      "bytes": 24751485,
+      "sha256": "ba22b6b94bd74def91714bd5f36be7aeb44416b768995e18442275c204d1b419"
+    }
+  },
+  "story": {
+    "scenes": 9,
+    "narration": 90,
+    "dialogue": 9,
+    "characters": 9626,
+    "directions": 71
+  },
+  "publicDeployment": false,
+  "humanReadTimingPassed": false,
+  "physicalDevicePassed": false,
+  "releasePermissionConfirmed": false
+}

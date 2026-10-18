@@ -1,0 +1,116 @@
+{
+  "before": {
+    "active": false,
+    "text": "打开这封回信→",
+    "rect": {
+      "x": 38.59375,
+      "y": 421.125,
+      "width": 180,
+      "height": 52,
+      "top": 421.125,
+      "right": 218.59375,
+      "bottom": 473.125,
+      "left": 38.59375
+    },
+    "image": "url(\"http://127.0.0.1:3636/media/e4928f48c8e60e8408d6c65746c008bbd938a19b1b5f6d3d42354d40725decd3.png\")",
+    "hit": "<button class=\"player-primary\" type=\"button\">打开这封回信<span aria-hidden=\"true\">→</span></button>",
+    "visual": {
+      "scale": 1,
+      "offsetTop": 0
+    }
+  },
+  "after": [
+    {
+      "delay": 0,
+      "state": {
+        "active": false,
+        "text": "打开这封回信→",
+        "rect": {
+          "x": 38.59375,
+          "y": 421.125,
+          "width": 180,
+          "height": 52,
+          "top": 421.125,
+          "right": 218.59375,
+          "bottom": 473.125,
+          "left": 38.59375
+        },
+        "image": "url(\"http://127.0.0.1:3636/media/e4928f48c8e60e8408d6c65746c008bbd938a19b1b5f6d3d42354d40725decd3.png\")",
+        "hit": "<button class=\"player-primary\" type=\"button\">打开这封回信<span aria-hidden=\"true\">→</span></button>",
+        "visual": {
+          "scale": 1,
+          "offsetTop": 0
+        }
+      }
+    },
+    {
+      "delay": 20,
+      "state": {
+        "active": false,
+        "text": "打开这封回信→",
+        "rect": {
+          "x": 38.59375,
+          "y": 421.125,
+          "width": 180,
+          "height": 52,
+          "top": 421.125,
+          "right": 218.59375,
+          "bottom": 473.125,
+          "left": 38.59375
+        },
+        "image": "url(\"http://127.0.0.1:3636/media/e4928f48c8e60e8408d6c65746c008bbd938a19b1b5f6d3d42354d40725decd3.png\")",
+        "hit": "<button class=\"player-primary\" type=\"button\">打开这封回信<span aria-hidden=\"true\">→</span></button>",
+        "visual": {
+          "scale": 1,
+          "offsetTop": 0
+        }
+      }
+    },
+    {
+      "delay": 80,
+      "state": {
+        "active": false,
+        "text": "打开这封回信→",
+        "rect": {
+          "x": 38.59375,
+          "y": 421.125,
+          "width": 180,
+          "height": 52,
+          "top": 421.125,
+          "right": 218.59375,
+          "bottom": 473.125,
+          "left": 38.59375
+        },
+        "image": "url(\"http://127.0.0.1:3636/media/e4928f48c8e60e8408d6c65746c008bbd938a19b1b5f6d3d42354d40725decd3.png\")",
+        "hit": "<button class=\"player-primary\" type=\"button\">打开这封回信<span aria-hidden=\"true\">→</span></button>",
+        "visual": {
+          "scale": 1,
+          "offsetTop": 0
+        }
+      }
+    },
+    {
+      "delay": 160,
+      "state": {
+        "active": false,
+        "text": "打开这封回信→",
+        "rect": {
+          "x": 38.59375,
+          "y": 421.125,
+          "width": 180,
+          "height": 52,
+          "top": 421.125,
+          "right": 218.59375,
+          "bottom": 473.125,
+          "left": 38.59375
+        },
+        "image": "url(\"http://127.0.0.1:3636/media/e4928f48c8e60e8408d6c65746c008bbd938a19b1b5f6d3d42354d40725decd3.png\")",
+        "hit": "<button class=\"player-primary\" type=\"button\">打开这封回信<span aria-hidden=\"true\">→</span></button>",
+        "visual": {
+          "scale": 1,
+          "offsetTop": 0
+        }
+      }
+    }
+  ]
+}

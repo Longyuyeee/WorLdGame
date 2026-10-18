@@ -1,0 +1,81 @@
+{
+  "passed": true,
+  "contentVersion": "1.12.0",
+  "technicalVersion": "S0.41",
+  "artifacts": {
+    "source": {
+      "bytes": 38560984,
+      "sha256": "75453d918fa5ef47d5038b397b3aeeb4c5ad67e5dbab0594e696f29020e25f4c"
+    },
+    "html": {
+      "bytes": 52288411,
+      "sha256": "f5527aaa073f11982aa10bcacd4c8e85b6212920e4d6ab07c528d5698746da2b"
+    },
+    "website": {
+      "bytes": 39516021,
+      "sha256": "e2ce402c7a0ce4558d627d0379c3c8c0f19fb4913026aea0cc145ca84715cf6b"
+    },
+    "notes": {
+      "bytes": 25590,
+      "sha256": "1ad95d42c7960ee4db48f50a10108069c35d61e08a1470ec45f582c5a8ad9624"
+    }
+  },
+  "retained": [
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops-project.zip",
+      "sha256": "43ef6e1673ed3dffbf705b4f178b2122fc960971eaf47286b33742fa285f0576"
+    },
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops.worldreview",
+      "sha256": "747534249345da6ce337054b4e7f47a1516556beda7079ef7b6d093e590bce8f"
+    },
+    {
+      "file": "evidence/web-reading-motion/before-rain-stops.html",
+      "sha256": "f21eb61a3a8a1a4aca73d935caccd46ca8bf30d4add24ec2c420f98a9d2d67d0"
+    },
+    {
+      "file": "evidence/web-reading-motion/before-rain-stops-website.zip",
+      "sha256": "a5510ba131555d065dc24566e5fa4ac093a0979e2d8fb5aa10982f4a1690651c"
+    }
+  ],
+  "changedBackgroundCues": 5,
+  "unchangedProseCharacters": 9772,
+  "originalMediaRetained": 26,
+  "totalMedia": 28,
+  "pendingNotes": 28,
+  "humanApprovedNotes": 0,
+  "pendingMediaPermissions": 28,
+  "approvedMediaPermissions": 0,
+  "previousSaveCompatibility": "not-approved-content-changed",
+  "browsers": [
+    {
+      "engine": "chromium",
+      "completeWebsiteRoutes": 2,
+      "textsPerRoute": 66,
+      "nativeMutedVoicesPerRoute": 6,
+      "stageSamples": 11,
+      "explicitSaveReloadLoads": 3,
+      "oldSaveRefusedBeforeWrite": true
+    },
+    {
+      "engine": "firefox",
+      "completeWebsiteRoutes": 2,
+      "textsPerRoute": 66,
+      "nativeMutedVoicesPerRoute": 6,
+      "stageSamples": 11,
+      "explicitSaveReloadLoads": 3,
+      "oldSaveRefusedBeforeWrite": true
+    },
+    {
+      "engine": "webkit",
+      "completeWebsiteRoutes": 2,
+      "textsPerRoute": 66,
+      "nativeMutedVoicesPerRoute": 6,
+      "stageSamples": 11,
+      "explicitSaveReloadLoads": 3,
+      "oldSaveRefusedBeforeWrite": true
+    }
+  ],
+  "fullFormatRouteCells": 4,
+  "physicalPhoneAcceptance": "not-accepted"
+}

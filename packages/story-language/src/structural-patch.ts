@@ -1,4 +1,5 @@
 import type { EntityId } from "@world-studio/story-core";
+import { storyMotionError } from "@world-studio/story-core";
 import {
   CAMERA_GEOMETRY_PARAMETERS,
   DIRECTIVE_PARAMETERS,
@@ -138,13 +139,19 @@ function stableId(node: StorySyntaxNode): EntityId | undefined {
     case "choice-option":
     case "checkpoint":
     case "end":
+    case "label":
+    case "set":
+    case "jump":
+    case "call":
+    case "return":
+    case "condition":
+    case "wait":
       return node.id;
     case "dialogue":
+    case "narration":
       return node.statementId;
     case "blank":
     case "comment":
-    case "label":
-    case "set":
     case "opaque":
       return undefined;
   }
@@ -229,6 +236,8 @@ function validateDirectiveRequest(request: InsertDirectiveRequest): string | und
   }
   const action = resolveDirectiveAction(request.command, request.parameters.action);
   if (action === undefined) return `Invalid @${request.command} action`;
+  const motionError = storyMotionError(request.command, action, request.parameters);
+  if (motionError) return motionError;
   if (request.parameters.transition !== undefined && !isStageTransition(request.parameters.transition)) {
     return "transition must be fade, dissolve, or slide";
   }
@@ -311,7 +320,7 @@ export function insertDirectiveAfter(
   for (const node of prepared.parsedDocument.nodes) {
     const id = stableId(node);
     if (id !== undefined) allIds.add(id);
-    if (node.kind === "dialogue" && node.textId !== undefined) allIds.add(node.textId);
+    if ((node.kind === "dialogue" || node.kind === "narration") && node.textId !== undefined) allIds.add(node.textId);
   }
   if (allIds.has(request.statementId)) return fail("STRUCTURAL_DUPLICATE_ID", "Inserted directive ID must be globally unique");
   const anchorNodeIndex = prepared.parsedDocument.nodes.findIndex((node) => stableId(node) === request.afterId);
@@ -367,7 +376,7 @@ export function duplicateDirective(
   for (const node of prepared.parsedDocument.nodes) {
     const id = stableId(node);
     if (id !== undefined) allIds.add(id);
-    if (node.kind === "dialogue" && node.textId !== undefined) allIds.add(node.textId);
+    if ((node.kind === "dialogue" || node.kind === "narration") && node.textId !== undefined) allIds.add(node.textId);
   }
   if (allIds.has(request.newStatementId)) {
     return fail("STRUCTURAL_DUPLICATE_ID", "Duplicated directive ID must be globally unique");
@@ -506,7 +515,7 @@ export function insertDialogueAfter(
     if (id !== undefined) {
       allIds.add(id);
     }
-    if (node.kind === "dialogue" && node.textId !== undefined) {
+    if ((node.kind === "dialogue" || node.kind === "narration") && node.textId !== undefined) {
       allIds.add(node.textId);
     }
   }

@@ -1,0 +1,28 @@
+
+ RUN  v4.1.10 E:/Project/AIProject/ClaudeProject/WorLdGame
+
+x··
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  apps/editor/src/asset-import-app.test.tsx > S0.30 typed resource manifest compiler integration > imports real File bytes, persists stable metadata and reports exact deduplication
+Error: expect(element).toBeVisible()
+
+Received element is not visible:
+  <strong />
+ ❯ apps/editor/src/asset-import-app.test.tsx:49:78
+     47|     expect(within(vault).getByText("Lifecycle r2")).toBeVisible();
+     48|     expect(screen.getAllByText("1", { selector: ".asset-lifecycle__met…
+     49|     expect(within(screen.getByLabelText("已导入资源")).getByText("Broadcast…
+       |                                                                              ^
+     50|     expect(screen.getByText(/PASS · PNG · 1920×1080/)).toBeVisible();
+     51|     expect(screen.getByRole("button", { name: "生成缩略图" })).toBeEnabled(…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 2 passed (3)
+   Start at  17:31:56
+   Duration  12.63s (transform 2.23s, setup 460ms, import 5.10s, tests 5.23s, environment 1.40s)
+

@@ -1,0 +1,240 @@
+TAP version 13
+# Subtest: accepts exact UI-authored arrival, night, photo and choice changes with 26 unchanged media
+ok 1 - accepts exact UI-authored arrival, night, photo and choice changes with 26 unchanged media
+  ---
+  duration_ms: 53.426
+  ...
+# Subtest: refuses premature, duplicated or missing original appearance cues
+ok 2 - refuses premature, duplicated or missing original appearance cues
+  ---
+  duration_ms: 178.0356
+  ...
+# Subtest: refuses wrong night timing, an omitted cue or unplanned stage changes
+ok 3 - refuses wrong night timing, an omitted cue or unplanned stage changes
+  ---
+  duration_ms: 225.7516
+  ...
+# Subtest: refuses old branch target or ID changes, extra prose or voice rewrites
+ok 4 - refuses old branch target or ID changes, extra prose or voice rewrites
+  ---
+  duration_ms: 318.7603
+  ...
+# Subtest: refuses changed media, source permissions, compatibility receipts and extra files
+ok 5 - refuses changed media, source permissions, compatibility receipts and extra files
+  ---
+  duration_ms: 77.5027
+  ...
+# Subtest: preserves nineteen previous notes and four unapproved fixed records
+ok 6 - preserves nineteen previous notes and four unapproved fixed records
+  ---
+  duration_ms: 7.5334
+  ...
+# Subtest: does not silently overwrite another prose draft
+ok 7 - does not silently overwrite another prose draft
+  ---
+  duration_ms: 0.811
+  ...
+# Subtest: accepts only the UI-authored own-branch plan and weaker return rain with original 26 media
+ok 8 - accepts only the UI-authored own-branch plan and weaker return rain with original 26 media
+  ---
+  duration_ms: 54.2312
+  ...
+# Subtest: refuses the unexplained fallback plan or extra edits elsewhere in either branch
+ok 9 - refuses the unexplained fallback plan or extra edits elsewhere in either branch
+  ---
+  duration_ms: 184.8924
+  ...
+# Subtest: refuses missing, misplaced, duplicated, wrong-volume or wrong-bus rain cues
+ok 10 - refuses missing, misplaced, duplicated, wrong-volume or wrong-bus rain cues
+  ---
+  duration_ms: 355.1267
+  ...
+# Subtest: refuses changed branch labels, targets, IDs, dialogue, media and source permissions
+ok 11 - refuses changed branch labels, targets, IDs, dialogue, media and source permissions
+  ---
+  duration_ms: 295.2586
+  ...
+# Subtest: refuses legacy save approval or a missing content version change
+ok 12 - refuses legacy save approval or a missing content version change
+  ---
+  duration_ms: 44.7212
+  ...
+# Subtest: preserves 23 previous notes and keeps both new records unapproved
+ok 13 - preserves 23 previous notes and keeps both new records unapproved
+  ---
+  duration_ms: 9.2919
+  ...
+# Subtest: rejects another original prose draft instead of silently replacing it
+ok 14 - rejects another original prose draft instead of silently replacing it
+  ---
+  duration_ms: 0.7705
+  ...
+# Subtest: checks every exact local file without counting author extras or declaring product acceptance
+ok 15 - checks every exact local file without counting author extras or declaring product acceptance
+  ---
+  duration_ms: 29.5288
+  ...
+# Subtest: detects missing, same-size corrupt and longer files with an actionable file path
+ok 16 - detects missing, same-size corrupt and longer files with an actionable file path
+  ---
+  duration_ms: 33.4538
+  ...
+# Subtest: rejects malformed, duplicate, private, traversal, absolute and incomplete manifest inventories
+ok 17 - rejects malformed, duplicate, private, traversal, absolute and incomplete manifest inventories
+  ---
+  duration_ms: 16.4937
+  ...
+# Subtest: generates a new exact public-only directory without merging existing output or touching the source
+ok 18 - generates a new exact public-only directory without merging existing output or touching the source
+  ---
+  duration_ms: 68.5445
+  ...
+# Subtest: does not create a ready folder from a corrupt source
+ok 19 - does not create a ready folder from a corrupt source
+  ---
+  duration_ms: 17.4535
+  ...
+# Subtest: rejects a website manifest that omits a media file still required by the offline worker
+ok 20 - rejects a website manifest that omits a media file still required by the offline worker
+  ---
+  duration_ms: 20.5717
+  ...
+# Subtest: rejects a directory junction instead of copying a linked source
+ok 21 - rejects a directory junction instead of copying a linked source
+  ---
+  duration_ms: 22.0267
+  ...
+# Subtest: normalizes directory/index addresses and rejects credentials, tokens, remote HTTP and non-directory artifacts
+ok 22 - normalizes directory/index addresses and rejects credentials, tokens, remote HTTP and non-directory artifacts
+  ---
+  duration_ms: 0.7943
+  ...
+# Subtest: performs read-only exact checks against the requested directory only
+ok 23 - performs read-only exact checks against the requested directory only
+  ---
+  duration_ms: 137.9778
+  ...
+# Subtest: identifies missing, stale, changed manifest, wrong MIME and SPA fallback responses
+ok 24 - identifies missing, stale, changed manifest, wrong MIME and SPA fallback responses
+  ---
+  duration_ms: 109.0601
+  ...
+# Subtest: does not follow redirects and bounds a stalled response, keeping version headers advisory
+ok 25 - does not follow redirects and bounds a stalled response, keeping version headers advisory
+  ---
+  duration_ms: 94.7116
+  ...
+# Subtest: the shipped helper executes offline using only Node built-ins and returns a machine-readable report
+ok 26 - the shipped helper executes offline using only Node built-ins and returns a machine-readable report
+  ---
+  duration_ms: 126.5866
+  ...
+# Subtest: rejects empty target and ambiguous command flags instead of silently reporting a local success
+ok 27 - rejects empty target and ambiguous command flags instead of silently reporting a local success
+  ---
+  duration_ms: 318.2928
+  ...
+# Subtest: listens only on a browser-safe high loopback port and removes temporary listeners
+ok 28 - listens only on a browser-safe high loopback port and removes temporary listeners
+  ---
+  duration_ms: 31.8384
+  ...
+# Subtest: retries an occupied port without changing the existing server
+ok 29 - retries an occupied port without changing the existing server
+  ---
+  duration_ms: 4.1368
+  ...
+# Subtest: rejects unsafe or invalid candidates without binding a broad interface
+ok 30 - rejects unsafe or invalid candidates without binding a broad interface
+  ---
+  duration_ms: 0.6462
+  ...
+# Subtest: retries a Windows excluded port and removes the failed attempt listeners
+ok 31 - retries a Windows excluded port and removes the failed attempt listeners
+  ---
+  duration_ms: 0.328
+  ...
+# Subtest: bounds excluded-port retries and preserves the final error instead of hiding other failures
+ok 32 - bounds excluded-port retries and preserves the final error instead of hiding other failures
+  ---
+  duration_ms: 0.5589
+  ...
+# Subtest: bundles existing Player Shell fixtures with the recovery worker source
+ok 33 - bundles existing Player Shell fixtures with the recovery worker source
+  ---
+  duration_ms: 366.9148
+  ...
+# Subtest: forwards frozen baseline source overrides into the child worker build
+ok 34 - forwards frozen baseline source overrides into the child worker build
+  ---
+  duration_ms: 242.4317
+  ...
+# Subtest: awaits resolved false and returns only the later positive snapshot
+ok 35 - awaits resolved false and returns only the later positive snapshot
+  ---
+  duration_ms: 3.9053
+  ...
+# Subtest: a never-ready asynchronous result times out instead of passing
+ok 36 - a never-ready asynchronous result times out instead of passing
+  ---
+  duration_ms: 22.6764
+  ...
+# Subtest: propagates browser read failures rather than accepting them
+ok 37 - propagates browser read failures rather than accepting them
+  ---
+  duration_ms: 0.6489
+  ...
+# Subtest: refuses existing before-rain-stops.html before changing any report or starting a browser
+ok 38 - refuses existing before-rain-stops.html before changing any report or starting a browser
+  ---
+  duration_ms: 248.3809
+  ...
+# Subtest: refuses existing before-rain-stops-website.zip before changing any report or starting a browser
+ok 39 - refuses existing before-rain-stops-website.zip before changing any report or starting a browser
+  ---
+  duration_ms: 281.9445
+  ...
+# Subtest: promotes exact HTML and website bytes and removes only the verified working pair
+ok 40 - promotes exact HTML and website bytes and removes only the verified working pair
+  ---
+  duration_ms: 17.3332
+  ...
+# Subtest: accepts identical previously promoted bytes without rewriting them
+ok 41 - accepts identical previously promoted bytes without rewriting them
+  ---
+  duration_ms: 12.6355
+  ...
+# Subtest: rejects changed html bytes before publishing either file
+ok 42 - rejects changed html bytes before publishing either file
+  ---
+  duration_ms: 9.9679
+  ...
+# Subtest: rejects changed website bytes before publishing either file
+ok 43 - rejects changed website bytes before publishing either file
+  ---
+  duration_ms: 6.4808
+  ...
+# Subtest: rejects a mismatched reported size before publishing
+ok 44 - rejects a mismatched reported size before publishing
+  ---
+  duration_ms: 11.5231
+  ...
+# Subtest: a different existing website candidate blocks HTML promotion and preserves both working files
+ok 45 - a different existing website candidate blocks HTML promotion and preserves both working files
+  ---
+  duration_ms: 6.3887
+  ...
+# Subtest: a missing website leaves the HTML unpublished and retained for diagnosis
+ok 46 - a missing website leaves the HTML unpublished and retained for diagnosis
+  ---
+  duration_ms: 5.8047
+  ...
+1..46
+# tests 46
+# suites 0
+# pass 46
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1098.2427

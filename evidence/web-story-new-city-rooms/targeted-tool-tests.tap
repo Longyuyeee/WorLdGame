@@ -1,0 +1,125 @@
+TAP version 13
+# Subtest: accepts only the actual two-image five-cue author export without rewriting prose or voices
+ok 1 - accepts only the actual two-image five-cue author export without rewriting prose or voices
+  ---
+  duration_ms: 33.842
+  ...
+# Subtest: rejects reverting any new-city room cue back to the old home
+ok 2 - rejects reverting any new-city room cue back to the old home
+  ---
+  duration_ms: 246.2329
+  ...
+# Subtest: rejects unrelated prose, dialogue, choice, identity or order changes
+ok 3 - rejects unrelated prose, dialogue, choice, identity or order changes
+  ---
+  duration_ms: 247.8558
+  ...
+# Subtest: keeps the early staying-route home and original farewell rain unchanged
+ok 4 - keeps the early staying-route home and original farewell rain unchanged
+  ---
+  duration_ms: 108.2104
+  ...
+# Subtest: rejects missing or corrupt originals and new PNG bytes
+ok 5 - rejects missing or corrupt originals and new PNG bytes
+  ---
+  duration_ms: 75.5158
+  ...
+# Subtest: rejects unchanged version or an invented older-save compatibility receipt
+ok 6 - rejects unchanged version or an invented older-save compatibility receipt
+  ---
+  duration_ms: 35.1115
+  ...
+# Subtest: rejects altered generation facts, permission approval or original source records
+ok 7 - rejects altered generation facts, permission approval or original source records
+  ---
+  duration_ms: 55.5789
+  ...
+# Subtest: preserves all25 original notes and keeps all28 notes fixed rather than human approved
+ok 8 - preserves all25 original notes and keeps all28 notes fixed rather than human approved
+  ---
+  duration_ms: 3.8094
+  ...
+# Subtest: rejects extra archive files, duplicate new assets or an unexpected original cue
+ok 9 - rejects extra archive files, duplicate new assets or an unexpected original cue
+  ---
+  duration_ms: 41.9074
+  ...
+# Subtest: binds both public formats to exact28 repository sources and the unchanged nine voice associations
+ok 10 - binds both public formats to exact28 repository sources and the unchanged nine voice associations
+  ---
+  duration_ms: 410.2547
+  ...
+# Subtest: preserves frozen room evidence --baseline
+ok 11 - preserves frozen room evidence --baseline
+  ---
+  duration_ms: 84.7053
+  ...
+# Subtest: preserves frozen room evidence --author
+ok 12 - preserves frozen room evidence --author
+  ---
+  duration_ms: 83.1969
+  ...
+# Subtest: preserves frozen room evidence --author --resume-author
+ok 13 - preserves frozen room evidence --author --resume-author
+  ---
+  duration_ms: 96.7756
+  ...
+# Subtest: preserves frozen room evidence 
+ok 14 - preserves frozen room evidence 
+  ---
+  duration_ms: 86.951
+  ...
+# Subtest: preserves frozen room evidence --engine=firefox
+ok 15 - preserves frozen room evidence --engine=firefox
+  ---
+  duration_ms: 85.046
+  ...
+# Subtest: preserves frozen room evidence --engine=webkit
+ok 16 - preserves frozen room evidence --engine=webkit
+  ---
+  duration_ms: 85.7822
+  ...
+# Subtest: preserves frozen room evidence tests
+ok 17 - preserves frozen room evidence tests
+  ---
+  duration_ms: 60.6874
+  ...
+# Subtest: preserves existing chromium-navigation.json  before reading a game or starting browsers
+ok 18 - preserves existing chromium-navigation.json  before reading a game or starting browsers
+  ---
+  duration_ms: 90.5594
+  ...
+# Subtest: preserves existing webkit-navigation.json --engine=webkit before reading a game or starting browsers
+ok 19 - preserves existing webkit-navigation.json --engine=webkit before reading a game or starting browsers
+  ---
+  duration_ms: 88.9377
+  ...
+# Subtest: preserves existing matrix.json --matrix before reading a game or starting browsers
+ok 20 - preserves existing matrix.json --matrix before reading a game or starting browsers
+  ---
+  duration_ms: 103.1863
+  ...
+# Subtest: preserves existing matrix.json --matrix --version=1.12.0 before reading a game or starting browsers
+ok 21 - preserves existing matrix.json --matrix --version=1.12.0 before reading a game or starting browsers
+  ---
+  duration_ms: 101.6129
+  ...
+# Subtest: rejects an unapproved story version instead of guessing a new media inventory
+ok 22 - rejects an unapproved story version instead of guessing a new media inventory
+  ---
+  duration_ms: 103.8748
+  ...
+# Subtest: rejects an unsupported engine or a purported WebKit full-audio matrix
+ok 23 - rejects an unsupported engine or a purported WebKit full-audio matrix
+  ---
+  duration_ms: 220.621
+  ...
+1..23
+# tests 23
+# suites 0
+# pass 23
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2783.9492

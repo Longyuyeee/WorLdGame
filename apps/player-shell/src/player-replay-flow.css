@@ -1,0 +1,7 @@
+@media (max-width: 640px) {
+  .player-replay-status { top: calc(var(--player-viewport-offset, 0px) + 76px); }
+}
+@media (max-height: 480px) {
+  .player-replay-status { position: fixed; top: calc(var(--player-viewport-offset, 0px) + 12px); left: max(14px, env(safe-area-inset-left)); right: auto; width: min(440px, calc(100vw - 240px)); padding: 8px 12px; }
+  .player-replay-status small { display: none; }
+}

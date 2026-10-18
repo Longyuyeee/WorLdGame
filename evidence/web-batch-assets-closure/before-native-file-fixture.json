@@ -1,0 +1,69 @@
+{
+  "checks": [
+    {
+      "name": "layout-390-long-list-light",
+      "detail": {
+        "left": 14,
+        "right": 376,
+        "top": 16,
+        "bottom": 828,
+        "w": 390,
+        "h": 844,
+        "scroll": 360,
+        "client": 360,
+        "footer": {
+          "left": 15,
+          "right": 375,
+          "bottom": 827
+        },
+        "bodyScroll": 17773,
+        "bodyClient": 567
+      }
+    },
+    {
+      "name": "layout-320-long-list-light",
+      "detail": {
+        "left": 14,
+        "right": 306,
+        "top": 16,
+        "bottom": 828,
+        "w": 320,
+        "h": 844,
+        "scroll": 290,
+        "client": 290,
+        "footer": {
+          "left": 15,
+          "right": 305,
+          "bottom": 827
+        },
+        "bodyScroll": 19746,
+        "bodyClient": 526
+      }
+    },
+    {
+      "name": "modal-escape-focus-and-dark-theme",
+      "detail": {}
+    },
+    {
+      "name": "mixed-import-metadata-duplicates-failure-and-retry",
+      "detail": {}
+    },
+    {
+      "name": "second-batch-does-not-overwrite-and-opens-actual-detail",
+      "detail": {}
+    },
+    {
+      "name": "real-direction-save-reopen-and-production-manifest",
+      "detail": {
+        "sourceAssets": 5,
+        "sourceBlobs": 3
+      }
+    },
+    {
+      "name": "downloaded-directory-player-displays-assets-plays-audio-and-ends",
+      "detail": {}
+    }
+  ],
+  "errors": [],
+  "failure": "Error: Cannot set buffer larger than 50Mb, please write it to a file and pass its path instead.\n    at convertInputFiles (C:\\Users\\Administrator\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\node_modules\\playwright-core\\lib\\coreBundle.js:60373:11)\n    at _Frame.setInputFiles (C:\\Users\\Administrator\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\node_modules\\playwright-core\\lib\\coreBundle.js:60197:33)\n    at _Locator.setInputFiles (C:\\Users\\Administrator\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\node_modules\\playwright-core\\lib\\coreBundle.js:58207:34)\n    at choose (file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-batch-assets.mjs:31:83)\n    at file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-batch-assets.mjs:139:9"
+}

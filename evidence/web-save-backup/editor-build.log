@@ -1,0 +1,26 @@
+
+> @world-studio/editor@0.0.0-s0.41 build
+> tsc -b && vite build
+
+vite v8.2.1 building client environment for production...
+[2K
+transforming...✓ 224 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                           0.88 kB │ gzip:   0.53 kB
+dist/assets/thumbnail.worker-CG_K3SVg.js                  1.44 kB
+dist/assets/lossless-png-export.worker-DnUOFogJ.js       11.81 kB
+dist/assets/dicing-runtime.worker-BoLTxN6n.js            12.95 kB
+dist/assets/media-inspection.worker-DkaGvlhC.js          16.04 kB
+dist/assets/dicing-analysis.worker-CaQ3ae9x.js           24.19 kB
+dist/assets/index-DK8TTZbx.css                          266.43 kB │ gzip:  44.62 kB
+dist/assets/localization-xlsx-Cuyc8N_S.js               420.94 kB │ gzip: 140.54 kB
+dist/assets/_virtual_world-player-export-6sH1ZjFF.js    588.33 kB │ gzip: 168.69 kB
+dist/assets/index-DMGOR-kY.js                         1,224.88 kB │ gzip: 356.63 kB
+
+✓ built in 1.05s
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.

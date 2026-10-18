@@ -1,0 +1,7 @@
+
+> world-studio@0.0.0-s0.41 typecheck
+> tsc -b
+
+apps/editor/src/App.tsx(5491,90): error TS2552: Cannot find name 'setStudioPage'. Did you mean 'studioPage'?
+apps/editor/src/App.tsx(5556,417): error TS2552: Cannot find name 'setStudioPage'. Did you mean 'studioPage'?
+apps/editor/src/App.tsx(5607,349): error TS2552: Cannot find name 'setStudioPage'. Did you mean 'studioPage'?

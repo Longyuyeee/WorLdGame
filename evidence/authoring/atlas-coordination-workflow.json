@@ -1,0 +1,6311 @@
+{
+  "scale": true,
+  "measurements": [
+    {
+      "kind": "html",
+      "elapsedMs": 1419.5355999999992,
+      "bytes": 11389527
+    },
+    {
+      "kind": "continuous-process-samples",
+      "name": "build-html",
+      "samples": [
+        {
+          "elapsedMs": 731.5990000000002,
+          "processes": 6,
+          "privateBytes": 431669248,
+          "workingSetBytes": 714358784
+        },
+        {
+          "elapsedMs": 1575.8165000000008,
+          "processes": 6,
+          "privateBytes": 487178240,
+          "workingSetBytes": 782176256
+        }
+      ],
+      "observedMaxPrivateBytes": 487178240,
+      "observedMaxWorkingSetBytes": 782176256,
+      "limits": "Serial process-tree sampling plus 200ms pause; actual timestamps retained. Observed maxima are lower bounds, not guaranteed instantaneous peaks, and include browser/harness activity."
+    },
+    {
+      "kind": "html",
+      "elapsedMs": 3472.9100999999973,
+      "bytes": 1963562
+    },
+    {
+      "kind": "continuous-process-samples",
+      "name": "build-html",
+      "samples": [
+        {
+          "elapsedMs": 585.2001999999993,
+          "processes": 6,
+          "privateBytes": 403722240,
+          "workingSetBytes": 678473728
+        },
+        {
+          "elapsedMs": 1605.5534000000007,
+          "processes": 6,
+          "privateBytes": 442503168,
+          "workingSetBytes": 712196096
+        },
+        {
+          "elapsedMs": 2635.493300000002,
+          "processes": 6,
+          "privateBytes": 399093760,
+          "workingSetBytes": 676208640
+        },
+        {
+          "elapsedMs": 3462.7713000000003,
+          "processes": 6,
+          "privateBytes": 438452224,
+          "workingSetBytes": 712151040
+        }
+      ],
+      "observedMaxPrivateBytes": 442503168,
+      "observedMaxWorkingSetBytes": 712196096,
+      "limits": "Serial process-tree sampling plus 200ms pause; actual timestamps retained. Observed maxima are lower bounds, not guaranteed instantaneous peaks, and include browser/harness activity."
+    },
+    {
+      "kind": "html",
+      "elapsedMs": 881.4872000000032,
+      "bytes": 1963562
+    },
+    {
+      "kind": "continuous-process-samples",
+      "name": "build-html",
+      "samples": [
+        {
+          "elapsedMs": 604.8759999999966,
+          "processes": 6,
+          "privateBytes": 473534464,
+          "workingSetBytes": 889720832
+        },
+        {
+          "elapsedMs": 1351.8925999999992,
+          "processes": 6,
+          "privateBytes": 500523008,
+          "workingSetBytes": 915943424
+        }
+      ],
+      "observedMaxPrivateBytes": 500523008,
+      "observedMaxWorkingSetBytes": 915943424,
+      "limits": "Serial process-tree sampling plus 200ms pause; actual timestamps retained. Observed maxima are lower bounds, not guaranteed instantaneous peaks, and include browser/harness activity."
+    },
+    {
+      "kind": "directory",
+      "elapsedMs": 938.8378000000012,
+      "bytes": 1902907
+    },
+    {
+      "kind": "continuous-process-samples",
+      "name": "build-directory",
+      "samples": [
+        {
+          "elapsedMs": 562.6410000000033,
+          "processes": 6,
+          "privateBytes": 524341248,
+          "workingSetBytes": 935518208
+        },
+        {
+          "elapsedMs": 1309.0109999999986,
+          "processes": 6,
+          "privateBytes": 437092352,
+          "workingSetBytes": 758222848
+        }
+      ],
+      "observedMaxPrivateBytes": 524341248,
+      "observedMaxWorkingSetBytes": 935518208,
+      "limits": "Serial process-tree sampling plus 200ms pause; actual timestamps retained. Observed maxima are lower bounds, not guaranteed instantaneous peaks, and include browser/harness activity."
+    },
+    {
+      "kind": "html",
+      "elapsedMs": 3136.5880000000034,
+      "bytes": 1963562
+    },
+    {
+      "kind": "continuous-process-samples",
+      "name": "build-html",
+      "samples": [
+        {
+          "elapsedMs": 682.4766000000018,
+          "processes": 6,
+          "privateBytes": 477454336,
+          "workingSetBytes": 815284224
+        },
+        {
+          "elapsedMs": 1451.3344999999972,
+          "processes": 6,
+          "privateBytes": 475652096,
+          "workingSetBytes": 784420864
+        },
+        {
+          "elapsedMs": 2190.1075999999957,
+          "processes": 6,
+          "privateBytes": 500592640,
+          "workingSetBytes": 789123072
+        },
+        {
+          "elapsedMs": 3120.250699999997,
+          "processes": 6,
+          "privateBytes": 445939712,
+          "workingSetBytes": 742506496
+        }
+      ],
+      "observedMaxPrivateBytes": 500592640,
+      "observedMaxWorkingSetBytes": 815284224,
+      "limits": "Serial process-tree sampling plus 200ms pause; actual timestamps retained. Observed maxima are lower bounds, not guaranteed instantaneous peaks, and include browser/harness activity."
+    },
+    {
+      "kind": "html",
+      "elapsedMs": 1116.6074999999983,
+      "bytes": 1963562
+    },
+    {
+      "kind": "continuous-process-samples",
+      "name": "build-html",
+      "samples": [
+        {
+          "elapsedMs": 947.3739999999962,
+          "processes": 6,
+          "privateBytes": 460726272,
+          "workingSetBytes": 754528256
+        }
+      ],
+      "observedMaxPrivateBytes": 460726272,
+      "observedMaxWorkingSetBytes": 754528256,
+      "limits": "Serial process-tree sampling plus 200ms pause; actual timestamps retained. Observed maxima are lower bounds, not guaranteed instantaneous peaks, and include browser/harness activity."
+    },
+    {
+      "kind": "delivery-cold-warm",
+      "round": 0,
+      "coldState": {
+        "maxConcurrentLoads": 1,
+        "maxResidentBytes": 67108864,
+        "activeLoads": 0,
+        "queuedLoads": 0,
+        "residentResources": 4,
+        "referencedResources": 0,
+        "residentBytes": 2150880,
+        "reservedBytes": 0,
+        "peakAccountedBytes": 9871402,
+        "cacheHits": 0,
+        "deduplicatedRequests": 4,
+        "evictions": 0,
+        "cancellations": 0,
+        "built": 4
+      },
+      "warmState": {
+        "maxConcurrentLoads": 1,
+        "maxResidentBytes": 67108864,
+        "activeLoads": 0,
+        "queuedLoads": 0,
+        "residentResources": 4,
+        "referencedResources": 0,
+        "residentBytes": 2150880,
+        "reservedBytes": 0,
+        "peakAccountedBytes": 9871402,
+        "cacheHits": 4,
+        "deduplicatedRequests": 4,
+        "evictions": 0,
+        "cancellations": 0,
+        "built": 4
+      },
+      "limits": "Cold means a reloaded editor session, not cleared OS/browser disk caches."
+    },
+    {
+      "kind": "html",
+      "elapsedMs": 3205.991799999996,
+      "bytes": 1963562
+    },
+    {
+      "kind": "continuous-process-samples",
+      "name": "build-html",
+      "samples": [
+        {
+          "elapsedMs": 748.9887999999992,
+          "processes": 6,
+          "privateBytes": 482328576,
+          "workingSetBytes": 800481280
+        },
+        {
+          "elapsedMs": 1564.8740999999936,
+          "processes": 6,
+          "privateBytes": 501997568,
+          "workingSetBytes": 818028544
+        },
+        {
+          "elapsedMs": 2356.1317999999956,
+          "processes": 6,
+          "privateBytes": 480899072,
+          "workingSetBytes": 783986688
+        },
+        {
+          "elapsedMs": 3133.268299999996,
+          "processes": 6,
+          "privateBytes": 471367680,
+          "workingSetBytes": 776941568
+        }
+      ],
+      "observedMaxPrivateBytes": 501997568,
+      "observedMaxWorkingSetBytes": 818028544,
+      "limits": "Serial process-tree sampling plus 200ms pause; actual timestamps retained. Observed maxima are lower bounds, not guaranteed instantaneous peaks, and include browser/harness activity."
+    },
+    {
+      "kind": "html",
+      "elapsedMs": 875.8202999999994,
+      "bytes": 1963562
+    },
+    {
+      "kind": "continuous-process-samples",
+      "name": "build-html",
+      "samples": [
+        {
+          "elapsedMs": 546.5414999999994,
+          "processes": 6,
+          "privateBytes": 475320320,
+          "workingSetBytes": 780115968
+        },
+        {
+          "elapsedMs": 1278.5233999999982,
+          "processes": 6,
+          "privateBytes": 494911488,
+          "workingSetBytes": 799272960
+        }
+      ],
+      "observedMaxPrivateBytes": 494911488,
+      "observedMaxWorkingSetBytes": 799272960,
+      "limits": "Serial process-tree sampling plus 200ms pause; actual timestamps retained. Observed maxima are lower bounds, not guaranteed instantaneous peaks, and include browser/harness activity."
+    },
+    {
+      "kind": "delivery-cold-warm",
+      "round": 1,
+      "coldState": {
+        "maxConcurrentLoads": 1,
+        "maxResidentBytes": 67108864,
+        "activeLoads": 0,
+        "queuedLoads": 0,
+        "residentResources": 4,
+        "referencedResources": 0,
+        "residentBytes": 2150880,
+        "reservedBytes": 0,
+        "peakAccountedBytes": 9871402,
+        "cacheHits": 0,
+        "deduplicatedRequests": 4,
+        "evictions": 0,
+        "cancellations": 0,
+        "built": 4
+      },
+      "warmState": {
+        "maxConcurrentLoads": 1,
+        "maxResidentBytes": 67108864,
+        "activeLoads": 0,
+        "queuedLoads": 0,
+        "residentResources": 4,
+        "referencedResources": 0,
+        "residentBytes": 2150880,
+        "reservedBytes": 0,
+        "peakAccountedBytes": 9871402,
+        "cacheHits": 4,
+        "deduplicatedRequests": 4,
+        "evictions": 0,
+        "cancellations": 0,
+        "built": 4
+      },
+      "limits": "Cold means a reloaded editor session, not cleared OS/browser disk caches."
+    },
+    {
+      "kind": "html",
+      "elapsedMs": 3150.981599999999,
+      "bytes": 1963562
+    },
+    {
+      "kind": "continuous-process-samples",
+      "name": "build-html",
+      "samples": [
+        {
+          "elapsedMs": 709.4156000000003,
+          "processes": 6,
+          "privateBytes": 497221632,
+          "workingSetBytes": 798507008
+        },
+        {
+          "elapsedMs": 1559.8108999999968,
+          "processes": 6,
+          "privateBytes": 518533120,
+          "workingSetBytes": 817573888
+        },
+        {
+          "elapsedMs": 2310.834299999995,
+          "processes": 6,
+          "privateBytes": 477667328,
+          "workingSetBytes": 765894656
+        },
+        {
+          "elapsedMs": 3047.118999999999,
+          "processes": 6,
+          "privateBytes": 476897280,
+          "workingSetBytes": 764092416
+        }
+      ],
+      "observedMaxPrivateBytes": 518533120,
+      "observedMaxWorkingSetBytes": 817573888,
+      "limits": "Serial process-tree sampling plus 200ms pause; actual timestamps retained. Observed maxima are lower bounds, not guaranteed instantaneous peaks, and include browser/harness activity."
+    },
+    {
+      "kind": "html",
+      "elapsedMs": 752.6013000000021,
+      "bytes": 1963562
+    },
+    {
+      "kind": "continuous-process-samples",
+      "name": "build-html",
+      "samples": [
+        {
+          "elapsedMs": 547.2678999999989,
+          "processes": 6,
+          "privateBytes": 462626816,
+          "workingSetBytes": 754896896
+        },
+        {
+          "elapsedMs": 1249.9176999999981,
+          "processes": 6,
+          "privateBytes": 451551232,
+          "workingSetBytes": 746250240
+        }
+      ],
+      "observedMaxPrivateBytes": 462626816,
+      "observedMaxWorkingSetBytes": 754896896,
+      "limits": "Serial process-tree sampling plus 200ms pause; actual timestamps retained. Observed maxima are lower bounds, not guaranteed instantaneous peaks, and include browser/harness activity."
+    },
+    {
+      "kind": "delivery-cold-warm",
+      "round": 2,
+      "coldState": {
+        "maxConcurrentLoads": 1,
+        "maxResidentBytes": 67108864,
+        "activeLoads": 0,
+        "queuedLoads": 0,
+        "residentResources": 4,
+        "referencedResources": 0,
+        "residentBytes": 2150880,
+        "reservedBytes": 0,
+        "peakAccountedBytes": 9871402,
+        "cacheHits": 0,
+        "deduplicatedRequests": 4,
+        "evictions": 0,
+        "cancellations": 0,
+        "built": 4
+      },
+      "warmState": {
+        "maxConcurrentLoads": 1,
+        "maxResidentBytes": 67108864,
+        "activeLoads": 0,
+        "queuedLoads": 0,
+        "residentResources": 4,
+        "referencedResources": 0,
+        "residentBytes": 2150880,
+        "reservedBytes": 0,
+        "peakAccountedBytes": 9871402,
+        "cacheHits": 4,
+        "deduplicatedRequests": 4,
+        "evictions": 0,
+        "cancellations": 0,
+        "built": 4
+      },
+      "limits": "Cold means a reloaded editor session, not cleared OS/browser disk caches."
+    },
+    {
+      "kind": "html",
+      "elapsedMs": 1470.980899999995,
+      "bytes": 4477554
+    },
+    {
+      "kind": "continuous-process-samples",
+      "name": "build-html",
+      "samples": [
+        {
+          "elapsedMs": 524.2570000000051,
+          "processes": 6,
+          "privateBytes": 471261184,
+          "workingSetBytes": 804122624
+        },
+        {
+          "elapsedMs": 1251.0371000000014,
+          "processes": 6,
+          "privateBytes": 510373888,
+          "workingSetBytes": 843730944
+        },
+        {
+          "elapsedMs": 1968.9688999999998,
+          "processes": 6,
+          "privateBytes": 532971520,
+          "workingSetBytes": 866234368
+        }
+      ],
+      "observedMaxPrivateBytes": 532971520,
+      "observedMaxWorkingSetBytes": 866234368,
+      "limits": "Serial process-tree sampling plus 200ms pause; actual timestamps retained. Observed maxima are lower bounds, not guaranteed instantaneous peaks, and include browser/harness activity."
+    },
+    {
+      "kind": "html",
+      "elapsedMs": 1321.6087999999945,
+      "bytes": 1963554
+    },
+    {
+      "kind": "continuous-process-samples",
+      "name": "build-html",
+      "samples": [
+        {
+          "elapsedMs": 553.8607000000047,
+          "processes": 6,
+          "privateBytes": 505544704,
+          "workingSetBytes": 845295616
+        },
+        {
+          "elapsedMs": 1307.9769000000015,
+          "processes": 6,
+          "privateBytes": 514129920,
+          "workingSetBytes": 852873216
+        }
+      ],
+      "observedMaxPrivateBytes": 514129920,
+      "observedMaxWorkingSetBytes": 852873216,
+      "limits": "Serial process-tree sampling plus 200ms pause; actual timestamps retained. Observed maxima are lower bounds, not guaranteed instantaneous peaks, and include browser/harness activity."
+    },
+    {
+      "kind": "incremental-verification",
+      "affectedGroup": "dicing-a304fdb07e3a",
+      "unchangedGroups": 3,
+      "reverified": 8,
+      "proofBefore": {
+        "maxConcurrentLoads": 1,
+        "maxResidentBytes": 524288,
+        "activeLoads": 0,
+        "queuedLoads": 0,
+        "residentResources": 30,
+        "referencedResources": 0,
+        "residentBytes": 15762,
+        "reservedBytes": 0,
+        "peakAccountedBytes": 15762,
+        "cacheHits": 30,
+        "deduplicatedRequests": 30,
+        "evictions": 0,
+        "cancellations": 0,
+        "verified": 30
+      },
+      "proofAfter": {
+        "maxConcurrentLoads": 1,
+        "maxResidentBytes": 524288,
+        "activeLoads": 0,
+        "queuedLoads": 0,
+        "residentResources": 38,
+        "referencedResources": 0,
+        "residentBytes": 19990,
+        "reservedBytes": 0,
+        "peakAccountedBytes": 19990,
+        "cacheHits": 96,
+        "deduplicatedRequests": 31,
+        "evictions": 0,
+        "cancellations": 0,
+        "verified": 38
+      }
+    },
+    {
+      "kind": "incremental-delivery",
+      "deliveryBefore": {
+        "maxConcurrentLoads": 1,
+        "maxResidentBytes": 67108864,
+        "activeLoads": 0,
+        "queuedLoads": 0,
+        "residentResources": 4,
+        "referencedResources": 0,
+        "residentBytes": 2150880,
+        "reservedBytes": 0,
+        "peakAccountedBytes": 9871402,
+        "cacheHits": 4,
+        "deduplicatedRequests": 4,
+        "evictions": 0,
+        "cancellations": 0,
+        "built": 4
+      },
+      "deliveryAfter": {
+        "maxConcurrentLoads": 1,
+        "maxResidentBytes": 67108864,
+        "activeLoads": 0,
+        "queuedLoads": 0,
+        "residentResources": 5,
+        "referencedResources": 0,
+        "residentBytes": 2724036,
+        "reservedBytes": 0,
+        "peakAccountedBytes": 10876094,
+        "cacheHits": 13,
+        "deduplicatedRequests": 4,
+        "evictions": 0,
+        "cancellations": 0,
+        "built": 5
+      },
+      "recompressed": 1,
+      "unchangedGroups": 3
+    },
+    {
+      "kind": "html",
+      "elapsedMs": 1352.1175999999978,
+      "bytes": 11389622
+    },
+    {
+      "kind": "continuous-process-samples",
+      "name": "build-html",
+      "samples": [
+        {
+          "elapsedMs": 593.3698000000004,
+          "processes": 6,
+          "privateBytes": 666226688,
+          "workingSetBytes": 1005203456
+        },
+        {
+          "elapsedMs": 1463.2927000000054,
+          "processes": 6,
+          "privateBytes": 656601088,
+          "workingSetBytes": 999936000
+        }
+      ],
+      "observedMaxPrivateBytes": 666226688,
+      "observedMaxWorkingSetBytes": 1005203456,
+      "limits": "Serial process-tree sampling plus 200ms pause; actual timestamps retained. Observed maxima are lower bounds, not guaranteed instantaneous peaks, and include browser/harness activity."
+    },
+    {
+      "kind": "html",
+      "elapsedMs": 1952.762499999997,
+      "bytes": 11390383
+    },
+    {
+      "kind": "continuous-process-samples",
+      "name": "build-html",
+      "samples": [
+        {
+          "elapsedMs": 816.5858000000007,
+          "processes": 6,
+          "privateBytes": 485208064,
+          "workingSetBytes": 759140352
+        },
+        {
+          "elapsedMs": 1831.688000000002,
+          "processes": 6,
+          "privateBytes": 644935680,
+          "workingSetBytes": 915083264
+        }
+      ],
+      "observedMaxPrivateBytes": 644935680,
+      "observedMaxWorkingSetBytes": 915083264,
+      "limits": "Serial process-tree sampling plus 200ms pause; actual timestamps retained. Observed maxima are lower bounds, not guaranteed instantaneous peaks, and include browser/harness activity."
+    },
+    {
+      "kind": "html",
+      "elapsedMs": 2482.0959000000003,
+      "bytes": 1963684
+    },
+    {
+      "kind": "continuous-process-samples",
+      "name": "build-html",
+      "samples": [
+        {
+          "elapsedMs": 551.9471999999951,
+          "processes": 6,
+          "privateBytes": 717991936,
+          "workingSetBytes": 1001623552
+        },
+        {
+          "elapsedMs": 1312.5896000000066,
+          "processes": 6,
+          "privateBytes": 740990976,
+          "workingSetBytes": 1025101824
+        },
+        {
+          "elapsedMs": 2050.3680999999924,
+          "processes": 6,
+          "privateBytes": 766005248,
+          "workingSetBytes": 1039486976
+        },
+        {
+          "elapsedMs": 2771.131999999998,
+          "processes": 6,
+          "privateBytes": 806342656,
+          "workingSetBytes": 1070276608
+        }
+      ],
+      "observedMaxPrivateBytes": 806342656,
+      "observedMaxWorkingSetBytes": 1070276608,
+      "limits": "Serial process-tree sampling plus 200ms pause; actual timestamps retained. Observed maxima are lower bounds, not guaranteed instantaneous peaks, and include browser/harness activity."
+    },
+    {
+      "kind": "lazy-title",
+      "name": "original",
+      "groups": 0,
+      "urls": 0,
+      "residentSourceBytes": 0,
+      "preparedGroups": 0,
+      "active": 0,
+      "peakActive": 0,
+      "cacheHits": 0,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "play-to-character",
+      "name": "original",
+      "elapsedMs": 1637.2160000000003,
+      "processMemory": {
+        "processes": 6,
+        "privateBytes": 513863680,
+        "workingSetBytes": 709705728
+      },
+      "jsHeap": {
+        "used": 167000000,
+        "total": 199000000
+      }
+    },
+    {
+      "kind": "startup-longtasks",
+      "name": "original",
+      "tasks": [
+        {
+          "start": 125,
+          "duration": 51
+        }
+      ],
+      "readyAt": 175.80000000074506,
+      "limits": "Startup through ready; optimized includes deliberate cancellation/retry. Navigation, JSON, hashes and host overhead included; not a controlled before/after baseline."
+    },
+    {
+      "kind": "lazy-released",
+      "name": "original",
+      "groups": 0,
+      "urls": 0,
+      "residentSourceBytes": 0,
+      "preparedGroups": 0,
+      "active": 0,
+      "peakActive": 0,
+      "cacheHits": 0,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "continuous-process-samples",
+      "name": "original",
+      "samples": [
+        {
+          "elapsedMs": 559.835500000001,
+          "processes": 6,
+          "privateBytes": 295329792,
+          "workingSetBytes": 497721344
+        },
+        {
+          "elapsedMs": 1332.2967000000062,
+          "processes": 6,
+          "privateBytes": 315383808,
+          "workingSetBytes": 519004160
+        },
+        {
+          "elapsedMs": 2140.2328000000125,
+          "processes": 6,
+          "privateBytes": 509239296,
+          "workingSetBytes": 708390912
+        },
+        {
+          "elapsedMs": 2980.98060000001,
+          "processes": 6,
+          "privateBytes": 509292544,
+          "workingSetBytes": 708689920
+        },
+        {
+          "elapsedMs": 3811.080600000001,
+          "processes": 6,
+          "privateBytes": 396283904,
+          "workingSetBytes": 609443840
+        },
+        {
+          "elapsedMs": 4654.670200000008,
+          "processes": 6,
+          "privateBytes": 442929152,
+          "workingSetBytes": 658206720
+        },
+        {
+          "elapsedMs": 5492.066400000011,
+          "processes": 6,
+          "privateBytes": 435359744,
+          "workingSetBytes": 650932224
+        },
+        {
+          "elapsedMs": 6285.539900000003,
+          "processes": 6,
+          "privateBytes": 442843136,
+          "workingSetBytes": 657547264
+        },
+        {
+          "elapsedMs": 7107.782100000011,
+          "processes": 6,
+          "privateBytes": 425365504,
+          "workingSetBytes": 642043904
+        },
+        {
+          "elapsedMs": 7940.558700000009,
+          "processes": 6,
+          "privateBytes": 375562240,
+          "workingSetBytes": 600010752
+        },
+        {
+          "elapsedMs": 8823.169200000004,
+          "processes": 6,
+          "privateBytes": 344498176,
+          "workingSetBytes": 569851904
+        },
+        {
+          "elapsedMs": 9765.63470000001,
+          "processes": 6,
+          "privateBytes": 388435968,
+          "workingSetBytes": 616497152
+        },
+        {
+          "elapsedMs": 10572.126300000004,
+          "processes": 6,
+          "privateBytes": 370184192,
+          "workingSetBytes": 599150592
+        },
+        {
+          "elapsedMs": 11380.010800000004,
+          "processes": 6,
+          "privateBytes": 410103808,
+          "workingSetBytes": 638078976
+        },
+        {
+          "elapsedMs": 12204.201400000005,
+          "processes": 6,
+          "privateBytes": 518434816,
+          "workingSetBytes": 743714816
+        },
+        {
+          "elapsedMs": 13380.678800000009,
+          "processes": 6,
+          "privateBytes": 464052224,
+          "workingSetBytes": 692940800
+        },
+        {
+          "elapsedMs": 14400.695400000011,
+          "processes": 6,
+          "privateBytes": 444686336,
+          "workingSetBytes": 679219200
+        },
+        {
+          "elapsedMs": 15615.670500000007,
+          "processes": 6,
+          "privateBytes": 473546752,
+          "workingSetBytes": 706985984
+        },
+        {
+          "elapsedMs": 16658.916500000007,
+          "processes": 6,
+          "privateBytes": 421072896,
+          "workingSetBytes": 658649088
+        }
+      ],
+      "observedMaxPrivateBytes": 518434816,
+      "observedMaxWorkingSetBytes": 743714816,
+      "limits": "Serial process-tree sampling plus 200ms pause; actual timestamps retained. Observed maxima are lower bounds, not guaranteed instantaneous peaks, and include browser/harness activity."
+    },
+    {
+      "kind": "lazy-title",
+      "name": "optimized",
+      "groups": 0,
+      "urls": 0,
+      "residentSourceBytes": 0,
+      "preparedGroups": 0,
+      "active": 0,
+      "peakActive": 0,
+      "cacheHits": 0,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "slow-current-picture",
+      "delayedWorkerMilliseconds": 3000,
+      "observationMilliseconds": 350,
+      "held": true
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "optimized",
+      "assetId": "media_sunset",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 1,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 0,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "optimized",
+      "assetId": "media_actor_sprite",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 1,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 0,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "play-to-character",
+      "name": "optimized",
+      "elapsedMs": 4944.5236,
+      "processMemory": {
+        "processes": 6,
+        "privateBytes": 442667008,
+        "workingSetBytes": 680472576
+      },
+      "jsHeap": {
+        "used": 167000000,
+        "total": 199000000
+      }
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "optimized",
+      "assetId": "scale_2",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 2,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 0,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "optimized",
+      "assetId": "scale_3",
+      "groups": 3,
+      "urls": 24,
+      "residentSourceBytes": 6299712,
+      "preparedGroups": 3,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 0,
+      "idleBytes": 2099904,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "optimized",
+      "assetId": "scale_4",
+      "groups": 4,
+      "urls": 30,
+      "residentSourceBytes": 7874640,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 0,
+      "idleBytes": 4199808,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "optimized",
+      "assetId": "scale_5",
+      "groups": 3,
+      "urls": 22,
+      "residentSourceBytes": 5774736,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 1,
+      "idleBytes": 2099904,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "optimized",
+      "assetId": "scale_6",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 2,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "optimized",
+      "assetId": "scale_7",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 3,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "optimized",
+      "assetId": "scale_8",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 4,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "optimized",
+      "assetId": "scale_9",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 5,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "optimized",
+      "assetId": "scale_10",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 5,
+      "idleBytes": 1574928,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "optimized",
+      "assetId": "scale_11",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 5,
+      "idleBytes": 1574928,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "optimized",
+      "assetId": "scale_12",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 5,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "optimized",
+      "assetId": "scale_13",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 5,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "optimized",
+      "assetId": "scale_14",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 5,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "optimized",
+      "assetId": "scale_15",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 5,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "optimized",
+      "assetId": "scale_16",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 5,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 5,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "optimized",
+      "assetId": "scale_17",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 5,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 6,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "optimized",
+      "assetId": "scale_18",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 5,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 7,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "optimized",
+      "assetId": "scale_19",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 5,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 8,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "optimized",
+      "assetId": "scale_20",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 5,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 9,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "optimized",
+      "assetId": "scale_21",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 5,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 10,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "optimized",
+      "assetId": "scale_22",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 5,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 11,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "optimized",
+      "assetId": "scale_23",
+      "groups": 3,
+      "urls": 24,
+      "residentSourceBytes": 6299712,
+      "preparedGroups": 6,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 11,
+      "idleBytes": 2099904,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "optimized",
+      "assetId": "scale_24",
+      "groups": 3,
+      "urls": 24,
+      "residentSourceBytes": 6299712,
+      "preparedGroups": 6,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 12,
+      "idleBytes": 2099904,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "optimized",
+      "assetId": "scale_25",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 6,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 13,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "optimized",
+      "assetId": "scale_26",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 6,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 14,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "optimized",
+      "assetId": "scale_27",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 6,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 15,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "optimized",
+      "assetId": "scale_28",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 6,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 16,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "optimized",
+      "assetId": "scale_29",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 6,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 17,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "startup-longtasks",
+      "name": "optimized",
+      "tasks": [],
+      "readyAt": 274.90000000037253,
+      "limits": "Startup through ready; optimized includes deliberate cancellation/retry. Navigation, JSON, hashes and host overhead included; not a controlled before/after baseline."
+    },
+    {
+      "kind": "lazy-released",
+      "name": "optimized",
+      "groups": 0,
+      "urls": 0,
+      "residentSourceBytes": 0,
+      "preparedGroups": 6,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 17,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "continuous-process-samples",
+      "name": "optimized",
+      "samples": [
+        {
+          "elapsedMs": 849.718200000003,
+          "processes": 6,
+          "privateBytes": 377397248,
+          "workingSetBytes": 623210496
+        },
+        {
+          "elapsedMs": 1827.9095000000088,
+          "processes": 6,
+          "privateBytes": 361205760,
+          "workingSetBytes": 596189184
+        },
+        {
+          "elapsedMs": 2840.9358000000066,
+          "processes": 6,
+          "privateBytes": 361222144,
+          "workingSetBytes": 596312064
+        },
+        {
+          "elapsedMs": 3800.085500000001,
+          "processes": 6,
+          "privateBytes": 359079936,
+          "workingSetBytes": 594083840
+        },
+        {
+          "elapsedMs": 4812.330400000006,
+          "processes": 6,
+          "privateBytes": 354914304,
+          "workingSetBytes": 596971520
+        },
+        {
+          "elapsedMs": 5829.209900000002,
+          "processes": 6,
+          "privateBytes": 447287296,
+          "workingSetBytes": 682917888
+        },
+        {
+          "elapsedMs": 6873.100600000005,
+          "processes": 6,
+          "privateBytes": 444588032,
+          "workingSetBytes": 686649344
+        },
+        {
+          "elapsedMs": 7917.7307,
+          "processes": 6,
+          "privateBytes": 394682368,
+          "workingSetBytes": 637800448
+        },
+        {
+          "elapsedMs": 8870.656400000007,
+          "processes": 6,
+          "privateBytes": 385753088,
+          "workingSetBytes": 629846016
+        },
+        {
+          "elapsedMs": 9839.540000000008,
+          "processes": 6,
+          "privateBytes": 388153344,
+          "workingSetBytes": 632639488
+        },
+        {
+          "elapsedMs": 10840.229900000006,
+          "processes": 6,
+          "privateBytes": 391745536,
+          "workingSetBytes": 634699776
+        },
+        {
+          "elapsedMs": 11852.025000000009,
+          "processes": 6,
+          "privateBytes": 393482240,
+          "workingSetBytes": 637026304
+        },
+        {
+          "elapsedMs": 13001.172900000005,
+          "processes": 6,
+          "privateBytes": 376741888,
+          "workingSetBytes": 624201728
+        },
+        {
+          "elapsedMs": 13994.832699999999,
+          "processes": 6,
+          "privateBytes": 405327872,
+          "workingSetBytes": 649654272
+        },
+        {
+          "elapsedMs": 15025.446500000005,
+          "processes": 6,
+          "privateBytes": 393166848,
+          "workingSetBytes": 641867776
+        },
+        {
+          "elapsedMs": 16542.852899999998,
+          "processes": 6,
+          "privateBytes": 391946240,
+          "workingSetBytes": 643198976
+        },
+        {
+          "elapsedMs": 17681.947,
+          "processes": 6,
+          "privateBytes": 387084288,
+          "workingSetBytes": 642252800
+        },
+        {
+          "elapsedMs": 18760.1927,
+          "processes": 6,
+          "privateBytes": 405278720,
+          "workingSetBytes": 660295680
+        },
+        {
+          "elapsedMs": 19755.90490000001,
+          "processes": 6,
+          "privateBytes": 395124736,
+          "workingSetBytes": 652623872
+        },
+        {
+          "elapsedMs": 20867.778900000005,
+          "processes": 6,
+          "privateBytes": 402599936,
+          "workingSetBytes": 662376448
+        },
+        {
+          "elapsedMs": 21730.613200000007,
+          "processes": 6,
+          "privateBytes": 392970240,
+          "workingSetBytes": 652345344
+        }
+      ],
+      "observedMaxPrivateBytes": 447287296,
+      "observedMaxWorkingSetBytes": 686649344,
+      "limits": "Serial process-tree sampling plus 200ms pause; actual timestamps retained. Observed maxima are lower bounds, not guaranteed instantaneous peaks, and include browser/harness activity."
+    },
+    {
+      "kind": "lazy-title",
+      "name": "directory",
+      "groups": 0,
+      "urls": 0,
+      "residentSourceBytes": 0,
+      "preparedGroups": 0,
+      "active": 0,
+      "peakActive": 0,
+      "cacheHits": 0,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "directory",
+      "assetId": "media_sunset",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 1,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 0,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "directory",
+      "assetId": "media_actor_sprite",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 1,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 0,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "play-to-character",
+      "name": "directory",
+      "elapsedMs": 1787.501700000008,
+      "processMemory": {
+        "processes": 6,
+        "privateBytes": 452317184,
+        "workingSetBytes": 712495104
+      },
+      "jsHeap": {
+        "used": 167000000,
+        "total": 199000000
+      }
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "directory",
+      "assetId": "scale_2",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 2,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 0,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "directory",
+      "assetId": "scale_3",
+      "groups": 3,
+      "urls": 24,
+      "residentSourceBytes": 6299712,
+      "preparedGroups": 3,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 0,
+      "idleBytes": 2099904,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "directory",
+      "assetId": "scale_4",
+      "groups": 4,
+      "urls": 30,
+      "residentSourceBytes": 7874640,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 0,
+      "idleBytes": 4199808,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "directory",
+      "assetId": "scale_5",
+      "groups": 3,
+      "urls": 22,
+      "residentSourceBytes": 5774736,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 1,
+      "idleBytes": 2099904,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "directory",
+      "assetId": "scale_6",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 2,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "directory",
+      "assetId": "scale_7",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 3,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "directory",
+      "assetId": "scale_8",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 4,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "directory",
+      "assetId": "scale_9",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 5,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "directory",
+      "assetId": "scale_10",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 5,
+      "idleBytes": 1574928,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "directory",
+      "assetId": "scale_11",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 5,
+      "idleBytes": 1574928,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "directory",
+      "assetId": "scale_12",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 5,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "directory",
+      "assetId": "scale_13",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 5,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "directory",
+      "assetId": "scale_14",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 5,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "directory",
+      "assetId": "scale_15",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 5,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "directory",
+      "assetId": "scale_16",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 5,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 5,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "directory",
+      "assetId": "scale_17",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 5,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 6,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "directory",
+      "assetId": "scale_18",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 5,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 7,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "directory",
+      "assetId": "scale_19",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 5,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 8,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "directory",
+      "assetId": "scale_20",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 5,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 9,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "directory",
+      "assetId": "scale_21",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 5,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 10,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "directory",
+      "assetId": "scale_22",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 5,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 11,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "directory",
+      "assetId": "scale_23",
+      "groups": 3,
+      "urls": 24,
+      "residentSourceBytes": 6299712,
+      "preparedGroups": 6,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 11,
+      "idleBytes": 2099904,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "directory",
+      "assetId": "scale_24",
+      "groups": 3,
+      "urls": 24,
+      "residentSourceBytes": 6299712,
+      "preparedGroups": 6,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 12,
+      "idleBytes": 2099904,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "directory",
+      "assetId": "scale_25",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 6,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 13,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "directory",
+      "assetId": "scale_26",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 6,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 14,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "directory",
+      "assetId": "scale_27",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 6,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 15,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "directory",
+      "assetId": "scale_28",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 6,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 16,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "directory",
+      "assetId": "scale_29",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 6,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 17,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "startup-longtasks",
+      "name": "directory",
+      "tasks": [],
+      "readyAt": 173.19999999925494,
+      "limits": "Startup through ready; optimized includes deliberate cancellation/retry. Navigation, JSON, hashes and host overhead included; not a controlled before/after baseline."
+    },
+    {
+      "kind": "lazy-released",
+      "name": "directory",
+      "groups": 0,
+      "urls": 0,
+      "residentSourceBytes": 0,
+      "preparedGroups": 6,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 17,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "continuous-process-samples",
+      "name": "directory",
+      "samples": [
+        {
+          "elapsedMs": 716.1639999999898,
+          "processes": 6,
+          "privateBytes": 376033280,
+          "workingSetBytes": 642646016
+        },
+        {
+          "elapsedMs": 1693.8215999999957,
+          "processes": 6,
+          "privateBytes": 376889344,
+          "workingSetBytes": 637009920
+        },
+        {
+          "elapsedMs": 2551.610799999995,
+          "processes": 6,
+          "privateBytes": 452317184,
+          "workingSetBytes": 712495104
+        },
+        {
+          "elapsedMs": 3488.629799999995,
+          "processes": 6,
+          "privateBytes": 462901248,
+          "workingSetBytes": 725786624
+        },
+        {
+          "elapsedMs": 4394.323699999994,
+          "processes": 6,
+          "privateBytes": 436682752,
+          "workingSetBytes": 701513728
+        },
+        {
+          "elapsedMs": 5394.4737999999925,
+          "processes": 6,
+          "privateBytes": 397807616,
+          "workingSetBytes": 666857472
+        },
+        {
+          "elapsedMs": 6364.5147,
+          "processes": 6,
+          "privateBytes": 381640704,
+          "workingSetBytes": 652312576
+        },
+        {
+          "elapsedMs": 7393.036800000002,
+          "processes": 6,
+          "privateBytes": 391278592,
+          "workingSetBytes": 659271680
+        },
+        {
+          "elapsedMs": 8506.446499999991,
+          "processes": 6,
+          "privateBytes": 454053888,
+          "workingSetBytes": 720674816
+        },
+        {
+          "elapsedMs": 9964.753299999997,
+          "processes": 6,
+          "privateBytes": 392101888,
+          "workingSetBytes": 663400448
+        },
+        {
+          "elapsedMs": 11065.410199999998,
+          "processes": 6,
+          "privateBytes": 437440512,
+          "workingSetBytes": 706084864
+        },
+        {
+          "elapsedMs": 12126.990399999995,
+          "processes": 6,
+          "privateBytes": 476119040,
+          "workingSetBytes": 747540480
+        },
+        {
+          "elapsedMs": 13227.020799999998,
+          "processes": 6,
+          "privateBytes": 401698816,
+          "workingSetBytes": 676556800
+        },
+        {
+          "elapsedMs": 14268.493300000002,
+          "processes": 6,
+          "privateBytes": 399962112,
+          "workingSetBytes": 681975808
+        },
+        {
+          "elapsedMs": 15309.828599999993,
+          "processes": 6,
+          "privateBytes": 396238848,
+          "workingSetBytes": 676384768
+        },
+        {
+          "elapsedMs": 16511.81349999999,
+          "processes": 6,
+          "privateBytes": 392474624,
+          "workingSetBytes": 676782080
+        },
+        {
+          "elapsedMs": 17797.696299999996,
+          "processes": 6,
+          "privateBytes": 413261824,
+          "workingSetBytes": 698073088
+        }
+      ],
+      "observedMaxPrivateBytes": 476119040,
+      "observedMaxWorkingSetBytes": 747540480,
+      "limits": "Serial process-tree sampling plus 200ms pause; actual timestamps retained. Observed maxima are lower bounds, not guaranteed instantaneous peaks, and include browser/harness activity."
+    },
+    {
+      "kind": "lazy-title",
+      "name": "windows",
+      "groups": 0,
+      "urls": 0,
+      "residentSourceBytes": 0,
+      "preparedGroups": 0,
+      "active": 0,
+      "peakActive": 0,
+      "cacheHits": 0,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "windows",
+      "assetId": "media_sunset",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 1,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 0,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "windows",
+      "assetId": "media_actor_sprite",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 1,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 0,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "play-to-character",
+      "name": "windows",
+      "elapsedMs": 1812.6260000000038,
+      "processMemory": {
+        "processes": 5,
+        "privateBytes": 899883008,
+        "workingSetBytes": 685658112
+      },
+      "jsHeap": {
+        "used": 97112158,
+        "total": 108764474
+      }
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "windows",
+      "assetId": "scale_2",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 2,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 0,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "windows",
+      "assetId": "scale_3",
+      "groups": 3,
+      "urls": 24,
+      "residentSourceBytes": 6299712,
+      "preparedGroups": 3,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 0,
+      "idleBytes": 2099904,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "windows",
+      "assetId": "scale_4",
+      "groups": 4,
+      "urls": 30,
+      "residentSourceBytes": 7874640,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 0,
+      "idleBytes": 4199808,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "windows",
+      "assetId": "scale_5",
+      "groups": 4,
+      "urls": 30,
+      "residentSourceBytes": 7874640,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 1,
+      "idleBytes": 4199808,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "windows",
+      "assetId": "scale_6",
+      "groups": 3,
+      "urls": 22,
+      "residentSourceBytes": 5774736,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 2,
+      "idleBytes": 2099904,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "windows",
+      "assetId": "scale_7",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 3,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "windows",
+      "assetId": "scale_8",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 4,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "windows",
+      "assetId": "scale_9",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 5,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "windows",
+      "assetId": "scale_10",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 5,
+      "idleBytes": 1574928,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "windows",
+      "assetId": "scale_11",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 5,
+      "idleBytes": 1574928,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "windows",
+      "assetId": "scale_12",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 5,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "windows",
+      "assetId": "scale_13",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 5,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "windows",
+      "assetId": "scale_14",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 5,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "windows",
+      "assetId": "scale_15",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 5,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "windows",
+      "assetId": "scale_16",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 5,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 5,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "windows",
+      "assetId": "scale_17",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 5,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 6,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "windows",
+      "assetId": "scale_18",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 5,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 7,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "windows",
+      "assetId": "scale_19",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 5,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 8,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "windows",
+      "assetId": "scale_20",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 5,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 9,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "windows",
+      "assetId": "scale_21",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 5,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 10,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "windows",
+      "assetId": "scale_22",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 5,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 11,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "windows",
+      "assetId": "scale_23",
+      "groups": 3,
+      "urls": 24,
+      "residentSourceBytes": 6299712,
+      "preparedGroups": 6,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 11,
+      "idleBytes": 2099904,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "windows",
+      "assetId": "scale_24",
+      "groups": 3,
+      "urls": 24,
+      "residentSourceBytes": 6299712,
+      "preparedGroups": 6,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 12,
+      "idleBytes": 2099904,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "windows",
+      "assetId": "scale_25",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 6,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 13,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "windows",
+      "assetId": "scale_26",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 6,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 14,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "windows",
+      "assetId": "scale_27",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 6,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 15,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "windows",
+      "assetId": "scale_28",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 6,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 16,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "windows",
+      "assetId": "scale_29",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 6,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 17,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-released",
+      "name": "windows",
+      "groups": 0,
+      "urls": 0,
+      "residentSourceBytes": 0,
+      "preparedGroups": 6,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 17,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "continuous-process-samples",
+      "name": "windows",
+      "samples": [
+        {
+          "elapsedMs": 752.0878000000084,
+          "processes": 4,
+          "privateBytes": 251240448,
+          "workingSetBytes": 347811840
+        },
+        {
+          "elapsedMs": 1824.6359000000084,
+          "processes": 5,
+          "privateBytes": 683122688,
+          "workingSetBytes": 583417856
+        },
+        {
+          "elapsedMs": 2702.5598000000027,
+          "processes": 5,
+          "privateBytes": 911060992,
+          "workingSetBytes": 691986432
+        },
+        {
+          "elapsedMs": 3573.3503000000055,
+          "processes": 5,
+          "privateBytes": 808534016,
+          "workingSetBytes": 573095936
+        },
+        {
+          "elapsedMs": 4429.791500000007,
+          "processes": 5,
+          "privateBytes": 945029120,
+          "workingSetBytes": 696668160
+        },
+        {
+          "elapsedMs": 5435.371800000008,
+          "processes": 5,
+          "privateBytes": 829112320,
+          "workingSetBytes": 594890752
+        },
+        {
+          "elapsedMs": 6427.114000000016,
+          "processes": 5,
+          "privateBytes": 953913344,
+          "workingSetBytes": 597917696
+        },
+        {
+          "elapsedMs": 7410.584799999997,
+          "processes": 5,
+          "privateBytes": 970219520,
+          "workingSetBytes": 615288832
+        },
+        {
+          "elapsedMs": 8408.678800000009,
+          "processes": 5,
+          "privateBytes": 906452992,
+          "workingSetBytes": 610492416
+        },
+        {
+          "elapsedMs": 9380.595000000016,
+          "processes": 5,
+          "privateBytes": 963399680,
+          "workingSetBytes": 669265920
+        },
+        {
+          "elapsedMs": 10367.87999999999,
+          "processes": 5,
+          "privateBytes": 1012428800,
+          "workingSetBytes": 715223040
+        },
+        {
+          "elapsedMs": 11274.851299999995,
+          "processes": 5,
+          "privateBytes": 746377216,
+          "workingSetBytes": 701198336
+        },
+        {
+          "elapsedMs": 12235.3453,
+          "processes": 5,
+          "privateBytes": 774131712,
+          "workingSetBytes": 728158208
+        },
+        {
+          "elapsedMs": 13323.064700000003,
+          "processes": 5,
+          "privateBytes": 711004160,
+          "workingSetBytes": 672260096
+        },
+        {
+          "elapsedMs": 14430.909499999994,
+          "processes": 5,
+          "privateBytes": 763219968,
+          "workingSetBytes": 682434560
+        },
+        {
+          "elapsedMs": 15412.632300000012,
+          "processes": 5,
+          "privateBytes": 756838400,
+          "workingSetBytes": 678146048
+        },
+        {
+          "elapsedMs": 16469.246300000013,
+          "processes": 5,
+          "privateBytes": 710643712,
+          "workingSetBytes": 633044992
+        },
+        {
+          "elapsedMs": 17394.7681,
+          "processes": 5,
+          "privateBytes": 715378688,
+          "workingSetBytes": 638980096
+        }
+      ],
+      "observedMaxPrivateBytes": 1012428800,
+      "observedMaxWorkingSetBytes": 728158208,
+      "limits": "Serial process-tree sampling plus 200ms pause; actual timestamps retained. Observed maxima are lower bounds, not guaranteed instantaneous peaks, and include browser/harness activity."
+    },
+    {
+      "kind": "lazy-title",
+      "name": "corrupt-page",
+      "groups": 0,
+      "urls": 0,
+      "residentSourceBytes": 0,
+      "preparedGroups": 0,
+      "active": 0,
+      "peakActive": 0,
+      "cacheHits": 0,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "corrupt-page",
+      "assetId": "media_sunset",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 1,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 0,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "corrupt-page",
+      "assetId": "media_actor_sprite",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 1,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 0,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "play-to-character",
+      "name": "corrupt-page",
+      "elapsedMs": 1987.6155000000144,
+      "processMemory": {
+        "processes": 6,
+        "privateBytes": 408813568,
+        "workingSetBytes": 689033216
+      },
+      "jsHeap": {
+        "used": 167000000,
+        "total": 199000000
+      }
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "corrupt-page",
+      "assetId": "scale_2",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 2,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 0,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "corrupt-page",
+      "assetId": "scale_3",
+      "groups": 3,
+      "urls": 24,
+      "residentSourceBytes": 6299712,
+      "preparedGroups": 3,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 0,
+      "idleBytes": 2099904,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "corrupt-page",
+      "assetId": "scale_4",
+      "groups": 4,
+      "urls": 30,
+      "residentSourceBytes": 7874640,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 0,
+      "idleBytes": 4199808,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "corrupt-page",
+      "assetId": "scale_5",
+      "groups": 4,
+      "urls": 30,
+      "residentSourceBytes": 7874640,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 1,
+      "idleBytes": 4199808,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "corrupt-page",
+      "assetId": "scale_6",
+      "groups": 3,
+      "urls": 22,
+      "residentSourceBytes": 5774736,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 2,
+      "idleBytes": 2099904,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "corrupt-page",
+      "assetId": "scale_7",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 3,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "corrupt-page",
+      "assetId": "scale_8",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 4,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "corrupt-page",
+      "assetId": "scale_9",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 5,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "corrupt-page",
+      "assetId": "scale_10",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 5,
+      "idleBytes": 1574928,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "corrupt-page",
+      "assetId": "scale_11",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 5,
+      "idleBytes": 1574928,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "corrupt-page",
+      "assetId": "scale_12",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 5,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "corrupt-page",
+      "assetId": "scale_13",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 5,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "corrupt-page",
+      "assetId": "scale_14",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 5,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "corrupt-page",
+      "assetId": "scale_15",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 5,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "corrupt-page",
+      "assetId": "scale_16",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 5,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 5,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "corrupt-page",
+      "assetId": "scale_17",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 5,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 6,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "corrupt-page",
+      "assetId": "scale_18",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 5,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 7,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "corrupt-page",
+      "assetId": "scale_19",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 5,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 8,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "corrupt-page",
+      "assetId": "scale_20",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 5,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 9,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "corrupt-page",
+      "assetId": "scale_21",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 5,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 10,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "corrupt-page",
+      "assetId": "scale_22",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 5,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 11,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "corrupt-page",
+      "assetId": "scale_23",
+      "groups": 3,
+      "urls": 24,
+      "residentSourceBytes": 6299712,
+      "preparedGroups": 6,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 11,
+      "idleBytes": 2099904,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "corrupt-page",
+      "assetId": "scale_24",
+      "groups": 3,
+      "urls": 24,
+      "residentSourceBytes": 6299712,
+      "preparedGroups": 6,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 12,
+      "idleBytes": 2099904,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "corrupt-page",
+      "assetId": "scale_25",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 6,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 13,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "corrupt-page",
+      "assetId": "scale_26",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 6,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 14,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "corrupt-page",
+      "assetId": "scale_27",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 6,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 15,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "corrupt-page",
+      "assetId": "scale_28",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 6,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 16,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "corrupt-page",
+      "assetId": "scale_29",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 6,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 17,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "startup-longtasks",
+      "name": "corrupt-page",
+      "tasks": [],
+      "readyAt": 164.40000000037253,
+      "limits": "Startup through ready; optimized includes deliberate cancellation/retry. Navigation, JSON, hashes and host overhead included; not a controlled before/after baseline."
+    },
+    {
+      "kind": "lazy-released",
+      "name": "corrupt-page",
+      "groups": 0,
+      "urls": 0,
+      "residentSourceBytes": 0,
+      "preparedGroups": 6,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 17,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "continuous-process-samples",
+      "name": "corrupt-page",
+      "samples": [
+        {
+          "elapsedMs": 844.8288999999932,
+          "processes": 6,
+          "privateBytes": 294100992,
+          "workingSetBytes": 588701696
+        },
+        {
+          "elapsedMs": 1839.0702999999921,
+          "processes": 6,
+          "privateBytes": 319397888,
+          "workingSetBytes": 603152384
+        },
+        {
+          "elapsedMs": 2876.2707999999984,
+          "processes": 6,
+          "privateBytes": 408813568,
+          "workingSetBytes": 687570944
+        },
+        {
+          "elapsedMs": 3791.908400000015,
+          "processes": 6,
+          "privateBytes": 397492224,
+          "workingSetBytes": 680472576
+        },
+        {
+          "elapsedMs": 4660.8174,
+          "processes": 6,
+          "privateBytes": 300093440,
+          "workingSetBytes": 590118912
+        },
+        {
+          "elapsedMs": 5596.218900000007,
+          "processes": 6,
+          "privateBytes": 367341568,
+          "workingSetBytes": 656465920
+        },
+        {
+          "elapsedMs": 6446.158800000005,
+          "processes": 6,
+          "privateBytes": 363679744,
+          "workingSetBytes": 653541376
+        },
+        {
+          "elapsedMs": 7403.087900000013,
+          "processes": 6,
+          "privateBytes": 384032768,
+          "workingSetBytes": 671903744
+        },
+        {
+          "elapsedMs": 8286.973300000012,
+          "processes": 6,
+          "privateBytes": 380035072,
+          "workingSetBytes": 666636288
+        },
+        {
+          "elapsedMs": 9237.296600000001,
+          "processes": 6,
+          "privateBytes": 385110016,
+          "workingSetBytes": 675041280
+        },
+        {
+          "elapsedMs": 10160.310800000007,
+          "processes": 6,
+          "privateBytes": 386580480,
+          "workingSetBytes": 677105664
+        },
+        {
+          "elapsedMs": 11067.3413,
+          "processes": 6,
+          "privateBytes": 389099520,
+          "workingSetBytes": 682946560
+        },
+        {
+          "elapsedMs": 11966.09599999999,
+          "processes": 6,
+          "privateBytes": 387391488,
+          "workingSetBytes": 683429888
+        },
+        {
+          "elapsedMs": 12872.59229999999,
+          "processes": 6,
+          "privateBytes": 388374528,
+          "workingSetBytes": 689807360
+        },
+        {
+          "elapsedMs": 13790.8266,
+          "processes": 6,
+          "privateBytes": 379416576,
+          "workingSetBytes": 680722432
+        },
+        {
+          "elapsedMs": 14802.261100000003,
+          "processes": 6,
+          "privateBytes": 468881408,
+          "workingSetBytes": 768323584
+        },
+        {
+          "elapsedMs": 15799.520600000018,
+          "processes": 6,
+          "privateBytes": 407257088,
+          "workingSetBytes": 712437760
+        },
+        {
+          "elapsedMs": 16721.99979999999,
+          "processes": 6,
+          "privateBytes": 376582144,
+          "workingSetBytes": 686391296
+        },
+        {
+          "elapsedMs": 17578.185200000007,
+          "processes": 6,
+          "privateBytes": 361955328,
+          "workingSetBytes": 672964608
+        }
+      ],
+      "observedMaxPrivateBytes": 468881408,
+      "observedMaxWorkingSetBytes": 768323584,
+      "limits": "Serial process-tree sampling plus 200ms pause; actual timestamps retained. Observed maxima are lower bounds, not guaranteed instantaneous peaks, and include browser/harness activity."
+    },
+    {
+      "kind": "lazy-title",
+      "name": "unsupported",
+      "groups": 0,
+      "urls": 0,
+      "residentSourceBytes": 0,
+      "preparedGroups": 0,
+      "active": 0,
+      "peakActive": 0,
+      "cacheHits": 0,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "unsupported",
+      "assetId": "media_sunset",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 1,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 0,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "unsupported",
+      "assetId": "media_actor_sprite",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 1,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 0,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "play-to-character",
+      "name": "unsupported",
+      "elapsedMs": 1685.7474999999977,
+      "processMemory": {
+        "processes": 6,
+        "privateBytes": 399216640,
+        "workingSetBytes": 712617984
+      },
+      "jsHeap": {
+        "used": 167000000,
+        "total": 199000000
+      }
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "unsupported",
+      "assetId": "scale_2",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 2,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 0,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "unsupported",
+      "assetId": "scale_3",
+      "groups": 3,
+      "urls": 24,
+      "residentSourceBytes": 6299712,
+      "preparedGroups": 3,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 0,
+      "idleBytes": 2099904,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "unsupported",
+      "assetId": "scale_4",
+      "groups": 4,
+      "urls": 30,
+      "residentSourceBytes": 7874640,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 0,
+      "idleBytes": 4199808,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "unsupported",
+      "assetId": "scale_5",
+      "groups": 3,
+      "urls": 22,
+      "residentSourceBytes": 5774736,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 1,
+      "idleBytes": 2099904,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "unsupported",
+      "assetId": "scale_6",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 2,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "unsupported",
+      "assetId": "scale_7",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 3,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "unsupported",
+      "assetId": "scale_8",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 4,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "unsupported",
+      "assetId": "scale_9",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 5,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "unsupported",
+      "assetId": "scale_10",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 5,
+      "idleBytes": 1574928,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "unsupported",
+      "assetId": "scale_11",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 5,
+      "idleBytes": 1574928,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "unsupported",
+      "assetId": "scale_12",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 5,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "unsupported",
+      "assetId": "scale_13",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 5,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "unsupported",
+      "assetId": "scale_14",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 5,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "unsupported",
+      "assetId": "scale_15",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 5,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "unsupported",
+      "assetId": "scale_16",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 5,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 5,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "unsupported",
+      "assetId": "scale_17",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 5,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 6,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "unsupported",
+      "assetId": "scale_18",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 5,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 7,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "unsupported",
+      "assetId": "scale_19",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 5,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 8,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "unsupported",
+      "assetId": "scale_20",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 5,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 9,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "unsupported",
+      "assetId": "scale_21",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 5,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 10,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "unsupported",
+      "assetId": "scale_22",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 5,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 11,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "unsupported",
+      "assetId": "scale_23",
+      "groups": 3,
+      "urls": 24,
+      "residentSourceBytes": 6299712,
+      "preparedGroups": 6,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 11,
+      "idleBytes": 2099904,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "unsupported",
+      "assetId": "scale_24",
+      "groups": 3,
+      "urls": 24,
+      "residentSourceBytes": 6299712,
+      "preparedGroups": 6,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 12,
+      "idleBytes": 2099904,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "unsupported",
+      "assetId": "scale_25",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 6,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 13,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "unsupported",
+      "assetId": "scale_26",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 6,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 14,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "unsupported",
+      "assetId": "scale_27",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 6,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 15,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "unsupported",
+      "assetId": "scale_28",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 6,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 16,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "unsupported",
+      "assetId": "scale_29",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 6,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 17,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "startup-longtasks",
+      "name": "unsupported",
+      "tasks": [],
+      "readyAt": 155.09999999962747,
+      "limits": "Startup through ready; optimized includes deliberate cancellation/retry. Navigation, JSON, hashes and host overhead included; not a controlled before/after baseline."
+    },
+    {
+      "kind": "lazy-released",
+      "name": "unsupported",
+      "groups": 0,
+      "urls": 0,
+      "residentSourceBytes": 0,
+      "preparedGroups": 6,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 17,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "continuous-process-samples",
+      "name": "unsupported",
+      "samples": [
+        {
+          "elapsedMs": 702.8359000000055,
+          "processes": 6,
+          "privateBytes": 328560640,
+          "workingSetBytes": 653262848
+        },
+        {
+          "elapsedMs": 1715.255600000004,
+          "processes": 6,
+          "privateBytes": 394485760,
+          "workingSetBytes": 704622592
+        },
+        {
+          "elapsedMs": 2652.6546999999846,
+          "processes": 6,
+          "privateBytes": 383590400,
+          "workingSetBytes": 698269696
+        },
+        {
+          "elapsedMs": 3580.2797999999893,
+          "processes": 6,
+          "privateBytes": 386576384,
+          "workingSetBytes": 709382144
+        },
+        {
+          "elapsedMs": 4640.364600000001,
+          "processes": 6,
+          "privateBytes": 384958464,
+          "workingSetBytes": 705470464
+        },
+        {
+          "elapsedMs": 5594.225399999996,
+          "processes": 6,
+          "privateBytes": 384487424,
+          "workingSetBytes": 701808640
+        },
+        {
+          "elapsedMs": 6573.465100000001,
+          "processes": 6,
+          "privateBytes": 403341312,
+          "workingSetBytes": 720388096
+        },
+        {
+          "elapsedMs": 7643.141700000007,
+          "processes": 6,
+          "privateBytes": 444813312,
+          "workingSetBytes": 760430592
+        },
+        {
+          "elapsedMs": 8720.467399999994,
+          "processes": 6,
+          "privateBytes": 375422976,
+          "workingSetBytes": 695345152
+        },
+        {
+          "elapsedMs": 9655.98920000001,
+          "processes": 6,
+          "privateBytes": 375238656,
+          "workingSetBytes": 697438208
+        },
+        {
+          "elapsedMs": 10573.958199999994,
+          "processes": 6,
+          "privateBytes": 367165440,
+          "workingSetBytes": 694149120
+        },
+        {
+          "elapsedMs": 11707.919699999999,
+          "processes": 6,
+          "privateBytes": 391516160,
+          "workingSetBytes": 718094336
+        },
+        {
+          "elapsedMs": 12731.210900000005,
+          "processes": 6,
+          "privateBytes": 381739008,
+          "workingSetBytes": 711700480
+        },
+        {
+          "elapsedMs": 13877.438900000008,
+          "processes": 6,
+          "privateBytes": 419725312,
+          "workingSetBytes": 752082944
+        },
+        {
+          "elapsedMs": 14943.631900000008,
+          "processes": 6,
+          "privateBytes": 443944960,
+          "workingSetBytes": 775622656
+        },
+        {
+          "elapsedMs": 16207.223100000003,
+          "processes": 6,
+          "privateBytes": 389206016,
+          "workingSetBytes": 729063424
+        },
+        {
+          "elapsedMs": 17290.836099999986,
+          "processes": 6,
+          "privateBytes": 396873728,
+          "workingSetBytes": 739000320
+        }
+      ],
+      "observedMaxPrivateBytes": 444813312,
+      "observedMaxWorkingSetBytes": 775622656,
+      "limits": "Serial process-tree sampling plus 200ms pause; actual timestamps retained. Observed maxima are lower bounds, not guaranteed instantaneous peaks, and include browser/harness activity."
+    },
+    {
+      "kind": "lazy-title",
+      "name": "emergency-img",
+      "groups": 0,
+      "urls": 0,
+      "residentSourceBytes": 0,
+      "preparedGroups": 0,
+      "active": 0,
+      "peakActive": 0,
+      "cacheHits": 0,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "emergency-img",
+      "assetId": "media_sunset",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 1,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 0,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "emergency-img",
+      "assetId": "media_actor_sprite",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 1,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 0,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "play-to-character",
+      "name": "emergency-img",
+      "elapsedMs": 1437.9959999999846,
+      "processMemory": {
+        "processes": 6,
+        "privateBytes": 379609088,
+        "workingSetBytes": 719958016
+      },
+      "jsHeap": {
+        "used": 167000000,
+        "total": 199000000
+      }
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "emergency-img",
+      "assetId": "scale_2",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 2,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 0,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "emergency-img",
+      "assetId": "scale_3",
+      "groups": 3,
+      "urls": 24,
+      "residentSourceBytes": 6299712,
+      "preparedGroups": 3,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 0,
+      "idleBytes": 2099904,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "emergency-img",
+      "assetId": "scale_4",
+      "groups": 4,
+      "urls": 30,
+      "residentSourceBytes": 7874640,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 0,
+      "idleBytes": 4199808,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "emergency-img",
+      "assetId": "scale_5",
+      "groups": 4,
+      "urls": 30,
+      "residentSourceBytes": 7874640,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 1,
+      "idleBytes": 4199808,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "emergency-img",
+      "assetId": "scale_6",
+      "groups": 4,
+      "urls": 30,
+      "residentSourceBytes": 7874640,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 2,
+      "idleBytes": 4199808,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "emergency-img",
+      "assetId": "scale_7",
+      "groups": 3,
+      "urls": 22,
+      "residentSourceBytes": 5774736,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 3,
+      "idleBytes": 2099904,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "emergency-img",
+      "assetId": "scale_8",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 4,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "emergency-img",
+      "assetId": "scale_9",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 5,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "emergency-img",
+      "assetId": "scale_10",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 5,
+      "idleBytes": 1574928,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "emergency-img",
+      "assetId": "scale_11",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 5,
+      "idleBytes": 1574928,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "emergency-img",
+      "assetId": "scale_12",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 5,
+      "idleBytes": 1574928,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "emergency-img",
+      "assetId": "scale_13",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 5,
+      "idleBytes": 1574928,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "emergency-img",
+      "assetId": "scale_14",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 5,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "emergency-img",
+      "assetId": "scale_15",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 5,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "emergency-img",
+      "assetId": "scale_16",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 5,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 5,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "emergency-img",
+      "assetId": "scale_17",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 5,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 6,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "emergency-img",
+      "assetId": "scale_18",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 5,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 7,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "emergency-img",
+      "assetId": "scale_19",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 5,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 8,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "emergency-img",
+      "assetId": "scale_20",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 5,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 9,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "emergency-img",
+      "assetId": "scale_21",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 5,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 10,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "emergency-img",
+      "assetId": "scale_22",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 5,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 11,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "emergency-img",
+      "assetId": "scale_23",
+      "groups": 3,
+      "urls": 24,
+      "residentSourceBytes": 6299712,
+      "preparedGroups": 6,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 11,
+      "idleBytes": 2099904,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "emergency-img",
+      "assetId": "scale_24",
+      "groups": 3,
+      "urls": 24,
+      "residentSourceBytes": 6299712,
+      "preparedGroups": 6,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 12,
+      "idleBytes": 2099904,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "emergency-img",
+      "assetId": "scale_25",
+      "groups": 3,
+      "urls": 24,
+      "residentSourceBytes": 6299712,
+      "preparedGroups": 6,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 13,
+      "idleBytes": 2099904,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "emergency-img",
+      "assetId": "scale_26",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 6,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 14,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "emergency-img",
+      "assetId": "scale_27",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 6,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 15,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "emergency-img",
+      "assetId": "scale_28",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 6,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 16,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "emergency-img",
+      "assetId": "scale_29",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 6,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 17,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "emergency-sampling-fallback",
+      "name": "emergency-img",
+      "mode": "fallback",
+      "assets": {
+        "media_sunset": {
+          "width": 256,
+          "height": 256,
+          "digest": "b6c6b4f301b18bb9e91aab46aec0fda15b25a8e70c7047cc16ba7d6bab1533b4"
+        },
+        "media_actor_sprite": {
+          "width": 256,
+          "height": 256,
+          "digest": "5e4c4e6c948296c91e3f17ba72699d9b98b6d6c4cb494650eaf7de0377613ed2"
+        },
+        "scale_2": {
+          "width": 256,
+          "height": 256,
+          "digest": "e49e754b217215b4b7c33888b3d792ea10c0da801ce7f12f3da67b0e971b3b9d"
+        },
+        "scale_3": {
+          "width": 256,
+          "height": 256,
+          "digest": "9213b6306f842da34edbb506e54546935be8be756f2ee1304080c0263b1ab9ea"
+        },
+        "scale_4": {
+          "width": 256,
+          "height": 256,
+          "digest": "c86a461c9b86af3f3b746e82e042eb2808e4dbe0cc7ac6f5671d855f3c6c8d8e"
+        },
+        "scale_5": {
+          "width": 256,
+          "height": 256,
+          "digest": "6cba1ab53d70f07ab8a1d62e9690a4f5e541dcacffd048bf1800bccd15798311"
+        },
+        "scale_6": {
+          "width": 256,
+          "height": 256,
+          "digest": "548939f0f8a537b35adbb6ef2dde4306a83f03c6a5469dda5327f58055fede57"
+        },
+        "scale_7": {
+          "width": 256,
+          "height": 256,
+          "digest": "f197952879e2002ab023c7ec5436d074690df6b38673ea3f35d0273b49563838"
+        },
+        "scale_8": {
+          "width": 256,
+          "height": 256,
+          "digest": "1d74d7cd8c779fbf583e027bf308e466ef94bfcc48886dd8dd1e0a05c8f9a3ac"
+        },
+        "scale_9": {
+          "width": 256,
+          "height": 256,
+          "digest": "bc4423bee313c5296553100ea569874e413130f2125b09043996729477892fde"
+        },
+        "scale_10": {
+          "width": 256,
+          "height": 256,
+          "digest": "cd8190bfdb74173a8990b0e16de541d08b69c838ec0d09fcf497d37deae690d0"
+        },
+        "scale_11": {
+          "width": 256,
+          "height": 256,
+          "digest": "dbd36c32a1ce4bae39cb93a99ce11fd36599f29cbdfe71feed7ad1452c5b0a70"
+        },
+        "scale_12": {
+          "width": 256,
+          "height": 256,
+          "digest": "85f2e92c6ec26c81375972b89776142fd8884eb526fcc4733f7389855adae409"
+        },
+        "scale_13": {
+          "width": 256,
+          "height": 256,
+          "digest": "9ffbc6b7d459962d33519433ef48489dae8f5315cb982cd08f49cf7d9acb33e5"
+        },
+        "scale_14": {
+          "width": 256,
+          "height": 256,
+          "digest": "789e57a0d0654677a9c4b8c3005c92724e40c5e662fc2fb51e017d8249321e86"
+        },
+        "scale_15": {
+          "width": 256,
+          "height": 256,
+          "digest": "10131e61f6b36cee19508868f908fbeb8447635a0f59f06e2dc2bc16ba03337c"
+        },
+        "scale_16": {
+          "width": 256,
+          "height": 256,
+          "digest": "a94cdc48ede4fcd98e07664ce0914e476b36fcd543df395c7035d06b44cd2a6a"
+        },
+        "scale_17": {
+          "width": 256,
+          "height": 256,
+          "digest": "d305c84e33d11914678e81183ed271527ae59589b0a4f081183f11e764060c92"
+        },
+        "scale_18": {
+          "width": 256,
+          "height": 256,
+          "digest": "8d72a16b92feb5898f0e4cbdd7d5d026c3d6ae63ac4f715a652ec5b772868e2c"
+        },
+        "scale_19": {
+          "width": 256,
+          "height": 256,
+          "digest": "f44c5029b13e06e3322b0a0eec958d12d7d9038892f05be2cb25ee1b6d0f45b2"
+        },
+        "scale_20": {
+          "width": 256,
+          "height": 256,
+          "digest": "6471d6276870ad7f6f34facc989e1b0777b759ef909c389f1076f93962dfdaad"
+        },
+        "scale_21": {
+          "width": 256,
+          "height": 256,
+          "digest": "9242aa81c6112ff4ba3739d849fdadeb2d354b3c3b5f70ccb680164b84c29e2e"
+        },
+        "scale_22": {
+          "width": 256,
+          "height": 256,
+          "digest": "9a3b9e987d2dffc034aa6c1ef9ec8f5b03d7fcb38c6c26dbd3eb4e9babddd09e"
+        },
+        "scale_23": {
+          "width": 256,
+          "height": 256,
+          "digest": "35dd6f449da7aaf88ce51c4b8e541f9ac253e27f851cc759248b8e7b8d650a08"
+        },
+        "scale_24": {
+          "width": 256,
+          "height": 256,
+          "digest": "74bdae222c52e9d8fbbd8015ec80f1e64ac92bd432a0768004d9116b9024b690"
+        },
+        "scale_25": {
+          "width": 256,
+          "height": 256,
+          "digest": "0e0d8046ba8fdd187bab97b06ebb4031c7e753eac153f10a09aacb1f7c14954a"
+        },
+        "scale_26": {
+          "width": 256,
+          "height": 256,
+          "digest": "a24dde1376f52a8a7066ef6cd66b8baab4aafeea91717764a1a0c2ddf83ce4cf"
+        },
+        "scale_27": {
+          "width": 256,
+          "height": 256,
+          "digest": "34993360199b842489e23c403b16109295b35886e8a17a8cb4f9939b6edc682d"
+        },
+        "scale_28": {
+          "width": 256,
+          "height": 256,
+          "digest": "0085d984525a8961cc8ee47cff4a7edb8946e8ecee9e974671216fa41ab081ea"
+        },
+        "scale_29": {
+          "width": 256,
+          "height": 256,
+          "digest": "21c75ac689a5200c6feddbd55a7572e2fd9e22a4a314fb477a76b8ca78dd4165"
+        }
+      },
+      "count": 30
+    },
+    {
+      "kind": "lazy-released",
+      "name": "emergency-img",
+      "groups": 0,
+      "urls": 0,
+      "residentSourceBytes": 0,
+      "preparedGroups": 6,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 17,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "continuous-process-samples",
+      "name": "emergency-img",
+      "samples": [
+        {
+          "elapsedMs": 759.869399999996,
+          "processes": 6,
+          "privateBytes": 383168512,
+          "workingSetBytes": 731955200
+        },
+        {
+          "elapsedMs": 1760.0299999999988,
+          "processes": 6,
+          "privateBytes": 379559936,
+          "workingSetBytes": 719908864
+        },
+        {
+          "elapsedMs": 2687.4712999999756,
+          "processes": 6,
+          "privateBytes": 379609088,
+          "workingSetBytes": 719958016
+        },
+        {
+          "elapsedMs": 3712.214799999987,
+          "processes": 6,
+          "privateBytes": 406159360,
+          "workingSetBytes": 756510720
+        },
+        {
+          "elapsedMs": 4744.479899999977,
+          "processes": 6,
+          "privateBytes": 425488384,
+          "workingSetBytes": 780816384
+        },
+        {
+          "elapsedMs": 5656.190499999997,
+          "processes": 6,
+          "privateBytes": 380456960,
+          "workingSetBytes": 737968128
+        },
+        {
+          "elapsedMs": 6639.281999999977,
+          "processes": 6,
+          "privateBytes": 380293120,
+          "workingSetBytes": 736927744
+        },
+        {
+          "elapsedMs": 7636.5717,
+          "processes": 6,
+          "privateBytes": 375345152,
+          "workingSetBytes": 732934144
+        },
+        {
+          "elapsedMs": 8791.0147,
+          "processes": 6,
+          "privateBytes": 388780032,
+          "workingSetBytes": 744443904
+        },
+        {
+          "elapsedMs": 9855.088399999979,
+          "processes": 6,
+          "privateBytes": 369692672,
+          "workingSetBytes": 728342528
+        },
+        {
+          "elapsedMs": 10780.358500000002,
+          "processes": 6,
+          "privateBytes": 389304320,
+          "workingSetBytes": 743022592
+        },
+        {
+          "elapsedMs": 11668.735199999996,
+          "processes": 6,
+          "privateBytes": 393928704,
+          "workingSetBytes": 747122688
+        }
+      ],
+      "observedMaxPrivateBytes": 425488384,
+      "observedMaxWorkingSetBytes": 780816384,
+      "limits": "Serial process-tree sampling plus 200ms pause; actual timestamps retained. Observed maxima are lower bounds, not guaranteed instantaneous peaks, and include browser/harness activity."
+    },
+    {
+      "kind": "lazy-source-retry",
+      "retryRejected": true,
+      "groups": 0,
+      "urls": 0,
+      "residentSourceBytes": 0,
+      "preparedGroups": 0,
+      "active": 0,
+      "peakActive": 1,
+      "cacheHits": 0,
+      "idleBytes": 0,
+      "idleBudgetBytes": 8388608
+    },
+    {
+      "kind": "controlled-loading",
+      "scope": "Same compressed payload, alternating eager/lazy preparation; Blob byte accounting, not heap/process peak or full navigation timing.",
+      "rounds": [
+        {
+          "round": 1,
+          "lazy": false,
+          "startup": {
+            "milliseconds": 317,
+            "urls": 30,
+            "blobBytes": 7874640
+          },
+          "firstGroup": {
+            "milliseconds": 0,
+            "urls": 30,
+            "blobBytes": 7874640
+          },
+          "peakBlobBytes": 7874640,
+          "releasedUrls": 0,
+          "releasedBlobBytes": 0,
+          "nonImageBlobCreations": 1,
+          "longTasks": []
+        },
+        {
+          "round": 1,
+          "lazy": true,
+          "startup": {
+            "milliseconds": 38.899999998509884,
+            "urls": 0,
+            "blobBytes": 0
+          },
+          "firstGroup": {
+            "milliseconds": 76.10000000149012,
+            "urls": 8,
+            "blobBytes": 2099904
+          },
+          "peakBlobBytes": 2099904,
+          "releasedUrls": 0,
+          "releasedBlobBytes": 0,
+          "nonImageBlobCreations": 0,
+          "longTasks": []
+        },
+        {
+          "round": 2,
+          "lazy": true,
+          "startup": {
+            "milliseconds": 42.40000000037253,
+            "urls": 0,
+            "blobBytes": 0
+          },
+          "firstGroup": {
+            "milliseconds": 74,
+            "urls": 8,
+            "blobBytes": 2099904
+          },
+          "peakBlobBytes": 2099904,
+          "releasedUrls": 0,
+          "releasedBlobBytes": 0,
+          "nonImageBlobCreations": 0,
+          "longTasks": []
+        },
+        {
+          "round": 2,
+          "lazy": false,
+          "startup": {
+            "milliseconds": 291,
+            "urls": 30,
+            "blobBytes": 7874640
+          },
+          "firstGroup": {
+            "milliseconds": 0,
+            "urls": 30,
+            "blobBytes": 7874640
+          },
+          "peakBlobBytes": 7874640,
+          "releasedUrls": 0,
+          "releasedBlobBytes": 0,
+          "nonImageBlobCreations": 0,
+          "longTasks": []
+        },
+        {
+          "round": 3,
+          "lazy": false,
+          "startup": {
+            "milliseconds": 315.09999999962747,
+            "urls": 30,
+            "blobBytes": 7874640
+          },
+          "firstGroup": {
+            "milliseconds": 0,
+            "urls": 30,
+            "blobBytes": 7874640
+          },
+          "peakBlobBytes": 7874640,
+          "releasedUrls": 0,
+          "releasedBlobBytes": 0,
+          "nonImageBlobCreations": 0,
+          "longTasks": []
+        },
+        {
+          "round": 3,
+          "lazy": true,
+          "startup": {
+            "milliseconds": 43.90000000037253,
+            "urls": 0,
+            "blobBytes": 0
+          },
+          "firstGroup": {
+            "milliseconds": 81.59999999962747,
+            "urls": 8,
+            "blobBytes": 2099904
+          },
+          "peakBlobBytes": 2099904,
+          "releasedUrls": 0,
+          "releasedBlobBytes": 0,
+          "nonImageBlobCreations": 0,
+          "longTasks": []
+        }
+      ]
+    },
+    {
+      "kind": "bounded-revisit-gallery",
+      "reused": true,
+      "revisitMilliseconds": 0,
+      "open": {
+        "groups": 4,
+        "urls": 30,
+        "residentSourceBytes": 7874640,
+        "preparedGroups": 4,
+        "active": 0,
+        "peakActive": 1,
+        "cacheHits": 2,
+        "idleBytes": 0,
+        "idleBudgetBytes": 8388608
+      },
+      "closed": {
+        "groups": 0,
+        "urls": 0,
+        "residentSourceBytes": 0,
+        "preparedGroups": 4,
+        "active": 0,
+        "peakActive": 1,
+        "cacheHits": 2,
+        "idleBytes": 0,
+        "idleBudgetBytes": 8388608
+      }
+    },
+    {
+      "kind": "rapid-switch",
+      "sceneChanges": 30,
+      "scheduler": {
+        "maxConcurrentLoads": 1,
+        "maxResidentBytes": 67108864,
+        "activeLoads": 0,
+        "queuedLoads": 0,
+        "residentResources": 1,
+        "referencedResources": 0,
+        "residentBytes": 2138730,
+        "reservedBytes": 0,
+        "peakAccountedBytes": 67108864,
+        "cacheHits": 13,
+        "deduplicatedRequests": 0,
+        "evictions": 0,
+        "cancellations": 0
+      },
+      "native": {
+        "groups": 0,
+        "accountedBytes": 0,
+        "peakBytes": 1547968,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 1,
+        "decodedGroups": 9,
+        "cacheHits": 4
+      }
+    },
+    {
+      "kind": "dicing-sequence",
+      "fixtureHash": "sha256:ebf76df43791f110ef6aa570c2cbf2545a87ca644458e7b4cf5db39fe37da955",
+      "runs": [
+        {
+          "name": "original",
+          "mode": "ordinary",
+          "assets": {
+            "media_sunset": {
+              "width": 256,
+              "height": 256,
+              "digest": "b6c6b4f301b18bb9e91aab46aec0fda15b25a8e70c7047cc16ba7d6bab1533b4"
+            },
+            "media_actor_sprite": {
+              "width": 256,
+              "height": 256,
+              "digest": "5e4c4e6c948296c91e3f17ba72699d9b98b6d6c4cb494650eaf7de0377613ed2"
+            },
+            "scale_2": {
+              "width": 256,
+              "height": 256,
+              "digest": "e49e754b217215b4b7c33888b3d792ea10c0da801ce7f12f3da67b0e971b3b9d"
+            },
+            "scale_3": {
+              "width": 256,
+              "height": 256,
+              "digest": "9213b6306f842da34edbb506e54546935be8be756f2ee1304080c0263b1ab9ea"
+            },
+            "scale_4": {
+              "width": 256,
+              "height": 256,
+              "digest": "c86a461c9b86af3f3b746e82e042eb2808e4dbe0cc7ac6f5671d855f3c6c8d8e"
+            },
+            "scale_5": {
+              "width": 256,
+              "height": 256,
+              "digest": "6cba1ab53d70f07ab8a1d62e9690a4f5e541dcacffd048bf1800bccd15798311"
+            },
+            "scale_6": {
+              "width": 256,
+              "height": 256,
+              "digest": "548939f0f8a537b35adbb6ef2dde4306a83f03c6a5469dda5327f58055fede57"
+            },
+            "scale_7": {
+              "width": 256,
+              "height": 256,
+              "digest": "f197952879e2002ab023c7ec5436d074690df6b38673ea3f35d0273b49563838"
+            },
+            "scale_8": {
+              "width": 256,
+              "height": 256,
+              "digest": "1d74d7cd8c779fbf583e027bf308e466ef94bfcc48886dd8dd1e0a05c8f9a3ac"
+            },
+            "scale_9": {
+              "width": 256,
+              "height": 256,
+              "digest": "bc4423bee313c5296553100ea569874e413130f2125b09043996729477892fde"
+            },
+            "scale_10": {
+              "width": 256,
+              "height": 256,
+              "digest": "cd8190bfdb74173a8990b0e16de541d08b69c838ec0d09fcf497d37deae690d0"
+            },
+            "scale_11": {
+              "width": 256,
+              "height": 256,
+              "digest": "dbd36c32a1ce4bae39cb93a99ce11fd36599f29cbdfe71feed7ad1452c5b0a70"
+            },
+            "scale_12": {
+              "width": 256,
+              "height": 256,
+              "digest": "85f2e92c6ec26c81375972b89776142fd8884eb526fcc4733f7389855adae409"
+            },
+            "scale_13": {
+              "width": 256,
+              "height": 256,
+              "digest": "9ffbc6b7d459962d33519433ef48489dae8f5315cb982cd08f49cf7d9acb33e5"
+            },
+            "scale_14": {
+              "width": 256,
+              "height": 256,
+              "digest": "789e57a0d0654677a9c4b8c3005c92724e40c5e662fc2fb51e017d8249321e86"
+            },
+            "scale_15": {
+              "width": 256,
+              "height": 256,
+              "digest": "10131e61f6b36cee19508868f908fbeb8447635a0f59f06e2dc2bc16ba03337c"
+            },
+            "scale_16": {
+              "width": 256,
+              "height": 256,
+              "digest": "a94cdc48ede4fcd98e07664ce0914e476b36fcd543df395c7035d06b44cd2a6a"
+            },
+            "scale_17": {
+              "width": 256,
+              "height": 256,
+              "digest": "d305c84e33d11914678e81183ed271527ae59589b0a4f081183f11e764060c92"
+            },
+            "scale_18": {
+              "width": 256,
+              "height": 256,
+              "digest": "8d72a16b92feb5898f0e4cbdd7d5d026c3d6ae63ac4f715a652ec5b772868e2c"
+            },
+            "scale_19": {
+              "width": 256,
+              "height": 256,
+              "digest": "f44c5029b13e06e3322b0a0eec958d12d7d9038892f05be2cb25ee1b6d0f45b2"
+            },
+            "scale_20": {
+              "width": 256,
+              "height": 256,
+              "digest": "6471d6276870ad7f6f34facc989e1b0777b759ef909c389f1076f93962dfdaad"
+            },
+            "scale_21": {
+              "width": 256,
+              "height": 256,
+              "digest": "9242aa81c6112ff4ba3739d849fdadeb2d354b3c3b5f70ccb680164b84c29e2e"
+            },
+            "scale_22": {
+              "width": 256,
+              "height": 256,
+              "digest": "9a3b9e987d2dffc034aa6c1ef9ec8f5b03d7fcb38c6c26dbd3eb4e9babddd09e"
+            },
+            "scale_23": {
+              "width": 256,
+              "height": 256,
+              "digest": "35dd6f449da7aaf88ce51c4b8e541f9ac253e27f851cc759248b8e7b8d650a08"
+            },
+            "scale_24": {
+              "width": 256,
+              "height": 256,
+              "digest": "74bdae222c52e9d8fbbd8015ec80f1e64ac92bd432a0768004d9116b9024b690"
+            },
+            "scale_25": {
+              "width": 256,
+              "height": 256,
+              "digest": "0e0d8046ba8fdd187bab97b06ebb4031c7e753eac153f10a09aacb1f7c14954a"
+            },
+            "scale_26": {
+              "width": 256,
+              "height": 256,
+              "digest": "a24dde1376f52a8a7066ef6cd66b8baab4aafeea91717764a1a0c2ddf83ce4cf"
+            },
+            "scale_27": {
+              "width": 256,
+              "height": 256,
+              "digest": "34993360199b842489e23c403b16109295b35886e8a17a8cb4f9939b6edc682d"
+            },
+            "scale_28": {
+              "width": 256,
+              "height": 256,
+              "digest": "0085d984525a8961cc8ee47cff4a7edb8946e8ecee9e974671216fa41ab081ea"
+            },
+            "scale_29": {
+              "width": 256,
+              "height": 256,
+              "digest": "21c75ac689a5200c6feddbd55a7572e2fd9e22a4a314fb477a76b8ca78dd4165"
+            }
+          },
+          "count": 30
+        },
+        {
+          "name": "optimized",
+          "mode": "ready",
+          "assets": {
+            "media_sunset": {
+              "width": 256,
+              "height": 256,
+              "digest": "b6c6b4f301b18bb9e91aab46aec0fda15b25a8e70c7047cc16ba7d6bab1533b4"
+            },
+            "media_actor_sprite": {
+              "width": 256,
+              "height": 256,
+              "digest": "5e4c4e6c948296c91e3f17ba72699d9b98b6d6c4cb494650eaf7de0377613ed2"
+            },
+            "scale_2": {
+              "width": 256,
+              "height": 256,
+              "digest": "e49e754b217215b4b7c33888b3d792ea10c0da801ce7f12f3da67b0e971b3b9d"
+            },
+            "scale_3": {
+              "width": 256,
+              "height": 256,
+              "digest": "9213b6306f842da34edbb506e54546935be8be756f2ee1304080c0263b1ab9ea"
+            },
+            "scale_4": {
+              "width": 256,
+              "height": 256,
+              "digest": "c86a461c9b86af3f3b746e82e042eb2808e4dbe0cc7ac6f5671d855f3c6c8d8e"
+            },
+            "scale_5": {
+              "width": 256,
+              "height": 256,
+              "digest": "6cba1ab53d70f07ab8a1d62e9690a4f5e541dcacffd048bf1800bccd15798311"
+            },
+            "scale_6": {
+              "width": 256,
+              "height": 256,
+              "digest": "548939f0f8a537b35adbb6ef2dde4306a83f03c6a5469dda5327f58055fede57"
+            },
+            "scale_7": {
+              "width": 256,
+              "height": 256,
+              "digest": "f197952879e2002ab023c7ec5436d074690df6b38673ea3f35d0273b49563838"
+            },
+            "scale_8": {
+              "width": 256,
+              "height": 256,
+              "digest": "1d74d7cd8c779fbf583e027bf308e466ef94bfcc48886dd8dd1e0a05c8f9a3ac"
+            },
+            "scale_9": {
+              "width": 256,
+              "height": 256,
+              "digest": "bc4423bee313c5296553100ea569874e413130f2125b09043996729477892fde"
+            },
+            "scale_10": {
+              "width": 256,
+              "height": 256,
+              "digest": "cd8190bfdb74173a8990b0e16de541d08b69c838ec0d09fcf497d37deae690d0"
+            },
+            "scale_11": {
+              "width": 256,
+              "height": 256,
+              "digest": "dbd36c32a1ce4bae39cb93a99ce11fd36599f29cbdfe71feed7ad1452c5b0a70"
+            },
+            "scale_12": {
+              "width": 256,
+              "height": 256,
+              "digest": "85f2e92c6ec26c81375972b89776142fd8884eb526fcc4733f7389855adae409"
+            },
+            "scale_13": {
+              "width": 256,
+              "height": 256,
+              "digest": "9ffbc6b7d459962d33519433ef48489dae8f5315cb982cd08f49cf7d9acb33e5"
+            },
+            "scale_14": {
+              "width": 256,
+              "height": 256,
+              "digest": "789e57a0d0654677a9c4b8c3005c92724e40c5e662fc2fb51e017d8249321e86"
+            },
+            "scale_15": {
+              "width": 256,
+              "height": 256,
+              "digest": "10131e61f6b36cee19508868f908fbeb8447635a0f59f06e2dc2bc16ba03337c"
+            },
+            "scale_16": {
+              "width": 256,
+              "height": 256,
+              "digest": "a94cdc48ede4fcd98e07664ce0914e476b36fcd543df395c7035d06b44cd2a6a"
+            },
+            "scale_17": {
+              "width": 256,
+              "height": 256,
+              "digest": "d305c84e33d11914678e81183ed271527ae59589b0a4f081183f11e764060c92"
+            },
+            "scale_18": {
+              "width": 256,
+              "height": 256,
+              "digest": "8d72a16b92feb5898f0e4cbdd7d5d026c3d6ae63ac4f715a652ec5b772868e2c"
+            },
+            "scale_19": {
+              "width": 256,
+              "height": 256,
+              "digest": "f44c5029b13e06e3322b0a0eec958d12d7d9038892f05be2cb25ee1b6d0f45b2"
+            },
+            "scale_20": {
+              "width": 256,
+              "height": 256,
+              "digest": "6471d6276870ad7f6f34facc989e1b0777b759ef909c389f1076f93962dfdaad"
+            },
+            "scale_21": {
+              "width": 256,
+              "height": 256,
+              "digest": "9242aa81c6112ff4ba3739d849fdadeb2d354b3c3b5f70ccb680164b84c29e2e"
+            },
+            "scale_22": {
+              "width": 256,
+              "height": 256,
+              "digest": "9a3b9e987d2dffc034aa6c1ef9ec8f5b03d7fcb38c6c26dbd3eb4e9babddd09e"
+            },
+            "scale_23": {
+              "width": 256,
+              "height": 256,
+              "digest": "35dd6f449da7aaf88ce51c4b8e541f9ac253e27f851cc759248b8e7b8d650a08"
+            },
+            "scale_24": {
+              "width": 256,
+              "height": 256,
+              "digest": "74bdae222c52e9d8fbbd8015ec80f1e64ac92bd432a0768004d9116b9024b690"
+            },
+            "scale_25": {
+              "width": 256,
+              "height": 256,
+              "digest": "0e0d8046ba8fdd187bab97b06ebb4031c7e753eac153f10a09aacb1f7c14954a"
+            },
+            "scale_26": {
+              "width": 256,
+              "height": 256,
+              "digest": "a24dde1376f52a8a7066ef6cd66b8baab4aafeea91717764a1a0c2ddf83ce4cf"
+            },
+            "scale_27": {
+              "width": 256,
+              "height": 256,
+              "digest": "34993360199b842489e23c403b16109295b35886e8a17a8cb4f9939b6edc682d"
+            },
+            "scale_28": {
+              "width": 256,
+              "height": 256,
+              "digest": "0085d984525a8961cc8ee47cff4a7edb8946e8ecee9e974671216fa41ab081ea"
+            },
+            "scale_29": {
+              "width": 256,
+              "height": 256,
+              "digest": "21c75ac689a5200c6feddbd55a7572e2fd9e22a4a314fb477a76b8ca78dd4165"
+            }
+          },
+          "count": 30
+        },
+        {
+          "name": "directory",
+          "mode": "ready",
+          "assets": {
+            "media_sunset": {
+              "width": 256,
+              "height": 256,
+              "digest": "b6c6b4f301b18bb9e91aab46aec0fda15b25a8e70c7047cc16ba7d6bab1533b4"
+            },
+            "media_actor_sprite": {
+              "width": 256,
+              "height": 256,
+              "digest": "5e4c4e6c948296c91e3f17ba72699d9b98b6d6c4cb494650eaf7de0377613ed2"
+            },
+            "scale_2": {
+              "width": 256,
+              "height": 256,
+              "digest": "e49e754b217215b4b7c33888b3d792ea10c0da801ce7f12f3da67b0e971b3b9d"
+            },
+            "scale_3": {
+              "width": 256,
+              "height": 256,
+              "digest": "9213b6306f842da34edbb506e54546935be8be756f2ee1304080c0263b1ab9ea"
+            },
+            "scale_4": {
+              "width": 256,
+              "height": 256,
+              "digest": "c86a461c9b86af3f3b746e82e042eb2808e4dbe0cc7ac6f5671d855f3c6c8d8e"
+            },
+            "scale_5": {
+              "width": 256,
+              "height": 256,
+              "digest": "6cba1ab53d70f07ab8a1d62e9690a4f5e541dcacffd048bf1800bccd15798311"
+            },
+            "scale_6": {
+              "width": 256,
+              "height": 256,
+              "digest": "548939f0f8a537b35adbb6ef2dde4306a83f03c6a5469dda5327f58055fede57"
+            },
+            "scale_7": {
+              "width": 256,
+              "height": 256,
+              "digest": "f197952879e2002ab023c7ec5436d074690df6b38673ea3f35d0273b49563838"
+            },
+            "scale_8": {
+              "width": 256,
+              "height": 256,
+              "digest": "1d74d7cd8c779fbf583e027bf308e466ef94bfcc48886dd8dd1e0a05c8f9a3ac"
+            },
+            "scale_9": {
+              "width": 256,
+              "height": 256,
+              "digest": "bc4423bee313c5296553100ea569874e413130f2125b09043996729477892fde"
+            },
+            "scale_10": {
+              "width": 256,
+              "height": 256,
+              "digest": "cd8190bfdb74173a8990b0e16de541d08b69c838ec0d09fcf497d37deae690d0"
+            },
+            "scale_11": {
+              "width": 256,
+              "height": 256,
+              "digest": "dbd36c32a1ce4bae39cb93a99ce11fd36599f29cbdfe71feed7ad1452c5b0a70"
+            },
+            "scale_12": {
+              "width": 256,
+              "height": 256,
+              "digest": "85f2e92c6ec26c81375972b89776142fd8884eb526fcc4733f7389855adae409"
+            },
+            "scale_13": {
+              "width": 256,
+              "height": 256,
+              "digest": "9ffbc6b7d459962d33519433ef48489dae8f5315cb982cd08f49cf7d9acb33e5"
+            },
+            "scale_14": {
+              "width": 256,
+              "height": 256,
+              "digest": "789e57a0d0654677a9c4b8c3005c92724e40c5e662fc2fb51e017d8249321e86"
+            },
+            "scale_15": {
+              "width": 256,
+              "height": 256,
+              "digest": "10131e61f6b36cee19508868f908fbeb8447635a0f59f06e2dc2bc16ba03337c"
+            },
+            "scale_16": {
+              "width": 256,
+              "height": 256,
+              "digest": "a94cdc48ede4fcd98e07664ce0914e476b36fcd543df395c7035d06b44cd2a6a"
+            },
+            "scale_17": {
+              "width": 256,
+              "height": 256,
+              "digest": "d305c84e33d11914678e81183ed271527ae59589b0a4f081183f11e764060c92"
+            },
+            "scale_18": {
+              "width": 256,
+              "height": 256,
+              "digest": "8d72a16b92feb5898f0e4cbdd7d5d026c3d6ae63ac4f715a652ec5b772868e2c"
+            },
+            "scale_19": {
+              "width": 256,
+              "height": 256,
+              "digest": "f44c5029b13e06e3322b0a0eec958d12d7d9038892f05be2cb25ee1b6d0f45b2"
+            },
+            "scale_20": {
+              "width": 256,
+              "height": 256,
+              "digest": "6471d6276870ad7f6f34facc989e1b0777b759ef909c389f1076f93962dfdaad"
+            },
+            "scale_21": {
+              "width": 256,
+              "height": 256,
+              "digest": "9242aa81c6112ff4ba3739d849fdadeb2d354b3c3b5f70ccb680164b84c29e2e"
+            },
+            "scale_22": {
+              "width": 256,
+              "height": 256,
+              "digest": "9a3b9e987d2dffc034aa6c1ef9ec8f5b03d7fcb38c6c26dbd3eb4e9babddd09e"
+            },
+            "scale_23": {
+              "width": 256,
+              "height": 256,
+              "digest": "35dd6f449da7aaf88ce51c4b8e541f9ac253e27f851cc759248b8e7b8d650a08"
+            },
+            "scale_24": {
+              "width": 256,
+              "height": 256,
+              "digest": "74bdae222c52e9d8fbbd8015ec80f1e64ac92bd432a0768004d9116b9024b690"
+            },
+            "scale_25": {
+              "width": 256,
+              "height": 256,
+              "digest": "0e0d8046ba8fdd187bab97b06ebb4031c7e753eac153f10a09aacb1f7c14954a"
+            },
+            "scale_26": {
+              "width": 256,
+              "height": 256,
+              "digest": "a24dde1376f52a8a7066ef6cd66b8baab4aafeea91717764a1a0c2ddf83ce4cf"
+            },
+            "scale_27": {
+              "width": 256,
+              "height": 256,
+              "digest": "34993360199b842489e23c403b16109295b35886e8a17a8cb4f9939b6edc682d"
+            },
+            "scale_28": {
+              "width": 256,
+              "height": 256,
+              "digest": "0085d984525a8961cc8ee47cff4a7edb8946e8ecee9e974671216fa41ab081ea"
+            },
+            "scale_29": {
+              "width": 256,
+              "height": 256,
+              "digest": "21c75ac689a5200c6feddbd55a7572e2fd9e22a4a314fb477a76b8ca78dd4165"
+            }
+          },
+          "count": 30
+        },
+        {
+          "name": "windows",
+          "mode": "ready",
+          "assets": {
+            "media_sunset": {
+              "width": 256,
+              "height": 256,
+              "digest": "b6c6b4f301b18bb9e91aab46aec0fda15b25a8e70c7047cc16ba7d6bab1533b4"
+            },
+            "media_actor_sprite": {
+              "width": 256,
+              "height": 256,
+              "digest": "5e4c4e6c948296c91e3f17ba72699d9b98b6d6c4cb494650eaf7de0377613ed2"
+            },
+            "scale_2": {
+              "width": 256,
+              "height": 256,
+              "digest": "e49e754b217215b4b7c33888b3d792ea10c0da801ce7f12f3da67b0e971b3b9d"
+            },
+            "scale_3": {
+              "width": 256,
+              "height": 256,
+              "digest": "9213b6306f842da34edbb506e54546935be8be756f2ee1304080c0263b1ab9ea"
+            },
+            "scale_4": {
+              "width": 256,
+              "height": 256,
+              "digest": "c86a461c9b86af3f3b746e82e042eb2808e4dbe0cc7ac6f5671d855f3c6c8d8e"
+            },
+            "scale_5": {
+              "width": 256,
+              "height": 256,
+              "digest": "6cba1ab53d70f07ab8a1d62e9690a4f5e541dcacffd048bf1800bccd15798311"
+            },
+            "scale_6": {
+              "width": 256,
+              "height": 256,
+              "digest": "548939f0f8a537b35adbb6ef2dde4306a83f03c6a5469dda5327f58055fede57"
+            },
+            "scale_7": {
+              "width": 256,
+              "height": 256,
+              "digest": "f197952879e2002ab023c7ec5436d074690df6b38673ea3f35d0273b49563838"
+            },
+            "scale_8": {
+              "width": 256,
+              "height": 256,
+              "digest": "1d74d7cd8c779fbf583e027bf308e466ef94bfcc48886dd8dd1e0a05c8f9a3ac"
+            },
+            "scale_9": {
+              "width": 256,
+              "height": 256,
+              "digest": "bc4423bee313c5296553100ea569874e413130f2125b09043996729477892fde"
+            },
+            "scale_10": {
+              "width": 256,
+              "height": 256,
+              "digest": "cd8190bfdb74173a8990b0e16de541d08b69c838ec0d09fcf497d37deae690d0"
+            },
+            "scale_11": {
+              "width": 256,
+              "height": 256,
+              "digest": "dbd36c32a1ce4bae39cb93a99ce11fd36599f29cbdfe71feed7ad1452c5b0a70"
+            },
+            "scale_12": {
+              "width": 256,
+              "height": 256,
+              "digest": "85f2e92c6ec26c81375972b89776142fd8884eb526fcc4733f7389855adae409"
+            },
+            "scale_13": {
+              "width": 256,
+              "height": 256,
+              "digest": "9ffbc6b7d459962d33519433ef48489dae8f5315cb982cd08f49cf7d9acb33e5"
+            },
+            "scale_14": {
+              "width": 256,
+              "height": 256,
+              "digest": "789e57a0d0654677a9c4b8c3005c92724e40c5e662fc2fb51e017d8249321e86"
+            },
+            "scale_15": {
+              "width": 256,
+              "height": 256,
+              "digest": "10131e61f6b36cee19508868f908fbeb8447635a0f59f06e2dc2bc16ba03337c"
+            },
+            "scale_16": {
+              "width": 256,
+              "height": 256,
+              "digest": "a94cdc48ede4fcd98e07664ce0914e476b36fcd543df395c7035d06b44cd2a6a"
+            },
+            "scale_17": {
+              "width": 256,
+              "height": 256,
+              "digest": "d305c84e33d11914678e81183ed271527ae59589b0a4f081183f11e764060c92"
+            },
+            "scale_18": {
+              "width": 256,
+              "height": 256,
+              "digest": "8d72a16b92feb5898f0e4cbdd7d5d026c3d6ae63ac4f715a652ec5b772868e2c"
+            },
+            "scale_19": {
+              "width": 256,
+              "height": 256,
+              "digest": "f44c5029b13e06e3322b0a0eec958d12d7d9038892f05be2cb25ee1b6d0f45b2"
+            },
+            "scale_20": {
+              "width": 256,
+              "height": 256,
+              "digest": "6471d6276870ad7f6f34facc989e1b0777b759ef909c389f1076f93962dfdaad"
+            },
+            "scale_21": {
+              "width": 256,
+              "height": 256,
+              "digest": "9242aa81c6112ff4ba3739d849fdadeb2d354b3c3b5f70ccb680164b84c29e2e"
+            },
+            "scale_22": {
+              "width": 256,
+              "height": 256,
+              "digest": "9a3b9e987d2dffc034aa6c1ef9ec8f5b03d7fcb38c6c26dbd3eb4e9babddd09e"
+            },
+            "scale_23": {
+              "width": 256,
+              "height": 256,
+              "digest": "35dd6f449da7aaf88ce51c4b8e541f9ac253e27f851cc759248b8e7b8d650a08"
+            },
+            "scale_24": {
+              "width": 256,
+              "height": 256,
+              "digest": "74bdae222c52e9d8fbbd8015ec80f1e64ac92bd432a0768004d9116b9024b690"
+            },
+            "scale_25": {
+              "width": 256,
+              "height": 256,
+              "digest": "0e0d8046ba8fdd187bab97b06ebb4031c7e753eac153f10a09aacb1f7c14954a"
+            },
+            "scale_26": {
+              "width": 256,
+              "height": 256,
+              "digest": "a24dde1376f52a8a7066ef6cd66b8baab4aafeea91717764a1a0c2ddf83ce4cf"
+            },
+            "scale_27": {
+              "width": 256,
+              "height": 256,
+              "digest": "34993360199b842489e23c403b16109295b35886e8a17a8cb4f9939b6edc682d"
+            },
+            "scale_28": {
+              "width": 256,
+              "height": 256,
+              "digest": "0085d984525a8961cc8ee47cff4a7edb8946e8ecee9e974671216fa41ab081ea"
+            },
+            "scale_29": {
+              "width": 256,
+              "height": 256,
+              "digest": "21c75ac689a5200c6feddbd55a7572e2fd9e22a4a314fb477a76b8ca78dd4165"
+            }
+          },
+          "count": 30
+        },
+        {
+          "name": "corrupt-page",
+          "mode": "fallback",
+          "assets": {
+            "media_sunset": {
+              "width": 256,
+              "height": 256,
+              "digest": "b6c6b4f301b18bb9e91aab46aec0fda15b25a8e70c7047cc16ba7d6bab1533b4"
+            },
+            "media_actor_sprite": {
+              "width": 256,
+              "height": 256,
+              "digest": "5e4c4e6c948296c91e3f17ba72699d9b98b6d6c4cb494650eaf7de0377613ed2"
+            },
+            "scale_2": {
+              "width": 256,
+              "height": 256,
+              "digest": "e49e754b217215b4b7c33888b3d792ea10c0da801ce7f12f3da67b0e971b3b9d"
+            },
+            "scale_3": {
+              "width": 256,
+              "height": 256,
+              "digest": "9213b6306f842da34edbb506e54546935be8be756f2ee1304080c0263b1ab9ea"
+            },
+            "scale_4": {
+              "width": 256,
+              "height": 256,
+              "digest": "c86a461c9b86af3f3b746e82e042eb2808e4dbe0cc7ac6f5671d855f3c6c8d8e"
+            },
+            "scale_5": {
+              "width": 256,
+              "height": 256,
+              "digest": "6cba1ab53d70f07ab8a1d62e9690a4f5e541dcacffd048bf1800bccd15798311"
+            },
+            "scale_6": {
+              "width": 256,
+              "height": 256,
+              "digest": "548939f0f8a537b35adbb6ef2dde4306a83f03c6a5469dda5327f58055fede57"
+            },
+            "scale_7": {
+              "width": 256,
+              "height": 256,
+              "digest": "f197952879e2002ab023c7ec5436d074690df6b38673ea3f35d0273b49563838"
+            },
+            "scale_8": {
+              "width": 256,
+              "height": 256,
+              "digest": "1d74d7cd8c779fbf583e027bf308e466ef94bfcc48886dd8dd1e0a05c8f9a3ac"
+            },
+            "scale_9": {
+              "width": 256,
+              "height": 256,
+              "digest": "bc4423bee313c5296553100ea569874e413130f2125b09043996729477892fde"
+            },
+            "scale_10": {
+              "width": 256,
+              "height": 256,
+              "digest": "cd8190bfdb74173a8990b0e16de541d08b69c838ec0d09fcf497d37deae690d0"
+            },
+            "scale_11": {
+              "width": 256,
+              "height": 256,
+              "digest": "dbd36c32a1ce4bae39cb93a99ce11fd36599f29cbdfe71feed7ad1452c5b0a70"
+            },
+            "scale_12": {
+              "width": 256,
+              "height": 256,
+              "digest": "85f2e92c6ec26c81375972b89776142fd8884eb526fcc4733f7389855adae409"
+            },
+            "scale_13": {
+              "width": 256,
+              "height": 256,
+              "digest": "9ffbc6b7d459962d33519433ef48489dae8f5315cb982cd08f49cf7d9acb33e5"
+            },
+            "scale_14": {
+              "width": 256,
+              "height": 256,
+              "digest": "789e57a0d0654677a9c4b8c3005c92724e40c5e662fc2fb51e017d8249321e86"
+            },
+            "scale_15": {
+              "width": 256,
+              "height": 256,
+              "digest": "10131e61f6b36cee19508868f908fbeb8447635a0f59f06e2dc2bc16ba03337c"
+            },
+            "scale_16": {
+              "width": 256,
+              "height": 256,
+              "digest": "a94cdc48ede4fcd98e07664ce0914e476b36fcd543df395c7035d06b44cd2a6a"
+            },
+            "scale_17": {
+              "width": 256,
+              "height": 256,
+              "digest": "d305c84e33d11914678e81183ed271527ae59589b0a4f081183f11e764060c92"
+            },
+            "scale_18": {
+              "width": 256,
+              "height": 256,
+              "digest": "8d72a16b92feb5898f0e4cbdd7d5d026c3d6ae63ac4f715a652ec5b772868e2c"
+            },
+            "scale_19": {
+              "width": 256,
+              "height": 256,
+              "digest": "f44c5029b13e06e3322b0a0eec958d12d7d9038892f05be2cb25ee1b6d0f45b2"
+            },
+            "scale_20": {
+              "width": 256,
+              "height": 256,
+              "digest": "6471d6276870ad7f6f34facc989e1b0777b759ef909c389f1076f93962dfdaad"
+            },
+            "scale_21": {
+              "width": 256,
+              "height": 256,
+              "digest": "9242aa81c6112ff4ba3739d849fdadeb2d354b3c3b5f70ccb680164b84c29e2e"
+            },
+            "scale_22": {
+              "width": 256,
+              "height": 256,
+              "digest": "9a3b9e987d2dffc034aa6c1ef9ec8f5b03d7fcb38c6c26dbd3eb4e9babddd09e"
+            },
+            "scale_23": {
+              "width": 256,
+              "height": 256,
+              "digest": "35dd6f449da7aaf88ce51c4b8e541f9ac253e27f851cc759248b8e7b8d650a08"
+            },
+            "scale_24": {
+              "width": 256,
+              "height": 256,
+              "digest": "74bdae222c52e9d8fbbd8015ec80f1e64ac92bd432a0768004d9116b9024b690"
+            },
+            "scale_25": {
+              "width": 256,
+              "height": 256,
+              "digest": "0e0d8046ba8fdd187bab97b06ebb4031c7e753eac153f10a09aacb1f7c14954a"
+            },
+            "scale_26": {
+              "width": 256,
+              "height": 256,
+              "digest": "a24dde1376f52a8a7066ef6cd66b8baab4aafeea91717764a1a0c2ddf83ce4cf"
+            },
+            "scale_27": {
+              "width": 256,
+              "height": 256,
+              "digest": "34993360199b842489e23c403b16109295b35886e8a17a8cb4f9939b6edc682d"
+            },
+            "scale_28": {
+              "width": 256,
+              "height": 256,
+              "digest": "0085d984525a8961cc8ee47cff4a7edb8946e8ecee9e974671216fa41ab081ea"
+            },
+            "scale_29": {
+              "width": 256,
+              "height": 256,
+              "digest": "21c75ac689a5200c6feddbd55a7572e2fd9e22a4a314fb477a76b8ca78dd4165"
+            }
+          },
+          "count": 30
+        },
+        {
+          "name": "unsupported",
+          "mode": "fallback",
+          "assets": {
+            "media_sunset": {
+              "width": 256,
+              "height": 256,
+              "digest": "b6c6b4f301b18bb9e91aab46aec0fda15b25a8e70c7047cc16ba7d6bab1533b4"
+            },
+            "media_actor_sprite": {
+              "width": 256,
+              "height": 256,
+              "digest": "5e4c4e6c948296c91e3f17ba72699d9b98b6d6c4cb494650eaf7de0377613ed2"
+            },
+            "scale_2": {
+              "width": 256,
+              "height": 256,
+              "digest": "e49e754b217215b4b7c33888b3d792ea10c0da801ce7f12f3da67b0e971b3b9d"
+            },
+            "scale_3": {
+              "width": 256,
+              "height": 256,
+              "digest": "9213b6306f842da34edbb506e54546935be8be756f2ee1304080c0263b1ab9ea"
+            },
+            "scale_4": {
+              "width": 256,
+              "height": 256,
+              "digest": "c86a461c9b86af3f3b746e82e042eb2808e4dbe0cc7ac6f5671d855f3c6c8d8e"
+            },
+            "scale_5": {
+              "width": 256,
+              "height": 256,
+              "digest": "6cba1ab53d70f07ab8a1d62e9690a4f5e541dcacffd048bf1800bccd15798311"
+            },
+            "scale_6": {
+              "width": 256,
+              "height": 256,
+              "digest": "548939f0f8a537b35adbb6ef2dde4306a83f03c6a5469dda5327f58055fede57"
+            },
+            "scale_7": {
+              "width": 256,
+              "height": 256,
+              "digest": "f197952879e2002ab023c7ec5436d074690df6b38673ea3f35d0273b49563838"
+            },
+            "scale_8": {
+              "width": 256,
+              "height": 256,
+              "digest": "1d74d7cd8c779fbf583e027bf308e466ef94bfcc48886dd8dd1e0a05c8f9a3ac"
+            },
+            "scale_9": {
+              "width": 256,
+              "height": 256,
+              "digest": "bc4423bee313c5296553100ea569874e413130f2125b09043996729477892fde"
+            },
+            "scale_10": {
+              "width": 256,
+              "height": 256,
+              "digest": "cd8190bfdb74173a8990b0e16de541d08b69c838ec0d09fcf497d37deae690d0"
+            },
+            "scale_11": {
+              "width": 256,
+              "height": 256,
+              "digest": "dbd36c32a1ce4bae39cb93a99ce11fd36599f29cbdfe71feed7ad1452c5b0a70"
+            },
+            "scale_12": {
+              "width": 256,
+              "height": 256,
+              "digest": "85f2e92c6ec26c81375972b89776142fd8884eb526fcc4733f7389855adae409"
+            },
+            "scale_13": {
+              "width": 256,
+              "height": 256,
+              "digest": "9ffbc6b7d459962d33519433ef48489dae8f5315cb982cd08f49cf7d9acb33e5"
+            },
+            "scale_14": {
+              "width": 256,
+              "height": 256,
+              "digest": "789e57a0d0654677a9c4b8c3005c92724e40c5e662fc2fb51e017d8249321e86"
+            },
+            "scale_15": {
+              "width": 256,
+              "height": 256,
+              "digest": "10131e61f6b36cee19508868f908fbeb8447635a0f59f06e2dc2bc16ba03337c"
+            },
+            "scale_16": {
+              "width": 256,
+              "height": 256,
+              "digest": "a94cdc48ede4fcd98e07664ce0914e476b36fcd543df395c7035d06b44cd2a6a"
+            },
+            "scale_17": {
+              "width": 256,
+              "height": 256,
+              "digest": "d305c84e33d11914678e81183ed271527ae59589b0a4f081183f11e764060c92"
+            },
+            "scale_18": {
+              "width": 256,
+              "height": 256,
+              "digest": "8d72a16b92feb5898f0e4cbdd7d5d026c3d6ae63ac4f715a652ec5b772868e2c"
+            },
+            "scale_19": {
+              "width": 256,
+              "height": 256,
+              "digest": "f44c5029b13e06e3322b0a0eec958d12d7d9038892f05be2cb25ee1b6d0f45b2"
+            },
+            "scale_20": {
+              "width": 256,
+              "height": 256,
+              "digest": "6471d6276870ad7f6f34facc989e1b0777b759ef909c389f1076f93962dfdaad"
+            },
+            "scale_21": {
+              "width": 256,
+              "height": 256,
+              "digest": "9242aa81c6112ff4ba3739d849fdadeb2d354b3c3b5f70ccb680164b84c29e2e"
+            },
+            "scale_22": {
+              "width": 256,
+              "height": 256,
+              "digest": "9a3b9e987d2dffc034aa6c1ef9ec8f5b03d7fcb38c6c26dbd3eb4e9babddd09e"
+            },
+            "scale_23": {
+              "width": 256,
+              "height": 256,
+              "digest": "35dd6f449da7aaf88ce51c4b8e541f9ac253e27f851cc759248b8e7b8d650a08"
+            },
+            "scale_24": {
+              "width": 256,
+              "height": 256,
+              "digest": "74bdae222c52e9d8fbbd8015ec80f1e64ac92bd432a0768004d9116b9024b690"
+            },
+            "scale_25": {
+              "width": 256,
+              "height": 256,
+              "digest": "0e0d8046ba8fdd187bab97b06ebb4031c7e753eac153f10a09aacb1f7c14954a"
+            },
+            "scale_26": {
+              "width": 256,
+              "height": 256,
+              "digest": "a24dde1376f52a8a7066ef6cd66b8baab4aafeea91717764a1a0c2ddf83ce4cf"
+            },
+            "scale_27": {
+              "width": 256,
+              "height": 256,
+              "digest": "34993360199b842489e23c403b16109295b35886e8a17a8cb4f9939b6edc682d"
+            },
+            "scale_28": {
+              "width": 256,
+              "height": 256,
+              "digest": "0085d984525a8961cc8ee47cff4a7edb8946e8ecee9e974671216fa41ab081ea"
+            },
+            "scale_29": {
+              "width": 256,
+              "height": 256,
+              "digest": "21c75ac689a5200c6feddbd55a7572e2fd9e22a4a314fb477a76b8ca78dd4165"
+            }
+          },
+          "count": 30
+        }
+      ]
+    }
+  ],
+  "previewRuns": [
+    {
+      "expectNative": false,
+      "elapsedMs": 1398.6741999999995,
+      "scheduler": {
+        "maxConcurrentLoads": 1,
+        "maxResidentBytes": 67108864,
+        "activeLoads": 0,
+        "queuedLoads": 0,
+        "residentResources": 0,
+        "referencedResources": 0,
+        "residentBytes": 0,
+        "reservedBytes": 0,
+        "peakAccountedBytes": 0,
+        "cacheHits": 0,
+        "deduplicatedRequests": 0,
+        "evictions": 0,
+        "cancellations": 0
+      }
+    },
+    {
+      "expectNative": true,
+      "elapsedMs": 1483.6712000000007,
+      "scheduler": {
+        "maxConcurrentLoads": 1,
+        "maxResidentBytes": 67108864,
+        "activeLoads": 0,
+        "queuedLoads": 0,
+        "residentResources": 1,
+        "referencedResources": 0,
+        "residentBytes": 2138730,
+        "reservedBytes": 0,
+        "peakAccountedBytes": 67108864,
+        "cacheHits": 3,
+        "deduplicatedRequests": 0,
+        "evictions": 0,
+        "cancellations": 0
+      }
+    },
+    {
+      "expectNative": true,
+      "elapsedMs": 1489.5452000000005,
+      "scheduler": {
+        "maxConcurrentLoads": 1,
+        "maxResidentBytes": 67108864,
+        "activeLoads": 0,
+        "queuedLoads": 0,
+        "residentResources": 1,
+        "referencedResources": 0,
+        "residentBytes": 2138730,
+        "reservedBytes": 0,
+        "peakAccountedBytes": 67108864,
+        "cacheHits": 6,
+        "deduplicatedRequests": 0,
+        "evictions": 0,
+        "cancellations": 0
+      }
+    },
+    {
+      "expectNative": true,
+      "elapsedMs": 1519.0419000000002,
+      "scheduler": {
+        "maxConcurrentLoads": 1,
+        "maxResidentBytes": 67108864,
+        "activeLoads": 0,
+        "queuedLoads": 0,
+        "residentResources": 1,
+        "referencedResources": 0,
+        "residentBytes": 2138730,
+        "reservedBytes": 0,
+        "peakAccountedBytes": 67108864,
+        "cacheHits": 9,
+        "deduplicatedRequests": 0,
+        "evictions": 0,
+        "cancellations": 0
+      }
+    },
+    {
+      "expectNative": true,
+      "elapsedMs": 1485.9364999999998,
+      "scheduler": {
+        "maxConcurrentLoads": 1,
+        "maxResidentBytes": 67108864,
+        "activeLoads": 0,
+        "queuedLoads": 0,
+        "residentResources": 1,
+        "referencedResources": 0,
+        "residentBytes": 2138730,
+        "reservedBytes": 0,
+        "peakAccountedBytes": 67108864,
+        "cacheHits": 12,
+        "deduplicatedRequests": 0,
+        "evictions": 0,
+        "cancellations": 0
+      }
+    },
+    {
+      "expectNative": true,
+      "elapsedMs": 1347.8027999999977,
+      "scheduler": {
+        "maxConcurrentLoads": 1,
+        "maxResidentBytes": 67108864,
+        "activeLoads": 0,
+        "queuedLoads": 0,
+        "residentResources": 1,
+        "referencedResources": 0,
+        "residentBytes": 2138730,
+        "reservedBytes": 0,
+        "peakAccountedBytes": 67108864,
+        "cacheHits": 15,
+        "deduplicatedRequests": 0,
+        "evictions": 0,
+        "cancellations": 0
+      }
+    }
+  ],
+  "windowsValidated": true,
+  "sourceProject": "rainy-promise-media.zip",
+  "actualProductionWorker": true,
+  "authoredThroughUi": true,
+  "settingSurvivesReopen": true,
+  "oldDownloadInvalidated": true,
+  "originalBlobInPortableZip": true,
+  "originalExportRestoredByteExactly": true,
+  "migratedFallback": true,
+  "migratedRebuilt": true,
+  "staleGroupFallback": true,
+  "editorPreviewBefore": "sha256:fc57361aee0a3a3a86ae3b4df4a67ed8487ac892e456c664c052404691fd8ed6",
+  "editorPreviewAfter": "sha256:fc57361aee0a3a3a86ae3b4df4a67ed8487ac892e456c664c052404691fd8ed6",
+  "pixels": {
+    "original": {
+      "width": 256,
+      "height": 256,
+      "digest": "b6c6b4f301b18bb9e91aab46aec0fda15b25a8e70c7047cc16ba7d6bab1533b4"
+    },
+    "optimized": {
+      "width": 256,
+      "height": 256,
+      "digest": "b6c6b4f301b18bb9e91aab46aec0fda15b25a8e70c7047cc16ba7d6bab1533b4"
+    }
+  },
+  "report": {
+    "schemaVersion": 1,
+    "mode": "native-atlas",
+    "sourceHash": "c6ff6e0f546391f7ee59e65c9408d44070fa788e9f098362e485fb727cbd9afe",
+    "rows": [
+      {
+        "assetId": "media_actor_sprite",
+        "name": "小夏（测试立绘）",
+        "originalDigest": "sha256:2efbb8141d5871e3574f9923514aacc86e27faa66505c0011743c676a3d5259e",
+        "exportDigest": "sha256:2efbb8141d5871e3574f9923514aacc86e27faa66505c0011743c676a3d5259e",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "media_sunset",
+        "name": "海边夕色（测试背景）",
+        "originalDigest": "sha256:ebc5a2021e4435ed1cfd9481d99e9b0886b4ed9ece6a7de85a2088ee45544167",
+        "exportDigest": "sha256:ebc5a2021e4435ed1cfd9481d99e9b0886b4ed9ece6a7de85a2088ee45544167",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "media_theme",
+        "name": "雨后旋律（测试音）",
+        "originalDigest": "sha256:5f5d65d220facb3d7b93aa5d9de2e7421fe7a2de954182e5aa1052e24572c423",
+        "exportDigest": "sha256:5f5d65d220facb3d7b93aa5d9de2e7421fe7a2de954182e5aa1052e24572c423",
+        "originalBytes": 1644,
+        "exportBytes": 1644,
+        "savedBytes": 0,
+        "verified": false,
+        "reason": "已选择原素材导出"
+      },
+      {
+        "assetId": "scale_10",
+        "name": "透明差分 10",
+        "originalDigest": "sha256:decf90c120fc7f3f458c232883d7242f13372e77510dd84af3bdda63551890c7",
+        "exportDigest": "sha256:decf90c120fc7f3f458c232883d7242f13372e77510dd84af3bdda63551890c7",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_11",
+        "name": "透明差分 11",
+        "originalDigest": "sha256:816ea522bcc3eb5f5d01e824c6fbb2532b11379f38541d27c84e946180fca661",
+        "exportDigest": "sha256:816ea522bcc3eb5f5d01e824c6fbb2532b11379f38541d27c84e946180fca661",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_12",
+        "name": "透明差分 12",
+        "originalDigest": "sha256:894efe48486e2a347a3299a553672f710f86234dfff2115a80b523d62da4cc97",
+        "exportDigest": "sha256:894efe48486e2a347a3299a553672f710f86234dfff2115a80b523d62da4cc97",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_13",
+        "name": "透明差分 13",
+        "originalDigest": "sha256:539d3b804b424fdd17c7be9822ae64fcc404c6ccae7bfa638a5a1f37d534f5ae",
+        "exportDigest": "sha256:539d3b804b424fdd17c7be9822ae64fcc404c6ccae7bfa638a5a1f37d534f5ae",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_14",
+        "name": "透明差分 14",
+        "originalDigest": "sha256:81f48487fcf4ea6fcc03b75fd3a51c40a04c01127e59b9761a522efc6b8dfbcd",
+        "exportDigest": "sha256:81f48487fcf4ea6fcc03b75fd3a51c40a04c01127e59b9761a522efc6b8dfbcd",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_15",
+        "name": "透明差分 15",
+        "originalDigest": "sha256:0e3199ad26787a27708935a9b2e2f7c2d771b9178a8cad209136ca258f351d3d",
+        "exportDigest": "sha256:0e3199ad26787a27708935a9b2e2f7c2d771b9178a8cad209136ca258f351d3d",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_16",
+        "name": "透明差分 16",
+        "originalDigest": "sha256:a33fbb14a4f2ebe4387671a49a71c784fc4798ac0f21cd19b7f315d5e077d25f",
+        "exportDigest": "sha256:a33fbb14a4f2ebe4387671a49a71c784fc4798ac0f21cd19b7f315d5e077d25f",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_17",
+        "name": "透明差分 17",
+        "originalDigest": "sha256:d685a803f5b820a8c59d81fae1c24d6b5446fd62789ffe8cd489a55401ef2bee",
+        "exportDigest": "sha256:d685a803f5b820a8c59d81fae1c24d6b5446fd62789ffe8cd489a55401ef2bee",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_18",
+        "name": "透明差分 18",
+        "originalDigest": "sha256:40a39453c65d877a18672277a4c38e9020d8c254a1146a25ef9ca46fade2a90e",
+        "exportDigest": "sha256:40a39453c65d877a18672277a4c38e9020d8c254a1146a25ef9ca46fade2a90e",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_19",
+        "name": "透明差分 19",
+        "originalDigest": "sha256:8711619b9051cd4684487c9316439e759ecd3d76d2f6bbf7d10fe0c107542279",
+        "exportDigest": "sha256:8711619b9051cd4684487c9316439e759ecd3d76d2f6bbf7d10fe0c107542279",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_2",
+        "name": "透明差分 2",
+        "originalDigest": "sha256:073f86f8788d330d19c313452546864a62c550fc01d526e6cfee58cb4ba95651",
+        "exportDigest": "sha256:073f86f8788d330d19c313452546864a62c550fc01d526e6cfee58cb4ba95651",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_20",
+        "name": "透明差分 20",
+        "originalDigest": "sha256:f1f586df85c855a13df64ea1681adbde94b7bb9822fa49b39b5f18190fe66ed8",
+        "exportDigest": "sha256:f1f586df85c855a13df64ea1681adbde94b7bb9822fa49b39b5f18190fe66ed8",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_21",
+        "name": "透明差分 21",
+        "originalDigest": "sha256:8262b0d71d21d4ae543dc1311c4b4b16d2565673d73d57038b5b7c762c1a18e7",
+        "exportDigest": "sha256:8262b0d71d21d4ae543dc1311c4b4b16d2565673d73d57038b5b7c762c1a18e7",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_22",
+        "name": "透明差分 22",
+        "originalDigest": "sha256:73786b004c9631fb7ea8878638a29bc7536651d34d379915fc4b688e06296577",
+        "exportDigest": "sha256:73786b004c9631fb7ea8878638a29bc7536651d34d379915fc4b688e06296577",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_23",
+        "name": "透明差分 23",
+        "originalDigest": "sha256:9fff885a3063a6ef15dc677920dd3bc1001865ab222310b40f8c25eddb421cec",
+        "exportDigest": "sha256:9fff885a3063a6ef15dc677920dd3bc1001865ab222310b40f8c25eddb421cec",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_24",
+        "name": "透明差分 24",
+        "originalDigest": "sha256:100996a91244620425d1592bb553fe94f14f3594d1c82629ee91350e7d5630f3",
+        "exportDigest": "sha256:100996a91244620425d1592bb553fe94f14f3594d1c82629ee91350e7d5630f3",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_25",
+        "name": "透明差分 25",
+        "originalDigest": "sha256:56747e3e30de650ecec4bf6e635eda4e8a7a276213b6a74d0698c3ce2cda39f0",
+        "exportDigest": "sha256:56747e3e30de650ecec4bf6e635eda4e8a7a276213b6a74d0698c3ce2cda39f0",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_26",
+        "name": "透明差分 26",
+        "originalDigest": "sha256:30ef7f1e8c2aee050ff80b89377460f9b96b00240fd4f37d54270b2c87159ae9",
+        "exportDigest": "sha256:30ef7f1e8c2aee050ff80b89377460f9b96b00240fd4f37d54270b2c87159ae9",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_27",
+        "name": "透明差分 27",
+        "originalDigest": "sha256:320de163c8739f03f7b90a8461e7630b2d045b8056e97f871aead26cb35e87b6",
+        "exportDigest": "sha256:320de163c8739f03f7b90a8461e7630b2d045b8056e97f871aead26cb35e87b6",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_28",
+        "name": "透明差分 28",
+        "originalDigest": "sha256:55334c9a1badfc2637a961b8f2f43015544e82c8ae9dffc1fb808237fbe545d3",
+        "exportDigest": "sha256:55334c9a1badfc2637a961b8f2f43015544e82c8ae9dffc1fb808237fbe545d3",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_29",
+        "name": "透明差分 29",
+        "originalDigest": "sha256:b4c370a5696d36eb6574cb0fd5af13352bb82298f24b3475c59bc427f89064b3",
+        "exportDigest": "sha256:b4c370a5696d36eb6574cb0fd5af13352bb82298f24b3475c59bc427f89064b3",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_3",
+        "name": "透明差分 3",
+        "originalDigest": "sha256:2d60fd2c3602cb0343d505784030a729614017953054ef86de5505c11b2ad845",
+        "exportDigest": "sha256:2d60fd2c3602cb0343d505784030a729614017953054ef86de5505c11b2ad845",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_30",
+        "name": "不适合切块的噪声背景",
+        "originalDigest": "sha256:c832701b3235b848febe8920fc301e14cb7b62fec403e1c3b2518cf24ec9583b",
+        "exportDigest": "sha256:c832701b3235b848febe8920fc301e14cb7b62fec403e1c3b2518cf24ec9583b",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": false,
+        "reason": "已选择原素材导出"
+      },
+      {
+        "assetId": "scale_4",
+        "name": "透明差分 4",
+        "originalDigest": "sha256:f0f9cd97f2f896d7e7db4ccba74127f6a7b54a59f43637bebecade01c0eda4c8",
+        "exportDigest": "sha256:f0f9cd97f2f896d7e7db4ccba74127f6a7b54a59f43637bebecade01c0eda4c8",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_5",
+        "name": "透明差分 5",
+        "originalDigest": "sha256:fc4a0d1ea38e347697c123a0f69553d72da35536eb2bb5a9e10c616d32eb96fd",
+        "exportDigest": "sha256:fc4a0d1ea38e347697c123a0f69553d72da35536eb2bb5a9e10c616d32eb96fd",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_6",
+        "name": "透明差分 6",
+        "originalDigest": "sha256:44e51768737f1e33d5f0947cca307037a4750a062c1f8afd103bc592fedf41e4",
+        "exportDigest": "sha256:44e51768737f1e33d5f0947cca307037a4750a062c1f8afd103bc592fedf41e4",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_7",
+        "name": "透明差分 7",
+        "originalDigest": "sha256:9fe6377505726f371ae6483bdb6a3647548eb99ee9c678f149e0100f0b6963c0",
+        "exportDigest": "sha256:9fe6377505726f371ae6483bdb6a3647548eb99ee9c678f149e0100f0b6963c0",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_8",
+        "name": "透明差分 8",
+        "originalDigest": "sha256:c52bf63a2e55b9a8635e54a7bbea26e2b1c37c5a1add6a75af37404abd20c1ae",
+        "exportDigest": "sha256:c52bf63a2e55b9a8635e54a7bbea26e2b1c37c5a1add6a75af37404abd20c1ae",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_9",
+        "name": "透明差分 9",
+        "originalDigest": "sha256:533e148266c42c22fa99e4694036f17d8c0cf5e1ac1106ec4a0c4754f37f4be5",
+        "exportDigest": "sha256:533e148266c42c22fa99e4694036f17d8c0cf5e1ac1106ec4a0c4754f37f4be5",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      }
+    ],
+    "atlasGroups": [],
+    "nativeAtlasGroups": [
+      {
+        "groupId": "dicing-35f1413e417e",
+        "adopted": true,
+        "detail": "复用本会话组交付缓存，未重复压缩；当前源与派生完整性、跨组收益及预算重新核对。原生 Canvas 图块绘制；随包压缩原图可离线回退。内存统计为预算记账，不是实际 GPU 测量。",
+        "payloadBytes": 284945,
+        "pageRgbaBytes": 166464,
+        "fallbackRawBytes": 2099904
+      },
+      {
+        "groupId": "dicing-83663a9227f5",
+        "adopted": true,
+        "detail": "复用本会话组交付缓存，未重复压缩；当前源与派生完整性、跨组收益及预算重新核对。原生 Canvas 图块绘制；随包压缩原图可离线回退。内存统计为预算记账，不是实际 GPU 测量。",
+        "payloadBytes": 284937,
+        "pageRgbaBytes": 166464,
+        "fallbackRawBytes": 2099904
+      },
+      {
+        "groupId": "dicing-a304fdb07e3a",
+        "adopted": true,
+        "detail": "复用本会话组交付缓存，未重复压缩；当前源与派生完整性、跨组收益及预算重新核对。原生 Canvas 图块绘制；随包压缩原图可离线回退。内存统计为预算记账，不是实际 GPU 测量。",
+        "payloadBytes": 284991,
+        "pageRgbaBytes": 166464,
+        "fallbackRawBytes": 2099904
+      },
+      {
+        "groupId": "dicing-e855de1bda8b",
+        "adopted": true,
+        "detail": "复用本会话组交付缓存，未重复压缩；当前源与派生完整性、跨组收益及预算重新核对。原生 Canvas 图块绘制；随包压缩原图可离线回退。内存统计为预算记账，不是实际 GPU 测量。",
+        "payloadBytes": 214487,
+        "pageRgbaBytes": 129472,
+        "fallbackRawBytes": 1574928
+      }
+    ],
+    "uniqueOriginalBytes": 8138772,
+    "uniqueExportBytes": 1333492,
+    "limits": "IDAT 优化保留其他 PNG 块；Atlas 兼容模式重建普通 PNG，原生模式由 Preview/Player 直接绘制共享图集图块，异常使用随包普通纹理回退。原生组按整体交付成本计账（含 Base64、清单、压缩回退包），组内单素材行仅描述普通纹理，不可与组成本重复相加。统计不等于 ZIP/HTML 总大小；原生图集/画布/读回预算 64 MiB，回退解压合计上限 32 MiB，不包含普通图片回退解码、JS/Blob/驱动开销，不是整个浏览器或实际 GPU 测量，不保证降低内存或 Draw Call。源工程原 Blob 不修改，恢复原素材导出后重新构建即可恢复原文件。"
+  },
+  "artifactBytes": {
+    "originalHtml": 11389527,
+    "optimizedHtml": 1963562,
+    "optimizedZip": 1902907
+  },
+  "baselinePlay": {
+    "ended": true,
+    "ending": "海风结局",
+    "renderedPixels": {
+      "width": 256,
+      "height": 256,
+      "digest": "5e4c4e6c948296c91e3f17ba72699d9b98b6d6c4cb494650eaf7de0377613ed2"
+    },
+    "stageScreenshot": "0fce93bfd6c9ad93eab18f9bbbdeb3ce5882d45053e8a1c9786a567bb76a002b"
+  },
+  "optimizedPlay": {
+    "ended": true,
+    "ending": "海风结局",
+    "renderedPixels": {
+      "width": 256,
+      "height": 256,
+      "digest": "5e4c4e6c948296c91e3f17ba72699d9b98b6d6c4cb494650eaf7de0377613ed2"
+    },
+    "stageScreenshot": "0fce93bfd6c9ad93eab18f9bbbdeb3ce5882d45053e8a1c9786a567bb76a002b"
+  },
+  "runtimeEvidence": [
+    {
+      "name": "original",
+      "mode": "ordinary",
+      "memory": {
+        "atlasFallback": "{\"groups\":0,\"urls\":0,\"residentSourceBytes\":0,\"preparedGroups\":0,\"active\":0,\"peakActive\":0,\"cacheHits\":0,\"idleBytes\":0,\"idleBudgetBytes\":8388608}",
+        "nativeAtlasBytes": "1048576",
+        "nativeAtlasPeakBytes": "1048576",
+        "nativeAtlasGroups": "0",
+        "nativeAtlasScheduler": "{\"groups\":0,\"accountedBytes\":1048576,\"peakBytes\":1048576,\"budgetBytes\":67108864,\"activeDecodes\":0,\"queuedDecodes\":0,\"peakDecodes\":0,\"decodedGroups\":0,\"cacheHits\":0}"
+      }
+    },
+    {
+      "name": "optimized",
+      "mode": "ready",
+      "memory": {
+        "atlasFallback": "{\"groups\":1,\"urls\":8,\"residentSourceBytes\":2099904,\"preparedGroups\":1,\"active\":0,\"peakActive\":1,\"cacheHits\":0,\"idleBytes\":0,\"idleBudgetBytes\":8388608}",
+        "nativeAtlasBytes": "1547968",
+        "nativeAtlasPeakBytes": "1547968",
+        "nativeAtlasGroups": "1",
+        "nativeAtlasScheduler": "{\"groups\":1,\"accountedBytes\":1547968,\"peakBytes\":1547968,\"budgetBytes\":67108864,\"activeDecodes\":0,\"queuedDecodes\":0,\"peakDecodes\":1,\"decodedGroups\":1,\"cacheHits\":1}"
+      }
+    },
+    {
+      "name": "directory",
+      "mode": "ready",
+      "memory": {
+        "atlasFallback": "{\"groups\":1,\"urls\":8,\"residentSourceBytes\":2099904,\"preparedGroups\":1,\"active\":0,\"peakActive\":1,\"cacheHits\":0,\"idleBytes\":0,\"idleBudgetBytes\":8388608}",
+        "nativeAtlasBytes": "1547968",
+        "nativeAtlasPeakBytes": "1547968",
+        "nativeAtlasGroups": "1",
+        "nativeAtlasScheduler": "{\"groups\":1,\"accountedBytes\":1547968,\"peakBytes\":1547968,\"budgetBytes\":67108864,\"activeDecodes\":0,\"queuedDecodes\":0,\"peakDecodes\":1,\"decodedGroups\":1,\"cacheHits\":1}"
+      }
+    },
+    {
+      "name": "windows",
+      "mode": "ready",
+      "memory": {
+        "atlasFallback": "{\"groups\":1,\"urls\":8,\"residentSourceBytes\":2099904,\"preparedGroups\":1,\"active\":0,\"peakActive\":1,\"cacheHits\":0,\"idleBytes\":0,\"idleBudgetBytes\":8388608}",
+        "nativeAtlasBytes": "1547968",
+        "nativeAtlasPeakBytes": "1547968",
+        "nativeAtlasGroups": "1",
+        "nativeAtlasScheduler": "{\"groups\":1,\"accountedBytes\":1547968,\"peakBytes\":1547968,\"budgetBytes\":67108864,\"activeDecodes\":0,\"queuedDecodes\":0,\"peakDecodes\":1,\"decodedGroups\":1,\"cacheHits\":1}"
+      }
+    },
+    {
+      "name": "corrupt-page",
+      "mode": "fallback",
+      "memory": {
+        "atlasFallback": "{\"groups\":1,\"urls\":8,\"residentSourceBytes\":2099904,\"preparedGroups\":1,\"active\":0,\"peakActive\":1,\"cacheHits\":0,\"idleBytes\":0,\"idleBudgetBytes\":8388608}",
+        "nativeAtlasBytes": "1048576",
+        "nativeAtlasPeakBytes": "1547968",
+        "nativeAtlasGroups": "0",
+        "nativeAtlasScheduler": "{\"groups\":0,\"accountedBytes\":1048576,\"peakBytes\":1547968,\"budgetBytes\":67108864,\"activeDecodes\":0,\"queuedDecodes\":0,\"peakDecodes\":1,\"decodedGroups\":1,\"cacheHits\":1}"
+      }
+    },
+    {
+      "name": "unsupported",
+      "mode": "fallback",
+      "memory": {
+        "atlasFallback": "{\"groups\":1,\"urls\":8,\"residentSourceBytes\":2099904,\"preparedGroups\":1,\"active\":0,\"peakActive\":1,\"cacheHits\":0,\"idleBytes\":0,\"idleBudgetBytes\":8388608}",
+        "nativeAtlasBytes": "1048576",
+        "nativeAtlasPeakBytes": "1048576",
+        "nativeAtlasGroups": "0",
+        "nativeAtlasScheduler": "{\"groups\":0,\"accountedBytes\":1048576,\"peakBytes\":1048576,\"budgetBytes\":67108864,\"activeDecodes\":0,\"queuedDecodes\":0,\"peakDecodes\":0,\"decodedGroups\":0,\"cacheHits\":0}"
+      }
+    },
+    {
+      "name": "emergency-img",
+      "mode": "fallback",
+      "memory": {
+        "atlasFallback": "{\"groups\":1,\"urls\":8,\"residentSourceBytes\":2099904,\"preparedGroups\":1,\"active\":0,\"peakActive\":1,\"cacheHits\":0,\"idleBytes\":0,\"idleBudgetBytes\":8388608}",
+        "nativeAtlasBytes": "0",
+        "nativeAtlasPeakBytes": "1547968",
+        "nativeAtlasGroups": "0",
+        "nativeAtlasScheduler": "{\"groups\":0,\"accountedBytes\":0,\"peakBytes\":1547968,\"budgetBytes\":67108864,\"activeDecodes\":0,\"queuedDecodes\":0,\"peakDecodes\":1,\"decodedGroups\":1,\"cacheHits\":1}"
+      }
+    }
+  ],
+  "samplingComparisons": [
+    {
+      "name": "ordinary-canvas-product",
+      "ordinaryPixels": "0fce93bfd6c9ad93eab18f9bbbdeb3ce5882d45053e8a1c9786a567bb76a002b",
+      "canvasPixels": "0fce93bfd6c9ad93eab18f9bbbdeb3ce5882d45053e8a1c9786a567bb76a002b",
+      "diagnosticReplacement": false
+    },
+    {
+      "name": "optimized",
+      "sameDimensions": true,
+      "width": 1100,
+      "height": 583,
+      "changed": 0,
+      "max": 0,
+      "mean": 0,
+      "bounds": [
+        1100,
+        583,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "directory",
+      "sameDimensions": true,
+      "width": 1100,
+      "height": 583,
+      "changed": 0,
+      "max": 0,
+      "mean": 0,
+      "bounds": [
+        1100,
+        583,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "corrupt-page",
+      "sameDimensions": true,
+      "width": 1100,
+      "height": 583,
+      "changed": 0,
+      "max": 0,
+      "mean": 0,
+      "bounds": [
+        1100,
+        583,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "unsupported",
+      "sameDimensions": true,
+      "width": 1100,
+      "height": 583,
+      "changed": 0,
+      "max": 0,
+      "mean": 0,
+      "bounds": [
+        1100,
+        583,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "emergency-img",
+      "sameDimensions": true,
+      "width": 1100,
+      "height": 583,
+      "changed": 50804,
+      "max": 87,
+      "mean": 0.0401777639170435,
+      "bounds": [
+        0,
+        52,
+        888,
+        582
+      ]
+    }
+  ],
+  "exceptions": [],
+  "limits": "Native shared Atlas bitmap tile drawing into per-image Canvas; compressed original fallback embedded. CSS IMG and Canvas sampling differs: native screenshot is compared exactly to an ordinary-source Canvas control, not claimed identical to IMG. Preview and intrinsic pixels remain exact. Budget accounting is not GPU/heap measurement. Deterministic uncompressed fixture is not a production savings claim; device/human validation outstanding. Process snapshots are aggregate private/working-set bytes, not isolated asset allocation or guaranteed peaks; end-to-end timings include harness pacing. Per-asset playback coverage is recorded in dicing-sequence when requested; scale mode alone verifies 30 variants at build, not playback."
+}

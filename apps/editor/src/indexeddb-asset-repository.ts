@@ -1,3 +1,4 @@
+import { browserBlobDigest } from './browser-blob-digest';
 import {
   AssetBlobError,
   ASSET_RESTORE_INTENT_RECORD_ID,
@@ -342,6 +343,49 @@ export class IndexedDbAssetRepository implements AssetBlobStore {
     }
   }
 
+  /** Small, additive imports publish all blobs/index/lifecycle together. Never replace an existing ID. */
+  async importNewAssets(inputs: readonly AssetImportInput[], options: IndexedDbAssetImportOptions): Promise<{ readonly index: AssetIndex; readonly lifecycle: AssetLifecycleManifest }> {
+    if (inputs.length > 24 || inputs.reduce((sum, input) => sum + input.bytes.byteLength, 0) > 64 * 1024 * 1024 || new Set(inputs.map(input => input.assetId)).size !== inputs.length) throw new AssetBlobError("RESOURCE_LIMIT", "index", this.projectId, "批次最多 24 项 / 64 MB，素材标识不能重复。");
+    const snapshot = inputs.map(input => ({ ...input, bytes: input.bytes.slice() }));
+    assertNotCancelled(options.signal, this.projectId);
+    const loaded = await this.loadIndex();
+    assertNotCancelled(options.signal, this.projectId);
+    let nextIndex = loaded;
+    const prepared = snapshot.map(input => {
+      if (loaded.assets.some(entry => entry.assetId === input.assetId)) throw new AssetBlobError("INVALID_ASSET", "index", input.assetId, "素材标识已存在，未覆盖当前工程素材。");
+      const next = prepareAssetImport(nextIndex, input, { ...options, expectedIndexRevision: nextIndex.indexRevision });
+      nextIndex = next.index; return next;
+    });
+    const database = await this.database;
+    assertNotCancelled(options.signal, this.projectId);
+    const transaction = database.transaction([PROJECT_FILE_STORE_NAME, ASSET_BLOB_STORE_NAME, ASSET_INDEX_STORE_NAME, ASSET_LIFECYCLE_STORE_NAME], "readwrite", { durability: "strict" });
+    const abort = () => { try { transaction.abort(); } catch { /* Already completed. */ } };
+    options.signal?.addEventListener("abort", abort, { once: true });
+    try {
+      await this.assertActiveLease(transaction.objectStore(PROJECT_FILE_STORE_NAME), "index", this.projectId);
+      const store = transaction.objectStore(ASSET_INDEX_STORE_NAME), raw = await indexedDbRequestResult(store.get(this.projectId));
+      const current = raw === undefined ? createAssetIndex() : typeof raw === "string" ? parseAssetIndex(raw) : null;
+      if (!current || current.indexRevision !== options.expectedIndexRevision || serializeAssetIndex(current) !== serializeAssetIndex(loaded)) throw new AssetBlobError("STALE_INDEX_REVISION", "index", this.projectId, "素材库已变化，请重新检查并预览皮肤。");
+      const lifecycleStore = transaction.objectStore(ASSET_LIFECYCLE_STORE_NAME), rawLifecycle = await indexedDbRequestResult(lifecycleStore.get(this.projectId));
+      const lifecycle = rawLifecycle === undefined ? createAssetLifecycleManifest(current, this.now()) : typeof rawLifecycle === "string" ? parseAssetLifecycleManifest(rawLifecycle) : null;
+      if (!lifecycle || auditAssetLifecycle(lifecycle, current, this.now()).status === "fail") throw new AssetBlobError("INVALID_ASSET", "index", this.projectId, "资源生命周期记录需要先修复。");
+      const blobs = transaction.objectStore(ASSET_BLOB_STORE_NAME);
+      for (const [i, input] of snapshot.entries()) {
+        assertNotCancelled(options.signal, input.assetId);
+        const digest = prepared[i]!.digest, key = this.blobKey(digest), previous = await indexedDbRequestResult(blobs.get(key));
+        if (previous === undefined) blobs.put(input.bytes, key);
+        else { const bytes = storedBytes(previous); if (!bytes || createBlobDigest(bytes) !== digest) throw new AssetBlobError("CORRUPT_BLOB", "put", digest, "已有素材文件损坏，整批未提交。"); }
+      }
+      options.onPhase?.("blob-ready"); assertNotCancelled(options.signal, this.projectId);
+      options.onPhase?.("index-publishing"); assertNotCancelled(options.signal, this.projectId);
+      const nextLifecycle = updateAssetLifecycleForIndex(lifecycle, current, nextIndex, this.now());
+      store.put(serializeAssetIndex(nextIndex), this.projectId); lifecycleStore.put(serializeAssetLifecycleManifest(nextLifecycle), this.projectId);
+      await indexedDbTransactionDone(transaction);
+      return { index: nextIndex, lifecycle: nextLifecycle };
+    } catch (error) { abort(); throw normalizeIndexedDbAssetError(error, "index", this.projectId, options.signal); }
+    finally { options.signal?.removeEventListener("abort", abort); }
+  }
+
   async replaceFromPortableBundle(
     targetIndex: AssetIndex,
     blobs: ReadonlyMap<BlobDigest, Uint8Array>,
@@ -352,11 +396,16 @@ export class IndexedDbAssetRepository implements AssetBlobStore {
     if (expectedDigests.size !== blobs.size) {
       throw new AssetBlobError("INVALID_ASSET", "index", this.projectId, "Portable bundle Blob inventory does not match its Asset Index");
     }
-    for (const entry of index.assets) {
-      const bytes = blobs.get(entry.source.digest);
-      if (bytes === undefined || bytes.byteLength !== entry.source.byteLength || createBlobDigest(bytes) !== entry.source.digest) {
-        throw new AssetBlobError("CORRUPT_BLOB", "put", entry.source.digest, `Portable bundle Blob failed verification for ${entry.assetId}`);
-      }
+    // Snapshot before the first await: callers cannot mutate a validated payload
+    // while asynchronous hashing is pending. Hash each shared digest only once.
+    const verifiedBlobs = new Map<BlobDigest, Uint8Array>();
+    for (const digest of expectedDigests) {
+      const bytes = blobs.get(digest);
+      if (bytes === undefined || index.assets.some(entry => entry.source.digest === digest && bytes.byteLength !== entry.source.byteLength)) throw new AssetBlobError('CORRUPT_BLOB', 'put', digest, 'Portable bundle Blob has the wrong size');
+      verifiedBlobs.set(digest, new Uint8Array(bytes));
+    }
+    for (const [digest, bytes] of verifiedBlobs) {
+      if (await browserBlobDigest(bytes) !== digest) throw new AssetBlobError('CORRUPT_BLOB', 'put', digest, 'Portable bundle Blob failed SHA-256 verification');
     }
     const database = await this.database;
     const transaction = database.transaction(
@@ -378,11 +427,11 @@ export class IndexedDbAssetRepository implements AssetBlobStore {
       const blobStore = transaction.objectStore(ASSET_BLOB_STORE_NAME);
       let createdBlobCount = 0;
       let existingBlobCount = 0;
-      for (const [digest, bytes] of blobs) {
+      for (const [digest, bytes] of verifiedBlobs) {
         const key = this.blobKey(digest);
         const existingValue = await indexedDbRequestResult(blobStore.get(key));
         if (existingValue === undefined) {
-          blobStore.put(bytes.slice(), key);
+          blobStore.put(bytes, key);
           createdBlobCount += 1;
         } else {
           const existing = storedBytes(existingValue);
@@ -445,7 +494,7 @@ export class IndexedDbAssetRepository implements AssetBlobStore {
       await indexedDbTransactionDone(transaction);
       if (value === undefined) return null;
       const bytes = storedBytes(value);
-      if (bytes === null || createBlobDigest(bytes) !== digest) {
+      if (bytes === null || await browserBlobDigest(bytes) !== digest) {
         throw new AssetBlobError("CORRUPT_BLOB", "read", digest, "Stored IndexedDB blob failed SHA-256 verification");
       }
       return bytes.slice();

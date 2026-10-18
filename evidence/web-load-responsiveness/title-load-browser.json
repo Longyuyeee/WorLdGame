@@ -1,0 +1,178 @@
+{
+  "passed": true,
+  "browser": "151.0.7922.34",
+  "bundleHash": "11e673d23b58f67deb32edec79fb62669bc6fc45a1c19e257cc16e371cb3f856",
+  "cssHash": "45d88476a399afc89376e0656cb3f2828f39c5526b439b11aa0183a4a8a3727c",
+  "checks": [
+    {
+      "viewport": {
+        "width": 320,
+        "height": 740
+      },
+      "failure": false,
+      "bounds": {
+        "x": 41.859375,
+        "y": 335.984375,
+        "width": 236.265625,
+        "height": 44.390625
+      },
+      "titleBounds": {
+        "x": 18,
+        "y": 117.609375,
+        "width": 284,
+        "height": 504.765625
+      },
+      "menuBounds": {
+        "x": 111,
+        "y": 560.375,
+        "width": 98,
+        "height": 44
+      },
+      "restoredHash": "d19a2b5877e8c4084e8404574d21a9c4fef272b9d2d688880c878bc9e853a09b",
+      "keyboardBlockedDuringRead": true,
+      "continued": true
+    },
+    {
+      "viewport": {
+        "width": 320,
+        "height": 740
+      },
+      "failure": true,
+      "bounds": {
+        "x": 41.859375,
+        "y": 335.984375,
+        "width": 236.265625,
+        "height": 44.390625
+      },
+      "titleBounds": {
+        "x": 18,
+        "y": 117.609375,
+        "width": 284,
+        "height": 504.765625
+      },
+      "menuBounds": {
+        "x": 111,
+        "y": 560.375,
+        "width": 98,
+        "height": 44
+      },
+      "restoredHash": null,
+      "keyboardBlockedDuringRead": true,
+      "continued": true
+    },
+    {
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "failure": false,
+      "bounds": {
+        "x": 303.859375,
+        "y": 249.296875,
+        "width": 236.265625,
+        "height": 44.390625
+      },
+      "titleBounds": {
+        "x": 99.328125,
+        "y": 15.984375,
+        "width": 645.328125,
+        "height": 358
+      },
+      "menuBounds": {
+        "x": 464.984375,
+        "y": 296.6875,
+        "width": 98,
+        "height": 44
+      },
+      "restoredHash": "d19a2b5877e8c4084e8404574d21a9c4fef272b9d2d688880c878bc9e853a09b",
+      "keyboardBlockedDuringRead": true,
+      "continued": true
+    },
+    {
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "failure": true,
+      "bounds": {
+        "x": 303.859375,
+        "y": 249.296875,
+        "width": 236.265625,
+        "height": 44.390625
+      },
+      "titleBounds": {
+        "x": 99.328125,
+        "y": 15.984375,
+        "width": 645.328125,
+        "height": 358
+      },
+      "menuBounds": {
+        "x": 464.984375,
+        "y": 296.6875,
+        "width": 98,
+        "height": 44
+      },
+      "restoredHash": null,
+      "keyboardBlockedDuringRead": true,
+      "continued": true
+    },
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "failure": false,
+      "bounds": {
+        "x": 521.859375,
+        "y": 492.140625,
+        "width": 236.265625,
+        "height": 44.390625
+      },
+      "titleBounds": {
+        "x": 300,
+        "y": 234.15625,
+        "width": 680,
+        "height": 508.375
+      },
+      "menuBounds": {
+        "x": 683,
+        "y": 662.53125,
+        "width": 98,
+        "height": 44
+      },
+      "restoredHash": "d19a2b5877e8c4084e8404574d21a9c4fef272b9d2d688880c878bc9e853a09b",
+      "keyboardBlockedDuringRead": true,
+      "continued": true
+    },
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "failure": true,
+      "bounds": {
+        "x": 521.859375,
+        "y": 492.140625,
+        "width": 236.265625,
+        "height": 44.390625
+      },
+      "titleBounds": {
+        "x": 300,
+        "y": 234.15625,
+        "width": 680,
+        "height": 508.375
+      },
+      "menuBounds": {
+        "x": 683,
+        "y": 662.53125,
+        "width": 98,
+        "height": 44
+      },
+      "restoredHash": null,
+      "keyboardBlockedDuringRead": true,
+      "continued": true
+    }
+  ],
+  "errors": [],
+  "scope": "public Core-generated slot in native IndexedDB; delayed/faulted public store adapter; actual UI/native Worker; viewport simulation, not physical devices"
+}

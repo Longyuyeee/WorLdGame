@@ -1,0 +1,5 @@
+real publishing form: ordered contributor edit, invalid link rejection, Escape retains draft, explicit discard, actual local save/reload/home reopen preserves applied credits; desktop and 390px light/dark dialogs fit
+actual HTML and directory production downloads carry applied credits; readable credits.txt matches build-info hash and offline inventory, and editable source is packaged; no private review attached
+downloaded HTML desktop: title/menu/ending credits, links in keyboard focus order, long text/close action fit, source markup displayed as text, closing restores focus and identical story state; short route reaches ending
+downloaded directory 390px: title/menu/ending credits, links in keyboard focus order, long text/close action fit, source markup displayed as text, closing restores focus and identical story state; short route reaches ending
+explicitly clearing credits returns to the optional empty state and invalidates old downloads; no credits are invented for the existing work

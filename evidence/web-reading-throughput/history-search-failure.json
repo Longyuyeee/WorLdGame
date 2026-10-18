@@ -1,0 +1,73 @@
+{
+  "error": "TimeoutError: locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: '打开剧情历史', exact: true })\u001b[22m\n\u001b[2m    - locator resolved to <button type=\"button\" aria-label=\"打开剧情历史\" aria-expanded=\"false\" class=\"player-history-controls__open\">…</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <aside role=\"status\" aria-live=\"polite\" class=\"player-memory-pressure\">…</aside> intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <aside role=\"status\" aria-live=\"polite\" class=\"player-memory-pressure\">…</aside> intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    55 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is visible, enabled and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - <aside role=\"status\" aria-live=\"polite\" class=\"player-memory-pressure\">…</aside> intercepts pointer events\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n",
+  "stack": "locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: '打开剧情历史', exact: true })\u001b[22m\n\u001b[2m    - locator resolved to <button type=\"button\" aria-label=\"打开剧情历史\" aria-expanded=\"false\" class=\"player-history-controls__open\">…</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <aside role=\"status\" aria-live=\"polite\" class=\"player-memory-pressure\">…</aside> intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <aside role=\"status\" aria-live=\"polite\" class=\"player-memory-pressure\">…</aside> intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    55 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is visible, enabled and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - <aside role=\"status\" aria-live=\"polite\" class=\"player-memory-pressure\">…</aside> intercepts pointer events\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n\n    at history (E:\\Project\\AIProject\\ClaudeProject\\WorLdGame\\tools\\run-web-history-search.mjs:19:97)\n    at async file:///E:/Project/AIProject/ClaudeProject/WorLdGame/tools/run-web-history-search.mjs:45:3",
+  "checks": [
+    {
+      "viewport": {
+        "width": 320,
+        "height": 740
+      },
+      "inputBounds": {
+        "x": 29,
+        "y": 120,
+        "width": 254,
+        "height": 44
+      },
+      "closeBounds": {
+        "x": 221,
+        "y": 33,
+        "width": 64,
+        "height": 48
+      },
+      "matchingBound": 40,
+      "noMatch": true,
+      "escapeClears": true,
+      "searchDidNotMoveStory": true
+    },
+    {
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "inputBounds": {
+        "x": 391,
+        "y": 120,
+        "width": 324,
+        "height": 44
+      },
+      "closeBounds": {
+        "x": 747,
+        "y": 36,
+        "width": 64,
+        "height": 44
+      },
+      "matchingBound": 40,
+      "noMatch": true,
+      "escapeClears": true,
+      "searchDidNotMoveStory": true
+    },
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "inputBounds": {
+        "x": 827,
+        "y": 120,
+        "width": 324,
+        "height": 44
+      },
+      "closeBounds": {
+        "x": 1183,
+        "y": 36,
+        "width": 64,
+        "height": 44
+      },
+      "matchingBound": 40,
+      "noMatch": true,
+      "escapeClears": true,
+      "searchDidNotMoveStory": true
+    }
+  ],
+  "errors": []
+}
