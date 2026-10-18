@@ -138,3 +138,5 @@ evidence/web-collection-reading/**/*.worldsave -text
 evidence/web-collection-reading/tool-tests.tap -whitespace
 evidence/web-reading-motion/*.html -text
 evidence/web-reading-motion/**/*.worldsave -text
+# Preserve frozen author downloads and test reports byte-for-byte.
+evidence/web-release-review/** -text

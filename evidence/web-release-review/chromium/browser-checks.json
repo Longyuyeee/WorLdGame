@@ -1,0 +1,745 @@
+{
+  "passed": false,
+  "baseline": false,
+  "engine": "chromium",
+  "sourceVersion": "1.11.0",
+  "sourceSha256": "43ef6e1673ed3dffbf705b4f178b2122fc960971eaf47286b33742fa285f0576",
+  "notesSha256": "747534249345da6ce337054b4e7f47a1516556beda7079ef7b6d093e590bce8f",
+  "servedAssets": [
+    {
+      "file": "/assets/index-Bo2hXjD9.js",
+      "sha256": "495955c739bdd80a3d4f56ea8b893ae74ca6e98589f72b50489ea404049184ac"
+    },
+    {
+      "file": "/assets/index-CdHaiQMV.css",
+      "sha256": "2531a93d5dc05398fa52e063f0df5405d394532264b663b099f4a26be71672a4"
+    }
+  ],
+  "code": [
+    {
+      "file": "apps/editor/src/web-release-review.ts",
+      "sha256": "25feab50d3c6277c3c8dbbe7c0544bd7f96c8520484f02b77bce281ca7e719af"
+    },
+    {
+      "file": "apps/editor/src/web-release-preparation.ts",
+      "sha256": "27be3ac11c4792be07480a338b0d8b405172d8b521f46eeb421634e7e213841b"
+    },
+    {
+      "file": "apps/editor/src/WebReleasePreparation.tsx",
+      "sha256": "64330833968b9b809b42dfa5571fe1a378abc4d2df1a941fc87b37d134c279f8"
+    },
+    {
+      "file": "apps/editor/src/web-delivery-bundle.ts",
+      "sha256": "899c7b312be0d92985a3168778371bbf855675ab8471de3e44a09c9824ab1269"
+    },
+    {
+      "file": "apps/editor/src/App.tsx",
+      "sha256": "0df3207ba89ec01e3393badb894813eaad1cac3c9d32c75b5541683e4f6f1693"
+    }
+  ],
+  "checks": [
+    {
+      "name": "actual-25-fixed-not-approved-notes-and-2-unreached-endings-in-standalone-list"
+    },
+    {
+      "name": "three-responsive-viewports-readable-summary-and-44px-actions",
+      "sizes": [
+        {
+          "size": {
+            "width": 320,
+            "height": 740
+          },
+          "bounds": {
+            "x": 37,
+            "right": 283,
+            "width": 320,
+            "client": 246,
+            "scroll": 246,
+            "buttons": [
+              {
+                "width": 122,
+                "scroll": 122,
+                "height": 44
+              },
+              {
+                "width": 150,
+                "scroll": 150,
+                "height": 44
+              }
+            ]
+          }
+        },
+        {
+          "size": {
+            "width": 390,
+            "height": 844
+          },
+          "bounds": {
+            "x": 37,
+            "right": 353,
+            "width": 390,
+            "client": 316,
+            "scroll": 316,
+            "buttons": [
+              {
+                "width": 122,
+                "scroll": 122,
+                "height": 44
+              },
+              {
+                "width": 150,
+                "scroll": 150,
+                "height": 44
+              }
+            ]
+          }
+        },
+        {
+          "size": {
+            "width": 844,
+            "height": 390
+          },
+          "bounds": {
+            "x": 174.96875,
+            "right": 787.03125,
+            "width": 844,
+            "client": 612,
+            "scroll": 612,
+            "buttons": [
+              {
+                "width": 122,
+                "scroll": 122,
+                "height": 44
+              },
+              {
+                "width": 150,
+                "scroll": 150,
+                "height": 44
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "review-and-real-entry-preview-actions-return-to-selected-website-format-without-approving-records"
+    },
+    {
+      "name": "actual-save-close-reload-reopen-unchanged-original-source-and-pending-review"
+    },
+    {
+      "name": "html-included-real-production-download-same-source-notes-and-exact-416-game",
+      "publicFiles": 1
+    },
+    {
+      "name": "website-included-real-production-download-same-source-notes-and-exact-416-game",
+      "publicFiles": 37
+    },
+    {
+      "name": "html-excluded-real-production-download-same-source-notes-and-exact-416-game",
+      "publicFiles": 1
+    },
+    {
+      "name": "website-excluded-real-production-download-same-source-notes-and-exact-416-game",
+      "publicFiles": 37
+    }
+  ],
+  "artifacts": [
+    {
+      "label": "html-included",
+      "bytes": 81450779,
+      "sha256": "5f30c274a45b9af60b507f79d613969f691047b29184e7860833219bb01998f2",
+      "manifest": {
+        "schemaVersion": 1,
+        "kind": "world-production-delivery",
+        "projectId": "project_a983033c0f7180355c93",
+        "publication": {
+          "name": "雨停之前",
+          "version": "1.11.0"
+        },
+        "format": "html",
+        "sourceProjectDigest": "03683156f24e4fa9facf700a7579c8f19b577d99ec30bca2f130526806572fa0",
+        "gameProjectDigest": "a736abb2b1ffe841b64f264a58e0f176e262b70ac276a94e5cef66e2eb3bbdca",
+        "gameEntry": "game/index.html",
+        "sourceEntry": "source/project.zip",
+        "reviewEntry": "review/playtest-notes.worldreview",
+        "progressEntry": "review/playtest-progress.worldplaytest",
+        "files": [
+          {
+            "path": "开始使用.txt",
+            "byteLength": 1498,
+            "digest": "sha256:f1a7be5998f843a3cf832b193001e5456a167a303ff3b86f84a3cd7687e1dc2f"
+          },
+          {
+            "path": "game/index.html",
+            "byteLength": 46845174,
+            "digest": "sha256:f21eb61a3a8a1a4aca73d935caccd46ca8bf30d4add24ec2c420f98a9d2d67d0"
+          },
+          {
+            "path": "release/准备上线.txt",
+            "byteLength": 41285,
+            "digest": "sha256:d64b324703817050ca0600989eb570f0be405fe00236382e3616f566642452f9"
+          },
+          {
+            "path": "release/preparation.json",
+            "byteLength": 61578,
+            "digest": "sha256:a8d3b2642ddf2fc1c080eb9c7d692739c1946872a526e7831d3ea1fd78e4c999"
+          },
+          {
+            "path": "review/playtest-notes.worldreview",
+            "byteLength": 22456,
+            "digest": "sha256:8b7b4b6fdb2ba44997e6c5ee89e3c9a13801d8dbb4e11737e7ef7e263ac72223"
+          },
+          {
+            "path": "review/playtest-progress.worldplaytest",
+            "byteLength": 112,
+            "digest": "sha256:822dcf0c4de3c7cd0ebb2fd3f6e059747232010c1331b912df66954974554b76"
+          },
+          {
+            "path": "source/project.zip",
+            "byteLength": 34475882,
+            "digest": "sha256:43ef6e1673ed3dffbf705b4f178b2122fc960971eaf47286b33742fa285f0576"
+          }
+        ]
+      },
+      "preparationSha256": "a8d3b2642ddf2fc1c080eb9c7d692739c1946872a526e7831d3ea1fd78e4c999",
+      "textSha256": "d64b324703817050ca0600989eb570f0be405fe00236382e3616f566642452f9",
+      "unchangedPublicFiles": 1,
+      "unchangedSource": true,
+      "optedInOnly": true
+    },
+    {
+      "label": "website-included",
+      "bytes": 70045202,
+      "sha256": "aa1aba98069d6fbf402014e6bbcf138241fec17564176ec8bb0d0598606287e0",
+      "manifest": {
+        "schemaVersion": 1,
+        "kind": "world-production-delivery",
+        "projectId": "project_a983033c0f7180355c93",
+        "publication": {
+          "name": "雨停之前",
+          "version": "1.11.0"
+        },
+        "format": "directory",
+        "sourceProjectDigest": "03683156f24e4fa9facf700a7579c8f19b577d99ec30bca2f130526806572fa0",
+        "gameProjectDigest": "a736abb2b1ffe841b64f264a58e0f176e262b70ac276a94e5cef66e2eb3bbdca",
+        "gameEntry": "game/index.html",
+        "sourceEntry": "source/project.zip",
+        "reviewEntry": "review/playtest-notes.worldreview",
+        "progressEntry": "review/playtest-progress.worldplaytest",
+        "files": [
+          {
+            "path": "开始使用.txt",
+            "byteLength": 1625,
+            "digest": "sha256:ebcba80bdec95deefe630a1d093884ec3bb3fc77251c767a3ffd402d64869a74"
+          },
+          {
+            "path": "game/app-icon.svg",
+            "byteLength": 227,
+            "digest": "sha256:e6c8ab87ad0b0192c7707b02b0c0128f3b99c63965b3378469a02978002bd533"
+          },
+          {
+            "path": "game/build-info.json",
+            "byteLength": 7798,
+            "digest": "sha256:9007df9f0a30b395c075967082de548965572ace40f1fb9f6cc0b55d1b47ffe9"
+          },
+          {
+            "path": "game/index.html",
+            "byteLength": 75079,
+            "digest": "sha256:c1325babf35ec6236d8332b1bb39ec07c2e072663d44edd27cf88ba8c06f040d"
+          },
+          {
+            "path": "game/manifest.webmanifest",
+            "byteLength": 428,
+            "digest": "sha256:7cfe439ff3666377652f01a7e549db2ee8f09461c65b7641b23a52773db086ac"
+          },
+          {
+            "path": "game/media/02ab310670cd897e865ebb590e66094b188c305ee61959e8b4160e6f30ba2e9a.png",
+            "byteLength": 1809416,
+            "digest": "sha256:02ab310670cd897e865ebb590e66094b188c305ee61959e8b4160e6f30ba2e9a"
+          },
+          {
+            "path": "game/media/0e68ac781943cf48422d833c6eb6550f66ee4fb31901f12f492e3ca8c079695a.wav",
+            "byteLength": 257060,
+            "digest": "sha256:0e68ac781943cf48422d833c6eb6550f66ee4fb31901f12f492e3ca8c079695a"
+          },
+          {
+            "path": "game/media/1ed954eeb7d22cd6176cb702dbc78977684c6a47261a8b36e152654d2700968a.png",
+            "byteLength": 18633,
+            "digest": "sha256:1ed954eeb7d22cd6176cb702dbc78977684c6a47261a8b36e152654d2700968a"
+          },
+          {
+            "path": "game/media/26be1da92d18729069c0fda981697a09631fbe7525d4517af5f3633824bf13c0.wav",
+            "byteLength": 222222,
+            "digest": "sha256:26be1da92d18729069c0fda981697a09631fbe7525d4517af5f3633824bf13c0"
+          },
+          {
+            "path": "game/media/342b2b082636ff9d0e8fff71a0ad7f53dfc5bb3fb6125927371b0828cf417197.wav",
+            "byteLength": 233942,
+            "digest": "sha256:342b2b082636ff9d0e8fff71a0ad7f53dfc5bb3fb6125927371b0828cf417197"
+          },
+          {
+            "path": "game/media/49e0d7f4aedf5242a8c5001d3875ec3cae7836d5c73e57415db7f5fdaf627807.png",
+            "byteLength": 3004142,
+            "digest": "sha256:49e0d7f4aedf5242a8c5001d3875ec3cae7836d5c73e57415db7f5fdaf627807"
+          },
+          {
+            "path": "game/media/558c25c6e369f18b98ff550165c38a06fc96f1ba0fba89ab69c3dc45f08bf94e.png",
+            "byteLength": 3019235,
+            "digest": "sha256:558c25c6e369f18b98ff550165c38a06fc96f1ba0fba89ab69c3dc45f08bf94e"
+          },
+          {
+            "path": "game/media/598b41535295814f1e98a4388d8df83012897402090b83d988e5e2c6b583b57f.png",
+            "byteLength": 2417066,
+            "digest": "sha256:598b41535295814f1e98a4388d8df83012897402090b83d988e5e2c6b583b57f"
+          },
+          {
+            "path": "game/media/5ab4b3cf1b83bf897d386238f1fad4e87f36b6eea3d940e0c3d4101204404e37.png",
+            "byteLength": 1783270,
+            "digest": "sha256:5ab4b3cf1b83bf897d386238f1fad4e87f36b6eea3d940e0c3d4101204404e37"
+          },
+          {
+            "path": "game/media/6ef4b958c86328d5515b034a7060e5081430fcdc279536ceeaac43f15ce7f83b.png",
+            "byteLength": 1968450,
+            "digest": "sha256:6ef4b958c86328d5515b034a7060e5081430fcdc279536ceeaac43f15ce7f83b"
+          },
+          {
+            "path": "game/media/78c4a9d21f19861265c4ce8c8e3b56f4a8bdb0777515ec93a9e53facbb17b863.wav",
+            "byteLength": 66194,
+            "digest": "sha256:78c4a9d21f19861265c4ce8c8e3b56f4a8bdb0777515ec93a9e53facbb17b863"
+          },
+          {
+            "path": "game/media/7b0aeee0aef6219584fef7833b6960ecb316bffa3b565ab13f847151068ba0bd.png",
+            "byteLength": 2534090,
+            "digest": "sha256:7b0aeee0aef6219584fef7833b6960ecb316bffa3b565ab13f847151068ba0bd"
+          },
+          {
+            "path": "game/media/9851880463e1d27bb758947fd998c834d942817f5c589fdd1b3ef31f870add27.wav",
+            "byteLength": 159176,
+            "digest": "sha256:9851880463e1d27bb758947fd998c834d942817f5c589fdd1b3ef31f870add27"
+          },
+          {
+            "path": "game/media/9a2a3bce8a89205a0ae6ac1cd22620dedae77bd519db5ec5c90b2302b55db47b.png",
+            "byteLength": 2308345,
+            "digest": "sha256:9a2a3bce8a89205a0ae6ac1cd22620dedae77bd519db5ec5c90b2302b55db47b"
+          },
+          {
+            "path": "game/media/9ded1d5e951474c53f36f92fa7dc5ab6fcf575ebc3d6fb648a2759c5f9015698.png",
+            "byteLength": 2435510,
+            "digest": "sha256:9ded1d5e951474c53f36f92fa7dc5ab6fcf575ebc3d6fb648a2759c5f9015698"
+          },
+          {
+            "path": "game/media/a1e6e500aa1ca5d4b0dcdca821070f1b17f617a14227f76a83eb0257e128847b.png",
+            "byteLength": 2788367,
+            "digest": "sha256:a1e6e500aa1ca5d4b0dcdca821070f1b17f617a14227f76a83eb0257e128847b"
+          },
+          {
+            "path": "game/media/b7b78ec4e28133260db750e20de3e4c56bda60e6e65f73b58b09412e75e76d4c.wav",
+            "byteLength": 206130,
+            "digest": "sha256:b7b78ec4e28133260db750e20de3e4c56bda60e6e65f73b58b09412e75e76d4c"
+          },
+          {
+            "path": "game/media/cc0bd25e03762753601ed2464aff8cb0fadd99db43610a7eaebb752a7acef028.wav",
+            "byteLength": 211326,
+            "digest": "sha256:cc0bd25e03762753601ed2464aff8cb0fadd99db43610a7eaebb752a7acef028"
+          },
+          {
+            "path": "game/media/cd749f04403e3b4c8483350b77e79fb01bf9166de3f65e9d701583d43afead75.png",
+            "byteLength": 2435623,
+            "digest": "sha256:cd749f04403e3b4c8483350b77e79fb01bf9166de3f65e9d701583d43afead75"
+          },
+          {
+            "path": "game/media/d2cd20b0b73ee05ee5ae19a1d6f0af29956e492144a3f708747cdc84bb6cd1d8.wav",
+            "byteLength": 221984,
+            "digest": "sha256:d2cd20b0b73ee05ee5ae19a1d6f0af29956e492144a3f708747cdc84bb6cd1d8"
+          },
+          {
+            "path": "game/media/d69d2e28ca0d7d547c27f32cbd49703ebc40ddf36b0224f56001f7d2a73bd16a.wav",
+            "byteLength": 1411244,
+            "digest": "sha256:d69d2e28ca0d7d547c27f32cbd49703ebc40ddf36b0224f56001f7d2a73bd16a"
+          },
+          {
+            "path": "game/media/d8721a9d412e6589161ceffc2ada4f65e9c20ff7402319569b4a86623ab00c96.png",
+            "byteLength": 2034448,
+            "digest": "sha256:d8721a9d412e6589161ceffc2ada4f65e9c20ff7402319569b4a86623ab00c96"
+          },
+          {
+            "path": "game/media/db56676dcd83122d0f0442173693870abb9f6df05d732d510f9915ccea963fc6.png",
+            "byteLength": 1837533,
+            "digest": "sha256:db56676dcd83122d0f0442173693870abb9f6df05d732d510f9915ccea963fc6"
+          },
+          {
+            "path": "game/media/eeff44bae98f46d3fefaf1b8d9e3f27ee08ac635043e8d660e759f57946d8057.wav",
+            "byteLength": 216412,
+            "digest": "sha256:eeff44bae98f46d3fefaf1b8d9e3f27ee08ac635043e8d660e759f57946d8057"
+          },
+          {
+            "path": "game/media/f90e09e4c2dadc8c6d255c137cd4ce3bc5b40d8a7331e9467c813075a809786a.wav",
+            "byteLength": 224528,
+            "digest": "sha256:f90e09e4c2dadc8c6d255c137cd4ce3bc5b40d8a7331e9467c813075a809786a"
+          },
+          {
+            "path": "game/media/fbbc665d5ebb4e5dad123383d1077f3d968a620b7e36cce46795c08669605c98.wav",
+            "byteLength": 529244,
+            "digest": "sha256:fbbc665d5ebb4e5dad123383d1077f3d968a620b7e36cce46795c08669605c98"
+          },
+          {
+            "path": "game/offline.css",
+            "byteLength": 1466,
+            "digest": "sha256:b379d49a054f1e9716aeb2fc49d877dfc9d5bf64904eaf47683a3522bcd84718"
+          },
+          {
+            "path": "game/offline.js",
+            "byteLength": 20504,
+            "digest": "sha256:562ce3f0ccce2f1c75567d211e6e0e590f3048abe02bbea5670f0d49b6b74585"
+          },
+          {
+            "path": "game/optimization-report.json",
+            "byteLength": 12290,
+            "digest": "sha256:ce55440853db44cefd1b28f35b995f2bedc082deabd49ca13b0e91c87e4afb08"
+          },
+          {
+            "path": "game/player.css",
+            "byteLength": 114448,
+            "digest": "sha256:6a0a9dcc7261255d3e12b4ece5fb083c9da54c455f88257b81e8d78d5306e189"
+          },
+          {
+            "path": "game/player.js",
+            "byteLength": 820976,
+            "digest": "sha256:fbd01540d858ff3e2afb36fb28fa443e3eed83c77af0ffd56cf92cffc5a468bb"
+          },
+          {
+            "path": "game/save-compatibility.json",
+            "byteLength": 150,
+            "digest": "sha256:3b783b1cc6c5cdf2ede2ff0219598eca3d1f19344dd58787f8f40c884ea6f8a3"
+          },
+          {
+            "path": "game/sw.js",
+            "byteLength": 17687,
+            "digest": "sha256:7ed66edfd3235f547bf131525a36914fbead4a1c725d725e9971d45105eb594b"
+          },
+          {
+            "path": "release/准备上线.txt",
+            "byteLength": 41285,
+            "digest": "sha256:d64b324703817050ca0600989eb570f0be405fe00236382e3616f566642452f9"
+          },
+          {
+            "path": "release/preparation.json",
+            "byteLength": 61578,
+            "digest": "sha256:a8d3b2642ddf2fc1c080eb9c7d692739c1946872a526e7831d3ea1fd78e4c999"
+          },
+          {
+            "path": "review/playtest-notes.worldreview",
+            "byteLength": 22456,
+            "digest": "sha256:8b7b4b6fdb2ba44997e6c5ee89e3c9a13801d8dbb4e11737e7ef7e263ac72223"
+          },
+          {
+            "path": "review/playtest-progress.worldplaytest",
+            "byteLength": 112,
+            "digest": "sha256:822dcf0c4de3c7cd0ebb2fd3f6e059747232010c1331b912df66954974554b76"
+          },
+          {
+            "path": "source/project.zip",
+            "byteLength": 34475882,
+            "digest": "sha256:43ef6e1673ed3dffbf705b4f178b2122fc960971eaf47286b33742fa285f0576"
+          }
+        ]
+      },
+      "preparationSha256": "a8d3b2642ddf2fc1c080eb9c7d692739c1946872a526e7831d3ea1fd78e4c999",
+      "textSha256": "d64b324703817050ca0600989eb570f0be405fe00236382e3616f566642452f9",
+      "unchangedPublicFiles": 37,
+      "unchangedSource": true,
+      "optedInOnly": true
+    },
+    {
+      "label": "html-excluded",
+      "bytes": 81370206,
+      "sha256": "fe8da2d2646f42c406f7af82a8204dceec13cd729f0c9821424244da674d2b6e",
+      "manifest": {
+        "schemaVersion": 1,
+        "kind": "world-production-delivery",
+        "projectId": "project_a983033c0f7180355c93",
+        "publication": {
+          "name": "雨停之前",
+          "version": "1.11.0"
+        },
+        "format": "html",
+        "sourceProjectDigest": "03683156f24e4fa9facf700a7579c8f19b577d99ec30bca2f130526806572fa0",
+        "gameProjectDigest": "a736abb2b1ffe841b64f264a58e0f176e262b70ac276a94e5cef66e2eb3bbdca",
+        "gameEntry": "game/index.html",
+        "sourceEntry": "source/project.zip",
+        "reviewEntry": null,
+        "progressEntry": null,
+        "files": [
+          {
+            "path": "开始使用.txt",
+            "byteLength": 1353,
+            "digest": "sha256:598b755bd8e8238ec46d3fd921562af5c3ea1f62d31b6067607accec582f8c0d"
+          },
+          {
+            "path": "game/index.html",
+            "byteLength": 46845174,
+            "digest": "sha256:f21eb61a3a8a1a4aca73d935caccd46ca8bf30d4add24ec2c420f98a9d2d67d0"
+          },
+          {
+            "path": "release/准备上线.txt",
+            "byteLength": 18439,
+            "digest": "sha256:cfb75bc8590249ac41b96a50a98acf034262c7a34c9a71d83818edc3831adf49"
+          },
+          {
+            "path": "release/preparation.json",
+            "byteLength": 27290,
+            "digest": "sha256:ea4198dee085f4da8074e4f2565a8c16bccff336881d850f3406387b267d7de4"
+          },
+          {
+            "path": "source/project.zip",
+            "byteLength": 34475882,
+            "digest": "sha256:43ef6e1673ed3dffbf705b4f178b2122fc960971eaf47286b33742fa285f0576"
+          }
+        ]
+      },
+      "preparationSha256": "ea4198dee085f4da8074e4f2565a8c16bccff336881d850f3406387b267d7de4",
+      "textSha256": "cfb75bc8590249ac41b96a50a98acf034262c7a34c9a71d83818edc3831adf49",
+      "unchangedPublicFiles": 1,
+      "unchangedSource": true,
+      "optedInOnly": true
+    },
+    {
+      "label": "website-excluded",
+      "bytes": 69964629,
+      "sha256": "e35e06602eb9f91e6038ccd26c1c5d51363e0d8c76acd5143fa39b7a085bb684",
+      "manifest": {
+        "schemaVersion": 1,
+        "kind": "world-production-delivery",
+        "projectId": "project_a983033c0f7180355c93",
+        "publication": {
+          "name": "雨停之前",
+          "version": "1.11.0"
+        },
+        "format": "directory",
+        "sourceProjectDigest": "03683156f24e4fa9facf700a7579c8f19b577d99ec30bca2f130526806572fa0",
+        "gameProjectDigest": "a736abb2b1ffe841b64f264a58e0f176e262b70ac276a94e5cef66e2eb3bbdca",
+        "gameEntry": "game/index.html",
+        "sourceEntry": "source/project.zip",
+        "reviewEntry": null,
+        "progressEntry": null,
+        "files": [
+          {
+            "path": "开始使用.txt",
+            "byteLength": 1480,
+            "digest": "sha256:341465cb2de0296556c47cf8dda9c90c3472d4a1c9b75375519212c741ebb181"
+          },
+          {
+            "path": "game/app-icon.svg",
+            "byteLength": 227,
+            "digest": "sha256:e6c8ab87ad0b0192c7707b02b0c0128f3b99c63965b3378469a02978002bd533"
+          },
+          {
+            "path": "game/build-info.json",
+            "byteLength": 7798,
+            "digest": "sha256:9007df9f0a30b395c075967082de548965572ace40f1fb9f6cc0b55d1b47ffe9"
+          },
+          {
+            "path": "game/index.html",
+            "byteLength": 75079,
+            "digest": "sha256:c1325babf35ec6236d8332b1bb39ec07c2e072663d44edd27cf88ba8c06f040d"
+          },
+          {
+            "path": "game/manifest.webmanifest",
+            "byteLength": 428,
+            "digest": "sha256:7cfe439ff3666377652f01a7e549db2ee8f09461c65b7641b23a52773db086ac"
+          },
+          {
+            "path": "game/media/02ab310670cd897e865ebb590e66094b188c305ee61959e8b4160e6f30ba2e9a.png",
+            "byteLength": 1809416,
+            "digest": "sha256:02ab310670cd897e865ebb590e66094b188c305ee61959e8b4160e6f30ba2e9a"
+          },
+          {
+            "path": "game/media/0e68ac781943cf48422d833c6eb6550f66ee4fb31901f12f492e3ca8c079695a.wav",
+            "byteLength": 257060,
+            "digest": "sha256:0e68ac781943cf48422d833c6eb6550f66ee4fb31901f12f492e3ca8c079695a"
+          },
+          {
+            "path": "game/media/1ed954eeb7d22cd6176cb702dbc78977684c6a47261a8b36e152654d2700968a.png",
+            "byteLength": 18633,
+            "digest": "sha256:1ed954eeb7d22cd6176cb702dbc78977684c6a47261a8b36e152654d2700968a"
+          },
+          {
+            "path": "game/media/26be1da92d18729069c0fda981697a09631fbe7525d4517af5f3633824bf13c0.wav",
+            "byteLength": 222222,
+            "digest": "sha256:26be1da92d18729069c0fda981697a09631fbe7525d4517af5f3633824bf13c0"
+          },
+          {
+            "path": "game/media/342b2b082636ff9d0e8fff71a0ad7f53dfc5bb3fb6125927371b0828cf417197.wav",
+            "byteLength": 233942,
+            "digest": "sha256:342b2b082636ff9d0e8fff71a0ad7f53dfc5bb3fb6125927371b0828cf417197"
+          },
+          {
+            "path": "game/media/49e0d7f4aedf5242a8c5001d3875ec3cae7836d5c73e57415db7f5fdaf627807.png",
+            "byteLength": 3004142,
+            "digest": "sha256:49e0d7f4aedf5242a8c5001d3875ec3cae7836d5c73e57415db7f5fdaf627807"
+          },
+          {
+            "path": "game/media/558c25c6e369f18b98ff550165c38a06fc96f1ba0fba89ab69c3dc45f08bf94e.png",
+            "byteLength": 3019235,
+            "digest": "sha256:558c25c6e369f18b98ff550165c38a06fc96f1ba0fba89ab69c3dc45f08bf94e"
+          },
+          {
+            "path": "game/media/598b41535295814f1e98a4388d8df83012897402090b83d988e5e2c6b583b57f.png",
+            "byteLength": 2417066,
+            "digest": "sha256:598b41535295814f1e98a4388d8df83012897402090b83d988e5e2c6b583b57f"
+          },
+          {
+            "path": "game/media/5ab4b3cf1b83bf897d386238f1fad4e87f36b6eea3d940e0c3d4101204404e37.png",
+            "byteLength": 1783270,
+            "digest": "sha256:5ab4b3cf1b83bf897d386238f1fad4e87f36b6eea3d940e0c3d4101204404e37"
+          },
+          {
+            "path": "game/media/6ef4b958c86328d5515b034a7060e5081430fcdc279536ceeaac43f15ce7f83b.png",
+            "byteLength": 1968450,
+            "digest": "sha256:6ef4b958c86328d5515b034a7060e5081430fcdc279536ceeaac43f15ce7f83b"
+          },
+          {
+            "path": "game/media/78c4a9d21f19861265c4ce8c8e3b56f4a8bdb0777515ec93a9e53facbb17b863.wav",
+            "byteLength": 66194,
+            "digest": "sha256:78c4a9d21f19861265c4ce8c8e3b56f4a8bdb0777515ec93a9e53facbb17b863"
+          },
+          {
+            "path": "game/media/7b0aeee0aef6219584fef7833b6960ecb316bffa3b565ab13f847151068ba0bd.png",
+            "byteLength": 2534090,
+            "digest": "sha256:7b0aeee0aef6219584fef7833b6960ecb316bffa3b565ab13f847151068ba0bd"
+          },
+          {
+            "path": "game/media/9851880463e1d27bb758947fd998c834d942817f5c589fdd1b3ef31f870add27.wav",
+            "byteLength": 159176,
+            "digest": "sha256:9851880463e1d27bb758947fd998c834d942817f5c589fdd1b3ef31f870add27"
+          },
+          {
+            "path": "game/media/9a2a3bce8a89205a0ae6ac1cd22620dedae77bd519db5ec5c90b2302b55db47b.png",
+            "byteLength": 2308345,
+            "digest": "sha256:9a2a3bce8a89205a0ae6ac1cd22620dedae77bd519db5ec5c90b2302b55db47b"
+          },
+          {
+            "path": "game/media/9ded1d5e951474c53f36f92fa7dc5ab6fcf575ebc3d6fb648a2759c5f9015698.png",
+            "byteLength": 2435510,
+            "digest": "sha256:9ded1d5e951474c53f36f92fa7dc5ab6fcf575ebc3d6fb648a2759c5f9015698"
+          },
+          {
+            "path": "game/media/a1e6e500aa1ca5d4b0dcdca821070f1b17f617a14227f76a83eb0257e128847b.png",
+            "byteLength": 2788367,
+            "digest": "sha256:a1e6e500aa1ca5d4b0dcdca821070f1b17f617a14227f76a83eb0257e128847b"
+          },
+          {
+            "path": "game/media/b7b78ec4e28133260db750e20de3e4c56bda60e6e65f73b58b09412e75e76d4c.wav",
+            "byteLength": 206130,
+            "digest": "sha256:b7b78ec4e28133260db750e20de3e4c56bda60e6e65f73b58b09412e75e76d4c"
+          },
+          {
+            "path": "game/media/cc0bd25e03762753601ed2464aff8cb0fadd99db43610a7eaebb752a7acef028.wav",
+            "byteLength": 211326,
+            "digest": "sha256:cc0bd25e03762753601ed2464aff8cb0fadd99db43610a7eaebb752a7acef028"
+          },
+          {
+            "path": "game/media/cd749f04403e3b4c8483350b77e79fb01bf9166de3f65e9d701583d43afead75.png",
+            "byteLength": 2435623,
+            "digest": "sha256:cd749f04403e3b4c8483350b77e79fb01bf9166de3f65e9d701583d43afead75"
+          },
+          {
+            "path": "game/media/d2cd20b0b73ee05ee5ae19a1d6f0af29956e492144a3f708747cdc84bb6cd1d8.wav",
+            "byteLength": 221984,
+            "digest": "sha256:d2cd20b0b73ee05ee5ae19a1d6f0af29956e492144a3f708747cdc84bb6cd1d8"
+          },
+          {
+            "path": "game/media/d69d2e28ca0d7d547c27f32cbd49703ebc40ddf36b0224f56001f7d2a73bd16a.wav",
+            "byteLength": 1411244,
+            "digest": "sha256:d69d2e28ca0d7d547c27f32cbd49703ebc40ddf36b0224f56001f7d2a73bd16a"
+          },
+          {
+            "path": "game/media/d8721a9d412e6589161ceffc2ada4f65e9c20ff7402319569b4a86623ab00c96.png",
+            "byteLength": 2034448,
+            "digest": "sha256:d8721a9d412e6589161ceffc2ada4f65e9c20ff7402319569b4a86623ab00c96"
+          },
+          {
+            "path": "game/media/db56676dcd83122d0f0442173693870abb9f6df05d732d510f9915ccea963fc6.png",
+            "byteLength": 1837533,
+            "digest": "sha256:db56676dcd83122d0f0442173693870abb9f6df05d732d510f9915ccea963fc6"
+          },
+          {
+            "path": "game/media/eeff44bae98f46d3fefaf1b8d9e3f27ee08ac635043e8d660e759f57946d8057.wav",
+            "byteLength": 216412,
+            "digest": "sha256:eeff44bae98f46d3fefaf1b8d9e3f27ee08ac635043e8d660e759f57946d8057"
+          },
+          {
+            "path": "game/media/f90e09e4c2dadc8c6d255c137cd4ce3bc5b40d8a7331e9467c813075a809786a.wav",
+            "byteLength": 224528,
+            "digest": "sha256:f90e09e4c2dadc8c6d255c137cd4ce3bc5b40d8a7331e9467c813075a809786a"
+          },
+          {
+            "path": "game/media/fbbc665d5ebb4e5dad123383d1077f3d968a620b7e36cce46795c08669605c98.wav",
+            "byteLength": 529244,
+            "digest": "sha256:fbbc665d5ebb4e5dad123383d1077f3d968a620b7e36cce46795c08669605c98"
+          },
+          {
+            "path": "game/offline.css",
+            "byteLength": 1466,
+            "digest": "sha256:b379d49a054f1e9716aeb2fc49d877dfc9d5bf64904eaf47683a3522bcd84718"
+          },
+          {
+            "path": "game/offline.js",
+            "byteLength": 20504,
+            "digest": "sha256:562ce3f0ccce2f1c75567d211e6e0e590f3048abe02bbea5670f0d49b6b74585"
+          },
+          {
+            "path": "game/optimization-report.json",
+            "byteLength": 12290,
+            "digest": "sha256:ce55440853db44cefd1b28f35b995f2bedc082deabd49ca13b0e91c87e4afb08"
+          },
+          {
+            "path": "game/player.css",
+            "byteLength": 114448,
+            "digest": "sha256:6a0a9dcc7261255d3e12b4ece5fb083c9da54c455f88257b81e8d78d5306e189"
+          },
+          {
+            "path": "game/player.js",
+            "byteLength": 820976,
+            "digest": "sha256:fbd01540d858ff3e2afb36fb28fa443e3eed83c77af0ffd56cf92cffc5a468bb"
+          },
+          {
+            "path": "game/save-compatibility.json",
+            "byteLength": 150,
+            "digest": "sha256:3b783b1cc6c5cdf2ede2ff0219598eca3d1f19344dd58787f8f40c884ea6f8a3"
+          },
+          {
+            "path": "game/sw.js",
+            "byteLength": 17687,
+            "digest": "sha256:7ed66edfd3235f547bf131525a36914fbead4a1c725d725e9971d45105eb594b"
+          },
+          {
+            "path": "release/准备上线.txt",
+            "byteLength": 18439,
+            "digest": "sha256:cfb75bc8590249ac41b96a50a98acf034262c7a34c9a71d83818edc3831adf49"
+          },
+          {
+            "path": "release/preparation.json",
+            "byteLength": 27290,
+            "digest": "sha256:ea4198dee085f4da8074e4f2565a8c16bccff336881d850f3406387b267d7de4"
+          },
+          {
+            "path": "source/project.zip",
+            "byteLength": 34475882,
+            "digest": "sha256:43ef6e1673ed3dffbf705b4f178b2122fc960971eaf47286b33742fa285f0576"
+          }
+        ]
+      },
+      "preparationSha256": "ea4198dee085f4da8074e4f2565a8c16bccff336881d850f3406387b267d7de4",
+      "textSha256": "cfb75bc8590249ac41b96a50a98acf034262c7a34c9a71d83818edc3831adf49",
+      "unchangedPublicFiles": 37,
+      "unchangedSource": true,
+      "optedInOnly": true
+    }
+  ],
+  "errors": [
+    "Error: Cannot set buffer larger than 50Mb, please write it to a file and pass its path instead.\n    at convertInputFiles (C:\\Users\\Administrator\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\node_modules\\playwright-core\\lib\\coreBundle.js:60373:11)\n    at _Frame.setInputFiles (C:\\Users\\Administrator\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\node_modules\\playwright-core\\lib\\coreBundle.js:60197:33)\n    at _Locator.setInputFiles (C:\\Users\\Administrator\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\node_modules\\playwright-core\\lib\\coreBundle.js:58207:34)\n    at file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-release-review.mjs:101:87"
+  ],
+  "scope": "Actual isolated Editor author workflow. Internal review and arrival inventory only; no human approval, natural listening/reading/timing, physical phone/Safari, permission, public deployment or new game acceptance. #394 editable source and exact #416 public games retained. Production ZIPs inspected in memory, not promoted."
+}

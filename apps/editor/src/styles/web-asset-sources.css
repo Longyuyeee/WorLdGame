@@ -30,6 +30,10 @@
 .web-release-preparation p, .web-release-preparation li, .web-release-preparation small { font-size: 12px; line-height: 1.8; overflow-wrap: anywhere; color: var(--wg-color-text-secondary); }
 .web-release-preparation > div { display: flex; flex-wrap: wrap; gap: 8px; }
 .web-release-preparation button { min-height: 44px; padding: 8px 12px; }
+.web-release-review-summary { min-width: 0; padding-block: 12px; margin-block: 12px; border-block: 1px solid var(--wg-color-border-subtle); }
+.web-release-review-summary h4 { margin: 0; font-size: 14px; }
+.web-release-review-summary > div { display: flex; flex-wrap: wrap; gap: 8px; }
+.web-release-review-summary button { max-width: 100%; overflow-wrap: anywhere; }
 .web-release-preparation details { margin-top: 14px; }
 .web-release-preparation summary { cursor: pointer; font-size: 13px; }
 .web-release-preparation ol { padding-left: 22px; }

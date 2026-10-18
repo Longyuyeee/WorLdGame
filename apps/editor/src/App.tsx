@@ -3245,6 +3245,7 @@ interface PreviewPanelProps extends CommonProps {
   readonly onPublicationWorkflowChange?: (workflow: PublicationWorkflow) => void;
   readonly beforeDeliverySave?: (signal: AbortSignal) => Promise<boolean>;
   readonly deliveryReviewNotes?: readonly PlaytestNote[];
+  readonly reviewNotesError?: string;
   readonly revisionTarget?: { readonly sceneId: string; readonly statementId: string } | null;
   readonly onRevise?: (location: PlaytestNoteLocation) => void;
   readonly onRecordIssue?: (location: PlaytestNoteLocation) => void;
@@ -3293,7 +3294,7 @@ function useDevicePixelRatio(): number {
   return ratio;
 }
 
-function PreviewPanel({ focusMode = false, onFocusModeChange, publicationWorkflow, onPublicationWorkflowChange, beforeDeliverySave, deliveryReviewNotes = [], revisionTarget = null, onRevise, onRecordIssue, onFinishRevision, reviewDialogOpen = false, playtestRequest = null, onPlaytestRequestHandled, pendingReviewNotes = 0, onOpenReviewNotes, session, dispatch, createCommandId, inputDirty, assetIndex, assetRepository, canonicalProject, onRouteTraceChange, onPublicationChange, publicationOnly = false, onDraftChange, hidden = false, continuity, onContinuityChange, initialPublicationStep = 0, initialPublicationFormat = "html", reviewTrace = null, playtestProgress, onRestartPlaytest, onReleaseFix, onReleaseReview }: PreviewPanelProps) {
+function PreviewPanel({ focusMode = false, onFocusModeChange, publicationWorkflow, onPublicationWorkflowChange, beforeDeliverySave, deliveryReviewNotes = [], reviewNotesError = '', revisionTarget = null, onRevise, onRecordIssue, onFinishRevision, reviewDialogOpen = false, playtestRequest = null, onPlaytestRequestHandled, pendingReviewNotes = 0, onOpenReviewNotes, session, dispatch, createCommandId, inputDirty, assetIndex, assetRepository, canonicalProject, onRouteTraceChange, onPublicationChange, publicationOnly = false, onDraftChange, hidden = false, continuity, onContinuityChange, initialPublicationStep = 0, initialPublicationFormat = "html", reviewTrace = null, playtestProgress, onRestartPlaytest, onReleaseFix, onReleaseReview }: PreviewPanelProps) {
   const focusToggle = useRef<HTMLButtonElement>(null);
   const projectRunBlocked = inputDirty || pendingDraftSceneIds(session).length > 0;
   const [publicationSettingsDirty, setPublicationSettingsDirty] = useState(false);
@@ -3453,7 +3454,7 @@ function PreviewPanel({ focusMode = false, onFocusModeChange, publicationWorkflo
     setWebBuilding(false);
     setWebBuildError(null);
     return () => { webBuildGeneration.current += 1; webBuildController.current?.abort(); };
-  }, [canonicalProject, projectRunBlocked, publicationFormat, includeProductionBundle, includeReviewNotes, includeProductionBundle && includeReviewNotes ? deliveryReviewNotes : null, includePlaytestProgress, includeProductionBundle && includePlaytestProgress ? playtestProgress?.completions : null, includeProductionBundle && includePlaytestProgress ? playtestProgress?.error : null]);
+  }, [canonicalProject, projectRunBlocked, publicationFormat, includeProductionBundle, includeReviewNotes, includeProductionBundle && includeReviewNotes ? deliveryReviewNotes : null, includeProductionBundle && includeReviewNotes ? reviewNotesError : null, includePlaytestProgress, includeProductionBundle && includePlaytestProgress ? playtestProgress?.completions : null, includeProductionBundle && includePlaytestProgress ? playtestProgress?.error : null]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -3683,6 +3684,7 @@ function PreviewPanel({ focusMode = false, onFocusModeChange, publicationWorkflo
     setWebBuildError(null);
     setWebBuilding(true); setWebBuildPhase(includeProductionBundle ? "正在保存当前工程…" : "正在打包当前游戏…");
     try {
+      if (includeProductionBundle && includeReviewNotes && reviewNotesError) throw Error("校订记录尚未完整读取或保存。请在检查页核对或备份原记录，或取消附带校订记录后生成。");
       if (includeProductionBundle && includePlaytestProgress && playtestProgress?.error) throw Error("试玩进度尚未完整读取或保存。请在检查页重试，或取消附带试玩进度后生成。");
       if (includeProductionBundle && beforeDeliverySave && !await beforeDeliverySave(controller.signal)) throw Error("工程尚未保存成功，请检查保存状态后重新生成制作交付包。");
       controller.signal.throwIfAborted();
@@ -4144,7 +4146,7 @@ function PreviewPanel({ focusMode = false, onFocusModeChange, publicationWorkflo
         </div>
         <section className="web-credits-entry" aria-label="作品制作名单"><span className="web-credits-mark"><StudioIcon name="characters" /></span><div><strong>制作名单与致谢</strong><p>{creditsSummary(canonicalProject)}</p></div><button type="button" disabled={publicationSettingsDirty || projectRunBlocked} onClick={() => setCreditsOpen(true)}>编辑制作名单</button></section>
         {creditsOpen && <WebCreditsDialog project={canonicalProject} onApply={onPublicationChange} onClose={() => setCreditsOpen(false)} />}
-        <WebReleasePreparation project={canonicalProject} disabled={projectRunBlocked || publicationDirty || webBuilding} onOpen={target => setSourcesOpen(target ?? {})} />
+        <WebReleasePreparation project={canonicalProject} review={{ notes: deliveryReviewNotes, completions: playtestProgress?.completions ?? null, notesError: reviewNotesError, progressError: playtestProgress?.error }} onReview={onOpenReviewNotes} onPlaytest={() => onRestartPlaytest?.(publicationFormat)} disabled={projectRunBlocked || publicationDirty || webBuilding} onOpen={target => setSourcesOpen(target ?? {})} />
         <h3>Web 游戏</h3>
         <div className="publication-platforms publication-platforms--web">
           <div className="publication-platform is-selected"><span className="publication-platform__icon" aria-hidden="true">◎</span><strong>Web</strong><span>浏览器游戏</span><small>支持电脑和手机，无需安装。</small><b aria-hidden="true">✓</b></div>
@@ -4164,7 +4166,8 @@ function PreviewPanel({ focusMode = false, onFocusModeChange, publicationWorkflo
           {includeProductionBundle && <fieldset className="production-delivery-materials"><legend>随包附带作者资料</legend>
             <label><input type="checkbox" aria-label="附带校订记录" checked={includeReviewNotes} disabled={projectRunBlocked || webBuilding || publicationDirty} onChange={event => setIncludeReviewNotes(event.target.checked)} /><span>附带校订记录（{deliveryReviewNotes.length} 条）</span></label>
             <label><input type="checkbox" aria-label="附带试玩进度" checked={includePlaytestProgress} disabled={projectRunBlocked || webBuilding || publicationDirty || !playtestProgress} onChange={event => setIncludePlaytestProgress(event.target.checked)} /><span>附带试玩进度（{playtestProgress?.completions.length ?? 0} 条）<small>保留当前稿和旧稿的结局到达记录，换浏览器后可以合并。</small></span></label>
-            <small>作者资料只放在交付包的 review 文件夹，玩家游戏不含这些记录。恢复工程后，由你选择是否合并。</small>
+            <small>原始记录放在交付包的 review 文件夹，复核摘要放在 release 清单；玩家游戏不含这些记录。只汇总本次勾选的资料，未附带不等于没有待办。恢复工程后，由你选择是否合并。</small>
+            {includeReviewNotes && reviewNotesError && <p role="alert">校订记录暂不可完整导出，请到检查页核对原记录，或取消附带。</p>}
             {includePlaytestProgress && playtestProgress?.error && <p role="alert">试玩进度暂不可完整导出，请到检查页重试保存，或取消附带。</p>}
           </fieldset>}
         </section>
@@ -4186,7 +4189,7 @@ function PreviewPanel({ focusMode = false, onFocusModeChange, publicationWorkflo
         </div>
         <dl className="publication-inventory"><div><dt>故事场景</dt><dd>{session.project.scenes.length} 个</dd></div><div><dt>创作素材</dt><dd>{assetIndex.assets.length} 项</dd></div><div><dt>运行方式</dt><dd>离线可运行</dd></div></dl>
         {pendingReviewNotes > 0 && <section className="release-review-notes" aria-label="发布前校订提醒"><StudioIcon name="write" /><div><strong>{pendingReviewNotes} 条试玩问题仍待跟进</strong><p>请确认这些问题是否影响交付；记录不会自动判定作品通过。</p></div><button type="button" disabled={projectRunBlocked || publicationDirty || webBuilding} onClick={onOpenReviewNotes}>查看校订清单</button></section>}
-        <WebReleasePreparation project={canonicalProject} disabled={projectRunBlocked || publicationDirty || webBuilding} onOpen={target => setSourcesOpen(target ?? {})} />
+        <WebReleasePreparation project={canonicalProject} review={{ notes: deliveryReviewNotes, completions: playtestProgress?.completions ?? null, notesError: reviewNotesError, progressError: playtestProgress?.error }} onReview={onOpenReviewNotes} onPlaytest={() => onRestartPlaytest?.(publicationFormat)} disabled={projectRunBlocked || publicationDirty || webBuilding} onOpen={target => setSourcesOpen(target ?? {})} />
       <WebReleaseReadiness project={canonicalProject} inspection={releaseInspection} blocked={projectRunBlocked || publicationDirty} busy={webBuilding} trace={reviewTrace} progress={playtestProgress} onRestartPreview={() => onRestartPlaytest?.(publicationFormat)} onOpen={finding => { if (finding.target === "publication") setPublicationStep(0); else onReleaseFix?.(finding, publicationFormat); }} onPreview={() => onReleaseReview?.(false, publicationFormat)} onRoutes={() => onReleaseReview?.(true, publicationFormat)} />
         <div className="publication-step-actions"><button type="button" disabled={webBuilding} onClick={() => setPublicationStep(1)}>← 导出方式</button><button className="studio-primary publication-build" type="button" aria-label={publicationFormat === "html" ? "构建试玩 HTML" : publicationFormat === "website" ? "构建网站上传 ZIP" : "构建目录 ZIP"} onClick={() => void preparePlayableWeb()} disabled={projectRunBlocked || webBuilding || publicationDirty || !releaseInspection.ready}>{webBuilding ? "正在打包游戏…" : releaseInspection.checking ? "正在检查…" : publicationFormat === "website" ? "↗ 生成网站上传包" : "↗ 导出游戏"}</button></div>
         {webBuilding && <button type="button" onClick={() => { webBuildController.current?.abort(); webBuildGeneration.current++; setWebBuilding(false); setWebBuildError("构建已取消，源工程未改变，可重新构建。"); }}>取消本次构建</button>}
@@ -4195,7 +4198,7 @@ function PreviewPanel({ focusMode = false, onFocusModeChange, publicationWorkflo
       </section>
       <section className="publication-step-panel" hidden={publicationStep !== 3} aria-label="试玩与部署">
         <WebReleaseGuide format={webBuild ? webBuild.websiteOnly ? "website" : webBuild.directory ? "directory" : "html" : publicationFormat} ready={webBuild !== null} productionReady={webBuild?.production !== undefined} />
-        <WebReleasePreparation project={canonicalProject} disabled={projectRunBlocked || publicationDirty || webBuilding} onOpen={target => setSourcesOpen(target ?? {})} />
+        <WebReleasePreparation project={canonicalProject} review={{ notes: deliveryReviewNotes, completions: playtestProgress?.completions ?? null, notesError: reviewNotesError, progressError: playtestProgress?.error }} onReview={onOpenReviewNotes} onPlaytest={() => onRestartPlaytest?.(publicationFormat)} disabled={projectRunBlocked || publicationDirty || webBuilding} onOpen={target => setSourcesOpen(target ?? {})} />
         <div className="publication-step-actions"><button type="button" onClick={() => setPublicationStep(2)}>← 生成游戏</button><button type="button" onClick={() => setPublicationStep(1)}>更换导出方式</button></div>
       </section>
       </div>
@@ -5846,7 +5849,7 @@ export function App({ workspaceReferenceId, initialDeliveryReview, onDeliveryRev
         <small>{inputDirty ? "请先提交或放弃当前输入，再切换任务或保存。" : "写作页可试玩完整流程；顶部保存到本机。备份或迁移工程请使用左上角项目菜单中的导出工程 ZIP。"}</small>
       </nav>}
       <main ref={workspaceGrid} className="workspace-grid" data-workspace-mode={workspaceMode} data-settings-open={settingsOpen}>
-        {publishOpen ? <PreviewPanel publicationOnly beforeDeliverySave={async signal => { if (activeSavePromise.current) await activeSavePromise.current; if (signal.aborted) return false; return saveToLocal("manual"); }} deliveryReviewNotes={notesStore.notes} pendingReviewNotes={pendingReviewNotes} onOpenReviewNotes={() => { setReleaseReturnFormat(publicationWorkflow.format); openStudioPage("checks"); }} publicationWorkflow={publicationWorkflow} onPublicationWorkflowChange={setPublicationWorkflow} reviewTrace={reviewTrace} playtestProgress={playtestProgress} onRestartPlaytest={format => { setReleaseReturnFormat(format); restartWorkPlaytest(); }} onReleaseFix={openReleaseFix} onReleaseReview={openReleaseReview} onDraftChange={setPageDirty} session={session} dispatch={dispatch} createCommandId={createCommandId} inputDirty={inputDirty} assetIndex={assetIndex} assetRepository={assetRepositoryRef.current} canonicalProject={previewCanonicalProject} onRouteTraceChange={receiveRouteTrace} onPublicationChange={applySettingsProject} /> : settingsOpen ? <>
+        {publishOpen ? <PreviewPanel publicationOnly beforeDeliverySave={async signal => { if (activeSavePromise.current) await activeSavePromise.current; if (signal.aborted) return false; return saveToLocal("manual"); }} deliveryReviewNotes={notesStore.notes} reviewNotesError={notesStore.error} pendingReviewNotes={pendingReviewNotes} onOpenReviewNotes={() => { setReleaseReturnFormat(publicationWorkflow.format); openStudioPage("checks"); }} publicationWorkflow={publicationWorkflow} onPublicationWorkflowChange={setPublicationWorkflow} reviewTrace={reviewTrace} playtestProgress={playtestProgress} onRestartPlaytest={format => { setReleaseReturnFormat(format); restartWorkPlaytest(); }} onReleaseFix={openReleaseFix} onReleaseReview={openReleaseReview} onDraftChange={setPageDirty} session={session} dispatch={dispatch} createCommandId={createCommandId} inputDirty={inputDirty} assetIndex={assetIndex} assetRepository={assetRepositoryRef.current} canonicalProject={previewCanonicalProject} onRouteTraceChange={receiveRouteTrace} onPublicationChange={applySettingsProject} /> : settingsOpen ? <>
           <SettingsWorkspace
             onImportSkin={importSkinToProject}
             assetReader={assetRepositoryRef.current}

@@ -1,0 +1,67 @@
+{
+  "passed": true,
+  "contentVersion": "1.11.0",
+  "technicalVersion": "S0.41",
+  "newGamePublished": false,
+  "retained": [
+    {
+      "file": "evidence/web-reading-motion/before-rain-stops.html",
+      "bytes": 46845174,
+      "sha256": "f21eb61a3a8a1a4aca73d935caccd46ca8bf30d4add24ec2c420f98a9d2d67d0"
+    },
+    {
+      "file": "evidence/web-reading-motion/before-rain-stops-website.zip",
+      "bytes": 35431623,
+      "sha256": "a5510ba131555d065dc24566e5fa4ac093a0979e2d8fb5aa10982f4a1690651c"
+    }
+  ],
+  "sourceSha256": "43ef6e1673ed3dffbf705b4f178b2122fc960971eaf47286b33742fa285f0576",
+  "notesSha256": "747534249345da6ce337054b4e7f47a1516556beda7079ef7b6d093e590bce8f",
+  "pendingNotes": 25,
+  "pendingMediaPermissions": 26,
+  "approvedMediaPermissions": 0,
+  "browsers": [
+    {
+      "engine": "chromium",
+      "checks": 9,
+      "authorExports": 4,
+      "responsiveViewports": 3,
+      "physicalPhoneAcceptance": "not-accepted"
+    },
+    {
+      "engine": "firefox",
+      "checks": 6,
+      "authorExports": 2,
+      "responsiveViewports": 3,
+      "physicalPhoneAcceptance": "not-accepted"
+    },
+    {
+      "engine": "webkit",
+      "checks": 6,
+      "authorExports": 2,
+      "responsiveViewports": 3,
+      "physicalPhoneAcceptance": "not-accepted"
+    }
+  ],
+  "tests": {
+    "files": 164,
+    "distinctTests": 1553,
+    "newTests": 14,
+    "nodeTests": 133
+  },
+  "engineering": {
+    "typecheck": {
+      "passed": true,
+      "output": ""
+    },
+    "architecture": {
+      "passed": true,
+      "output": "{\n  \"status\": \"PASS\",\n  \"auditedPortableFiles\": 118,\n  \"auditedNodeAdapterFiles\": 4,\n  \"guarantees\": [\n    \"narrative-vm-spike has no UI, DOM, platform-shell, filesystem, process, crypto-provider, wall-clock, or ambient-random dependency\",\n    \"story-core has no UI, DOM, platform-shell, filesystem, or process dependency\",\n    \"story-language has no UI, DOM, platform-shell, filesystem, or process dependency\",\n    \"story-language depends only on story-core\",\n    \"project-compiler is portable and depends only on project-domain/story-language, never the VM spike or platform APIs\",\n    \"runtime is portable and depends only on project-compiler, never the VM spike, editor, filesystem, wall clock, randomness, or platform APIs\",\n    \"runtime-host is portable and depends only on formal runtime, never UI, DOM, shell, filesystem, wall clock, randomness, or platform APIs\",\n    \"player-core is portable and consumes only canonical project, formal Compiler IR, Runtime, and Runtime Host without a parallel StoryStatement interpreter\",\n    \"gal-settings is dependency-free and portable with no UI, DOM, filesystem, process, shell, wall-clock, or ambient-random dependency\",\n    \"route-graph is portable and projects only canonical project and compiler facts through the Project Service boundary\",\n    \"project-persistence has no UI, DOM, platform-shell, filesystem, process, or runtime third-party dependency\",\n    \"project-domain depends only on portable Gal settings and has no UI, DOM, platform-shell, filesystem, process, crypto-provider, or runtime third-party dependency\",\n    \"project-persistence-node is isolated from the web editor and depends only on portable project-domain/project-persistence contracts\",\n    \"editor declares the Gal settings dependency explicitly\",\n    \"editor declares the story-core dependency explicitly\",\n    \"editor declares the story-language dependency explicitly\",\n    \"editor declares the project-persistence dependency explicitly\",\n    \"web editor does not bundle the Node filesystem adapter\",\n    \"VM Web Worker conformance Harness depends only on the portable Spike, formal Runtime, and portable Runtime Host and imports no shell or Node adapter\",\n    \"VM conformance CLI is an isolated Node reference host and depends only on the portable narrative VM\",\n    \"Windows Electron host keeps isolation and sandboxing enabled with the frozen WindowsHostV1 storage bridge\",\n    \"Windows Tauri host exposes only the frozen WindowsHostV1 storage commands and no generic privileged plugin\",\n    \"Windows project grant roots stay native-only and both hosts reject reparse roots and existing reparse path segments\",\n    \"story-core has no runtime third-party dependency\"\n  ]\n}\n"
+    },
+    "history-engineering": {
+      "passed": true,
+      "output": "{\n  \"status\": \"PASS\",\n  \"node\": \"N52-E5b-runtime-history-v2\",\n  \"engineeringStatus\": \"complete\",\n  \"productAcceptance\": \"blocked\",\n  \"continuation\": {\n    \"node\": \"N52-E5c-gal-history-policy-and-player-core-projection\",\n    \"gate\": \"only-after-e5b-exact-head-windows-ci-is-green\"\n  },\n  \"violations\": []\n}\n"
+    }
+  },
+  "scope": "Author publishing and handoff preparation, not a new player/runtime/content batch. Actual production exports preserve #394 source, all 25 unapproved notes, and exact #416 public game bytes in each format. Included vs excluded records, three responsive desktop-engine layouts, current-source summary and explicit fresh-context restore checked. Previous #416 full-game evidence retained, not recounted as new full reading. Source-text hashes accept LF/CRLF equivalence only; frozen download/report bytes are raw. No claim of natural complete reading/listening/timing, permissions, physical phone/Safari, OS lifecycle, long soak, native streaming stall, embedded WebKit audio or authorized HTTPS. Cold settings, earlier timeouts and long-story/storage costs remain open; native productization deferred."
+}

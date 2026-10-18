@@ -28,6 +28,20 @@ it("captures original editable content and media alongside the published name, w
   expect(new TextDecoder().decode(files["game/index.html"])).toContain("正式作品名称"); expect(new TextDecoder().decode(files["game/index.html"])).not.toContain(note.text);
   expect(delivery.manifest.publication.version).toBe("2.1.0"); expect(delivery.manifest.gameProjectDigest).not.toBe(delivery.manifest.sourceProjectDigest);
 });
+it('includes only opted-in review records in both private preparation files, never in player files', async () => {
+  const record = completionFromTrace(project, progressTrace(advanceFormalPreview(startFormalPreview(project))), 1)!;
+  for (const game of [await createFormalWebArtifact(project, reader, runtime), await createFormalWebDirectoryArtifact(project, reader, runtime)]) {
+    for (const included of [true, false]) {
+      const result = await createWebDeliveryBundle(project, index, reader, game, included ? [note] : null, undefined, undefined, included ? [record] : null);
+      const files = importProjectBinaryZip(result.archive), report = JSON.parse(new TextDecoder().decode(files['release/preparation.json']!));
+      expect(report.review.notes.availability).toBe(included ? 'included' : 'not-included'); expect(report.review.playtest.availability).toBe(included ? 'included' : 'not-included');
+      expect(report.review.notes.pending).toBe(included ? 1 : null); expect(report.review.playtest.reached).toBe(included ? 1 : null);
+      expect(new TextDecoder().decode(files['release/准备上线.txt']!)).toContain(included ? note.text : '本次未附带校订记录');
+      for (const [name, bytes] of Object.entries(files)) if (name.startsWith('game/')) expect(new TextDecoder().decode(bytes)).not.toContain(note.text);
+      expect(importStudioProjectArchive(result.archive).reviewNotes === null).toBe(!included);
+    }
+  }
+});
 it("places real directory files under game with their relative media paths intact", async () => {
   const game = await createFormalWebDirectoryArtifact(project, reader, runtime);
   const delivery = await createWebDeliveryBundle(project, index, reader, game, null);

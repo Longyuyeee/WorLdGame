@@ -1,5 +1,6 @@
 import { inspectWebAssetSources, readWebAssetSources, semanticHash, withoutWebAuthoringMetadata, WEB_ASSET_SOURCE_STATUS, type CanonicalProject } from '@world-studio/project-domain';
 import { readWebPublication } from './web-publication';
+import { createWebReleaseReview, formatWebReleaseReview, type WebReleaseReviewInput } from './web-release-review';
 
 export const WEB_DEPLOYMENT_TASKS = [
   '由作品所有者确认作者/发行身份、展示资料和全部素材发行条件；来源台账只记录依据，不自动作法律或授权结论。',
@@ -11,22 +12,23 @@ export const WEB_DEPLOYMENT_TASKS = [
 ] as const;
 
 /** A private, current-source inventory. Not a permission certificate or a record of executed deployment tests. */
-export function createWebReleasePreparation(project: CanonicalProject) {
+export function createWebReleasePreparation(project: CanonicalProject, review?: WebReleaseReviewInput) {
   let assets: ReturnType<typeof inspectWebAssetSources> = [], ledgerError: string | null = null;
   try { assets = inspectWebAssetSources(project, readWebAssetSources(project)); } catch (error) { ledgerError = error instanceof Error ? error.message : String(error); }
   const publication = readWebPublication(project), publicProject = withoutWebAuthoringMetadata({ ...project, manifest: { ...project.manifest, title: publication.name } });
   return {
     schemaVersion: 1, kind: 'world-web-release-preparation', projectId: project.manifest.projectId, publication,
     sourceProjectDigest: semanticHash(project), gameProjectDigest: semanticHash(publicProject),
-    scope: '作者内部准备清单；未执行源字节检查、授权核实或部署验收。只记录作者填写的依据。',
+    scope: '作者内部准备清单（含剧透）；来源仅记录填写依据，校订和试玩仅汇总所附记录。未执行源字节检查、授权核实、人工或部署验收。',
     totalAssets: project.assets.assets.length, documentedAssets: assets.filter(row => row.status === 'documented').length,
     pendingAssets: ledgerError ? project.assets.assets.length : assets.filter(row => row.status !== 'documented').length, ledgerError,
     assets: assets.map(row => ({ ...row, statusLabel: WEB_ASSET_SOURCE_STATUS[row.status] })),
     publicDeployment: 'not-verified', deploymentUrl: null, permissionReview: 'owner-review-required',
     deploymentTasks: WEB_DEPLOYMENT_TASKS,
+    review: createWebReleaseReview(project, review),
   };
 }
-export function formatWebReleasePreparation(project: CanonicalProject): string {
-  const report = createWebReleasePreparation(project);
-  return `${report.publication.name} · ${report.publication.version} · 发布准备（作者内部）\n\n${report.scope}\n源工程摘要：${report.sourceProjectDigest}\n游戏工程摘要：${report.gameProjectDigest}\n\n素材总数 ${report.totalAssets}；已记录依据且署名匹配 ${report.documentedAssets}；仍待处理 ${report.ledgerError ? '台账格式有误，无法统计' : report.pendingAssets}。\n${report.ledgerError ?? ''}\n${report.assets.map(row => `${row.name} [${row.assetId}]\n${row.digest}\n${row.statusLabel}\n来源：${row.record?.source || '待填写'}\n确认依据：${row.record?.evidence || '待核实'}\n确认人/日期：${row.record?.reviewedBy || '未填写'} / ${row.record?.reviewedOn || '未填写'}\n公开署名：${row.record?.credit || '未记录要求，仍需所有者核对'}\n`).join('\n')}\n实际部署：未验收；未填写公网地址。\n\n接下来：\n${report.deploymentTasks.map((task, i) => `${i + 1}. ${task}`).join('\n')}\n`;
+export function formatWebReleasePreparation(project: CanonicalProject, review?: WebReleaseReviewInput): string {
+  const report = createWebReleasePreparation(project, review);
+  return `${report.publication.name} · ${report.publication.version} · 发布准备（作者内部）\n\n${report.scope}\n源工程摘要：${report.sourceProjectDigest}\n游戏工程摘要：${report.gameProjectDigest}\n\n${formatWebReleaseReview(report.review)}\n素材总数 ${report.totalAssets}；已记录依据且署名匹配 ${report.documentedAssets}；仍待处理 ${report.ledgerError ? '台账格式有误，无法统计' : report.pendingAssets}。\n${report.ledgerError ?? ''}\n${report.assets.map(row => `${row.name} [${row.assetId}]\n${row.digest}\n${row.statusLabel}\n来源：${row.record?.source || '待填写'}\n确认依据：${row.record?.evidence || '待核实'}\n确认人/日期：${row.record?.reviewedBy || '未填写'} / ${row.record?.reviewedOn || '未填写'}\n公开署名：${row.record?.credit || '未记录要求，仍需所有者核对'}\n`).join('\n')}\n实际部署：未验收；未填写公网地址。\n\n接下来：\n${report.deploymentTasks.map((task, i) => `${i + 1}. ${task}`).join('\n')}\n`;
 }
