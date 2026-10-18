@@ -144,3 +144,7 @@ evidence/web-story-new-city-rooms/** -text
 # Keep the original Node test-label spacing in these two frozen TAP reports.
 evidence/web-story-new-city-rooms/targeted-tool-tests.tap -whitespace
 evidence/web-story-new-city-rooms/tool-tests.tap -whitespace
+evidence/web-candidate-handoff/** -text
+# Preserve the original empty-argument Node labels, not rewritten test output.
+evidence/web-candidate-handoff/tool-tests.tap -whitespace
+evidence/web-candidate-handoff/tool-tests-final.tap -whitespace

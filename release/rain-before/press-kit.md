@@ -1,4 +1,26 @@
-# 《雨停之前》1.10.0 Web 候选展示资料
+# 《雨停之前》1.12.0 Web 候选展示资料
+
+2026-10-18。当前为新城市日夜房间演出候选，技术版本S0.41，尚未公开上线或完成发行确认。一句话：一场雨，两条路。读完旧信，把下一次见面写进日历。
+
+九场景、90段旁白、九句角色对白、两个结局，9,772字符、87步演出、28项媒体。每条路线66段正文、六句合成配音；并非全篇或真人配音。新城市生活使用同布局的日夜房间，留下路线搬去新城市之前仍在旧家。最近的阅读、回想、存档和声音恢复修复包含在下方游戏中，具体改动见[1.12.0更新说明](release-notes-1.12.0.md)。
+
+| 当前资料 | 用途 |
+| --- | --- |
+| [可编辑工程](../../evidence/web-story-new-city-rooms/before-rain-stops-project.zip) | 作者继续制作，内含素材和内部来源台账，不上传玩家网站 |
+| [28条校订记录](../../evidence/web-story-new-city-rooms/before-rain-stops.worldreview) | 导入工程后在检查页明确合并，仍为已修改待人工复核 |
+| [单文件HTML](../../evidence/web-story-new-city-rooms/before-rain-stops.html) | 下载完整文件后本地打开，不是作者工程 |
+| [网站上传ZIP](../../evidence/web-story-new-city-rooms/before-rain-stops-website.zip) | 解压全部39个文件，保留目录结构；需静态HTTP或HTTPS环境，不双击目录中的index.html |
+| [字节与SHA-256清单](../../evidence/web-story-new-city-rooms/delivery.json) | 核对当前四产物，不代表发行许可或人工验收 |
+| [本批交付与使用说明](../../docs/419-web-candidate-handoff.md) | 换机、浏览器验证范围、旧档保留与下一步 |
+| [新背景完整生成记录](../../assets/rain-story/source-manifest-v1.12.json) | 两图提示词、输入依赖及摘要；完整28项来源事实以工程内部台账为准 |
+
+**1.12.0不兼容1.11.0及更早剧情存档。** 新候选从头开始；旧玩家先保留原游戏和备份，1.11.0继续使用[#416原HTML](../../evidence/web-reading-motion/before-rain-stops.html)或[原网站包](../../evidence/web-reading-motion/before-rain-stops-website.zip)。换来源、浏览器或电脑不会自动带走存档，需从原游戏导出.worldsave，在对应版本导入并明确读取；单会话备份不等于迁移整机收藏与全部槽位。
+
+Chromium与Firefox的双格式、双路线完整检查见[本批验证](../../docs/419-web-candidate-handoff.md)。桌面WebKit只按已有在线网站范围说明，内嵌／离线音频仍未通过，不等同Safari或物理手机。28条校订记录和28项发行条件均未人工批准，九句系统TTS再分发依据待补。自然听读／篇幅计时、真机与获准HTTPS仍待验；不虚构发行身份、发布日期、分级或版权承诺。
+
+以下为历史资料，版本与路径只表示当时状态，不作为当前下载入口。
+
+## 1.10.0 历史候选展示资料
 
 2026-10-18 当前运行候选见 [#390](../../docs/390-web-voice-reading-continuity.md)，重新导出下方 HTML／网站，补同句读档语音、暂停后的迟到播放保护、重听与主动无声选择；同时包含 #387–#389 的完整传输、可取消调度和本机段内续读。剧情、素材、备份格式及发行状态不变。Windows WebKit 在线 HTTP 网站与内嵌 HTML 无声回退分开检查，内嵌音频仍未通过；不作为 Safari／离线或真机验收。
 

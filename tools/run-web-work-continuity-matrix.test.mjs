@@ -6,7 +6,7 @@ import { spawnSync } from 'node:child_process';
 import path from 'node:path';
 
 const root = path.resolve(import.meta.dirname, '..');
-for (const [args, report] of [[[], 'chromium-navigation.json'], [['--engine=webkit'], 'webkit-navigation.json'], [['--matrix'], 'matrix.json'], [['--matrix', '--version=1.12.0'], 'matrix.json']]) test(`preserves existing ${report} ${args.join(' ')} before reading a game or starting browsers`, async () => {
+for (const [args, report] of [[[], 'chromium-navigation.json'], [['--engine=webkit'], 'webkit-navigation.json'], [['--matrix'], 'matrix.json'], [['--matrix', '--version=1.12.0'], 'matrix.json'], [['--engine=firefox', '--matrix', '--version=1.12.0'], 'matrix.json']]) test(`preserves existing ${report} ${args.join(' ') || 'default'} before reading a game or starting browsers`, async () => {
   const directory = await mkdtemp(path.join(tmpdir(), 'world-work-continuity-'));
   try {
     const sentinel = '{"keep":"original report"}'; await writeFile(path.join(directory, report), sentinel);

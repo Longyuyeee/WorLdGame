@@ -8,6 +8,7 @@
     "packages/*"
   ],
   "scripts": {
+    "audit:web-candidate-handoff": "node --test tools/audit-web-candidate-handoff.test.mjs tools/run-web-work-continuity-matrix.test.mjs && node tools/audit-web-candidate-handoff.mjs",
     "audit:web-story-rooms": "node --test tools/audit-rain-story-new-city-rooms.test.mjs && node tools/audit-web-story-new-city-rooms.mjs",
     "audit:web-story-rooms:browser": "npm run build --workspace @world-studio/editor && node tools/run-web-story-new-city-rooms.mjs --author",
     "audit:web-story-plans": "node --test tools/audit-rain-story-plans-and-farewell.test.mjs && node tools/audit-rain-story-plans-and-farewell.mjs",

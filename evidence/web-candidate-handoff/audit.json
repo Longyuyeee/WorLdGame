@@ -1,0 +1,108 @@
+{
+  "passed": true,
+  "contentVersion": "1.12.0",
+  "technicalVersion": "S0.41",
+  "artifacts": {
+    "source": {
+      "bytes": 38560984,
+      "sha256": "75453d918fa5ef47d5038b397b3aeeb4c5ad67e5dbab0594e696f29020e25f4c"
+    },
+    "html": {
+      "bytes": 52288411,
+      "sha256": "f5527aaa073f11982aa10bcacd4c8e85b6212920e4d6ab07c528d5698746da2b"
+    },
+    "website": {
+      "bytes": 39516021,
+      "sha256": "e2ce402c7a0ce4558d627d0379c3c8c0f19fb4913026aea0cc145ca84715cf6b"
+    },
+    "notes": {
+      "bytes": 25590,
+      "sha256": "1ad95d42c7960ee4db48f50a10108069c35d61e08a1470ec45f582c5a8ad9624"
+    }
+  },
+  "artifactFilesUnchanged": true,
+  "websiteFiles": 39,
+  "media": 28,
+  "pendingPermissions": 28,
+  "approvedPermissions": 0,
+  "pendingHumanReview": 28,
+  "matrices": [
+    {
+      "engine": "chromium",
+      "browser": "151.0.7922.34",
+      "cells": 4,
+      "paragraphsPerRoute": 66,
+      "nativeMutedVoicesPerRoute": 6,
+      "websiteOfflineReload": true,
+      "explicitLoadAndSlotRetention": true
+    },
+    {
+      "engine": "firefox",
+      "browser": "153.0",
+      "cells": 4,
+      "paragraphsPerRoute": 66,
+      "nativeMutedVoicesPerRoute": 6,
+      "websiteOfflineReload": true,
+      "explicitLoadAndSlotRetention": true
+    }
+  ],
+  "retained": [
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops-project.zip",
+      "sha256": "43ef6e1673ed3dffbf705b4f178b2122fc960971eaf47286b33742fa285f0576"
+    },
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops.worldreview",
+      "sha256": "747534249345da6ce337054b4e7f47a1516556beda7079ef7b6d093e590bce8f"
+    },
+    {
+      "file": "evidence/web-reading-motion/before-rain-stops.html",
+      "sha256": "f21eb61a3a8a1a4aca73d935caccd46ca8bf30d4add24ec2c420f98a9d2d67d0"
+    },
+    {
+      "file": "evidence/web-reading-motion/before-rain-stops-website.zip",
+      "sha256": "a5510ba131555d065dc24566e5fa4ac093a0979e2d8fb5aa10982f4a1690651c"
+    }
+  ],
+  "documents": [
+    "release/rain-before/press-kit.md",
+    "release/rain-before/release-notes-1.12.0.md",
+    "docs/419-web-candidate-handoff.md"
+  ],
+  "tests": {
+    "functionalFiles": 164,
+    "distinctFunctionalTests": 1553,
+    "addedFunctionalTests": 0,
+    "nodeTests": 163,
+    "addedNodeTests": 11
+  },
+  "staticChecks": [
+    {
+      "name": "typecheck",
+      "passed": true
+    },
+    {
+      "name": "architecture",
+      "passed": true
+    }
+  ],
+  "code": [
+    {
+      "file": "tools/run-web-work-continuity-matrix.mjs",
+      "sha256": "9727561fe7c474b9ebc9993f9a1dc77b187c1faa9a07e94b710cfa093e42c110"
+    },
+    {
+      "file": "tools/run-web-work-continuity-matrix.test.mjs",
+      "sha256": "084420b81d98034f764d1027a2564bce5e86bf7eab200e753a3ecb303da7e3cb"
+    },
+    {
+      "file": "tools/audit-web-candidate-handoff.mjs",
+      "sha256": "ca0be13b1c7d6f1e6266aa94f8a65a461199e5bbf47c3c7df1a2f71fe99b7aba"
+    },
+    {
+      "file": "tools/audit-web-candidate-handoff.test.mjs",
+      "sha256": "22ac925791d5652982ffd7336920f3f351053e577b08da7467548ebdc2718aa3"
+    }
+  ],
+  "scope": "Current release links and preserved older games, strict source/media/game audit and eight desktop native format/route cells. No product/source/game change or re-export, no new human, physical phone/Safari, Windows WebKit embedded/offline audio, whole-version offline update, public HTTPS or rights approval."
+}
