@@ -1,4 +1,4 @@
-import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { releaseAnimationsOnDetach } from "./owned-animations";
 import { storyMotionStyle } from "./story-motion-style";
 import "./story-motion.css";
@@ -273,6 +273,8 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
     setAudioAttempts(current => ({ ...current, voice: (current.voice ?? 0) + 1 }));
   }, []);
   const [textReady, setTextReady] = useState(true);
+  const [textRevealOffset, setTextRevealOffset] = useState(0);
+  const textRevealClock = useRef({ startedAt: 0, offset: 0 });
   const compactReading = useCompactReadingLayout();
   const reducedReadingMotion = useReadingMediaQuery('(prefers-reduced-motion: reduce)');
   const [readingMenuOpen, setReadingMenuOpen] = useState(editorPreview?.initialPanel === 'menu');
@@ -549,7 +551,10 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
   );
   const reading = useReadingSurface(`${project.manifest.projectId}:${presentedTextId}:${snapshot.history?.cursor}:${snapshot.localization.selectedLocale}:${presentedText}`, `${compactReading}:${readingMenuOpen}:${fontStatus}:${textReady}:${settingsApplication.text.fontScale}:${fullscreen.active}`,
     hostActivity === 'active' && !sessionRead.pending && !storyAdvance.busy && !artworkView && !preferencesOpen && !readingMenuOpen && !historyPanelOpen && !savePanelOpen && !additionalContentOpen);
-  const replayReadingReturn = useReplayReadingReturn(reading, state, project, textReady);
+  const replayReadingReturn = useReplayReadingReturn(reading, state, project, () => ({
+    complete: textReady, duration: textRevealDuration,
+    elapsed: textReady ? textRevealDuration : Math.min(textRevealDuration, Math.max(0, performance.now() - textRevealClock.current.startedAt + textRevealClock.current.offset))
+  }));
   const readingTextHash = useMemo(() => sha256(presentedText), [presentedText]);
   const readingResume = useReadingResume(reading, state, !editorPreview && !snapshot.sceneReplay.active && presentedText !== '' && state.runtimeState && snapshot.runtimeStateHash ? {
     projectId: project.manifest.projectId, buildId: state.runtimeState.buildId, runtimeStateHash: snapshot.runtimeStateHash,
@@ -1348,16 +1353,22 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
     // A request is a transaction for one exact state, not a reaction to every story step.
   }, [memoryPressureRequest, memoryPressureRetry, project, recoveryCoordinator, recoveryStore]);
 
-  useEffect(() => {
-    if (lastReadingReveal.current !== readingResume.revealSerial || lastReplayReadingReveal.current !== replayReadingReturn.revealSerial) {
-      lastReadingReveal.current = readingResume.revealSerial; lastReplayReadingReveal.current = replayReadingReturn.revealSerial; setTextReady(true); return;
-    }
-    if (presentedText === "" || textRevealDuration === 0) {
+  useLayoutEffect(() => {
+    const readingRestored = lastReadingReveal.current !== readingResume.revealSerial;
+    const replayRestored = lastReplayReadingReveal.current !== replayReadingReturn.revealSerial ? replayReadingReturn.restoredReveal : null;
+    lastReadingReveal.current = readingResume.revealSerial; lastReplayReadingReveal.current = replayReadingReturn.revealSerial;
+    if (readingRestored || replayRestored?.complete || presentedText === "" || textRevealDuration === 0) {
+      setTextRevealOffset(0);
       setTextReady(true);
       return;
     }
+    // Only an exact in-memory replay return restores elapsed reveal progress.
+    // Map the fraction if the player changed reveal speed during the replay.
+    const offset = replayRestored && replayRestored.duration > 0 ? Math.min(textRevealDuration, Math.max(0, textRevealDuration * replayRestored.elapsed / replayRestored.duration)) : 0;
+    textRevealClock.current = { startedAt: performance.now(), offset };
+    setTextRevealOffset(offset);
     setTextReady(false);
-    const timer = window.setTimeout(() => setTextReady(true), textRevealDuration);
+    const timer = window.setTimeout(() => setTextReady(true), textRevealDuration - offset);
     return () => window.clearTimeout(timer);
   }, [presentedText, textRevealDuration, readingResume.revealSerial, replayReadingReturn.revealSerial]);
 
@@ -1957,6 +1968,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
       data-settings-input-gamepad={settingsApplication.input.gamepad}
       data-settings-high-contrast={settingsApplication.accessibility.highContrast}
       data-settings-reduce-motion={settingsApplication.accessibility.reduceMotion}
+      data-effective-reduce-motion={settingsApplication.accessibility.reduceMotion || reducedReadingMotion}
       data-settings-reduce-flashing={settingsApplication.accessibility.reduceFlashing}
       data-settings-text-cps={settingsApplication.text.charactersPerSecond}
       data-settings-text-minimum={settingsApplication.text.minimumDisplayMilliseconds}
@@ -2685,6 +2697,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
             aria-busy={storyAdvance.busy || playbackAdvance.busy}
             data-text-ready={textReady}
             data-text-reveal-duration={textRevealDuration}
+            data-text-reveal-offset={textRevealOffset}
             onScroll={() => { reading.measure(); readingResume.capture(); }}
             onPointerDown={event => { pointerInput.current = event.pointerType === "touch" ? "touch" : "pointer"; reading.pointerDown(event); }}
             onPointerMove={reading.pointerMove}
@@ -2696,13 +2709,13 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
           >
             {content.kind === "dialogue" && <PlayerDialogueIdentity speakerId={content.speakerId} name={speakerNames[content.speakerId] ?? content.speakerId} skin={skin} media={mediaAssets} />}
             <span
-              key={`${presentedText}:${textRevealDuration}`}
+              key={`${presentedText}:${textRevealDuration}:${textRevealOffset}`}
               ref={releaseAnimationsOnDetach}
               className="player-dialogue__text player-typography-text"
               lang={typography.locale}
               data-cjk-line-break={typography.cjk ? "strict" : "standard"}
               aria-live="polite"
-              style={{ "--gal-text-reveal-duration": `${textRevealDuration}ms` } as React.CSSProperties}
+              style={{ "--gal-text-reveal-duration": `${textRevealDuration}ms`, "--gal-text-reveal-delay": `${-textRevealOffset}ms` } as React.CSSProperties}
             ><span className="player-story-text-motion" data-story-motion={stage.textMotion?.kind} style={storyMotionStyle(stage.textMotion)}><PlayerRichText text={content.text} locale={typography.locale} /></span></span>
             <i aria-hidden="true">{!textReady ? autoEnabled ? '显示全文并切回手动' : '点击显示全文' : reading.unread ? autoEnabled ? '读完本段后自动继续 ⌄' : '向下阅读 ⌄' : autoEnabled ? '自动阅读中 · 点按切回手动' : '点击继续 →'}</i>
           </button>

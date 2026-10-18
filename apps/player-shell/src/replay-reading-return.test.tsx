@@ -83,3 +83,39 @@ it('does not reveal unfinished parent text or carry a completed reveal into ordi
   expect(f.getByRole('button', { name: '继续下一句' })).toHaveAttribute('data-text-ready', 'true'); f.advance();
   fireEvent.click(f.getByRole('button', { name: '后退一步' })); expect(f.getByRole('button', { name: '继续下一句' })).toHaveAttribute('data-text-ready', 'false');
 });
+it.each([.25, .7])('resumes the unfinished parent reveal from its captured progress %s without counting time in replay', async fraction => {
+  vi.useFakeTimers(); const f = await setup('typewriter');
+  const duration = Number(f.paragraph.dataset.textRevealDuration), elapsed = Math.floor(duration * fraction);
+  await act(async () => { await vi.advanceTimersByTimeAsync(elapsed); });
+  f.enter(); await act(async () => { await vi.advanceTimersByTimeAsync(duration * 2); }); fireEvent.keyDown(window, { key: 'Escape' });
+  const restored = f.getByRole('button', { name: '继续下一句' });
+  expect(Number(restored.dataset.textRevealOffset)).toBe(elapsed); expect(restored).toHaveAttribute('data-text-ready', 'false');
+  await act(async () => { await vi.advanceTimersByTimeAsync(duration - elapsed - 1); }); expect(restored).toHaveAttribute('data-text-ready', 'false');
+  await act(async () => { await vi.advanceTimersByTimeAsync(1); }); expect(restored).toHaveAttribute('data-text-ready', 'true');
+  expect(f.main).toHaveAttribute('data-runtime-state-hash', f.before.hash);
+});
+it('clears a resumed reveal offset for ordinary navigation and keeps an explicit full-text action complete', async () => {
+  vi.useFakeTimers(); const f = await setup('typewriter'), duration = Number(f.paragraph.dataset.textRevealDuration);
+  await act(async () => { await vi.advanceTimersByTimeAsync(1000); }); f.enter(); fireEvent.keyDown(window, { key: 'Escape' });
+  expect(f.getByRole('button', { name: '继续下一句' })).toHaveAttribute('data-text-reveal-offset', '1000');
+  fireEvent.click(f.getByRole('button', { name: '继续下一句' })); expect(f.getByRole('button', { name: '继续下一句' })).toHaveAttribute('data-text-ready', 'true');
+  await act(async () => { await vi.advanceTimersByTimeAsync(duration * 2); }); expect(f.getByRole('button', { name: '继续下一句' })).toHaveAttribute('data-text-ready', 'true');
+  f.advance(); fireEvent.click(f.getByRole('button', { name: '后退一步' }));
+  expect(f.getByRole('button', { name: '继续下一句' })).toHaveAttribute('data-text-reveal-offset', '0'); expect(f.getByRole('button', { name: '继续下一句' })).toHaveAttribute('data-text-ready', 'false');
+});
+it('maps the captured fraction to a new personal reveal speed without copying replay time', async () => {
+  vi.useFakeTimers(); const f = await setup('typewriter'), duration = Number(f.paragraph.dataset.textRevealDuration);
+  await act(async () => { await vi.advanceTimersByTimeAsync(1000); }); f.enter();
+  fireEvent.click(f.getByRole('button', { name: '打开阅读菜单' })); fireEvent.click(f.getByRole('button', { name: '打开玩家设置' }));
+  fireEvent.change(f.getByLabelText('逐字速度'), { target: { value: '1.5' } }); fireEvent.click(f.getByRole('button', { name: '返回故事' }));
+  fireEvent.keyDown(window, { key: 'Escape' }); const restored = f.getByRole('button', { name: '继续下一句' }), nextDuration = Number(restored.dataset.textRevealDuration);
+  expect(nextDuration).toBeLessThan(duration); expect(Number(restored.dataset.textRevealOffset)).toBeCloseTo(nextDuration * 1000 / duration);
+  expect(restored).toHaveAttribute('data-text-ready', 'false'); expect(f.main).toHaveAttribute('data-runtime-state-hash', f.before.hash);
+});
+it('restores Auto but keeps it waiting for the remaining reveal and unread paragraph', async () => {
+  vi.useFakeTimers(); const f = await setup('typewriter'), duration = Number(f.paragraph.dataset.textRevealDuration);
+  await act(async () => { await vi.advanceTimersByTimeAsync(1000); }); fireEvent.click(f.getByRole('button', { name: '自动播放' })); f.enter(); fireEvent.keyDown(window, { key: 'Escape' });
+  expect(f.getByRole('button', { name: '自动播放' })).toHaveAttribute('aria-pressed', 'true'); expect(f.main).toHaveAttribute('data-auto-playback', 'waiting-text');
+  await act(async () => { await vi.advanceTimersByTimeAsync(duration - 1001); }); expect(f.main).toHaveAttribute('data-runtime-state-hash', f.before.hash); expect(f.getByRole('button', { name: '继续下一句' })).toHaveAttribute('data-text-ready', 'false');
+  await act(async () => { await vi.advanceTimersByTimeAsync(1); }); expect(f.getByRole('button', { name: '继续下一句' })).toHaveAttribute('data-text-ready', 'true'); expect(f.main).toHaveAttribute('data-runtime-state-hash', f.before.hash);
+});

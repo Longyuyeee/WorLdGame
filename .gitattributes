@@ -136,3 +136,5 @@ evidence/web-collection-reading/*.html -text
 evidence/web-collection-reading/**/*.worldsave -text
 # Preserve Node's original failed-assertion output, including blank-line spaces.
 evidence/web-collection-reading/tool-tests.tap -whitespace
+evidence/web-reading-motion/*.html -text
+evidence/web-reading-motion/**/*.worldsave -text

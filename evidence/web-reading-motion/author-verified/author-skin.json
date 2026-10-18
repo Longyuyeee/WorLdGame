@@ -1,0 +1,35 @@
+{
+  "passed": false,
+  "sourceSha256": "43ef6e1673ed3dffbf705b4f178b2122fc960971eaf47286b33742fa285f0576",
+  "assets": [
+    {
+      "asset": "/assets/index-bW35dV-t.js",
+      "sha256": "9dabfd6fb84ffe1955e342a9b000a99f34cf09a07f0c21ce33efe93c002151e8"
+    },
+    {
+      "asset": "/assets/index-DJ92-1xN.css",
+      "sha256": "12f179587a2464422f8f241b017acc2f6c25b976cfe28b36c754577a4a3f972b"
+    }
+  ],
+  "checks": [
+    {
+      "name": "real-author-applies-letter-preset-and-saves-with-story-and-media-unchanged",
+      "configuredArchiveSha256": "c2e7af03c1733203fa6122c7459b63f646981d9e440bb8ec70442f8616e59069",
+      "retainedFiles": 46,
+      "motion": {
+        "controls": "none",
+        "dialogue": "none",
+        "duration": 450,
+        "text": "ink",
+        "title": "fade"
+      }
+    },
+    {
+      "name": "saved-appearance-survives-real-close-refresh-and-project-reopen"
+    }
+  ],
+  "errors": [
+    "locator.waitFor: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('iframe[title=\"游戏界面真实预览\"]').contentFrame().locator('main[data-skin-text-motion=\"ink\"] .player-dialogue[data-text-ready=\"false\"]') to be visible\u001b[22m\n\n    at E:\\ProjectSave\\GeminiProject\\WorLdGame\\tools\\run-web-reading-motion-author.mjs:30:165"
+  ],
+  "scope": "Isolated real Editor workspace, letter preset apply/save/close/reopen and formal preview. Configured source inspected in memory only, not promoted as a changed Rain source or full-story playthrough; canonical source remains unchanged."
+}

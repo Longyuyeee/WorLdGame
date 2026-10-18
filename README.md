@@ -1,5 +1,7 @@
 # WorLd Studio（工作名）产品与开发设计文档
 
+> 当前接续（2026-10-18）：[#416 文字动效下的全文显示与回想接续](docs/416-web-reading-motion-continuity.md)。修复墨迹皮肤遮挡已显示全文、半显正文退出回想后从零开始，以及减动效下仍发生按钮位移；同段返回保留进度，Auto 继续等待未读内容。新 [HTML](evidence/web-reading-motion/before-rain-stops.html)／[网站 ZIP](evidence/web-reading-motion/before-rain-stops-website.zip)的实际作者／预设／三引擎／本地文件、完整双路线及最终审计见 #416。1,539 项功能和 128 项工具测试通过；仍为 1.11.0 候选／S0.41，#394 源／25 条未人工批准记录／26 媒体及 #415 原游戏保持。下一批回逐场阅读／演出节奏和发布准备；进程间动画、自然听读、真机／许可／公网继续待验。以下为历史。
+
 > 当前接续（2026-10-18）：[#415 收藏列表辨认与原进度返回](docs/415-web-collection-reading-and-return.md)。修复配置封面后的手机列表重叠、收录音乐漏封面，并明确返回标题／结局／正文。新 [HTML](evidence/web-collection-reading/before-rain-stops.html)／[网站 ZIP](evidence/web-collection-reading/before-rain-stops-website.zip)的三引擎五视口、原档与回想／刷新续读、完整双路线及审计见 #415；1,531 项功能和 121 项工具测试通过，失败探针与端口诊断保留。仍为 1.11.0 候选／S0.41，#394 源／25 条未人工批准记录／26 媒体及 #414 原游戏保留；下一批复核可配置动效下的中断返回，再继续逐场节奏与发布准备，人工／真机／许可／公网边界不扩大。以下为历史。
 
 > 当前接续（2026-10-18）：[#414 回想快退的画面恢复与已读正文保持](docs/414-web-replay-image-and-reveal-recovery.md)。实际复现旋转快退时旧图片尚未释放，新画面误入预算故障；展示只对退役解码做一次限时等待，真实超限仍拒绝并可明确重试。已读正文返回后不再重新渐显。新 [HTML](evidence/web-replay-recovery/before-rain-stops.html)／[网站 ZIP](evidence/web-replay-recovery/before-rain-stops-website.zip)的三引擎快退、默认显示、受控恢复、完整路线及最终审计见 #414。1.11.0 候选／S0.41、#394 源／25 条未人工批准记录／26 媒体保持，#413 原游戏保留；实际永久解码停滞、部分渐显精确时刻、真机／自然听读／许可／公网仍未验收。以下为历史。

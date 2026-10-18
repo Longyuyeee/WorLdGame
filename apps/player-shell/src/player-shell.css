@@ -295,7 +295,7 @@ button { font: inherit; }
 
 .player-dialogue { position: absolute; z-index: 2; right: clamp(18px, 4vw, 56px); bottom: clamp(18px, 4vw, 48px); left: clamp(18px, 4vw, 56px); display: grid; min-height: 152px; padding: 28px 34px; border: 1px solid rgba(255,255,255,.16); border-radius: 24px; color: white; text-align: left; background: rgba(8,10,25,var(--gal-message-opacity, .82)); backdrop-filter: blur(22px); cursor: pointer; box-shadow: 0 20px 60px rgba(0,0,0,.3); }
 .player-dialogue strong { margin-bottom: 12px; color: #c4b5fd; font-size: 14px; letter-spacing: .08em; }
-.player-dialogue__text { align-self: start; font-size: calc(clamp(16px, 2vw, 21px) * var(--gal-font-scale, 1)); line-height: var(--gal-line-height, 1.75); letter-spacing: var(--gal-letter-spacing, 0); animation: player-text-reveal var(--gal-text-reveal-duration, 0ms) linear both; }
+.player-dialogue__text { align-self: start; font-size: calc(clamp(16px, 2vw, 21px) * var(--gal-font-scale, 1)); line-height: var(--gal-line-height, 1.75); letter-spacing: var(--gal-letter-spacing, 0); animation: player-text-reveal var(--gal-text-reveal-duration, 0ms) linear both; animation-delay: var(--gal-text-reveal-delay, 0ms); }
 .player-dialogue[data-text-ready="true"] .player-dialogue__text { animation: none; }
 .player-dialogue { bottom: clamp(76px, 8vw, 104px); min-height: min(152px, 50%); max-height: calc(100% - 240px); overflow-y: auto; overscroll-behavior: contain; }
 .player-typography-text { overflow-wrap: anywhere; font-family: var(--player-font-family, "Noto Sans", system-ui, sans-serif); line-break: strict; word-break: normal; hanging-punctuation: allow-end; }

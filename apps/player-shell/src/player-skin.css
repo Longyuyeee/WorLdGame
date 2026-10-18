@@ -22,7 +22,7 @@
 .player-shell[data-player-skin="1"][data-skin-dialogue-motion="fade"] .player-dialogue { animation: skin-fade var(--skin-motion-duration) ease-out both; }
 .player-shell[data-player-skin="1"][data-skin-title-motion="rise"] .player-title-screen,
 .player-shell[data-player-skin="1"][data-skin-dialogue-motion="rise"] .player-dialogue { animation: skin-rise var(--skin-motion-duration) ease-out both; }
-.player-shell[data-player-skin="1"][data-skin-text-motion="ink"] .player-dialogue__text { animation: player-text-reveal var(--gal-text-reveal-duration, 0ms) linear both, skin-ink var(--skin-motion-duration) ease-out both; }
+.player-shell[data-player-skin="1"][data-skin-text-motion="ink"] .player-dialogue:not([data-text-ready="true"]) .player-dialogue__text { animation: player-text-reveal var(--gal-text-reveal-duration, 0ms) linear both, skin-ink var(--skin-motion-duration) ease-out both; animation-delay: var(--gal-text-reveal-delay, 0ms); }
 .player-shell[data-player-skin="1"][data-skin-control-motion="none"] :is(.player-choice button, .player-primary):hover { transform: none; }
 .player-shell[data-player-skin="1"][data-skin-control-motion="lift"] :is(.player-choice button, .player-primary):hover { transform: translateY(-3px); transition: transform 160ms ease; }
 .player-shell[data-player-skin="1"][data-skin-control-motion="glow"] :is(.player-choice button, .player-primary):hover { box-shadow: 0 0 24px color-mix(in srgb, var(--player-accent) 38%, transparent); transition: box-shadow 160ms ease; }
@@ -39,7 +39,7 @@
   .player-shell[data-player-skin="1"] .player-title-screen { width: calc(100% - 32px); margin-inline: 16px; padding: 22px; }
   .player-shell[data-player-skin="1"] .player-dialogue { padding: min(var(--skin-window-padding), 22px); }
 }
-.player-shell[data-player-skin="1"][data-settings-reduce-motion="true"] :is(.player-title-screen, .player-dialogue, .player-dialogue__text, .player-primary, .player-choice button) { animation: none; transition: none; }
+.player-shell[data-player-skin="1"][data-effective-reduce-motion="true"] :is(.player-title-screen, .player-dialogue, .player-dialogue__text, .player-primary, .player-choice button) { animation: none !important; transition: none; }
+.player-shell[data-player-skin="1"][data-effective-reduce-motion="true"] :is(.player-primary, .player-choice button):hover { transform: none; }
 .player-shell[data-player-skin="1"][data-settings-high-contrast="true"] :is(.player-dialogue, .player-choice button, .player-choice p, .player-title-screen) { background: #000; background-image: none; color: #fff; border-color: #fff; }
 .player-shell[data-player-skin="1"][data-settings-high-contrast="true"] :is(.player-dialogue__text, .player-dialogue__speaker, .player-dialogue i, .player-choice p) { color: #fff; }
-@media (prefers-reduced-motion: reduce) { .player-shell[data-player-skin="1"] :is(.player-title-screen, .player-dialogue, .player-dialogue__text, .player-primary, .player-choice button) { animation: none; transition: none; } }

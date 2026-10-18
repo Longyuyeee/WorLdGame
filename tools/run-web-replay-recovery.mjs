@@ -14,6 +14,7 @@ const engine = process.argv.find(arg => arg.startsWith('--engine='))?.slice(9) ?
 assert.ok(['chromium', 'firefox', 'webkit'].includes(engine));
 const fileMode = process.argv.includes('--file');
 const faultMode = process.argv.includes('--fault'); assert.ok(!faultMode || !fileMode, 'Controlled response faults use the HTTP website');
+const partialMode = process.argv.includes('--partial');
 const source = path.resolve(root, baseline ? 'evidence/web-route-replay-continuity' : process.env.STUDIO_REPLAY_RECOVERY_SOURCE_DIRECTORY ?? 'evidence/web-replay-recovery');
 const output = path.resolve(root, process.env.STUDIO_REPLAY_RECOVERY_OUTPUT_DIRECTORY ?? `evidence/web-replay-recovery/${baseline ? 'baseline' : 'current-browser'}`);
 await mkdir(output, { recursive: true });
@@ -69,6 +70,7 @@ const diagnostics = () => page.evaluate(() => {
   return ({
   state: { pending: document.querySelector('main')?.getAttribute('data-stage-images-pending'), ready: document.querySelector('.player-dialogue')?.getAttribute('data-text-ready') },
   textPaint: paint ? { opacity: paint.opacity, clipPath: paint.clipPath, animationName: paint.animationName } : null,
+  revealProgress: (() => { const animation = text?.getAnimations().find(row => row.animationName === 'player-text-reveal'), duration = Number(text?.closest('.player-dialogue')?.getAttribute('data-text-reveal-duration')); return animation && duration > 0 ? (Number(animation.currentTime) - Number(animation.effect.getTiming().delay)) / duration : null; })(),
   scheduler: JSON.parse(document.documentElement.dataset.nativeAtlasScheduler ?? '{}'),
   canvases: Array.from(document.querySelectorAll('canvas[data-native-atlas]')).map(el => ({ asset: el.dataset.assetId, busy: el.getAttribute('aria-busy'), mode: el.dataset.nativeAtlas })),
   trace: window.replayImageTrace ?? [],
@@ -123,6 +125,13 @@ try {
   assert.deepEqual((await stored()).filter(row => row.slot.startsWith('manual-')), manual); assert.deepEqual(await archives(), originalArchives);
   checks.push({ name: 'eight-native-rapid-replays-preserve-parent-and-manual-records', rapid, imageFailures: rapid.filter(row => row.failure).length });
   await button('打开阅读菜单').click(); await button('打开玩家设置').click(); await page.getByLabel('文字显示', { exact: true }).selectOption('project'); await page.getByLabel('减少动效', { exact: true }).uncheck(); await button('返回故事').click();
+  if (partialMode) {
+    await page.waitForFunction(() => { const text = document.querySelector('.player-dialogue__text'), animation = text?.getAnimations().find(row => row.animationName === 'player-text-reveal'); return animation && Number(animation.currentTime) > 1000 && text.closest('.player-dialogue').dataset.textReady === 'false'; });
+    await extras(); const partialParent = await state(), before = await diagnostics(), at = await position(); await enter('雨后的天明', true); await button('退出回想，返回原剧情').click();
+    await page.waitForFunction(() => document.querySelector('main')?.dataset.sceneReplay === 'inactive'); await settle(); await identity(partialParent);
+    const after = await diagnostics(); assert.equal(after.state.ready, 'false'); assert.ok(after.revealProgress >= before.revealProgress - .03, `Partial reveal rewound: ${before.revealProgress} -> ${after.revealProgress}`); assert.ok(visible(await position(), at.first)); assert.deepEqual((await stored()).filter(row => row.slot.startsWith('manual-')), manual); assert.deepEqual(await archives(), originalArchives);
+    checks.push({ name: 'actual-default-partial-reveal-and-reading-anchor-survive-replay', before, after, anchor: at, manualPreserved: true, independentArchivesPreserved: true });
+  }
   await page.waitForFunction(() => document.querySelector('.player-dialogue')?.dataset.textReady === 'true');
   const revealed = await state(), beforeReveal = await diagnostics(); assert.equal(beforeReveal.state.ready, 'true');
   assert.equal(await page.locator('main').getAttribute('data-settings-reduce-motion'), 'false');
@@ -145,7 +154,7 @@ try {
   if (baseline) assert.ok(rapid.some(row => row.failure) || afterReveal.state.ready === 'false', 'Baseline did not reproduce either open finding');
   else { assert.equal(rapid.filter(row => row.failure).length, 0); assert.equal(afterReveal.state.ready, 'true'); assert.equal(afterReveal.textPaint.opacity, '1'); assert.equal(afterReveal.textPaint.animationName, 'none'); assert.equal(afterReveal.textPaint.clipPath, 'none'); }
   assert.deepEqual(errors, []);
-  await writeFile(reportPath, JSON.stringify({ passed: true, baseline, engine, fileMode, faultMode, artifacts, checks, errors, scope: 'Actual UI skip-all unlocks one route (not full natural/manual reading); real manual save/read, eight rapid replay exits with native renderer diagnostics and explicit retry when needed, default project reveal with no reduced-motion override. Optional --fault serves a controlled 24-byte PNG header declaring 4097x4097 for a real browser request, exercising strict preflight rejection rather than a large physical decode; original files unchanged. No injected session/unlocks/native media events; desktop engines and phone viewport are not physical phones or OS/rights/HTTPS acceptance.' }, null, 2));
+  await writeFile(reportPath, JSON.stringify({ passed: true, baseline, engine, fileMode, faultMode, partialMode, artifacts, checks, errors, scope: 'Actual UI skip-all unlocks one route (not full natural/manual reading); real manual save/read, eight rapid replay exits with native renderer diagnostics and explicit retry when needed, default project reveal with no reduced-motion override. Optional --partial verifies captured unfinished reveal/reading-anchor return. Optional --fault serves a controlled 24-byte PNG header declaring 4097x4097 for a real browser request, exercising strict preflight rejection rather than a large physical decode; original files unchanged. No injected session/unlocks/native media events; desktop engines and phone viewport are not physical phones or OS/rights/HTTPS acceptance.' }, null, 2));
   console.log(`PASS ${engine}${fileMode ? '-file' : ''} replay recovery (${checks.length} checks)`);
 } catch (error) {
   if (page && !page.isClosed()) await shot('failure').catch(() => {});
