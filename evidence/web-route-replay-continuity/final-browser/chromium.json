@@ -1,0 +1,121 @@
+{
+  "passed": false,
+  "baseline": false,
+  "engine": "chromium",
+  "fileMode": false,
+  "artifacts": {
+    "html": {
+      "bytes": 46842644,
+      "sha256": "ca8563fafc15bea90bcc4c3f7c4d6d9b60422f04c1c80cd4a4a2c502c51f6008"
+    },
+    "website": {
+      "bytes": 35429093,
+      "sha256": "c2cbb30e234630616c19996c86f043b8cc7afbecb0b0c924afb060405483e4f5"
+    }
+  },
+  "checks": [
+    {
+      "name": "first-full-route-and-two-real-manual-checkpoints",
+      "paragraphs": 66,
+      "branchPoint": {
+        "hash": "c6f71bba9c036ffc96d3930159c76e0d88161baeb4219b8e72415b74b80cfb8e",
+        "host": "4b86ccc3c98395bc9a4ae4429b81a287d6cfb44a29d89bc364ebe1902520de9a",
+        "cursor": "54",
+        "status": "waiting-choice",
+        "replay": "inactive",
+        "auto": "off"
+      },
+      "initial": {
+        "hash": "82e2acf507042ca294db18181ea77af0e7eed1889ee86690bac318ce59634412",
+        "host": "bc63db962fba844af82a97006342eba24ecbc40ef5c214e56ccbee729f734cd3",
+        "cursor": "4",
+        "status": "presenting",
+        "replay": "inactive",
+        "auto": "off",
+        "text": "售票员把窗口里的灯关掉时，雨正沿着站台的屋檐连成一条线。站台上的钟比手机慢了三分钟。林远核对了两次，没有走去询问值班员。他看见玻璃上自己的倒影，才发现他已经穿着这件外套站了很久。行李箱旁挂着新公司的地址，手机里存着一份还没签字的合同；这些东西都能说明他要去哪里，却没有一样能替他解释为什么迟迟不肯往前走。"
+      },
+      "savedPosition": {
+        "top": 296.37421383647796,
+        "bottom": 771.000786163522,
+        "scrollTop": 220,
+        "max": 236,
+        "first": 55,
+        "lines": [
+          {
+            "offset": 0,
+            "top": 102.375,
+            "bottom": 137.375
+          },
+          {
+            "offset": 11,
+            "top": 150.28125,
+            "bottom": 185.28125
+          },
+          {
+            "offset": 22,
+            "top": 198.1875,
+            "bottom": 233.1875
+          },
+          {
+            "offset": 33,
+            "top": 246.09375,
+            "bottom": 281.09375
+          },
+          {
+            "offset": 44,
+            "top": 294,
+            "bottom": 329
+          },
+          {
+            "offset": 55,
+            "top": 341.90625,
+            "bottom": 376.90625
+          },
+          {
+            "offset": 66,
+            "top": 389.8125,
+            "bottom": 424.8125
+          },
+          {
+            "offset": 77,
+            "top": 437.71875,
+            "bottom": 472.71875
+          },
+          {
+            "offset": 87,
+            "top": 485.625,
+            "bottom": 520.625
+          },
+          {
+            "offset": 98,
+            "top": 533.53125,
+            "bottom": 568.53125
+          },
+          {
+            "offset": 109,
+            "top": 581.4375,
+            "bottom": 616.4375
+          },
+          {
+            "offset": 120,
+            "top": 629.34375,
+            "bottom": 664.34375
+          },
+          {
+            "offset": 131,
+            "top": 677.25,
+            "bottom": 712.25
+          },
+          {
+            "offset": 142,
+            "top": 725.15625,
+            "bottom": 760.15625
+          }
+        ]
+      }
+    }
+  ],
+  "errors": [],
+  "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:\n+ actual - expected\n\n  {\n+   auto: 'stopped',\n-   auto: 'off',\n    cursor: '125',\n    hash: 'db58453263a175d5cf49142e01d388dd08d1da4fc37746e520ab36e11ebc6f4a',\n    host: '474cced9172fd72b3d3ee34c44e3fa2e4e5520354e8cdf477412409e58c66d11',\n    replay: 'inactive',\n    status: 'ended',\n",
+  "stack": "AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:\n+ actual - expected\n\n  {\n+   auto: 'stopped',\n-   auto: 'off',\n    cursor: '125',\n    hash: 'db58453263a175d5cf49142e01d388dd08d1da4fc37746e520ab36e11ebc6f4a',\n    host: '474cced9172fd72b3d3ee34c44e3fa2e4e5520354e8cdf477412409e58c66d11',\n    replay: 'inactive',\n    status: 'ended',\n\n    at returned (file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-route-replay-continuity.mjs:77:160)\n    at async file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-route-replay-continuity.mjs:91:111"
+}

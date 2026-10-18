@@ -1,5 +1,7 @@
 # WorLd Studio（工作名）产品与开发设计文档
 
+> 当前接续（2026-10-18）：[#413 双路线存档接续与回想返回阅读](docs/413-web-route-replay-reading-return.md)。修复回想后正文回段首，以及结局键盘返回未恢复 Auto／焦点；真实分歧存档接续两路线，正常回想三引擎／本地 HTML、四视口及两格式×两路线范围见 #413。新 [HTML](evidence/web-route-replay-continuity/before-rain-stops.html)／[网站 ZIP](evidence/web-route-replay-continuity/before-rain-stops-website.zip)仍为 1.11.0 候选／S0.41，#394 源／25 条未人工批准记录／26 媒体保持，#412 原游戏保留。快速未呈现即退出的图片故障、默认渐显复核及人工／真机／许可／公网继续开放，不将正常流程通过扩大为边界验收。以下为历史。
+
 > 当前接续（2026-10-18）：[#412 备份导入前的内容核对与旧档保留](docs/412-web-backup-inspection-and-retention.md)。换浏览器续读前显示完整校验后的正文摘要、可选截图及目标旧档摘要，覆盖前可直接选中并备份旧槽位，之后仍需明确覆盖和读取；不改存档／备份协议。新 [HTML](evidence/web-backup-inspection/before-rain-stops.html)／[网站 ZIP](evidence/web-backup-inspection/before-rain-stops-website.zip)的作者、三引擎／本地文件、四格路线及最终审计见 #412。仍为 1.11.0 候选／S0.41，#394 源／25 条未人工批准记录／26 媒体保持，#411 原游戏保留；整机迁移、自然听读、真机／许可／公网等范围不扩大。以下为历史。
 
 > 当前接续（2026-10-18）：[#411 历史回看的键盘操作和剧情保护](docs/411-web-history-input-boundary.md)。修复历史打开时 Tab 移到背景后退按钮、未经明确选择便改变正文的问题；保留查找、重听、明确行回退和关闭返回，未改剧情或音频框架。新 [HTML](evidence/web-history-input-boundary/before-rain-stops.html)／[网站 ZIP](evidence/web-history-input-boundary/before-rain-stops-website.zip)的作者、三引擎键盘／重听、四格完整路线与最终回归见 #411。仍为 1.11.0 候选／S0.41，#394 源／25 条未人工批准记录／26 媒体保持，#410 原游戏保留；自然听读、真机／Safari、许可及获准 HTTPS 等门槛不变。以下为历史。

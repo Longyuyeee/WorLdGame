@@ -1,0 +1,121 @@
+{
+  "passed": false,
+  "baseline": true,
+  "engine": "chromium",
+  "fileMode": false,
+  "artifacts": {
+    "html": {
+      "bytes": 46841743,
+      "sha256": "bd453092147827d1d37b5642794441afabbc69b6ea56f10fb6dc28aaadba6bf7"
+    },
+    "website": {
+      "bytes": 35428192,
+      "sha256": "09427c7a0b7e3c148bae5933874f39ba1ab639bfbfd8cd9834e0ed189060d790"
+    }
+  },
+  "checks": [
+    {
+      "name": "first-full-route-and-two-real-manual-checkpoints",
+      "paragraphs": 66,
+      "branchPoint": {
+        "hash": "c6f71bba9c036ffc96d3930159c76e0d88161baeb4219b8e72415b74b80cfb8e",
+        "host": "4b86ccc3c98395bc9a4ae4429b81a287d6cfb44a29d89bc364ebe1902520de9a",
+        "cursor": "54",
+        "status": "waiting-choice",
+        "replay": "inactive",
+        "auto": "off"
+      },
+      "initial": {
+        "hash": "82e2acf507042ca294db18181ea77af0e7eed1889ee86690bac318ce59634412",
+        "host": "bc63db962fba844af82a97006342eba24ecbc40ef5c214e56ccbee729f734cd3",
+        "cursor": "4",
+        "status": "presenting",
+        "replay": "inactive",
+        "auto": "off",
+        "text": "售票员把窗口里的灯关掉时，雨正沿着站台的屋檐连成一条线。站台上的钟比手机慢了三分钟。林远核对了两次，没有走去询问值班员。他看见玻璃上自己的倒影，才发现他已经穿着这件外套站了很久。行李箱旁挂着新公司的地址，手机里存着一份还没签字的合同；这些东西都能说明他要去哪里，却没有一样能替他解释为什么迟迟不肯往前走。"
+      },
+      "savedPosition": {
+        "top": 296.37421383647796,
+        "bottom": 771.000786163522,
+        "scrollTop": 220,
+        "max": 236,
+        "first": 55,
+        "lines": [
+          {
+            "offset": 0,
+            "top": 102.375,
+            "bottom": 137.375
+          },
+          {
+            "offset": 11,
+            "top": 150.28125,
+            "bottom": 185.28125
+          },
+          {
+            "offset": 22,
+            "top": 198.1875,
+            "bottom": 233.1875
+          },
+          {
+            "offset": 33,
+            "top": 246.09375,
+            "bottom": 281.09375
+          },
+          {
+            "offset": 44,
+            "top": 294,
+            "bottom": 329
+          },
+          {
+            "offset": 55,
+            "top": 341.90625,
+            "bottom": 376.90625
+          },
+          {
+            "offset": 66,
+            "top": 389.8125,
+            "bottom": 424.8125
+          },
+          {
+            "offset": 77,
+            "top": 437.71875,
+            "bottom": 472.71875
+          },
+          {
+            "offset": 87,
+            "top": 485.625,
+            "bottom": 520.625
+          },
+          {
+            "offset": 98,
+            "top": 533.53125,
+            "bottom": 568.53125
+          },
+          {
+            "offset": 109,
+            "top": 581.4375,
+            "bottom": 616.4375
+          },
+          {
+            "offset": 120,
+            "top": 629.34375,
+            "bottom": 664.34375
+          },
+          {
+            "offset": 131,
+            "top": 677.25,
+            "bottom": 712.25
+          },
+          {
+            "offset": 142,
+            "top": 725.15625,
+            "bottom": 760.15625
+          }
+        ]
+      }
+    }
+  ],
+  "errors": [],
+  "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:\n+ actual - expected\n\n  [\n    {\n+     digest: '4782bef580e2fac6ac4321ad2f5c4876ddbe7ec408611a1f2ac74f46deaaff64',\n+     hash: '9c09ee92eb87995a437b07b34b736d4be36242da4aec0e6f66f0b4bf77c0514c',\n-     digest: '74d56960893156335a3949b26664751931030aa2572b80bf8170a15b37a0f52a',\n-     hash: '82e2acf507042ca294db18181ea77af0e7eed1889ee86690bac318ce59634412',\n      slot: 'auto-1'\n    },\n    {\n+     digest: '74337e712130b658c6dc098ce1e2e1002996e8089161ce5da6be0e3bb4f507e2',\n+     hash: 'bf85f1987aface62c959f619597dd92af7a1a9066eea0f11735532910c1e7457',\n-     digest: '003edcd468730b58bf829576ded42f276e3527d5fdd635392ea5ecf7e96321a4',\n-     hash: '990c7b6d164d4aecd2113de3a9d467df9890f67e8defe2764f9f6963370b8269',\n      slot: 'auto-2'\n    },\n    {\n+     digest: '1246c1b3f18eadb7ab3c3a4835bc97fd6c6ee9e078532301065d826874be65fe',\n+     hash: 'cc273c03c3b1022e0a45b80a419db27093196f27aefc7e0c2dc09cd9d3ccdaf3',\n-     digest: 'a129be4b5059497a95d96c9e7e6185608d604b554ebefd7f1dae0a66ef716c69',\n-     hash: 'f68e087437010deacff773f8dc6c896e47b57d824f5ff49dbd945df5359b8acc',\n      slot: 'auto-3'\n    },\n    {\n+     digest: '119ede76939efff0676922931c3d14f3d672fa04703e87089f48d648dacafae2',\n+     hash: 'e06932b8c3a8df4810bec531fcbd8c2a1701a9ba0f6d4e61f152edf44f4c3dac',\n+     slot: 'auto-4'\n+   },\n+   {\n+     digest: '4bf80a1882f5c3119c1fec7eaf065034a332d0d9a84c0c2009efaa8f14cad986',\n+     hash: '69529d4ece1a2c4b0c26286b8daeca5b931aa6654e4ef17cc78ceff398541e7a',\n+     slot: 'auto-5'\n+   },\n+   {\n      digest: '74fff8a96d4c2f7450205eda1c690ccc2fb05c9044f04b126a9767fb8281164b',\n      hash: 'c6f71bba9c036ffc96d3930159c76e0d88161baeb4219b8e72415b74b80cfb8e',\n      slot: 'manual-1'\n    },\n    {\n",
+  "stack": "AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:\n+ actual - expected\n\n  [\n    {\n+     digest: '4782bef580e2fac6ac4321ad2f5c4876ddbe7ec408611a1f2ac74f46deaaff64',\n+     hash: '9c09ee92eb87995a437b07b34b736d4be36242da4aec0e6f66f0b4bf77c0514c',\n-     digest: '74d56960893156335a3949b26664751931030aa2572b80bf8170a15b37a0f52a',\n-     hash: '82e2acf507042ca294db18181ea77af0e7eed1889ee86690bac318ce59634412',\n      slot: 'auto-1'\n    },\n    {\n+     digest: '74337e712130b658c6dc098ce1e2e1002996e8089161ce5da6be0e3bb4f507e2',\n+     hash: 'bf85f1987aface62c959f619597dd92af7a1a9066eea0f11735532910c1e7457',\n-     digest: '003edcd468730b58bf829576ded42f276e3527d5fdd635392ea5ecf7e96321a4',\n-     hash: '990c7b6d164d4aecd2113de3a9d467df9890f67e8defe2764f9f6963370b8269',\n      slot: 'auto-2'\n    },\n    {\n+     digest: '1246c1b3f18eadb7ab3c3a4835bc97fd6c6ee9e078532301065d826874be65fe',\n+     hash: 'cc273c03c3b1022e0a45b80a419db27093196f27aefc7e0c2dc09cd9d3ccdaf3',\n-     digest: 'a129be4b5059497a95d96c9e7e6185608d604b554ebefd7f1dae0a66ef716c69',\n-     hash: 'f68e087437010deacff773f8dc6c896e47b57d824f5ff49dbd945df5359b8acc',\n      slot: 'auto-3'\n    },\n    {\n+     digest: '119ede76939efff0676922931c3d14f3d672fa04703e87089f48d648dacafae2',\n+     hash: 'e06932b8c3a8df4810bec531fcbd8c2a1701a9ba0f6d4e61f152edf44f4c3dac',\n+     slot: 'auto-4'\n+   },\n+   {\n+     digest: '4bf80a1882f5c3119c1fec7eaf065034a332d0d9a84c0c2009efaa8f14cad986',\n+     hash: '69529d4ece1a2c4b0c26286b8daeca5b931aa6654e4ef17cc78ceff398541e7a',\n+     slot: 'auto-5'\n+   },\n+   {\n      digest: '74fff8a96d4c2f7450205eda1c690ccc2fb05c9044f04b126a9767fb8281164b',\n      hash: 'c6f71bba9c036ffc96d3930159c76e0d88161baeb4219b8e72415b74b80cfb8e',\n      slot: 'manual-1'\n    },\n    {\n\n    at file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-route-replay-continuity.mjs:89:139"
+}

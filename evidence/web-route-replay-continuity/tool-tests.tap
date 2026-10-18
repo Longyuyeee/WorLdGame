@@ -1,0 +1,540 @@
+TAP version 13
+# Subtest: maps all 26 actual files and the revised voice_04 without approving sources or natural listening
+ok 1 - maps all 26 actual files and the revised voice_04 without approving sources or natural listening
+  ---
+  duration_ms: 46.6493
+  ...
+# Subtest: rejects missing or duplicate source records
+ok 2 - rejects missing or duplicate source records
+  ---
+  duration_ms: 1.1825
+  ...
+# Subtest: rejects stale digests, arbitrary paths and invented approval or attribution
+ok 3 - rejects stale digests, arbitrary paths and invented approval or attribution
+  ---
+  duration_ms: 27.3317
+  ...
+# Subtest: rejects changed archive bytes and repository mismatches
+ok 4 - rejects changed archive bytes and repository mismatches
+  ---
+  duration_ms: 2.6011
+  ...
+# Subtest: rejects the old voice_04 file even with its original valid digest
+ok 5 - rejects the old voice_04 file even with its original valid digest
+  ---
+  duration_ms: 31.3572
+  ...
+# Subtest: rejects changed dialogue, wrong bus and nonadjacent voice context
+ok 6 - rejects changed dialogue, wrong bus and nonadjacent voice context
+  ---
+  duration_ms: 124.8924
+  ...
+# Subtest: accepts only the UI-authored own-branch plan and weaker return rain with original 26 media
+ok 7 - accepts only the UI-authored own-branch plan and weaker return rain with original 26 media
+  ---
+  duration_ms: 42.8362
+  ...
+# Subtest: refuses the unexplained fallback plan or extra edits elsewhere in either branch
+ok 8 - refuses the unexplained fallback plan or extra edits elsewhere in either branch
+  ---
+  duration_ms: 128.71
+  ...
+# Subtest: refuses missing, misplaced, duplicated, wrong-volume or wrong-bus rain cues
+ok 9 - refuses missing, misplaced, duplicated, wrong-volume or wrong-bus rain cues
+  ---
+  duration_ms: 211.6079
+  ...
+# Subtest: refuses changed branch labels, targets, IDs, dialogue, media and source permissions
+ok 10 - refuses changed branch labels, targets, IDs, dialogue, media and source permissions
+  ---
+  duration_ms: 206.5766
+  ...
+# Subtest: refuses legacy save approval or a missing content version change
+ok 11 - refuses legacy save approval or a missing content version change
+  ---
+  duration_ms: 34.4489
+  ...
+# Subtest: preserves 23 previous notes and keeps both new records unapproved
+ok 12 - preserves 23 previous notes and keeps both new records unapproved
+  ---
+  duration_ms: 7.2888
+  ...
+# Subtest: rejects another original prose draft instead of silently replacing it
+ok 13 - rejects another original prose draft instead of silently replacing it
+  ---
+  duration_ms: 0.7913
+  ...
+# Subtest: checks every exact local file without counting author extras or declaring product acceptance
+ok 14 - checks every exact local file without counting author extras or declaring product acceptance
+  ---
+  duration_ms: 20.7703
+  ...
+# Subtest: detects missing, same-size corrupt and longer files with an actionable file path
+ok 15 - detects missing, same-size corrupt and longer files with an actionable file path
+  ---
+  duration_ms: 19.8461
+  ...
+# Subtest: rejects malformed, duplicate, private, traversal, absolute and incomplete manifest inventories
+ok 16 - rejects malformed, duplicate, private, traversal, absolute and incomplete manifest inventories
+  ---
+  duration_ms: 9.316
+  ...
+# Subtest: generates a new exact public-only directory without merging existing output or touching the source
+ok 17 - generates a new exact public-only directory without merging existing output or touching the source
+  ---
+  duration_ms: 37.2579
+  ...
+# Subtest: does not create a ready folder from a corrupt source
+ok 18 - does not create a ready folder from a corrupt source
+  ---
+  duration_ms: 11.4417
+  ...
+# Subtest: rejects a website manifest that omits a media file still required by the offline worker
+ok 19 - rejects a website manifest that omits a media file still required by the offline worker
+  ---
+  duration_ms: 11.9242
+  ...
+# Subtest: rejects a directory junction instead of copying a linked source
+ok 20 - rejects a directory junction instead of copying a linked source
+  ---
+  duration_ms: 9.5974
+  ...
+# Subtest: normalizes directory/index addresses and rejects credentials, tokens, remote HTTP and non-directory artifacts
+ok 21 - normalizes directory/index addresses and rejects credentials, tokens, remote HTTP and non-directory artifacts
+  ---
+  duration_ms: 0.393
+  ...
+# Subtest: performs read-only exact checks against the requested directory only
+ok 22 - performs read-only exact checks against the requested directory only
+  ---
+  duration_ms: 59.5485
+  ...
+# Subtest: identifies missing, stale, changed manifest, wrong MIME and SPA fallback responses
+ok 23 - identifies missing, stale, changed manifest, wrong MIME and SPA fallback responses
+  ---
+  duration_ms: 55.9179
+  ...
+# Subtest: does not follow redirects and bounds a stalled response, keeping version headers advisory
+ok 24 - does not follow redirects and bounds a stalled response, keeping version headers advisory
+  ---
+  duration_ms: 64.9738
+  ...
+# Subtest: the shipped helper executes offline using only Node built-ins and returns a machine-readable report
+ok 25 - the shipped helper executes offline using only Node built-ins and returns a machine-readable report
+  ---
+  duration_ms: 73.6737
+  ...
+# Subtest: rejects empty target and ambiguous command flags instead of silently reporting a local success
+ok 26 - rejects empty target and ambiguous command flags instead of silently reporting a local success
+  ---
+  duration_ms: 222.7873
+  ...
+# Subtest: listens only on a browser-safe high loopback port and removes temporary listeners
+ok 27 - listens only on a browser-safe high loopback port and removes temporary listeners
+  ---
+  duration_ms: 21.6061
+  ...
+# Subtest: retries an occupied port without changing the existing server
+ok 28 - retries an occupied port without changing the existing server
+  ---
+  duration_ms: 2.4969
+  ...
+# Subtest: rejects unsafe or invalid candidates without binding a broad interface
+ok 29 - rejects unsafe or invalid candidates without binding a broad interface
+  ---
+  duration_ms: 0.4017
+  ...
+# Subtest: retries a Windows excluded port and removes the failed attempt listeners
+ok 30 - retries a Windows excluded port and removes the failed attempt listeners
+  ---
+  duration_ms: 0.2065
+  ...
+# Subtest: bounds excluded-port retries and preserves the final error instead of hiding other failures
+ok 31 - bounds excluded-port retries and preserves the final error instead of hiding other failures
+  ---
+  duration_ms: 0.3563
+  ...
+# Subtest: bundles existing Player Shell fixtures with the recovery worker source
+ok 32 - bundles existing Player Shell fixtures with the recovery worker source
+  ---
+  duration_ms: 514.4603
+  ...
+# Subtest: forwards frozen baseline source overrides into the child worker build
+ok 33 - forwards frozen baseline source overrides into the child worker build
+  ---
+  duration_ms: 122.2088
+  ...
+# Subtest: awaits resolved false and returns only the later positive snapshot
+ok 34 - awaits resolved false and returns only the later positive snapshot
+  ---
+  duration_ms: 14.6273
+  ...
+# Subtest: a never-ready asynchronous result times out instead of passing
+ok 35 - a never-ready asynchronous result times out instead of passing
+  ---
+  duration_ms: 14.6158
+  ...
+# Subtest: propagates browser read failures rather than accepting them
+ok 36 - propagates browser read failures rather than accepting them
+  ---
+  duration_ms: 0.2207
+  ...
+# Subtest: preserves audio failure continuity chromium.json before opening games
+ok 37 - preserves audio failure continuity chromium.json before opening games
+  ---
+  duration_ms: 74.4708
+  ...
+# Subtest: preserves audio failure continuity webkit.json before opening games
+ok 38 - preserves audio failure continuity webkit.json before opening games
+  ---
+  duration_ms: 70.1815
+  ...
+# Subtest: preserves audio failure continuity firefox.json before opening games
+ok 39 - preserves audio failure continuity firefox.json before opening games
+  ---
+  duration_ms: 69.2598
+  ...
+# Subtest: preserves audio failure continuity baseline-chromium.json before opening games
+ok 40 - preserves audio failure continuity baseline-chromium.json before opening games
+  ---
+  duration_ms: 69.8456
+  ...
+# Subtest: preserves audio failure continuity chromium-freeze.json before opening games
+ok 41 - preserves audio failure continuity chromium-freeze.json before opening games
+  ---
+  duration_ms: 70.3659
+  ...
+# Subtest: preserves baseline-chromium.json before loading games or starting native media
+ok 42 - preserves baseline-chromium.json before loading games or starting native media
+  ---
+  duration_ms: 77.0115
+  ...
+# Subtest: preserves webkit.json before loading games or starting native media
+ok 43 - preserves webkit.json before loading games or starting native media
+  ---
+  duration_ms: 73.5979
+  ...
+# Subtest: refuses existing before-rain-stops.html before changing any report or starting a browser
+ok 44 - refuses existing before-rain-stops.html before changing any report or starting a browser
+  ---
+  duration_ms: 157.9815
+  ...
+# Subtest: refuses existing before-rain-stops-website.zip before changing any report or starting a browser
+ok 45 - refuses existing before-rain-stops-website.zip before changing any report or starting a browser
+  ---
+  duration_ms: 156.6989
+  ...
+# Subtest: preserves baseline-chromium.json before reading games or backup bytes
+ok 46 - preserves baseline-chromium.json before reading games or backup bytes
+  ---
+  duration_ms: 79.2981
+  ...
+# Subtest: preserves webkit.json before reading games or backup bytes
+ok 47 - preserves webkit.json before reading games or backup bytes
+  ---
+  duration_ms: 73.431
+  ...
+# Subtest: preserves backup-envelope chromium-website.json before opening games
+ok 48 - preserves backup-envelope chromium-website.json before opening games
+  ---
+  duration_ms: 75.9857
+  ...
+# Subtest: preserves backup-envelope webkit-html.json before opening games
+ok 49 - preserves backup-envelope webkit-html.json before opening games
+  ---
+  duration_ms: 73.14
+  ...
+# Subtest: preserves envelope baseline measurements before building or launching browsers
+ok 50 - preserves envelope baseline measurements before building or launching browsers
+  ---
+  duration_ms: 157.7329
+  ...
+# Subtest: preserves envelope current measurements before building or launching browsers
+ok 51 - preserves envelope current measurements before building or launching browsers
+  ---
+  duration_ms: 155.2915
+  ...
+# Subtest: retains chromium current backup inspection evidence
+ok 52 - retains chromium current backup inspection evidence
+  ---
+  duration_ms: 79.044
+  ...
+# Subtest: retains firefox current backup inspection evidence
+ok 53 - retains firefox current backup inspection evidence
+  ---
+  duration_ms: 73.1748
+  ...
+# Subtest: retains webkit current backup inspection evidence
+ok 54 - retains webkit current backup inspection evidence
+  ---
+  duration_ms: 72.5691
+  ...
+# Subtest: retains chromium baseline backup inspection evidence
+ok 55 - retains chromium baseline backup inspection evidence
+  ---
+  duration_ms: 69.8736
+  ...
+# Subtest: retains chromium-file current backup inspection evidence
+ok 56 - retains chromium-file current backup inspection evidence
+  ---
+  duration_ms: 68.3948
+  ...
+# Subtest: retains an existing backup inspection functional report before launching tests
+ok 57 - retains an existing backup inspection functional report before launching tests
+  ---
+  duration_ms: 50.4625
+  ...
+# Subtest: refuses to replace chromium current evidence before reading games or launching a browser
+ok 58 - refuses to replace chromium current evidence before reading games or launching a browser
+  ---
+  duration_ms: 79.3181
+  ...
+# Subtest: refuses to replace firefox current evidence before reading games or launching a browser
+ok 59 - refuses to replace firefox current evidence before reading games or launching a browser
+  ---
+  duration_ms: 72.3212
+  ...
+# Subtest: refuses to replace webkit current evidence before reading games or launching a browser
+ok 60 - refuses to replace webkit current evidence before reading games or launching a browser
+  ---
+  duration_ms: 72.8161
+  ...
+# Subtest: refuses to replace chromium baseline evidence before reading games or launching a browser
+ok 61 - refuses to replace chromium baseline evidence before reading games or launching a browser
+  ---
+  duration_ms: 72.3449
+  ...
+# Subtest: refuses to replace a functional test report before launching Vitest
+ok 62 - refuses to replace a functional test report before launching Vitest
+  ---
+  duration_ms: 58.0823
+  ...
+# Subtest: preserves history readiness chromium.json before opening games
+ok 63 - preserves history readiness chromium.json before opening games
+  ---
+  duration_ms: 79.6914
+  ...
+# Subtest: preserves history readiness webkit.json before opening games
+ok 64 - preserves history readiness webkit.json before opening games
+  ---
+  duration_ms: 73.5874
+  ...
+# Subtest: preserves history readiness chromium-stream.json before opening games
+ok 65 - preserves history readiness chromium-stream.json before opening games
+  ---
+  duration_ms: 77.2088
+  ...
+# Subtest: preserves history readiness baseline-chromium.json before opening games
+ok 66 - preserves history readiness baseline-chromium.json before opening games
+  ---
+  duration_ms: 76.6522
+  ...
+# Subtest: preserves baseline-chromium-file.json before loading game files or starting a browser
+ok 67 - preserves baseline-chromium-file.json before loading game files or starting a browser
+  ---
+  duration_ms: 77.472
+  ...
+# Subtest: preserves webkit-website.json before loading game files or starting a browser
+ok 68 - preserves webkit-website.json before loading game files or starting a browser
+  ---
+  duration_ms: 73.321
+  ...
+# Subtest: preserves manual-save baseline-chromium.json before opening a game or database
+ok 69 - preserves manual-save baseline-chromium.json before opening a game or database
+  ---
+  duration_ms: 80.8549
+  ...
+# Subtest: preserves manual-save webkit.json before opening a game or database
+ok 70 - preserves manual-save webkit.json before opening a game or database
+  ---
+  duration_ms: 78.074
+  ...
+# Subtest: preserves reading-Meta baseline-chromium.json before opening games or storage
+ok 71 - preserves reading-Meta baseline-chromium.json before opening games or storage
+  ---
+  duration_ms: 77.8868
+  ...
+# Subtest: preserves reading-Meta webkit.json before opening games or storage
+ok 72 - preserves reading-Meta webkit.json before opening games or storage
+  ---
+  duration_ms: 72.6524
+  ...
+# Subtest: retains chromium current route replay evidence
+ok 73 - retains chromium current route replay evidence
+  ---
+  duration_ms: 84.6129
+  ...
+# Subtest: retains firefox current route replay evidence
+ok 74 - retains firefox current route replay evidence
+  ---
+  duration_ms: 76.2014
+  ...
+# Subtest: retains webkit current route replay evidence
+ok 75 - retains webkit current route replay evidence
+  ---
+  duration_ms: 70.7076
+  ...
+# Subtest: retains chromium baseline route replay evidence
+ok 76 - retains chromium baseline route replay evidence
+  ---
+  duration_ms: 75.3787
+  ...
+# Subtest: retains chromium-file current route replay evidence
+ok 77 - retains chromium-file current route replay evidence
+  ---
+  duration_ms: 76.1956
+  ...
+# Subtest: retains an existing route replay functional report before launching tests
+ok 78 - retains an existing route replay functional report before launching tests
+  ---
+  duration_ms: 56.4185
+  ...
+# Subtest: preserves baseline-chromium.json before opening a game or database
+ok 79 - preserves baseline-chromium.json before opening a game or database
+  ---
+  duration_ms: 75.8871
+  ...
+# Subtest: preserves webkit.json before opening a game or database
+ok 80 - preserves webkit.json before opening a game or database
+  ---
+  duration_ms: 73.5402
+  ...
+# Subtest: preserves existing chromium-navigation.json before reading a game or starting browsers
+ok 81 - preserves existing chromium-navigation.json before reading a game or starting browsers
+  ---
+  duration_ms: 75.4883
+  ...
+# Subtest: preserves existing webkit-navigation.json before reading a game or starting browsers
+ok 82 - preserves existing webkit-navigation.json before reading a game or starting browsers
+  ---
+  duration_ms: 73.387
+  ...
+# Subtest: preserves existing matrix.json before reading a game or starting browsers
+ok 83 - preserves existing matrix.json before reading a game or starting browsers
+  ---
+  duration_ms: 74.1026
+  ...
+# Subtest: rejects an unsupported engine or a purported WebKit full-audio matrix
+ok 84 - rejects an unsupported engine or a purported WebKit full-audio matrix
+  ---
+  duration_ms: 148.0188
+  ...
+# Subtest: promotes exact HTML and website bytes and removes only the verified working pair
+ok 85 - promotes exact HTML and website bytes and removes only the verified working pair
+  ---
+  duration_ms: 11.7033
+  ...
+# Subtest: accepts identical previously promoted bytes without rewriting them
+ok 86 - accepts identical previously promoted bytes without rewriting them
+  ---
+  duration_ms: 4.7015
+  ...
+# Subtest: promotes an explicitly named child staging pair without touching another working pair
+ok 87 - promotes an explicitly named child staging pair without touching another working pair
+  ---
+  duration_ms: 7.6596
+  ...
+# Subtest: rejects a non-child staging path before writing a game or removing any working file
+ok 88 - rejects a non-child staging path before writing a game or removing any working file
+  ---
+  duration_ms: 4.4228
+  ...
+# Subtest: rejects a staging junction without following it or removing the original pair
+ok 89 - rejects a staging junction without following it or removing the original pair
+  ---
+  duration_ms: 3.3269
+  ...
+# Subtest: rejects changed html bytes before publishing either file
+ok 90 - rejects changed html bytes before publishing either file
+  ---
+  duration_ms: 4.9683
+  ...
+# Subtest: rejects changed website bytes before publishing either file
+ok 91 - rejects changed website bytes before publishing either file
+  ---
+  duration_ms: 3.3256
+  ...
+# Subtest: rejects a mismatched reported size before publishing
+ok 92 - rejects a mismatched reported size before publishing
+  ---
+  duration_ms: 3.4432
+  ...
+# Subtest: a different existing website candidate blocks HTML promotion and preserves both working files
+ok 93 - a different existing website candidate blocks HTML promotion and preserves both working files
+  ---
+  duration_ms: 4.1364
+  ...
+# Subtest: a missing website leaves the HTML unpublished and retained for diagnosis
+ok 94 - a missing website leaves the HTML unpublished and retained for diagnosis
+  ---
+  duration_ms: 4.9376
+  ...
+# Subtest: derives both complete 66-paragraph and six-voice routes from the unchanged actual game
+ok 95 - derives both complete 66-paragraph and six-voice routes from the unchanged actual game
+  ---
+  duration_ms: 1.5883
+  ...
+# Subtest: rejects an unknown branch and missing or ambiguous scene instead of selecting another route
+ok 96 - rejects an unknown branch and missing or ambiguous scene instead of selecting another route
+  ---
+  duration_ms: 1.7047
+  ...
+# Subtest: rejects duplicate source text that would make visible-prose identity ambiguous
+ok 97 - rejects duplicate source text that would make visible-prose identity ambiguous
+  ---
+  duration_ms: 0.4752
+  ...
+# Subtest: rejects missing, repeated and reordered texts, even if the counts still look plausible
+ok 98 - rejects missing, repeated and reordered texts, even if the counts still look plausible
+  ---
+  duration_ms: 0.9892
+  ...
+# Subtest: rejects missing, repeated and reordered voices, even if the counts still look plausible
+ok 99 - rejects missing, repeated and reordered voices, even if the counts still look plausible
+  ---
+  duration_ms: 0.5793
+  ...
+# Subtest: rejects the other ending despite matching paragraph and voice counts
+ok 100 - rejects the other ending despite matching paragraph and voice counts
+  ---
+  duration_ms: 0.29
+  ...
+# Subtest: does not accept Auto movement or a voice count as native audio completion
+ok 101 - does not accept Auto movement or a voice count as native audio completion
+  ---
+  duration_ms: 0.608
+  ...
+# Subtest: requires the actual autoAdvanced user task
+ok 102 - requires the actual autoAdvanced user task
+  ---
+  duration_ms: 0.1818
+  ...
+# Subtest: requires the actual explicitLoadStoppedAuto user task
+ok 103 - requires the actual explicitLoadStoppedAuto user task
+  ---
+  duration_ms: 0.3134
+  ...
+# Subtest: requires the actual actualReopenResumed user task
+ok 104 - requires the actual actualReopenResumed user task
+  ---
+  duration_ms: 0.292
+  ...
+# Subtest: requires the actual slotPreserved user task
+ok 105 - requires the actual slotPreserved user task
+  ---
+  duration_ms: 0.1526
+  ...
+# Subtest: accepts only the four distinct successful format/route cells with real website-offline results
+ok 106 - accepts only the four distinct successful format/route cells with real website-offline results
+  ---
+  duration_ms: 1.0589
+  ...
+1..106
+# tests 106
+# suites 0
+# pass 106
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 7505.3059

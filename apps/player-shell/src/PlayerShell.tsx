@@ -6,6 +6,7 @@ import { RecoverySessionError, RecoverySessionRunner } from "./recovery-session-
 import { useStoryAdvance } from './use-story-advance';
 import { usePlaybackAdvance } from './use-playback-advance';
 import { useReadingResume } from './use-reading-resume';
+import { useReplayReadingReturn } from './use-replay-reading-return';
 import { useSessionRead } from './use-session-read';
 import { notifyPlayerAutoVoiceFailure, startPlayerAutoClock } from "./auto-playback-clock";
 import { readPlayerReadingPace, storePlayerReadingPace, readingMillisecondsPerUnit, type PlayerReadingPace } from './player-reading';
@@ -547,6 +548,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
   );
   const reading = useReadingSurface(`${project.manifest.projectId}:${presentedTextId}:${snapshot.history?.cursor}:${snapshot.localization.selectedLocale}:${presentedText}`, `${compactReading}:${readingMenuOpen}:${fontStatus}:${textReady}:${settingsApplication.text.fontScale}:${fullscreen.active}`,
     hostActivity === 'active' && !sessionRead.pending && !storyAdvance.busy && !artworkView && !preferencesOpen && !readingMenuOpen && !historyPanelOpen && !savePanelOpen && !additionalContentOpen);
+  const replayReadingReturn = useReplayReadingReturn(reading, state, project);
   const readingTextHash = useMemo(() => sha256(presentedText), [presentedText]);
   const readingResume = useReadingResume(reading, state, !editorPreview && !snapshot.sceneReplay.active && presentedText !== '' && state.runtimeState && snapshot.runtimeStateHash ? {
     projectId: project.manifest.projectId, buildId: state.runtimeState.buildId, runtimeStateHash: snapshot.runtimeStateHash,
@@ -690,8 +692,9 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
 
   const enterSceneReplay = useCallback((replayId: string) => {
     const next = dispatchPlayerCoreIntentV1(state, project, { kind: "enter-scene-replay", replayId });
+    if (next.replaySession === null) { setState(next); return; }
+    replayReadingReturn.capture();
     setState(next);
-    if (next.replaySession === null) return;
     restartVoice();
     replayPlaybackReturn.current = additionalContentPlaybackReturn.current ?? { autoEnabled, autoPlayback, skipMode, skipActivation, skipSpeed };
     additionalContentPlaybackReturn.current = null;
@@ -703,7 +706,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
     setAdditionalContentOpen(false);
     setSaveFeedback(null);
     setMediaErrors([]);
-  }, [autoEnabled, autoPlayback, project, skipActivation, skipMode, skipSpeed, state, stopSkip, restartVoice]);
+  }, [autoEnabled, autoPlayback, project, skipActivation, skipMode, skipSpeed, state, stopSkip, restartVoice, replayReadingReturn]);
 
   const exitSceneReplay = useCallback(() => {
     if (state.replaySession === null) return;
@@ -715,8 +718,14 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
       restorePlaybackControls(playback);
     }
     setMediaErrors([]);
-    setTimeout(() => (titleAdditionalContentTrigger.current ?? readingMenuTrigger.current ?? additionalContentTrigger.current)?.focus(), 0);
-  }, [project, restorePlaybackControls, state.replaySession, restartVoice]);
+    const parent = state.replaySession.checkpoint;
+    setTimeout(() => {
+      // Ignore a deferred focus after another replay, a load or project switch.
+      const current = liveState.current;
+      if (current.replaySession !== null || current.artifacts !== parent.artifacts || current.projectId !== parent.projectId || current.runtimeState !== parent.runtimeState || current.historySession !== parent.historySession) return;
+      (reading.element.current ?? titleAdditionalContentTrigger.current ?? readingMenuTrigger.current ?? additionalContentTrigger.current)?.focus({ preventScroll: true });
+    }, 0);
+  }, [project, restorePlaybackControls, state.replaySession, restartVoice, reading.element]);
 
   useEffect(() => { if (savePanelOpen) void refreshSaveSlots(); }, [savePanelOpen, refreshSaveSlots]);
   useEffect(() => { if (!saveListReady) setPendingOverwrite(null); }, [saveListReady]);
@@ -1058,6 +1067,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
       return;
     }
     setLastInputAccepted(true);
+    if (intent.kind === 'primary' && content.kind === 'ending' && liveState.current.replaySession !== null) { exitSceneReplay(); return; }
     if (intent.kind === 'primary' && source !== 'system' && source !== 'lifecycle' && storyAdvance.tryStart()) return;
     if (intent.kind === 'back' || intent.kind === 'forward' || intent.kind === 'history-back-to') {
       const current = liveState.current, next = dispatchPlayerCoreIntentV1(current, project, intent);
@@ -1065,7 +1075,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
       setState(next); return;
     }
     setState((current) => dispatchPlayerCoreIntentV1(current, project, intent));
-  }, [sessionRead.isPending, artworkView, content.kind, project, recoveryCandidate, recoveryOperation, recoveryStore, saveOperation, settingsApplication, stopSkip, textReady, voicePlaying, delayedVoice, preferencesOpen, readingMenuOpen, historyPanelOpen, savePanelOpen, additionalContentOpen, snapshot.runtimeStateHash, snapshot.runtimeHostSnapshotHash, reading, playbackAdvance.busy, playbackAdvance.cancel, restartVoice]);
+  }, [sessionRead.isPending, artworkView, content.kind, project, recoveryCandidate, recoveryOperation, recoveryStore, saveOperation, settingsApplication, stopSkip, textReady, voicePlaying, delayedVoice, preferencesOpen, readingMenuOpen, historyPanelOpen, savePanelOpen, additionalContentOpen, snapshot.runtimeStateHash, snapshot.runtimeHostSnapshotHash, reading, playbackAdvance.busy, playbackAdvance.cancel, restartVoice, exitSceneReplay]);
   useEffect(() => {
     if (hostActivity !== 'active' || artworkView || preferencesOpen || readingMenuOpen || historyPanelOpen || savePanelOpen || additionalContentOpen || !deferredMenuCompletion.current) return;
     const completion = deferredMenuCompletion.current;

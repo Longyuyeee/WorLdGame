@@ -128,3 +128,5 @@ evidence/web-history-input-boundary/*.html -text
 evidence/web-history-input-boundary/**/*.worldsave -text
 evidence/web-backup-inspection/*.html -text
 evidence/web-backup-inspection/**/*.worldsave -text
+evidence/web-route-replay-continuity/*.html -text
+evidence/web-route-replay-continuity/**/*.worldsave -text

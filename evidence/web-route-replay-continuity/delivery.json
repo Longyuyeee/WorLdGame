@@ -1,0 +1,90 @@
+{
+  "passed": true,
+  "promoted": true,
+  "contentVersion": "1.11.0",
+  "technicalVersion": "S0.41",
+  "artifacts": {
+    "html": {
+      "bytes": 46842644,
+      "sha256": "ca8563fafc15bea90bcc4c3f7c4d6d9b60422f04c1c80cd4a4a2c502c51f6008"
+    },
+    "website": {
+      "bytes": 35429093,
+      "sha256": "c2cbb30e234630616c19996c86f043b8cc7afbecb0b0c924afb060405483e4f5"
+    }
+  },
+  "sourceAndNotes": "evidence/web-story-plans-and-farewell",
+  "pendingNotes": 25,
+  "retained": [
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops-project.zip",
+      "sha256": "43ef6e1673ed3dffbf705b4f178b2122fc960971eaf47286b33742fa285f0576"
+    },
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops.worldreview",
+      "sha256": "747534249345da6ce337054b4e7f47a1516556beda7079ef7b6d093e590bce8f"
+    },
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops.html",
+      "sha256": "6e5dfb4dfb88b5e210354fbcaeb8ccc4e79d50aa935a1d449f750bde8fc822fa"
+    },
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops-website.zip",
+      "sha256": "25ef0ab90a396f01dcfb09e60f754fb31a82f59aedb8da869b4a199a59e8f19e"
+    },
+    {
+      "file": "evidence/web-backup-inspection/before-rain-stops.html",
+      "sha256": "bd453092147827d1d37b5642794441afabbc69b6ea56f10fb6dc28aaadba6bf7"
+    },
+    {
+      "file": "evidence/web-backup-inspection/before-rain-stops-website.zip",
+      "sha256": "09427c7a0b7e3c148bae5933874f39ba1ab639bfbfd8cd9834e0ed189060d790"
+    }
+  ],
+  "browsers": [
+    {
+      "engine": "chromium",
+      "fileMode": false,
+      "checks": 7
+    },
+    {
+      "engine": "firefox",
+      "fileMode": false,
+      "checks": 7
+    },
+    {
+      "engine": "webkit",
+      "fileMode": false,
+      "checks": 7
+    },
+    {
+      "engine": "chromium",
+      "fileMode": true,
+      "checks": 7
+    }
+  ],
+  "fullMatrixCells": 4,
+  "normalReplayWaitsForImages": true,
+  "rapidExitAcceptance": "open",
+  "defaultTextRevealAcceptance": "needs-review",
+  "openFindings": [
+    {
+      "report": "accepted-native/chromium.json",
+      "kind": "rapid-replay-image-return",
+      "status": "open",
+      "error": "TimeoutError: page.waitForFunction: Timeout 30000ms exceeded."
+    },
+    {
+      "report": "accepted-native/webkit.json",
+      "kind": "rapid-replay-image-return",
+      "status": "open",
+      "error": "TimeoutError: page.waitForFunction: Timeout 30000ms exceeded."
+    },
+    {
+      "report": "local-html/chromium-file.json",
+      "kind": "rapid-replay-image-return",
+      "status": "open",
+      "error": "TimeoutError: page.waitForFunction: Timeout 30000ms exceeded."
+    }
+  ]
+}
