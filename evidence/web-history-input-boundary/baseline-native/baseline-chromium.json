@@ -1,0 +1,64 @@
+{
+  "passed": true,
+  "baseline": true,
+  "engine": "chromium",
+  "browser": "151.0.7922.34",
+  "artifacts": {
+    "html": {
+      "bytes": 46837000,
+      "sha256": "8d874327042ea7c0d164b04524733580a56c350b16423c5df82a803433c7e812"
+    },
+    "website": {
+      "bytes": 35423449,
+      "sha256": "5505fb17d9f5de6882dda977f730d8e5624ebc2ded9e83a4c52a7f019338ee1f"
+    }
+  },
+  "checks": [
+    {
+      "name": "frozen-game-tab-escapes-history-and-background-back-changes-story-with-panel-open",
+      "before": {
+        "hash": "17eaca6a3105a9c2519abb89a93ee5aa0e126fab965cd19452500481ffcfe5ad",
+        "cursor": "11",
+        "text": "“我带了另一件东西。”小夏从包里取出一个没有封口的信封，“本来约好明年再拆，可现在先给你也可以。”她没有把信塞到他手里，只放在他们中间的长椅上。信封被雨气浸得有一点软，林远盯着那个角，突然觉得自己不能再用赶车来结束今天的谈话。",
+        "auto": "off"
+      },
+      "after": {
+        "hash": "782131a02604313267fd5f2ff9e62eb4c6272b12be968fa70872c4b8d0376086",
+        "cursor": "9",
+        "text": "站台的雨味让他想起那间租了三年的房间。窗边原本留着摆画架的位置，后来堆满了纸箱。他给这次换工作起名叫重新开始，仿佛只要把地址换掉，箱子里那些没画完的东西就会自己展开。小夏知道那些画，却从没催他交一张能被称作作品的结果。",
+        "auto": "off"
+      },
+      "trace": [
+        {
+          "label": "关闭剧情历史",
+          "inHistory": true,
+          "tag": "BUTTON"
+        },
+        {
+          "label": "关闭剧情历史",
+          "inHistory": false,
+          "tag": "BUTTON"
+        },
+        {
+          "label": "后退一步",
+          "inHistory": false,
+          "tag": "BUTTON"
+        }
+      ],
+      "originalSlots": [
+        {
+          "slotId": "auto-1",
+          "hash": "82e2acf507042ca294db18181ea77af0e7eed1889ee86690bac318ce59634412",
+          "digest": "74d56960893156335a3949b26664751931030aa2572b80bf8170a15b37a0f52a"
+        },
+        {
+          "slotId": "quick-1",
+          "hash": "17eaca6a3105a9c2519abb89a93ee5aa0e126fab965cd19452500481ffcfe5ad",
+          "digest": "749faee48a119a26b0721093a622e35e8a9ed325e54b86c0e82ded4f5dfe296e"
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "scope": "Actual unmodified exported website, native keyboard Tab/Shift+Tab/Enter/Escape and UI save/load. Readonly IndexedDB digests; no synthetic input/lifecycle/media events, injected database or story state. Desktop engines and viewport resizing, not screen reader, physical phone/Safari, OS interruptions or natural full reading acceptance."
+}

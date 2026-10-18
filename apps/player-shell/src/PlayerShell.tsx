@@ -19,6 +19,7 @@ import { PlayerPreferencesPanel } from './PlayerPreferencesPanel';
 import { PlayerPublicationTools } from './PlayerPublicationTools';
 import { PlayerCreditsPanel } from './PlayerCreditsPanel';
 import { PlayerHistoryContent } from './PlayerHistoryContent';
+import { cycleHistoryPanelFocus } from './history-panel-focus';
 import { historyChoiceSelections } from './history-reading-context';
 import { historyVoiceReferences } from './history-voice';
 import { usePlayerAudioReadiness } from './use-audio-readiness';
@@ -1010,6 +1011,9 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
       return;
     }
     if (artworkView || preferencesOpen) return;
+    // History is a read-only interaction until a reader explicitly chooses a
+    // recorded row. Queued/background toolbar actions cannot move its story.
+    if (historyPanelOpen && intent.kind !== 'history-back-to') return;
     if ((savePanelOpen || historyPanelOpen || additionalContentOpen) && (intent.kind === 'primary' || intent.kind === 'select-choice')) return;
     if (readingMenuOpen) {
       if (intent.kind === 'back' || intent.kind === 'forward') setReadingMenuOpen(false);
@@ -1601,6 +1605,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
         return;
       }
       if (historyPanelOpen || savePanelOpen) {
+        if (historyPanelOpen && event.key === 'Tab' && cycleHistoryPanelFocus(historyPanelElement.current, event.shiftKey)) event.preventDefault();
         if (event.key === "Escape") { event.preventDefault(); if (saveOperation === "busy") { backupPreparation.current?.cancel(); return; } if (pendingRead) cancelRead(); else if (historyPanelOpen) closeHistoryPanel(); else closeSavePanel(); }
         return;
       }
@@ -2228,7 +2233,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
         {readingMenuOpen && hasProgressProblem && backgroundProgressProblem}
         {readingMediaSurface && readingMenuOpen && mediaError}
         {compactReading && hasReadingProblem && canViewArtwork && <button className="player-menu-only player-reading-menu-artwork" type="button" disabled={hostActivity !== 'active'} onClick={() => { setReadingMenuOpen(false); showArtwork(); }}>欣赏画面</button>}
-        <nav hidden={content.kind === 'title'} className="player-history-controls" aria-label="剧情历史控制">
+        <nav hidden={content.kind === 'title'} inert={historyPanelOpen} className="player-history-controls" aria-label="剧情历史控制">
           <h3 className="player-menu-only player-menu-section-title">回看与内容</h3>
           <button className="player-menu-only" ref={preferencesTrigger} type="button" aria-label="打开玩家设置" disabled={hostActivity !== 'active' || preferencesOpen || historyPanelOpen || savePanelOpen || additionalContentOpen} onClick={event => { infoTrigger.current = event.currentTarget; stopSkip(); setReadingMenuOpen(false); setInfoView('preferences'); setPreferencesOpen(true); }}>设置</button>
           {hasWebCredits(credits) && <button className="player-menu-only" type="button" disabled={hostActivity !== 'active' || preferencesOpen || historyPanelOpen || savePanelOpen || additionalContentOpen} onClick={openCredits}>制作名单</button>}
@@ -2268,7 +2273,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
           ><span aria-hidden="true">✦</span><span>附加内容</span></button>
         </nav>
         {historyPanelOpen && (
-          <aside {...panelProps('history')} ref={historyPanelElement} className="player-history-panel" role="dialog" aria-label="剧情历史" aria-modal="false">
+          <aside {...panelProps('history')} ref={historyPanelElement} className="player-history-panel" role="dialog" aria-label="剧情历史" aria-modal="true">
             <PlayerPanelRegion enabled={historyLayout.enabled} rect={historyLayout.layout?.secondary} kind="secondary">
             <header>
               <div><span>HISTORY</span><h2>剧情历史</h2></div>
@@ -2449,7 +2454,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
               : `${snapshot.localization.selectedLocale} 缺少 ${localizedMedia.missingResourceIds.length} 个语言资源，当前资源不可用`}
           </output>
         )}
-        <div hidden={content.kind === 'title'} className="player-playback-controls" aria-label="播放控制">
+        <div hidden={content.kind === 'title'} inert={historyPanelOpen} className="player-playback-controls" aria-label="播放控制">
           <h3 className="player-menu-only player-menu-section-title">自动阅读与快进</h3>
           <label className="player-menu-only">自动阅读节奏<select aria-label="自动阅读节奏" value={readingPace} onChange={event => {
             const pace = event.target.value as PlayerReadingPace; setReadingPace(pace);
@@ -2512,7 +2517,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
           <span aria-live="polite">{(autoEnabled || skipActive) && stageImagesPending ? "等待画面资源，准备好后继续" : autoEnabled ? readingMenuOpen ? "返回故事后继续自动阅读" : autoPlayback === 'waiting-reading' ? "请向下读完本段，再自动继续" : autoPlayback === "suspended" ? "自动播放已暂停" : autoPlayback === "waiting-voice" ? "等待语音结束，可关闭自动播放切回手动" : "自动播放中" : autoPlayback === "stopped" ? "自动播放已停止" : "自动播放关闭"}</span>
         </div>
         {saveStore !== undefined && !snapshot.sceneReplay.active && (
-          <aside className="player-save" data-open={savePanelOpen}>
+          <aside className="player-save" data-open={savePanelOpen} inert={historyPanelOpen}>
             <h3 hidden={content.kind === 'title'} className="player-menu-only player-menu-section-title">进度与备份</h3>
             <div hidden={content.kind === 'title'} className="player-save__quick-controls player-menu-only" aria-label="快速存读档">
               <button type="button" disabled={hostActivity !== "active" || saveOperation === "busy" || !saveBoundaryAllowed} onClick={() => void saveToSlot("quick", "quick-1")}>快速保存</button>
@@ -2657,7 +2662,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
         {artworkView && <button type="button" className="player-artwork-return" aria-label="恢复阅读" autoFocus onClick={restoreReading}><span>恢复阅读 <kbd>H / Esc</kbd></span></button>}
         {(content.kind === "dialogue" || content.kind === "narration") && (
           <button
-            inert={artworkView || readingMenuOpen}
+            inert={artworkView || readingMenuOpen || historyPanelOpen}
             className={`player-dialogue player-dialogue--${stage.textboxTemplate}`}
             style={componentLayout && layoutSurface === "reading" ? componentLayout.primary : undefined}
             ref={readingRef}

@@ -1,5 +1,7 @@
 # WorLd Studio（工作名）产品与开发设计文档
 
+> 当前接续（2026-10-18）：[#411 历史回看的键盘操作和剧情保护](docs/411-web-history-input-boundary.md)。修复历史打开时 Tab 移到背景后退按钮、未经明确选择便改变正文的问题；保留查找、重听、明确行回退和关闭返回，未改剧情或音频框架。新 [HTML](evidence/web-history-input-boundary/before-rain-stops.html)／[网站 ZIP](evidence/web-history-input-boundary/before-rain-stops-website.zip)的作者、三引擎键盘／重听、四格完整路线与最终回归见 #411。仍为 1.11.0 候选／S0.41，#394 源／25 条未人工批准记录／26 媒体保持，#410 原游戏保留；自然听读、真机／Safari、许可及获准 HTTPS 等门槛不变。以下为历史。
+
 > 当前接续（2026-10-18）：[#410 中断与回看后的声音故障恢复](docs/410-web-audio-failure-continuity.md)。修复正文声音失败后，历史重听／宿主暂停／快进覆盖错误状态、丢失重试入口的问题；同 ID 明确换地址也更新原生所有者，不阻断新来源。新 [HTML](evidence/web-audio-failure-continuity/before-rain-stops.html)／[网站 ZIP](evidence/web-audio-failure-continuity/before-rain-stops-website.zip)的作者、完整路线、三引擎故障／健康／等待回归与审计见 #410，初稿与失败探针保留。仍为 1.11.0 候选／S0.41，#394 源／25 条未人工批准记录／26 媒体保持；冻结探针未通过，不计真机后台，人工／许可／公网等边界不变，#409 原游戏保留。以下为历史。
 
 > 当前接续（2026-10-18）：[#409 历史重听的声音等待与恢复](docs/409-web-history-voice-readiness.md)。修复原生 play 先于数据时的“假播放”和无进展后无法重试，保持正文、原槽位和个人设置；新 [HTML](evidence/web-history-voice-readiness/before-rain-stops.html)／[网站 ZIP](evidence/web-history-voice-readiness/before-rain-stops-website.zip)及测试审计见 #409。实际三引擎等待与健康重听分别核对，播放中断流目前仅受控覆盖，失败探针保留。仍为 1.11.0 候选／S0.41，#394 源、25 条未人工批准记录与 26 媒体保持；人工／真机／许可／公网等门槛不变，#408 原游戏保留。以下为历史。

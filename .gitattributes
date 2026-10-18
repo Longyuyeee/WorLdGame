@@ -124,3 +124,5 @@ evidence/web-history-voice-readiness/**/*.worldsave -text
 evidence/web-audio-failure-continuity/*.html -text
 evidence/web-audio-failure-continuity/**/*.html -text
 evidence/web-audio-failure-continuity/**/*.worldsave -text
+evidence/web-history-input-boundary/*.html -text
+evidence/web-history-input-boundary/**/*.worldsave -text

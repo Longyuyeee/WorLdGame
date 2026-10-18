@@ -1,0 +1,24 @@
+{
+  "passed": false,
+  "baseline": true,
+  "engine": "chromium",
+  "artifacts": {
+    "html": {
+      "bytes": 46837000,
+      "sha256": "8d874327042ea7c0d164b04524733580a56c350b16423c5df82a803433c7e812"
+    },
+    "website": {
+      "bytes": 35423449,
+      "sha256": "5505fb17d9f5de6882dda977f730d8e5624ebc2ded9e83a4c52a7f019338ee1f"
+    }
+  },
+  "checks": [],
+  "errors": [],
+  "error": "AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:\n\n  assert.ok(originalSlots.some(row => row.slotId === 'quick'))\n",
+  "stack": "AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:\n\n  assert.ok(originalSlots.some(row => row.slotId === 'quick'))\n\n    at file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-history-input-boundary.mjs:43:71",
+  "focus": {
+    "label": "打开阅读菜单",
+    "inHistory": false,
+    "tag": "BUTTON"
+  }
+}
