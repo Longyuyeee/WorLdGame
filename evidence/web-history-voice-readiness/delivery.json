@@ -1,0 +1,87 @@
+{
+  "passed": true,
+  "contentVersion": "1.11.0",
+  "technicalVersion": "S0.41",
+  "promoted": true,
+  "artifacts": {
+    "html": {
+      "bytes": 46836351,
+      "sha256": "691c724168b19f85fe55b9a8bc1ad65da905b5986c525b0234f8a97533c456ed"
+    },
+    "website": {
+      "bytes": 35422800,
+      "sha256": "f840e073c52023ca667ab6538e78dc20af4a3df98d2f32d0421da02adaeb8b1b"
+    }
+  },
+  "sourceAndNotes": "evidence/web-story-plans-and-farewell",
+  "pendingNotes": 25,
+  "retained": [
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops-project.zip",
+      "sha256": "43ef6e1673ed3dffbf705b4f178b2122fc960971eaf47286b33742fa285f0576"
+    },
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops.worldreview",
+      "sha256": "747534249345da6ce337054b4e7f47a1516556beda7079ef7b6d093e590bce8f"
+    },
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops.html",
+      "sha256": "6e5dfb4dfb88b5e210354fbcaeb8ccc4e79d50aa935a1d449f750bde8fc822fa"
+    },
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops-website.zip",
+      "sha256": "25ef0ab90a396f01dcfb09e60f754fb31a82f59aedb8da869b4a199a59e8f19e"
+    },
+    {
+      "file": "evidence/web-backup-envelope/before-rain-stops.html",
+      "sha256": "05129248f4d40e987950b3789da087de0bcb30a86678869259b67271d7b067b4"
+    },
+    {
+      "file": "evidence/web-backup-envelope/before-rain-stops-website.zip",
+      "sha256": "aa4d443252c7f824b96d87b18a8c194be975bec2008e9bc669b2e6a7fc8a4801"
+    },
+    {
+      "file": "evidence/web-backup-continuation/final-work/original-1.11.0.worldsave",
+      "sha256": "2c0b50617f69ed5f6a1af29ae30aa41588ef1d0b88d87a7828519c66ca7f782b"
+    }
+  ],
+  "browsers": [
+    {
+      "engine": "chromium",
+      "checks": 6,
+      "nativeWaitingAndRetry": true
+    },
+    {
+      "engine": "firefox",
+      "checks": 6,
+      "nativeWaitingAndRetry": true
+    },
+    {
+      "engine": "webkit",
+      "checks": 6,
+      "nativeWaitingAndRetry": true
+    }
+  ],
+  "healthy": [
+    {
+      "engine": "chromium",
+      "fileMode": false,
+      "checks": 6
+    },
+    {
+      "engine": "firefox",
+      "fileMode": false,
+      "checks": 6
+    },
+    {
+      "engine": "webkit",
+      "fileMode": false,
+      "checks": 6
+    },
+    {
+      "engine": "chromium",
+      "fileMode": true,
+      "checks": 6
+    }
+  ]
+}

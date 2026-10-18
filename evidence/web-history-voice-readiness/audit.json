@@ -1,0 +1,140 @@
+{
+  "passed": true,
+  "contentVersion": "1.11.0",
+  "technicalVersion": "S0.41",
+  "promoted": true,
+  "artifacts": {
+    "html": {
+      "bytes": 46836351,
+      "sha256": "691c724168b19f85fe55b9a8bc1ad65da905b5986c525b0234f8a97533c456ed"
+    },
+    "website": {
+      "bytes": 35422800,
+      "sha256": "f840e073c52023ca667ab6538e78dc20af4a3df98d2f32d0421da02adaeb8b1b"
+    }
+  },
+  "sourceAndNotes": "evidence/web-story-plans-and-farewell",
+  "pendingNotes": 25,
+  "retained": [
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops-project.zip",
+      "sha256": "43ef6e1673ed3dffbf705b4f178b2122fc960971eaf47286b33742fa285f0576"
+    },
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops.worldreview",
+      "sha256": "747534249345da6ce337054b4e7f47a1516556beda7079ef7b6d093e590bce8f"
+    },
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops.html",
+      "sha256": "6e5dfb4dfb88b5e210354fbcaeb8ccc4e79d50aa935a1d449f750bde8fc822fa"
+    },
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops-website.zip",
+      "sha256": "25ef0ab90a396f01dcfb09e60f754fb31a82f59aedb8da869b4a199a59e8f19e"
+    },
+    {
+      "file": "evidence/web-backup-envelope/before-rain-stops.html",
+      "sha256": "05129248f4d40e987950b3789da087de0bcb30a86678869259b67271d7b067b4"
+    },
+    {
+      "file": "evidence/web-backup-envelope/before-rain-stops-website.zip",
+      "sha256": "aa4d443252c7f824b96d87b18a8c194be975bec2008e9bc669b2e6a7fc8a4801"
+    },
+    {
+      "file": "evidence/web-backup-continuation/final-work/original-1.11.0.worldsave",
+      "sha256": "2c0b50617f69ed5f6a1af29ae30aa41588ef1d0b88d87a7828519c66ca7f782b"
+    }
+  ],
+  "browsers": [
+    {
+      "engine": "chromium",
+      "checks": 6,
+      "nativeWaitingAndRetry": true
+    },
+    {
+      "engine": "firefox",
+      "checks": 6,
+      "nativeWaitingAndRetry": true
+    },
+    {
+      "engine": "webkit",
+      "checks": 6,
+      "nativeWaitingAndRetry": true
+    }
+  ],
+  "healthy": [
+    {
+      "engine": "chromium",
+      "fileMode": false,
+      "checks": 6
+    },
+    {
+      "engine": "firefox",
+      "fileMode": false,
+      "checks": 6
+    },
+    {
+      "engine": "webkit",
+      "fileMode": false,
+      "checks": 6
+    },
+    {
+      "engine": "chromium",
+      "fileMode": true,
+      "checks": 6
+    }
+  ],
+  "tests": {
+    "files": 155,
+    "distinctTests": 1461,
+    "newTests": 13,
+    "nodeTests": 84
+  },
+  "architecture": {
+    "audit-architecture": {
+      "status": "PASS",
+      "auditedPortableFiles": 118,
+      "auditedNodeAdapterFiles": 4,
+      "guarantees": [
+        "narrative-vm-spike has no UI, DOM, platform-shell, filesystem, process, crypto-provider, wall-clock, or ambient-random dependency",
+        "story-core has no UI, DOM, platform-shell, filesystem, or process dependency",
+        "story-language has no UI, DOM, platform-shell, filesystem, or process dependency",
+        "story-language depends only on story-core",
+        "project-compiler is portable and depends only on project-domain/story-language, never the VM spike or platform APIs",
+        "runtime is portable and depends only on project-compiler, never the VM spike, editor, filesystem, wall clock, randomness, or platform APIs",
+        "runtime-host is portable and depends only on formal runtime, never UI, DOM, shell, filesystem, wall clock, randomness, or platform APIs",
+        "player-core is portable and consumes only canonical project, formal Compiler IR, Runtime, and Runtime Host without a parallel StoryStatement interpreter",
+        "gal-settings is dependency-free and portable with no UI, DOM, filesystem, process, shell, wall-clock, or ambient-random dependency",
+        "route-graph is portable and projects only canonical project and compiler facts through the Project Service boundary",
+        "project-persistence has no UI, DOM, platform-shell, filesystem, process, or runtime third-party dependency",
+        "project-domain depends only on portable Gal settings and has no UI, DOM, platform-shell, filesystem, process, crypto-provider, or runtime third-party dependency",
+        "project-persistence-node is isolated from the web editor and depends only on portable project-domain/project-persistence contracts",
+        "editor declares the Gal settings dependency explicitly",
+        "editor declares the story-core dependency explicitly",
+        "editor declares the story-language dependency explicitly",
+        "editor declares the project-persistence dependency explicitly",
+        "web editor does not bundle the Node filesystem adapter",
+        "VM Web Worker conformance Harness depends only on the portable Spike, formal Runtime, and portable Runtime Host and imports no shell or Node adapter",
+        "VM conformance CLI is an isolated Node reference host and depends only on the portable narrative VM",
+        "Windows Electron host keeps isolation and sandboxing enabled with the frozen WindowsHostV1 storage bridge",
+        "Windows Tauri host exposes only the frozen WindowsHostV1 storage commands and no generic privileged plugin",
+        "Windows project grant roots stay native-only and both hosts reject reparse roots and existing reparse path segments",
+        "story-core has no runtime third-party dependency"
+      ]
+    },
+    "audit-n52-e5b-runtime-history-v2": {
+      "status": "PASS",
+      "node": "N52-E5b-runtime-history-v2",
+      "engineeringStatus": "complete",
+      "productAcceptance": "blocked",
+      "continuation": {
+        "node": "N52-E5c-gal-history-policy-and-player-core-projection",
+        "gate": "only-after-e5b-exact-head-windows-ci-is-green"
+      },
+      "violations": []
+    }
+  },
+  "pendingMediaPermissions": 26,
+  "approvedMediaPermissions": 0,
+  "scope": "History audition observes actual media time for five seconds of no progress, across initial play and continued playback. Healthy time progress renews the deadline; play/playing/readiness/gain alone do not. Explicit pause, retry, stop, inactive host, unmount and stale promises remain isolated from story, live voice completion, Auto and saves. Native pending HTTP responses and real retries verified in three desktop engines, healthy audition in those engines plus Chromium local HTML. Post-start stall is controlled-test coverage only: both partial WAV native probes stayed at time zero. Muted output, desktop engines and phone-sized windows are not natural listening/timing, physical phones/Safari/OS interruption/BFCache, embedded WebKit audio, rights/public HTTPS or long-soak acceptance. Previous long-history/storage costs, cold-title settings and intermittent default test timeout investigations remain open."
+}

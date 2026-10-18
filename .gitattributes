@@ -119,3 +119,5 @@ evidence/web-reading-meta-continuity/*.html -text
 evidence/web-reading-meta-continuity/**/*.worldsave -text
 evidence/web-backup-envelope/*.html -text
 evidence/web-backup-envelope/**/*.worldsave -text
+evidence/web-history-voice-readiness/*.html -text
+evidence/web-history-voice-readiness/**/*.worldsave -text

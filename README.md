@@ -1,5 +1,7 @@
 # WorLd Studio（工作名）产品与开发设计文档
 
+> 当前接续（2026-10-18）：[#409 历史重听的声音等待与恢复](docs/409-web-history-voice-readiness.md)。修复原生 play 先于数据时的“假播放”和无进展后无法重试，保持正文、原槽位和个人设置；新 [HTML](evidence/web-history-voice-readiness/before-rain-stops.html)／[网站 ZIP](evidence/web-history-voice-readiness/before-rain-stops-website.zip)及测试审计见 #409。实际三引擎等待与健康重听分别核对，播放中断流目前仅受控覆盖，失败探针保留。仍为 1.11.0 候选／S0.41，#394 源、25 条未人工批准记录与 26 媒体保持；人工／真机／许可／公网等门槛不变，#408 原游戏保留。以下为历史。
+
 > 当前接续（2026-10-18）：[#408 长篇备份的后台处理与安全接续](docs/408-web-backup-envelope-and-continuation.md)。备份解析、摘要与打包进入可取消后台，保留原格式、完整校验和原子导入；真实旧文件、四份浏览器流程及最后一轮 1,448 项功能／80 项工具测试通过，早期超时报告保留。新 [HTML](evidence/web-backup-envelope/before-rain-stops.html)／[网站 ZIP](evidence/web-backup-envelope/before-rain-stops-website.zip)的实际制作、路线及成本边界见 #408。仍为 1.11.0 候选／S0.41，#394 源、25 条未人工批准记录和 26 媒体保持；真机／自然听读／许可／公网、剩余长篇成本及既有超时调查开放，#407 原游戏保留。以下为历史。
 
 > 当前接续（2026-10-18）：[#407 跨窗口已读合并与段内续读](docs/407-web-reading-meta-continuity.md)。精确解释 #406 的特定状态摘要变化来自正常已读 Meta 合并；修复恢复提示消失和旧存档来源的位置落后，保留段首重读、最新行恢复及只显示不改档的边界。新 [HTML](evidence/web-reading-meta-continuity/before-rain-stops.html)／[网站 ZIP](evidence/web-reading-meta-continuity/before-rain-stops-website.zip)的作者、两完整路线、三引擎真实跨窗口事件及最终回归见 #407。1.11.0 候选／S0.41、#394 源／25 条未人工批准记录及 26 媒体保持，#406 原游戏保留；真机／自然听读／许可／公网及长篇成本等继续开放。以下为历史。

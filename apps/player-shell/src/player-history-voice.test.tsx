@@ -10,6 +10,7 @@ import { useHistoryVoice } from './use-history-voice';
 let paused: WeakMap<HTMLMediaElement, boolean>, ended: WeakMap<HTMLMediaElement, boolean>;
 beforeEach(() => {
   paused = new WeakMap(); ended = new WeakMap();
+  vi.spyOn(HTMLMediaElement.prototype, 'readyState', 'get').mockReturnValue(4);
   vi.spyOn(HTMLMediaElement.prototype, 'paused', 'get').mockImplementation(function (this: HTMLMediaElement) { return paused.get(this) ?? true; });
   vi.spyOn(HTMLMediaElement.prototype, 'ended', 'get').mockImplementation(function (this: HTMLMediaElement) { return ended.get(this) ?? false; });
   vi.spyOn(HTMLMediaElement.prototype, 'pause').mockImplementation(function (this: HTMLMediaElement) { paused.set(this, true); this.dispatchEvent(new Event('pause')); });
@@ -91,6 +92,6 @@ it.each(['NotAllowedError', 'NotSupportedError'])('offers explicit retry after %
 });
 it('bounds a pending play request and rejects a late play after stop or unmount', async () => {
   vi.useFakeTimers(); const view = render(<Preview />); vi.mocked(HTMLMediaElement.prototype.play).mockImplementationOnce(() => new Promise(() => {})); fireEvent.click(screen.getByRole('button', { name: '听第一句' })); const audio = view.container.querySelector('audio')!;
-  await act(async () => { await vi.advanceTimersByTimeAsync(5001); }); expect(screen.getByRole('region', { name: '历史语音重听' })).toHaveTextContent('尚未就绪'); fireEvent.play(audio); expect(audio.paused).toBe(true);
+  await act(async () => { await vi.advanceTimersByTimeAsync(5001); }); expect(screen.getByRole('region', { name: '历史语音重听' })).toHaveTextContent('长时间没有进展'); fireEvent.play(audio); expect(audio.paused).toBe(true);
   fireEvent.click(screen.getByRole('button', { name: '停止重听' })); fireEvent.play(audio); expect(audio.paused).toBe(true); view.unmount(); expect(audio).not.toHaveAttribute('src');
 });

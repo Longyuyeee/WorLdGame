@@ -1,0 +1,195 @@
+{
+  "passed": false,
+  "error": "AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:\n\n  assert.ok(recordBox && recordBox.height >= 44 && recordBox.y >= 0 && recordBox.y + recordBox.height <= viewport.height + 1)\n",
+  "stack": "AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:\n\n  assert.ok(recordBox && recordBox.height >= 44 && recordBox.y >= 0 && recordBox.y + recordBox.height <= viewport.height + 1)\n\n    at file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-history-voice-readiness.mjs:74:133",
+  "checks": [
+    {
+      "name": "native-play-before-data-remains-bounded-and-offers-explicit-retry",
+      "before": {
+        "hash": "92734b15d85213f16dff5be1b0d4d3b76b4346e94133891f5168b790534a78d8",
+        "cursor": "16",
+        "auto": "off",
+        "host": "active"
+      },
+      "delayed": {
+        "paused": true,
+        "time": 0,
+        "ready": 0,
+        "ended": false,
+        "error": null,
+        "src": "media/26be1da92d18729069c0fda981697a09631fbe7525d4517af5f3633824bf13c0.wav"
+      },
+      "owned": {
+        "sameVoice": true,
+        "voicePaused": true,
+        "voiceTime": 0,
+        "sameMusic": true,
+        "musicPlaying": true
+      },
+      "requests": [
+        {
+          "name": "media/26be1da92d18729069c0fda981697a09631fbe7525d4517af5f3633824bf13c0.wav",
+          "start": 0,
+          "end": 222221,
+          "prefixBytes": 0,
+          "mode": "pending-response"
+        },
+        {
+          "name": "media/26be1da92d18729069c0fda981697a09631fbe7525d4517af5f3633824bf13c0.wav",
+          "start": 0,
+          "end": 222221,
+          "prefixBytes": 0,
+          "mode": "pending-response"
+        }
+      ],
+      "events": [
+        {
+          "type": "play",
+          "trusted": true,
+          "time": 0,
+          "ready": 0,
+          "paused": false,
+          "ended": false,
+          "error": null,
+          "at": 1526
+        },
+        {
+          "type": "waiting",
+          "trusted": true,
+          "time": 0,
+          "ready": 0,
+          "paused": false,
+          "ended": false,
+          "error": null,
+          "at": 1526
+        },
+        {
+          "type": "stalled",
+          "trusted": true,
+          "time": 0,
+          "ready": 0,
+          "paused": false,
+          "ended": false,
+          "error": null,
+          "at": 4741
+        },
+        {
+          "type": "pause",
+          "trusted": true,
+          "time": 0,
+          "ready": 0,
+          "paused": true,
+          "ended": false,
+          "error": null,
+          "at": 6625
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "requests": [
+    {
+      "name": "media/26be1da92d18729069c0fda981697a09631fbe7525d4517af5f3633824bf13c0.wav",
+      "start": 0,
+      "end": 222221,
+      "prefixBytes": 0,
+      "mode": "pending-response"
+    },
+    {
+      "name": "media/26be1da92d18729069c0fda981697a09631fbe7525d4517af5f3633824bf13c0.wav",
+      "start": 0,
+      "end": 222221,
+      "prefixBytes": 0,
+      "mode": "pending-response"
+    }
+  ],
+  "state": {
+    "hash": "92734b15d85213f16dff5be1b0d4d3b76b4346e94133891f5168b790534a78d8",
+    "cursor": "16",
+    "auto": "suspended",
+    "host": "active"
+  },
+  "audio": {
+    "paused": true,
+    "time": 0,
+    "ready": 0,
+    "ended": false,
+    "error": null,
+    "src": "media/26be1da92d18729069c0fda981697a09631fbe7525d4517af5f3633824bf13c0.wav"
+  },
+  "observation": {
+    "text": "HISTORY\n剧情历史\n关闭\n查找已记录的剧情\n清除查找\n\n找到 1 条记录\n\n进去读吧。我想先把今天的话说完。\n\n语音长时间没有进展，已暂停重听。可重试或停止，不影响正文。 当前声音已静音。\n重试重听\n停止重听\n当前主线 · 1 条\n林远 · 当前\n进去读吧。我想先把今天的话说完。\n重听语音\n存读档\n林远\n进去读吧。我想先把今天的话说完。\n\n自动阅读中，点文字切回手动",
+    "events": [
+      {
+        "type": "play",
+        "trusted": true,
+        "time": 0,
+        "ready": 0,
+        "paused": false,
+        "ended": false,
+        "error": null,
+        "at": 1526
+      },
+      {
+        "type": "waiting",
+        "trusted": true,
+        "time": 0,
+        "ready": 0,
+        "paused": false,
+        "ended": false,
+        "error": null,
+        "at": 1526
+      },
+      {
+        "type": "stalled",
+        "trusted": true,
+        "time": 0,
+        "ready": 0,
+        "paused": false,
+        "ended": false,
+        "error": null,
+        "at": 4741
+      },
+      {
+        "type": "pause",
+        "trusted": true,
+        "time": 0,
+        "ready": 0,
+        "paused": true,
+        "ended": false,
+        "error": null,
+        "at": 6625
+      }
+    ],
+    "audio": [
+      {
+        "bus": "ambient",
+        "paused": false,
+        "time": 6.186866,
+        "ready": 4,
+        "error": null
+      },
+      {
+        "bus": "bgm",
+        "paused": false,
+        "time": 6.187094,
+        "ready": 4,
+        "error": null
+      },
+      {
+        "bus": "voice",
+        "paused": true,
+        "time": 0,
+        "ready": 0,
+        "error": null
+      },
+      {
+        "history": "true",
+        "paused": true,
+        "time": 0,
+        "ready": 0,
+        "error": null
+      }
+    ]
+  }
+}
