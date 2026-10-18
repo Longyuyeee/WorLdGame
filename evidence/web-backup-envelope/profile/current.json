@@ -1,0 +1,154 @@
+{
+  "passed": true,
+  "label": "current",
+  "browser": "151.0.7922.34",
+  "bundleSha256": "e0fe93e00b9226cf4c6af46dc7d3a11a5a22914d534ce870df113b53d3c3c314",
+  "sourceSha256": "2c0b50617f69ed5f6a1af29ae30aa41588ef1d0b88d87a7828519c66ca7f782b",
+  "rows": [
+    {
+      "round": 1,
+      "repetitions": 1,
+      "serializedCharacters": 36178,
+      "bytes": 43111,
+      "encode": {
+        "wallMs": 17.30000001192093,
+        "maximumHeartbeatGapMs": 5,
+        "beats": 9
+      },
+      "decode": {
+        "wallMs": 12.299999982118607,
+        "maximumHeartbeatGapMs": 5,
+        "beats": 7
+      }
+    },
+    {
+      "round": 2,
+      "repetitions": 1,
+      "serializedCharacters": 36178,
+      "bytes": 43111,
+      "encode": {
+        "wallMs": 12.199999988079071,
+        "maximumHeartbeatGapMs": 4.700000017881393,
+        "beats": 7
+      },
+      "decode": {
+        "wallMs": 11.600000023841858,
+        "maximumHeartbeatGapMs": 5,
+        "beats": 7
+      }
+    },
+    {
+      "round": 3,
+      "repetitions": 1,
+      "serializedCharacters": 36178,
+      "bytes": 43111,
+      "encode": {
+        "wallMs": 8.800000011920929,
+        "maximumHeartbeatGapMs": 4.9000000059604645,
+        "beats": 6
+      },
+      "decode": {
+        "wallMs": 8.599999994039536,
+        "maximumHeartbeatGapMs": 5.0999999940395355,
+        "beats": 7
+      }
+    },
+    {
+      "round": 1,
+      "repetitions": 128,
+      "serializedCharacters": 4630784,
+      "bytes": 5384985,
+      "encode": {
+        "wallMs": 116,
+        "maximumHeartbeatGapMs": 7.100000023841858,
+        "beats": 33
+      },
+      "decode": {
+        "wallMs": 96.60000002384186,
+        "maximumHeartbeatGapMs": 5.300000011920929,
+        "beats": 28
+      }
+    },
+    {
+      "round": 2,
+      "repetitions": 128,
+      "serializedCharacters": 4630784,
+      "bytes": 5384985,
+      "encode": {
+        "wallMs": 128.69999998807907,
+        "maximumHeartbeatGapMs": 6.0999999940395355,
+        "beats": 36
+      },
+      "decode": {
+        "wallMs": 92.09999999403954,
+        "maximumHeartbeatGapMs": 5.0999999940395355,
+        "beats": 27
+      }
+    },
+    {
+      "round": 3,
+      "repetitions": 128,
+      "serializedCharacters": 4630784,
+      "bytes": 5384985,
+      "encode": {
+        "wallMs": 107.59999999403954,
+        "maximumHeartbeatGapMs": 5.699999988079071,
+        "beats": 31
+      },
+      "decode": {
+        "wallMs": 100.09999999403954,
+        "maximumHeartbeatGapMs": 5.0999999940395355,
+        "beats": 29
+      }
+    },
+    {
+      "round": 1,
+      "repetitions": 512,
+      "serializedCharacters": 18523136,
+      "bytes": 21536793,
+      "encode": {
+        "wallMs": 389.5,
+        "maximumHeartbeatGapMs": 18.69999998807907,
+        "beats": 99
+      },
+      "decode": {
+        "wallMs": 332.09999999403954,
+        "maximumHeartbeatGapMs": 10.800000011920929,
+        "beats": 86
+      }
+    },
+    {
+      "round": 2,
+      "repetitions": 512,
+      "serializedCharacters": 18523136,
+      "bytes": 21536793,
+      "encode": {
+        "wallMs": 411,
+        "maximumHeartbeatGapMs": 18.80000001192093,
+        "beats": 104
+      },
+      "decode": {
+        "wallMs": 392.7000000178814,
+        "maximumHeartbeatGapMs": 12.200000017881393,
+        "beats": 101
+      }
+    },
+    {
+      "round": 3,
+      "repetitions": 512,
+      "serializedCharacters": 18523136,
+      "bytes": 21536793,
+      "encode": {
+        "wallMs": 394.2999999821186,
+        "maximumHeartbeatGapMs": 19.799999982118607,
+        "beats": 99
+      },
+      "decode": {
+        "wallMs": 332.40000000596046,
+        "maximumHeartbeatGapMs": 11.299999982118607,
+        "beats": 85
+      }
+    }
+  ],
+  "scope": "Envelope-only same-machine Chromium probe. Repeated actual serialized text is synthetic and NOT a valid long Runtime save; formal load deliberately stops at an explicit sentinel. Measures JSON/envelope work plus its dispatch, not complete import, real long story, phone performance or total speedup."
+}

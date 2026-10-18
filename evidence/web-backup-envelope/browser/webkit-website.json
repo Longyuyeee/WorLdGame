@@ -1,0 +1,323 @@
+{
+  "passed": true,
+  "engine": "webkit",
+  "format": "website",
+  "browser": "26.5",
+  "artifacts": {
+    "html": {
+      "bytes": 46835749,
+      "sha256": "05129248f4d40e987950b3789da087de0bcb30a86678869259b67271d7b067b4"
+    },
+    "website": {
+      "bytes": 35422198,
+      "sha256": "aa4d443252c7f824b96d87b18a8c194be975bec2008e9bc669b2e6a7fc8a4801"
+    }
+  },
+  "sourceBackupSha256": "2c0b50617f69ed5f6a1af29ae30aa41588ef1d0b88d87a7828519c66ca7f782b",
+  "checks": [
+    {
+      "name": "cancel-real-envelope-check-and-ignore-held-native-reply-without-writing",
+      "before": {
+        "status": "title",
+        "hash": "none",
+        "cursor": "0",
+        "auto": "off",
+        "save": "idle"
+      },
+      "stats": {
+        "posts": [
+          {
+            "kind": "backup-decode",
+            "id": 1
+          }
+        ],
+        "replies": [
+          {
+            "kind": "backup-decode",
+            "trusted": true,
+            "result": "backup-decode",
+            "error": null
+          }
+        ],
+        "terminated": 1,
+        "held": 0
+      }
+    },
+    {
+      "name": "retry-old-backup-and-reject-tampering-before-any-import",
+      "stats": {
+        "posts": [
+          {
+            "kind": "backup-decode",
+            "id": 1
+          },
+          {
+            "kind": "backup-decode",
+            "id": 2
+          },
+          {
+            "kind": "backup-decode",
+            "id": 3
+          }
+        ],
+        "replies": [
+          {
+            "kind": "backup-decode",
+            "trusted": true,
+            "result": "backup-decode",
+            "error": null
+          },
+          {
+            "kind": "backup-decode",
+            "trusted": true,
+            "result": "backup-decode",
+            "error": null
+          },
+          {
+            "kind": "backup-decode",
+            "trusted": true,
+            "error": "备份文件校验失败，原存档保持不变。"
+          }
+        ],
+        "terminated": 3,
+        "held": 0
+      }
+    },
+    {
+      "name": "explicit-import-and-read-restores-the-actual-original-progress-with-auto-off",
+      "state": {
+        "status": "presenting",
+        "hash": "92734b15d85213f16dff5be1b0d4d3b76b4346e94133891f5168b790534a78d8",
+        "cursor": "16",
+        "auto": "off",
+        "save": "loaded"
+      },
+      "saved": [
+        {
+          "slotId": "manual-1",
+          "hash": "92734b15d85213f16dff5be1b0d4d3b76b4346e94133891f5168b790534a78d8",
+          "savedAt": 1792282872912,
+          "storedSha256": "34b039da9f92a3cae08a85de14c2a1e1f50a39c5cc2d608a72b13b74bbc06799"
+        }
+      ]
+    },
+    {
+      "name": "cancel-real-packed-output-with-escape-and-four-viewport-actions-without-late-download",
+      "layouts": [
+        {
+          "viewport": {
+            "width": 320,
+            "height": 568
+          },
+          "box": {
+            "x": 49,
+            "y": 505.1875,
+            "width": 126,
+            "height": 45.1875
+          }
+        },
+        {
+          "viewport": {
+            "width": 568,
+            "height": 320
+          },
+          "box": {
+            "x": 397,
+            "y": 257.6875,
+            "width": 126,
+            "height": 45.1875
+          }
+        },
+        {
+          "viewport": {
+            "width": 844,
+            "height": 390
+          },
+          "box": {
+            "x": 660,
+            "y": 221.34375,
+            "width": 126,
+            "height": 45.1875
+          }
+        },
+        {
+          "viewport": {
+            "width": 1280,
+            "height": 900
+          },
+          "box": {
+            "x": 874,
+            "y": 344.4375,
+            "width": 126,
+            "height": 45.1875
+          }
+        }
+      ],
+      "stats": {
+        "posts": [
+          {
+            "kind": "backup-decode",
+            "id": 1
+          },
+          {
+            "kind": "backup-decode",
+            "id": 2
+          },
+          {
+            "kind": "backup-decode",
+            "id": 3
+          },
+          {
+            "kind": "backup-decode",
+            "id": 4
+          },
+          {
+            "kind": "backup-encode",
+            "id": 5
+          }
+        ],
+        "replies": [
+          {
+            "kind": "backup-decode",
+            "trusted": true,
+            "result": "backup-decode",
+            "error": null
+          },
+          {
+            "kind": "backup-decode",
+            "trusted": true,
+            "result": "backup-decode",
+            "error": null
+          },
+          {
+            "kind": "backup-decode",
+            "trusted": true,
+            "error": "备份文件校验失败，原存档保持不变。"
+          },
+          {
+            "kind": "backup-decode",
+            "trusted": true,
+            "result": "backup-decode",
+            "error": null
+          },
+          {
+            "kind": "backup-encode",
+            "trusted": true,
+            "result": "backup-encode",
+            "error": null
+          }
+        ],
+        "terminated": 5,
+        "held": 0
+      }
+    },
+    {
+      "name": "retry-exports-an-exact-complete-session-in-original-envelope-format",
+      "file": "webkit-website-slot.worldsave",
+      "bytes": 43111,
+      "sha256": "536d90daa14f8413f15c3a0ac9986162b3d4d283f01ed3538e4155e20e5f28eb"
+    },
+    {
+      "name": "current-progress-backup-rechecks-without-auto-import-or-changing-the-reading",
+      "file": "webkit-website-current.worldsave",
+      "bytes": 43114,
+      "sha256": "d9fcdbccf84c0043e5126c07ef0dabbafd33bfb2aec3536b7a3de459878c60a2",
+      "state": {
+        "status": "presenting",
+        "hash": "92734b15d85213f16dff5be1b0d4d3b76b4346e94133891f5168b790534a78d8",
+        "cursor": "16",
+        "auto": "off",
+        "save": "idle"
+      }
+    }
+  ],
+  "observed": {
+    "posts": [
+      {
+        "kind": "backup-decode",
+        "id": 1
+      },
+      {
+        "kind": "backup-decode",
+        "id": 2
+      },
+      {
+        "kind": "backup-decode",
+        "id": 3
+      },
+      {
+        "kind": "backup-decode",
+        "id": 4
+      },
+      {
+        "kind": "backup-encode",
+        "id": 5
+      },
+      {
+        "kind": "backup-encode",
+        "id": 6
+      },
+      {
+        "kind": "backup-encode",
+        "id": 7
+      },
+      {
+        "kind": "backup-decode",
+        "id": 8
+      }
+    ],
+    "replies": [
+      {
+        "kind": "backup-decode",
+        "trusted": true,
+        "result": "backup-decode",
+        "error": null
+      },
+      {
+        "kind": "backup-decode",
+        "trusted": true,
+        "result": "backup-decode",
+        "error": null
+      },
+      {
+        "kind": "backup-decode",
+        "trusted": true,
+        "error": "备份文件校验失败，原存档保持不变。"
+      },
+      {
+        "kind": "backup-decode",
+        "trusted": true,
+        "result": "backup-decode",
+        "error": null
+      },
+      {
+        "kind": "backup-encode",
+        "trusted": true,
+        "result": "backup-encode",
+        "error": null
+      },
+      {
+        "kind": "backup-encode",
+        "trusted": true,
+        "result": "backup-encode",
+        "error": null
+      },
+      {
+        "kind": "backup-encode",
+        "trusted": true,
+        "result": "backup-encode",
+        "error": null
+      },
+      {
+        "kind": "backup-decode",
+        "trusted": true,
+        "result": "backup-decode",
+        "error": null
+      }
+    ],
+    "terminated": 8,
+    "held": 0
+  },
+  "errors": [],
+  "scope": "Actual exported complete work and old same-content backup, native Worker JSON/hash/preview tasks and formal session load; readonly IndexedDB digests. A host wrapper delays delivery of actual trusted replies for cancellation/late-result checks, never fabricates their content or replaces validation. Desktop engines and phone-sized windows, not physical phone/OS interruption/Safari, natural listening, full long-story cost, rights/public HTTPS or long-soak acceptance."
+}

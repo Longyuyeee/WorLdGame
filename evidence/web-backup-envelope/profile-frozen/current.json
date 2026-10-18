@@ -1,0 +1,162 @@
+{
+  "passed": true,
+  "label": "current",
+  "baselineCommit": "7ca00eb882235ccbac4cbc132c1151eca2caf967",
+  "browser": "151.0.7922.34",
+  "bundleSha256": "1d45448413982616856f4940f1324da597ae230d33ff248fd5ddbdd8971de5b3",
+  "sourceSha256": "2c0b50617f69ed5f6a1af29ae30aa41588ef1d0b88d87a7828519c66ca7f782b",
+  "rows": [
+    {
+      "round": 1,
+      "repetitions": 1,
+      "serializedCharacters": 36178,
+      "bytes": 43111,
+      "encode": {
+        "wallMs": 11.5,
+        "maximumHeartbeatGapMs": 5.200000017881393,
+        "beats": 7
+      },
+      "decode": {
+        "wallMs": 8.300000011920929,
+        "maximumHeartbeatGapMs": 4.600000023841858,
+        "beats": 6
+      }
+    },
+    {
+      "round": 2,
+      "repetitions": 1,
+      "serializedCharacters": 36178,
+      "bytes": 43111,
+      "encode": {
+        "wallMs": 8.900000005960464,
+        "maximumHeartbeatGapMs": 4.700000017881393,
+        "beats": 7
+      },
+      "decode": {
+        "wallMs": 7.5,
+        "maximumHeartbeatGapMs": 4.9000000059604645,
+        "beats": 6
+      }
+    },
+    {
+      "round": 3,
+      "repetitions": 1,
+      "serializedCharacters": 36178,
+      "bytes": 43111,
+      "encode": {
+        "wallMs": 8.5,
+        "maximumHeartbeatGapMs": 4.800000011920929,
+        "beats": 6
+      },
+      "decode": {
+        "wallMs": 7.4000000059604645,
+        "maximumHeartbeatGapMs": 4.5999999940395355,
+        "beats": 6
+      }
+    },
+    {
+      "round": 1,
+      "repetitions": 128,
+      "serializedCharacters": 4630784,
+      "bytes": 5384985,
+      "encode": {
+        "wallMs": 89.30000001192093,
+        "maximumHeartbeatGapMs": 5,
+        "beats": 27
+      },
+      "decode": {
+        "wallMs": 81,
+        "maximumHeartbeatGapMs": 5,
+        "beats": 24
+      }
+    },
+    {
+      "round": 2,
+      "repetitions": 128,
+      "serializedCharacters": 4630784,
+      "bytes": 5384985,
+      "encode": {
+        "wallMs": 92.59999999403954,
+        "maximumHeartbeatGapMs": 5.200000017881393,
+        "beats": 27
+      },
+      "decode": {
+        "wallMs": 86.40000000596046,
+        "maximumHeartbeatGapMs": 5.299999982118607,
+        "beats": 26
+      }
+    },
+    {
+      "round": 3,
+      "repetitions": 128,
+      "serializedCharacters": 4630784,
+      "bytes": 5384985,
+      "encode": {
+        "wallMs": 93.80000001192093,
+        "maximumHeartbeatGapMs": 5.0999999940395355,
+        "beats": 28
+      },
+      "decode": {
+        "wallMs": 79.19999998807907,
+        "maximumHeartbeatGapMs": 5.0999999940395355,
+        "beats": 24
+      }
+    },
+    {
+      "round": 1,
+      "repetitions": 512,
+      "serializedCharacters": 18523136,
+      "bytes": 21536793,
+      "encode": {
+        "wallMs": 339.09999999403954,
+        "maximumHeartbeatGapMs": 16.099999994039536,
+        "beats": 86
+      },
+      "decode": {
+        "wallMs": 302,
+        "maximumHeartbeatGapMs": 12.800000011920929,
+        "beats": 78
+      }
+    },
+    {
+      "round": 2,
+      "repetitions": 512,
+      "serializedCharacters": 18523136,
+      "bytes": 21536793,
+      "encode": {
+        "wallMs": 348.10000002384186,
+        "maximumHeartbeatGapMs": 15.700000017881393,
+        "beats": 89
+      },
+      "decode": {
+        "wallMs": 302.69999998807907,
+        "maximumHeartbeatGapMs": 13,
+        "beats": 78
+      }
+    },
+    {
+      "round": 3,
+      "repetitions": 512,
+      "serializedCharacters": 18523136,
+      "bytes": 21536793,
+      "encode": {
+        "wallMs": 361.69999998807907,
+        "maximumHeartbeatGapMs": 18.099999994039536,
+        "beats": 92
+      },
+      "decode": {
+        "wallMs": 322.59999999403954,
+        "maximumHeartbeatGapMs": 13.100000023841858,
+        "beats": 83
+      }
+    }
+  ],
+  "cancellation": {
+    "cancelled": true,
+    "abortAtMs": 28.599999994039536,
+    "settledAtMs": 28.700000017881393,
+    "serializedCharacters": 18523136
+  },
+  "remainingWorkers": 0,
+  "scope": "Envelope-only same-machine Chromium probe; baseline freezes the original backup and worker modules from the recorded commit. Repeated actual serialized text is synthetic and NOT a valid long Runtime save; formal load deliberately stops at an explicit sentinel. Measures JSON/envelope work plus its dispatch, not complete import, real long story, phone performance or total speedup. Cancellation uses an actual in-flight CPU Worker, without delayed replies; exact CPU instruction at abort is not observed."
+}

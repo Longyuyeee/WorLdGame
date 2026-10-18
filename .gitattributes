@@ -117,3 +117,5 @@ evidence/web-manual-save-safety/*.html -text
 evidence/web-manual-save-safety/**/*.worldsave -text
 evidence/web-reading-meta-continuity/*.html -text
 evidence/web-reading-meta-continuity/**/*.worldsave -text
+evidence/web-backup-envelope/*.html -text
+evidence/web-backup-envelope/**/*.worldsave -text

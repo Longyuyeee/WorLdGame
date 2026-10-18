@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useImperativeHandle, useRef, useState, type Ref } from "react";
 import type { PlayerCoreState, loadPlayerCoreSessionSaveV1 } from "@world-studio/player-core";
-import { createPlayerSaveBackup, readPlayerSaveBackup, playerBackupToManualSlot, PLAYER_SAVE_BACKUP_MAX_BYTES, type PlayerSaveBackup } from "./player-save-backup";
+import { readPlayerSaveBackup, playerBackupToManualSlot, PLAYER_SAVE_BACKUP_MAX_BYTES, type PlayerSaveBackup } from "./player-save-backup";
+import { runBackupEnvelopeTask } from './backup-envelope-client';
 import type { WorldPlayerSaveSlotV3, WorldPlayerSaveStoreV3, WorldPlayerSaveSummaryV3 } from "./player-save-store";
 import type { WorldPlayerSaveWriteCoordinatorV1 } from "./player-save-policy";
 import { playerSaveLabel } from "./player-save-label";
@@ -88,7 +89,7 @@ export function PlayerSaveBackupPanel({ state, store, coordinator, slots, curren
       capture = { slot, ...(preview === null ? {} : { preview }) };
     }
     if (!active(captured, request)) return; setMessage('正在校验并生成备份文件…');
-    const bytes = await createPlayerSaveBackup(capture.slot, capture.preview, source === "current" ? "current" : "slot", crypto.subtle, request.controller.signal);
+    const { bytes } = await runBackupEnvelopeTask({ kind: 'backup-encode', slot: capture.slot, ...(capture.preview ? { preview: capture.preview } : {}), origin: source === 'current' ? 'current' : 'slot' }, request.controller.signal);
     if (!active(captured, request)) return;
     const filename = `${capture.slot.title.normalize("NFKC").replace(/[^\p{Letter}\p{Number}_-]+/gu, "-").slice(0, 60) || "game"}-${source === "current" ? "progress" : source}-${capture.slot.savedAtEpochMilliseconds}.worldsave`;
     const href = URL.createObjectURL(new Blob([bytes], { type: "application/json" }));
@@ -101,7 +102,9 @@ export function PlayerSaveBackupPanel({ state, store, coordinator, slots, curren
     if (file.size > PLAYER_SAVE_BACKUP_MAX_BYTES) throw Error("备份文件超过 96 MiB 上限。");
     const bytes = await readPlayerBackupFile(file, request.controller.signal); if (!active(captured, request)) return;
     setMessage('正在完整检查备份进度、版本和截图…');
-    const backup = await readPlayerSaveBackup(bytes, captured, crypto.subtle, { signal: request.controller.signal, ...(validateBackup ? { load: (serialized: string) => validateBackup(captured, serialized, request.controller.signal) } : {}) });
+    const backup = await readPlayerSaveBackup(bytes, captured, crypto.subtle, { signal: request.controller.signal,
+      envelope: async (input, projectId) => (await runBackupEnvelopeTask({ kind: 'backup-decode', bytes: input, projectId }, request.controller.signal)).envelope,
+      ...(validateBackup ? { load: (serialized: string) => validateBackup(captured, serialized, request.controller.signal) } : {}) });
     if (!active(captured, request)) return;
     const empty = Array.from({ length: 12 }, (_, index) => `manual-${index + 1}`).find(id => !slots.some(slot => slot.slotId === id));
     setIncoming(backup); setTarget(empty ?? "manual-1"); setMessage("备份校验通过，请选择手动槽位后导入。");
