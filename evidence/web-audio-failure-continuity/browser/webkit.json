@@ -1,0 +1,326 @@
+{
+  "passed": true,
+  "baseline": false,
+  "engine": "webkit",
+  "browser": "26.5",
+  "artifacts": {
+    "html": {
+      "bytes": 46836755,
+      "sha256": "b2f587f5b29b7181bd0bbf2088be8f5800aeaace6af6ab177fd239746862b7a7"
+    },
+    "website": {
+      "bytes": 35423204,
+      "sha256": "5cad7ea0b75b376794d7c5045ad86aebc000cd97f52ab4c4f578f88e54d55d6e"
+    }
+  },
+  "sourceBackupSha256": "2c0b50617f69ed5f6a1af29ae30aa41588ef1d0b88d87a7828519c66ca7f782b",
+  "checks": [
+    {
+      "name": "real-corrupt-http-voice-produces-a-native-local-failure",
+      "before": {
+        "hash": "92734b15d85213f16dff5be1b0d4d3b76b4346e94133891f5168b790534a78d8",
+        "cursor": "16",
+        "auto": "off",
+        "host": "active"
+      },
+      "audio": {
+        "paused": true,
+        "time": 0,
+        "error": 4,
+        "transport": "error",
+        "failed": "true"
+      },
+      "requests": [
+        {
+          "corrupt": true,
+          "bytes": 7
+        },
+        {
+          "corrupt": true,
+          "bytes": 7
+        },
+        {
+          "corrupt": true,
+          "bytes": 7
+        },
+        {
+          "corrupt": true,
+          "bytes": 7
+        }
+      ]
+    },
+    {
+      "name": "return-from-history-retains-live-failure-and-the-original-healthy-music",
+      "audio": {
+        "paused": true,
+        "time": 0,
+        "error": 4,
+        "transport": "error",
+        "failed": "true"
+      }
+    },
+    {
+      "name": "retry-and-silent-reading-remain-reachable-at-four-sizes",
+      "layouts": [
+        {
+          "viewport": {
+            "width": 320,
+            "height": 568
+          },
+          "name": "重试媒体",
+          "box": {
+            "x": 46,
+            "y": 261.796875,
+            "width": 78,
+            "height": 44
+          }
+        },
+        {
+          "viewport": {
+            "width": 320,
+            "height": 568
+          },
+          "name": "本次先无声阅读",
+          "box": {
+            "x": 134,
+            "y": 261.796875,
+            "width": 117,
+            "height": 44
+          }
+        },
+        {
+          "viewport": {
+            "width": 568,
+            "height": 320
+          },
+          "name": "重试媒体",
+          "box": {
+            "x": 46,
+            "y": 227.796875,
+            "width": 78,
+            "height": 44
+          }
+        },
+        {
+          "viewport": {
+            "width": 568,
+            "height": 320
+          },
+          "name": "本次先无声阅读",
+          "box": {
+            "x": 134,
+            "y": 227.796875,
+            "width": 117,
+            "height": 44
+          }
+        },
+        {
+          "viewport": {
+            "width": 844,
+            "height": 390
+          },
+          "name": "重试媒体",
+          "box": {
+            "x": 46,
+            "y": 210.796875,
+            "width": 78,
+            "height": 44
+          }
+        },
+        {
+          "viewport": {
+            "width": 844,
+            "height": 390
+          },
+          "name": "本次先无声阅读",
+          "box": {
+            "x": 134,
+            "y": 210.796875,
+            "width": 117,
+            "height": 44
+          }
+        },
+        {
+          "viewport": {
+            "width": 1280,
+            "height": 900
+          },
+          "name": "重试媒体",
+          "box": {
+            "x": 300,
+            "y": 251.796875,
+            "width": 78,
+            "height": 44
+          }
+        },
+        {
+          "viewport": {
+            "width": 1280,
+            "height": 900
+          },
+          "name": "本次先无声阅读",
+          "box": {
+            "x": 388,
+            "y": 251.796875,
+            "width": 117,
+            "height": 44
+          }
+        }
+      ]
+    },
+    {
+      "name": "explicit-retry-replaces-only-the-failed-owner-and-plays-the-original-complete-source",
+      "audio": {
+        "paused": false,
+        "time": 0.0355417,
+        "error": null,
+        "transport": "playing",
+        "failed": "false",
+        "completed": "false"
+      },
+      "requests": [
+        {
+          "corrupt": true,
+          "bytes": 7
+        },
+        {
+          "corrupt": true,
+          "bytes": 7
+        },
+        {
+          "corrupt": true,
+          "bytes": 7
+        },
+        {
+          "corrupt": true,
+          "bytes": 7
+        },
+        {
+          "corrupt": false,
+          "bytes": 222222
+        },
+        {
+          "corrupt": false,
+          "bytes": 222222
+        }
+      ]
+    },
+    {
+      "name": "subsequent-native-pause-and-explicit-resume-retain-current-voice-position",
+      "pausedAt": 0.0355417
+    },
+    {
+      "name": "actual-recovered-voice-completes-without-replaying-history-or-writing-a-slot",
+      "audio": {
+        "paused": true,
+        "time": 5.0380045,
+        "error": null,
+        "transport": "ended",
+        "failed": "false",
+        "completed": "true"
+      }
+    }
+  ],
+  "events": [
+    {
+      "type": "error",
+      "bus": "voice",
+      "trusted": true,
+      "time": 0,
+      "error": 4
+    },
+    {
+      "type": "play",
+      "bus": "bgm",
+      "trusted": true,
+      "time": 0.05,
+      "error": null
+    },
+    {
+      "type": "playing",
+      "bus": "bgm",
+      "trusted": true,
+      "time": 0.05,
+      "error": null
+    },
+    {
+      "type": "play",
+      "bus": "ambient",
+      "trusted": true,
+      "time": 0.02,
+      "error": null
+    },
+    {
+      "type": "playing",
+      "bus": "ambient",
+      "trusted": true,
+      "time": 0.02,
+      "error": null
+    },
+    {
+      "type": "play",
+      "history": "true",
+      "trusted": true,
+      "time": 0,
+      "error": null
+    },
+    {
+      "type": "playing",
+      "history": "true",
+      "trusted": true,
+      "time": 0,
+      "error": null
+    },
+    {
+      "type": "play",
+      "bus": "voice",
+      "trusted": true,
+      "time": 0,
+      "error": null
+    },
+    {
+      "type": "playing",
+      "bus": "voice",
+      "trusted": true,
+      "time": 0,
+      "error": null
+    },
+    {
+      "type": "pause",
+      "bus": "voice",
+      "trusted": true,
+      "time": 0.0355417,
+      "error": null
+    },
+    {
+      "type": "play",
+      "bus": "voice",
+      "trusted": true,
+      "time": 0.07,
+      "error": null
+    },
+    {
+      "type": "playing",
+      "bus": "voice",
+      "trusted": true,
+      "time": 0.07,
+      "error": null
+    },
+    {
+      "type": "pause",
+      "bus": "voice",
+      "trusted": true,
+      "time": 5.0380045,
+      "error": null
+    },
+    {
+      "type": "ended",
+      "bus": "voice",
+      "trusted": true,
+      "time": 5.0380045,
+      "error": null
+    }
+  ],
+  "errors": [],
+  "scope": "Actual complete work and original same-content backup through UI; native decode error caused by a corrupt HTTP response, then real history audition and explicit retry of original complete bytes. No synthetic media, clock, story or storage events. Native pause() is application instrumentation, not OS interruption. Muted desktop engines/phone-sized windows do not prove natural listening, physical phones/Safari, OS background/lock/BFCache, rights/public HTTPS or long soak. Baseline success reproduces the old failure, not product acceptance."
+}

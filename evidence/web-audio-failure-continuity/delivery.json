@@ -1,0 +1,97 @@
+{
+  "passed": true,
+  "contentVersion": "1.11.0",
+  "technicalVersion": "S0.41",
+  "promoted": true,
+  "artifacts": {
+    "html": {
+      "bytes": 46837000,
+      "sha256": "8d874327042ea7c0d164b04524733580a56c350b16423c5df82a803433c7e812"
+    },
+    "website": {
+      "bytes": 35423449,
+      "sha256": "5505fb17d9f5de6882dda977f730d8e5624ebc2ded9e83a4c52a7f019338ee1f"
+    }
+  },
+  "sourceAndNotes": "evidence/web-story-plans-and-farewell",
+  "pendingNotes": 25,
+  "retained": [
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops-project.zip",
+      "sha256": "43ef6e1673ed3dffbf705b4f178b2122fc960971eaf47286b33742fa285f0576"
+    },
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops.worldreview",
+      "sha256": "747534249345da6ce337054b4e7f47a1516556beda7079ef7b6d093e590bce8f"
+    },
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops.html",
+      "sha256": "6e5dfb4dfb88b5e210354fbcaeb8ccc4e79d50aa935a1d449f750bde8fc822fa"
+    },
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops-website.zip",
+      "sha256": "25ef0ab90a396f01dcfb09e60f754fb31a82f59aedb8da869b4a199a59e8f19e"
+    },
+    {
+      "file": "evidence/web-audio-failure-continuity/work/before-rain-stops.html",
+      "sha256": "b2f587f5b29b7181bd0bbf2088be8f5800aeaace6af6ab177fd239746862b7a7",
+      "developmentOnly": true
+    },
+    {
+      "file": "evidence/web-audio-failure-continuity/work/before-rain-stops-website.zip",
+      "sha256": "5cad7ea0b75b376794d7c5045ad86aebc000cd97f52ab4c4f578f88e54d55d6e",
+      "developmentOnly": true
+    },
+    {
+      "file": "evidence/web-history-voice-readiness/before-rain-stops.html",
+      "sha256": "691c724168b19f85fe55b9a8bc1ad65da905b5986c525b0234f8a97533c456ed"
+    },
+    {
+      "file": "evidence/web-history-voice-readiness/before-rain-stops-website.zip",
+      "sha256": "f840e073c52023ca667ab6538e78dc20af4a3df98d2f32d0421da02adaeb8b1b"
+    },
+    {
+      "file": "evidence/web-backup-continuation/final-work/original-1.11.0.worldsave",
+      "sha256": "2c0b50617f69ed5f6a1af29ae30aa41588ef1d0b88d87a7828519c66ca7f782b"
+    }
+  ],
+  "browsers": [
+    {
+      "engine": "chromium",
+      "checks": 6,
+      "nativeDecodeFailureAndExplicitRetry": true
+    },
+    {
+      "engine": "firefox",
+      "checks": 6,
+      "nativeDecodeFailureAndExplicitRetry": true
+    },
+    {
+      "engine": "webkit",
+      "checks": 6,
+      "nativeDecodeFailureAndExplicitRetry": true
+    }
+  ],
+  "healthy": [
+    {
+      "engine": "chromium",
+      "fileMode": false,
+      "checks": 6
+    },
+    {
+      "engine": "firefox",
+      "fileMode": false,
+      "checks": 6
+    },
+    {
+      "engine": "webkit",
+      "fileMode": false,
+      "checks": 6
+    },
+    {
+      "engine": "chromium",
+      "fileMode": true,
+      "checks": 6
+    }
+  ]
+}

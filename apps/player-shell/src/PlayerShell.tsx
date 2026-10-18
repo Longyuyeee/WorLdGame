@@ -25,7 +25,7 @@ import { usePlayerAudioReadiness } from './use-audio-readiness';
 import { PlayerMusicPreview } from './PlayerMusicPreview';
 import { DEFAULT_WEB_CREDITS, readWebCredits, hasWebCredits } from '@world-studio/project-domain';
 import { cancelPlayerAudioRequest, requestPlayerAudioPlayback, cancelPlayerMediaRequest, requestPlayerMediaPlayback } from "./audio-playback-request";
-import { playerAudioFailureHint } from './audio-failure';
+import { playerAudioFailureHint, playerAudioHasFailure } from './audio-failure';
 import { NativeAtlasImage } from "./NativeAtlasImage";
 import { DeferredAtlasImage } from "./DeferredAtlasImage";
 import {
@@ -342,6 +342,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
   const galleryPreviewClose = useRef<HTMLButtonElement | null>(null);
   const galleryPreviewWasOpen = useRef(false);
   const audioElements = useRef(new Map<string, HTMLAudioElement>());
+  const audioSourceOwners = useRef(new Map<string, { url: string; key: number }>()), audioSourceSerial = useRef(0);
   const historyVoiceOwner = useRef<{ element: HTMLAudioElement | null; resume: boolean } | null>(null);
   const [historyVoicePlaying, setHistoryVoicePlaying] = useState(false);
   const [, refreshAudioTransport] = useState(0);
@@ -359,6 +360,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
   const requestAudio = useCallback((element: HTMLAudioElement, reason: "resuming" | "resuming-after-skip" = "resuming") => {
     const isCurrent = () => element.isConnected && audioElements.current.get(element.dataset.audioBus ?? "") === element
       && audioActivity.current.hostActivity === "active" && !audioActivity.current.skipActive && element.dataset.shouldPlay === 'true'
+      && !playerAudioHasFailure(element)
       && !(element.dataset.audioBus === 'voice' && historyVoiceOwner.current !== null);
     if (!isCurrent()) return;
     delete element.dataset.historyVoiceInterrupted;
@@ -368,13 +370,15 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
     if (historyVoiceOwner.current !== null) return;
     const element = audioElements.current.get('voice') ?? null;
     historyVoiceOwner.current = { element, resume: element !== null && !element.paused && !element.ended && !element.error && element.dataset.voiceCompleted !== 'true' && element.dataset.voiceFailed !== 'true' };
-    if (element) { cancelPlayerAudioRequest(element); element.dataset.historyVoiceInterrupted = 'true'; element.dataset.playerPlayback = 'paused-by-policy'; element.pause(); }
+    if (element) { cancelPlayerAudioRequest(element); element.dataset.historyVoiceInterrupted = 'true'; element.dataset.playerPlayback = playerAudioHasFailure(element) ? 'error' : 'paused-by-policy'; element.pause(); }
     setVoicePlaying(false);
   }, []);
   const leaveHistoryVoice = useCallback(() => {
     const owner = historyVoiceOwner.current; historyVoiceOwner.current = null; setHistoryVoicePlaying(false);
     const element = owner?.element;
-    if (!element || !element.isConnected || audioElements.current.get('voice') !== element || element.ended || element.error || element.dataset.voiceCompleted === 'true' || element.dataset.voiceFailed === 'true') return;
+    if (!element || !element.isConnected || audioElements.current.get('voice') !== element) return;
+    if (playerAudioHasFailure(element)) { delete element.dataset.historyVoiceInterrupted; element.dataset.playerPlayback = 'error'; refreshAudioTransport(value => value + 1); return; }
+    if (element.ended || element.dataset.voiceCompleted === 'true') return;
     if (owner.resume && audioActivity.current.hostActivity === 'active' && settingsApplication.audio.resumeAfterInterruption) requestAudio(element);
     else { element.dataset.playerPlayback = 'paused-by-policy'; refreshAudioTransport(value => value + 1); }
   }, [requestAudio, settingsApplication.audio.resumeAfterInterruption]);
@@ -484,6 +488,15 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
       voicePlaying || historyVoicePlaying
     )
   }));
+  // An explicit source replacement is a new native owner even if its asset ID
+  // stays the same. Keep only live buses, and never put large data URLs in keys.
+  const audioSourceKeys = new Map<string, number>();
+  for (const track of appliedAudio) {
+    const previous = audioSourceOwners.current.get(track.bus);
+    const owner = previous?.url === track.url ? previous : { url: track.url, key: ++audioSourceSerial.current };
+    audioSourceOwners.current.set(track.bus, owner); audioSourceKeys.set(track.bus, owner.key);
+  }
+  for (const bus of audioSourceOwners.current.keys()) if (!audioSourceKeys.has(bus)) audioSourceOwners.current.delete(bus);
   const failedAudio = appliedAudio.filter(track => mediaErrors.includes(track.assetId) && audioElements.current.get(track.bus)?.dataset.playerPlayback === 'error');
   const audioDelays = usePlayerAudioReadiness(audioElements.current, hostActivity === 'active' && skipMode === null);
   const delayedAudio = appliedAudio.filter(track => { const element = audioElements.current.get(track.bus); return element?.dataset.assetId === track.assetId && audioDelays.has(element); });
@@ -491,7 +504,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
   const currentMediaIds = new Set([stage.background?.assetId, ...stage.characters.map(item => item.assetId), stage.video?.assetId, ...failedAudio.map(track => track.assetId)]);
   const visibleMediaErrors = mediaErrors.filter(id => currentMediaIds.has(id));
   const visualMediaErrors = visibleMediaErrors.filter(id => !appliedAudio.some(track => track.assetId === id));
-  const audioPlaybackSignature = appliedAudio.map(track => `${mediaGeneration}:${audioAttempts[track.bus] ?? 0}:${track.bus}:${track.assetId}:${track.status}`).join("|");
+  const audioPlaybackSignature = appliedAudio.map(track => `${mediaGeneration}:${audioAttempts[track.bus] ?? 0}:${audioSourceKeys.get(track.bus)}:${track.bus}:${track.assetId}:${track.status}`).join("|");
   const interruptedAudio = appliedAudio.some(track => {
     const element = audioElements.current.get(track.bus);
     return element?.isConnected && element.dataset.assetId === track.assetId && element.dataset.shouldPlay === 'true' && !element.ended && !element.error && ['blocked', 'interrupted', 'paused-by-policy'].includes(element.dataset.playerPlayback ?? '');
@@ -500,7 +513,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
   const autoVoice = appliedAudio.find(track => track.bus === 'voice');
   // A retry or restored sound is a new owner even with the same narrative asset.
   // Do not restart reading time for unrelated music gain or transport renders.
-  const autoVoiceIdentity = autoVoice ? `${mediaGeneration}:${audioAttempts.voice ?? 0}:${autoVoice.assetId}:${autoVoice.status}` : null;
+  const autoVoiceIdentity = autoVoice ? `${mediaGeneration}:${audioAttempts.voice ?? 0}:${audioSourceKeys.get('voice')}:${autoVoice.assetId}:${autoVoice.status}` : null;
   // A detached voice's late pause must not clear a replacement, but its old
   // ducking/manual-wait flag must not survive a change of owner either.
   useEffect(() => setVoicePlaying(false), [autoVoiceIdentity]);
@@ -1677,8 +1690,11 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
     for (const element of audioElements.current.values()) {
       if (hostActivity === "suspended") {
         cancelPlayerAudioRequest(element);
-        element.dataset.playerPlayback = "suspended";
+        element.dataset.playerPlayback = playerAudioHasFailure(element) ? 'error' : 'suspended';
         element.pause();
+      } else if (playerAudioHasFailure(element)) {
+        element.dataset.playerPlayback = 'error';
+        refreshAudioTransport(revision => revision + 1);
       } else if (element.dataset.shouldPlay === "true" && !element.ended && !element.error && element.dataset.voiceCompleted !== "true" && element.dataset.voiceFailed !== "true" && settingsApplication.audio.resumeAfterInterruption) {
         requestAudio(element);
       } else if (element.dataset.shouldPlay === "true") {
@@ -1707,7 +1723,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
     for (const element of audioElements.current.values()) {
       if (skipActive) {
         cancelPlayerAudioRequest(element);
-        element.dataset.playerPlayback = "skipped";
+        element.dataset.playerPlayback = playerAudioHasFailure(element) ? 'error' : 'skipped';
         element.pause();
       } else if (wasActive && hostActivity === "active" && element.dataset.shouldPlay === "true" && !element.ended && !element.error && element.dataset.voiceCompleted !== "true" && element.dataset.voiceFailed !== "true") {
         requestAudio(element, "resuming-after-skip");
@@ -2075,7 +2091,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
         </div>
         {appliedAudio.map((track) => (
           <audio
-            key={`${mediaGeneration}:${audioAttempts[track.bus] ?? 0}:${track.bus}:${track.assetId}`}
+            key={`${mediaGeneration}:${audioAttempts[track.bus] ?? 0}:${audioSourceKeys.get(track.bus)}:${track.bus}:${track.assetId}`}
             muted={effectiveMuted}
             ref={(element) => {
               if (element !== null) {
@@ -2111,6 +2127,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
             onPlay={(event) => {
               const element = event.currentTarget;
               if (!element.isConnected || audioElements.current.get(track.bus) !== element) return;
+              if (playerAudioHasFailure(element)) { cancelPlayerAudioRequest(element); element.dataset.playerPlayback = 'error'; element.pause(); if (track.bus === 'voice') setVoicePlaying(false); refreshAudioTransport(revision => revision + 1); return; }
               if (audioActivity.current.hostActivity !== 'active' || audioActivity.current.skipActive || element.dataset.shouldPlay !== 'true' || track.bus === 'voice' && (historyVoiceOwner.current !== null || element.dataset.historyVoiceInterrupted === 'true')) {
                 cancelPlayerAudioRequest(element);
                 element.dataset.playerPlayback = audioActivity.current.hostActivity !== 'active' ? 'suspended' : audioActivity.current.skipActive ? 'skipped' : 'paused-by-policy';
@@ -2135,6 +2152,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
             }}
             onEnded={(event) => {
               if (!event.currentTarget.isConnected || audioElements.current.get(track.bus) !== event.currentTarget) return;
+              if (playerAudioHasFailure(event.currentTarget)) return;
               event.currentTarget.dataset.playerPlayback = "ended";
               refreshAudioTransport(revision => revision + 1);
               if (track.bus === "voice") {
@@ -2145,7 +2163,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
             onError={(event) => audioFailed(event.currentTarget)}
             onPlaying={event => {
               const element = event.currentTarget;
-              if (track.bus === 'voice' && element.isConnected && audioElements.current.get('voice') === element && !element.paused && audioActivity.current.hostActivity === 'active' && !audioActivity.current.skipActive && element.dataset.shouldPlay === 'true' && historyVoiceOwner.current === null && element.dataset.historyVoiceInterrupted !== 'true') setVoicePlaying(true);
+              if (track.bus === 'voice' && element.isConnected && audioElements.current.get('voice') === element && !element.paused && !playerAudioHasFailure(element) && audioActivity.current.hostActivity === 'active' && !audioActivity.current.skipActive && element.dataset.shouldPlay === 'true' && historyVoiceOwner.current === null && element.dataset.historyVoiceInterrupted !== 'true') setVoicePlaying(true);
             }}
           />
         ))}

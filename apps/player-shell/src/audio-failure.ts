@@ -1,3 +1,9 @@
+/** Policy interruptions do not clear failures. Retry or an explicit source
+ * replacement creates a fresh owner; play() rejection may lack MediaError. */
+export function playerAudioHasFailure(element: HTMLAudioElement): boolean {
+  return !!element.error || element.dataset.playerPlayback === 'error' || element.dataset.voiceFailed === 'true';
+}
+
 /** Hints are deliberately not a codec/support verdict; the same browser may work online. */
 export function playerAudioFailureHint(code: number | undefined): string {
   if (code === 2) return '声音下载失败。请检查网络；离线文件已缓存也不代表当前浏览器能播放。';

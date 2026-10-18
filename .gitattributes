@@ -121,3 +121,6 @@ evidence/web-backup-envelope/*.html -text
 evidence/web-backup-envelope/**/*.worldsave -text
 evidence/web-history-voice-readiness/*.html -text
 evidence/web-history-voice-readiness/**/*.worldsave -text
+evidence/web-audio-failure-continuity/*.html -text
+evidence/web-audio-failure-continuity/**/*.html -text
+evidence/web-audio-failure-continuity/**/*.worldsave -text
