@@ -1,0 +1,9 @@
+{
+  "checks": [
+    "real publishing form: ordered contributor edit, invalid link rejection, Escape retains draft, explicit discard, actual local save/reload/home reopen preserves applied credits; desktop and 390px light/dark dialogs fit",
+    "actual HTML and directory production downloads carry applied credits; readable credits.txt matches build-info hash and offline inventory, and editable source is packaged; no private review attached"
+  ],
+  "errors": [],
+  "error": "TimeoutError: locator.evaluate: Timeout 20000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('dialog', { name: '制作名单与致谢', exact: true })\u001b[22m\n",
+  "stack": "locator.evaluate: Timeout 20000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('dialog', { name: '制作名单与致谢', exact: true })\u001b[22m\n\n    at fit (E:\\Project\\AIProject\\ClaudeProject\\WorLdGame\\tools\\run-web-credits.mjs:22:58)\n    at E:\\Project\\AIProject\\ClaudeProject\\WorLdGame\\tools\\run-web-credits.mjs:42:531"
+}

@@ -1,0 +1,10 @@
+{
+  "checks": [
+    {
+      "name": "eight-existing-notes-imported-and-three-actual-issues-recorded",
+      "detail": {}
+    }
+  ],
+  "errors": [],
+  "failure": "locator.waitFor: Timeout 25000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.diagnostics-console.is-clear') to be visible\u001b[22m\n\n    at author (E:\\ProjectSave\\GeminiProject\\WorLdGame\\tools\\run-web-story-beats.mjs:78:59)\n    at async file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-story-beats.mjs:170:46"
+}

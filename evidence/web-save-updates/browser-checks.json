@@ -1,0 +1,40 @@
+{
+  "passed": true,
+  "checkedAt": "2026-10-14T03:34:37.919Z",
+  "browser": "155.0.8059.41",
+  "version": "1.5.3",
+  "checks": [
+    "UI verifies 1.5.1 and 1.5.2, refuses changed source without altering current project; source preserves every story/media entry",
+    "actual editor content change invalidates the saved receipt; test-only directory declares no accepted prior versions",
+    "original 1.5.2 caches fully and reads its quick save offline",
+    "waiting update preserves the old window; activated 1.5.3 restores old recovery/quick saves offline with cached audio and unchanged original slot bytes",
+    "continued old session saves to a separate manual slot, refreshes offline at the same progress on a 390px viewport, and keeps the original quick slot",
+    "a real content-changing update disables incompatible recovery, rejects old quick load visibly and preserves title state/original slot",
+    "current standalone HTML opens as a local file, quick saves, refreshes and loads correctly"
+  ],
+  "artifacts": {
+    "before-rain-stops-project.zip": {
+      "byteLength": 24180686,
+      "sha256": "2bdb04a6d16fce35a7b72cf5efd7c84c578add5f55def1420d3e7a47fc2c5149"
+    },
+    "before-rain-stops.html": {
+      "byteLength": 32771707,
+      "sha256": "369064c3ace17db27323fe04a4b390b6d21b928fac1712d54eb50eda9dda4aca"
+    },
+    "before-rain-stops-web.zip": {
+      "byteLength": 24760037,
+      "sha256": "541f50a579ff9577bd869d3349ef1515b15397a0078292b2d51dcd4024cd7d7b"
+    }
+  },
+  "verifiedPreviousVersions": [
+    "1.5.1",
+    "1.5.2"
+  ],
+  "incompatibleTestArtifactSha256": "9428cd5851a642afac0d49e8bc222ea6263a8c0c29f5e77a1ad3b39673f959fd",
+  "originalQuickSlotUnchanged": true,
+  "errors": [],
+  "publicDeployment": false,
+  "physicalDevicePassed": false,
+  "completeRoutesRerun": false,
+  "previousRouteEvidence": "evidence/web-player-entry/browser-checks.json"
+}

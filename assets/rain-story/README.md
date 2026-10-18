@@ -1,0 +1,111 @@
+# 《雨停之前》演出素材
+
+2026-10-18 当前运行候选接续 [#405 存档列表读取恢复与已写入结果核对](../../docs/405-web-save-list-recovery-and-verified-slots.md)，[HTML／网站](../../evidence/web-save-list-recovery)补列表未知／失败、重试和已写入结果反馈，不改剧情或素材。1.11.0、#394 源／25 条未人工批准记录、26 份媒体及九句配音保持，发行条件全部 pending；自然听感、物理设备、WebKit 内嵌声音和许可等仍待验，#404 旧游戏保留。以下为历史。
+
+2026-10-18 当前运行候选更新至 [#404 换设备备份准备与取消接续](../../docs/404-web-backup-preparation-and-continuation.md)，[HTML／网站](../../evidence/web-backup-continuation)补准备取消、重试、迟到隔离与真实文件携带续读，不修改剧情或媒体。1.11.0、#394 源／25 条未人工批准记录、26 份媒体及九句配音保持，发行条件全部 pending；自然听感、物理设备、WebKit 内嵌声音和许可等仍待验，#403 旧游戏保留。以下为历史。
+
+2026-10-18 当前运行候选更新至 [#403 声音等待与阅读接续](../../docs/403-web-audio-readiness-and-continuation.md)，[HTML／网站](../../evidence/web-audio-readiness)补真实声音请求未就绪时的等待、局部重试、迟到恢复与无声继续，不改剧情或媒体。1.11.0、#394 源／25 条未人工批准记录、26 份媒体及九句配音保持，发行条件全部 pending；自然听感、物理设备与 WebKit 内嵌声音等仍待验，#402 旧游戏保留。以下为历史。
+
+2026-10-18 当前运行候选更新至 [#402 历史语音重听与当前阅读接续](../../docs/402-web-history-voice-audition.md)，[HTML／网站](../../evidence/web-history-voice)补已读主线语音重听及返回当前句，不改剧情或媒体。1.11.0、#394 源／25 条未人工批准记录、26 份媒体及九句配音关联保持，发行条件全部 pending；自然听感、物理设备与 WebKit 内嵌声音等仍待验，#400 旧游戏保留。以下为历史。
+
+2026-10-18 当前运行候选更新至 [#400 保存异常后的连续阅读与进度保护](../../docs/400-web-progress-recovery.md)，[HTML／网站](../../evidence/web-progress-recovery)不改剧情或素材，只处理保存异常后的可读性、明确保存与恢复。1.11.0、#394 源／25 条人工记录、26 项文件与九句配音关联保持，发行条件全部 pending；自然听感、WebKit 播放和物理设备仍待验，#399 原包保留。以下为历史。
+
+2026-10-18 当前运行候选接续 [#399 媒体失败时保持阅读与明确恢复](../../docs/399-web-reading-media-recovery.md)，[HTML／网站](../../evidence/web-reading-media-recovery)处理普通阅读的声音／Canvas 故障入口、明确重试和无声返回，未替换或生成素材。1.11.0、#394 源／25 条人工记录、26 项媒体与九句配音关联保持，发行条件全部 pending。WebKit 播放、自然听感和物理设备仍待验，#398 原游戏保留。以下为历史。
+
+2026-10-18 当前运行候选更新至 [#398 分支选择与可读性](../../docs/398-web-choice-keyboard-and-readability.md)，[HTML／网站](../../evidence/web-choice-keyboard)包含键盘误选保护及错误恢复布局。内容 1.11.0、源／25 条人工记录沿 #394，26 项媒体原字节与九句配音关联保持；全部发行条件仍 pending，没有新增素材或许可结论。#395 原游戏保留，WebKit 解码及自然听感仍待验。以下为历史。
+
+2026-10-18 接续 [#397 素材试听的等待、停止与重试](../../docs/397-web-audio-preview-recovery.md)。作者核对增加显式试听、限时／取消和失败恢复，未替换或生成素材；26 项文件及九句配音关联保持，发行条件全部 pending。WebKit Blob 解码仍未通过，不把重试操作当作听感或许可验收。正式源／人工记录沿 #394，双游戏沿 #395，内容 1.11.0／技术 S0.41 不变。以下为历史。
+
+2026-10-18 当前接续为 [#396 同窗素材预览与正文上下文](../../docs/396-web-source-preview-and-context.md)。来源核对可按需看完整图片／试听当前音频，并对照已提交演出和相邻原文；26 项原文件与当前工程／玩家媒体逐项对齐，九句配音包含 `voice-04-v1.7.wav`，不是音频转写或许可通过。26 项发行条件仍待确认，WebKit Blob 试听未通过。内容 1.11.0，源／25 条人工记录沿 [#394](../../evidence/web-story-plans-and-farewell)，当前 HTML／网站仍沿 [#395](../../evidence/web-reading-press)，素材没有变化。以下为历史。
+
+2026-10-18 当前 HTML／网站更新至 [web-voice-reading-continuity](../../evidence/web-voice-reading-continuity)，语音中断和段内连读见 [#390](../../docs/390-web-voice-reading-continuity.md)。内容仍 1.10.0，源／23 条待人工记录沿 #384，全部 26 媒体和来源台账保持，无新素材或许可结论。以下为历史。
+
+2026-10-18 本机段内续读接续见 [#389](../../docs/389-web-reading-resume.md)。不改剧情或素材；1.10.0 源／23 条待人工记录沿 #384、当前可下载双游戏沿 #386，全部 26 媒体及来源不变，没有新增许可结论。以下为历史。
+
+2026-10-17 长篇 Auto／Skip 接续见 [#388](../../docs/388-web-long-playback-advance.md)。源／23 条待人工记录仍沿 #384、可下载双游戏沿 #386；全部 26 媒体和来源台账保持，没有新增素材或许可结论。以下为历史。
+
+2026-10-17 长篇输入技术接续见 [#387](../../docs/387-web-session-input-transport.md)，临时双游戏实际检查后仅保留摘要。当前源／23 条待人工记录沿 #384，当前 HTML／网站仍沿 [#386](../../evidence/web-auto-reading-pages)；1.10.0、全部 26 媒体和来源台账没有变化，不新增素材或许可结论。以下为历史。
+
+2026-10-17 当前 HTML／网站运行文件在 [web-auto-reading-pages](../../evidence/web-auto-reading-pages)，长段落 Auto、手机反馈与截图存储兼容见 [#386](../../docs/386-web-auto-reading-pages.md)。作品仍 1.10.0，源工程、23 条待人工记录、全部 26 媒体与来源台账沿 #384 不变，无新素材或许可结论。以下为历史。
+
+2026-10-17 当前 HTML／网站运行文件在 [web-auto-voice-continuity](../../evidence/web-auto-voice-continuity)，Auto 与语音失败／重试修复见 [#385](../../docs/385-web-auto-voice-continuity.md)。仍为 1.10.0；源工程、23 条待人工记录、全部 26 媒体与来源台账沿 #384 不变，无新素材或许可结论。下方为历史批次。
+
+2026-10-17 当前内容候选为 **1.10.0**：[工程／双格式游戏／23 条待人工复核记录](../../evidence/web-story-arrival-and-night)，范围见 [#384](../../docs/384-web-story-arrival-and-night.md)。复用现有夜间工作室并调整人物出场、照片含义和分支表达，全部 26 媒体及来源台账逐字节保持，无新图／配音或许可确认。精确改动见 [editorial-review-v1.10.md](editorial-review-v1.10.md)。以下为历史批次。
+
+项目制作样例素材，2026-10-13。
+
+2026-10-17 当前网站在 [web-cache-management](../../evidence/web-cache-management)，缓存空间与选择清理见 [#383](../../docs/383-web-cache-space-and-selected-cleanup.md)；HTML 沿 #382，源工程、全部 26 媒体、来源台账和 19 条人工记录沿 #380，素材没有改动。下方按历史批次保留。
+
+2026-10-17 当前 HTML／网站运行文件移至 [web-version-retention](../../evidence/web-version-retention)，更新前备份和旧版接续范围见 [#382](../../docs/382-web-content-update-and-old-version-continuity.md)。1.9.0 源工程、26 媒体、来源台账与 19 条待人工复核记录仍沿 #380；下方游戏路径为对应历史批次。
+
+2026-10-17 [#380](../../docs/380-web-story-branch-context.md)更新当前候选为 **1.9.0**：[工程／当前游戏／19 条待人工复核记录](../../evidence/web-story-branch-context)。新增 [bus-stop-night.png](bus-stop-night.png)，内置 imagegen 从文字生成，无输入图像、无 CLI 回退、不覆盖旧图；完整提示词、摘要和 pending 来源条件见 [source-manifest-v1.9.json](source-manifest-v1.9.json)。原 25 媒体与台账保持，总数 26，全部发行条件仍待确认。一次旁白与四步演出校订见 [editorial-review-v1.9.md](editorial-review-v1.9.md)。以下为各历史版本制作事实。
+
+2026-10-17 [#379](../../docs/379-web-reading-position.md)修复旋转、字号及界面往返时的阅读位置，沿用 #378 版本／离线入口收纳。源工程及十六条校订记录仍在 web-story-continuity；当前游戏在 [web-reading-position](../../evidence/web-reading-position)。正文、演出和全部 25 媒体保持，仍为 1.8.0，来源／发行状态不变。
+
+2026-10-17 当前内容候选为 [web-story-continuity](../../evidence/web-story-continuity) 的 **1.8.0**，校订五段旁白和七步地点／人物／雨声演出，详见 [editorial-review-v1.8.md](editorial-review-v1.8.md) 与 [#377](../../docs/377-web-story-continuity-candidate.md)。全部 25 份媒体逐字节保持，来源台账事实不变，未重生成图像或语音；发行条件仍待确认。原 1.7.14 工程和游戏保留，新剧情不承诺兼容其旧档。下方为历史制作事实。
+
+2026-10-16 当前候选为 `evidence/web-audio-compatibility` 的 1.7.3，见 [#341](../../docs/341-web-audio-recovery-and-runtime-baseline.md)；全部 25 媒体和 #339 内部来源台账逐份保持，仅版本/兼容回执变化。来源事实由实际工程 SHA-256 与仓库对齐，见 [#339](../../docs/339-web-asset-provenance-and-release-preparation.md)。12 图、9 系统合成语音、3 程序合成音频、1 图标的发行状态全部待确认，未代填依据/确认人/日期。本机 Windows WebKit 已用独立探针定位原生媒体绕过 Worker，离线原生播放未过；当前新增玩家故障恢复，不将回退或来源可追溯说成播放/许可通过。下方为各版本制作事实。
+
+## 当前 1.7.0 配音修订
+
+2026-10-15，`voice-04-v1.7.wav` 替换当前工程的 `voice_04`，改为“出发的事明早确认，今晚的回信不用再等。”；不覆盖旧 `voice-04.wav`。其余 24 份媒体和所有图片不变。九段旁白及七组配音位置随实际剧情一起校订，详见 [editorial-review-v1.7.md](editorial-review-v1.7.md) / [editorial-v1.7.mjs](editorial-v1.7.mjs)。
+
+台词/声线、生成方法及未验收边界在 [voice-revision-v1.7.json](voice-revision-v1.7.json)，技术指标及新旧摘要在 [source-manifest-v1.7.json](source-manifest-v1.7.json)。生成脚本 `tools/generate-rain-story-voice-v1.7.ps1` 本机使用 PowerShell 7.6.5 和 Microsoft Kangkang，UTF-8 读取台词 JSON；不同宿主需先确认对应声线可用。仍为系统合成语音，不是人工录音；自然听感与再分发许可保持待复核。当前工程与双游戏产物在 `evidence/web-story-beats`；下方为历史制作记录。
+
+## 1.6.0 昼夜变体
+
+2026-10-15 使用内置 imagegen 的光照/天气编辑生成三张背景，保留原图，未用 CLI、外部下载或代码调色替代。实际游戏仍使用工程等比画幅。生成式编辑保持地点和构图意图，不承诺逐像素几何一致；最终美术和发行许可仍待确认。
+
+| 新素材 | 编辑参考 | 用途 |
+| --- | --- | --- |
+| [station-day.png](station-day.png) | `station-night-v2.png` | 白天到站、重逢 |
+| [day-cafe.png](day-cafe.png) | `night-cafe.png` | 早餐和下午店内 |
+| [night-studio.png](night-studio.png) | `morning-studio.png` | 晚间回房 |
+
+三张均为 1672×941 PNG。完整最终提示词在 [image-prompts-v1.6.json](image-prompts-v1.6.json)，新旧文件的 SHA-256 和字节数在 [source-manifest-v1.6.json](source-manifest-v1.6.json)。演出绑定与剧情修订见 [editorial-review-v1.6.md](editorial-review-v1.6.md)。下方为历史素材来源。
+
+- `xia-letter.png`：内置 imagegen 生成的小夏立绘，1024×1536；实际检查角落 alpha=0、895,591 个全透明像素，保留原输出透明度。
+- `night-cafe.png`：内置 imagegen 生成的雨夜店内背景。
+- `coastal-morning.png`：内置 imagegen 生成的雨后海边街道背景。
+- `night-travel-theme.wav`：原始旋律和和弦的程序合成背景音乐，32 秒。
+- `soft-rain.wav`：固定随机种子的滤波雨声，12 秒。
+- `station-chime.wav`：合成提示音，1.5 秒。
+
+音频源脚本：`tools/generate-rain-story-audio.mjs`。文件为单声道 PCM16 / 22,050 Hz。可重新生成；音乐不是录制配音，也不冒充真人演奏。图像未使用外部品牌、角色或其他人的参考图片。1.2.0 工程沿用了车站测试背景；1.3.0 通过资源替换更新为下述新站台图，保留其稳定资源 ID。本目录不对整个作品素材作统一授权承诺。
+
+## 1.3.0 演出与展示素材
+
+以下六图均通过 **内置 imagegen** 生成/编辑，未走 CLI 或外部下载；完整提示词、透明参数和参考路径见 [image-prompts-v1.3.json](image-prompts-v1.3.json)。保存原始输出，不做背景抠图或重绘后冒充原输出。
+
+| 文件 | 用途 | 实际规格 |
+| --- | --- | --- |
+| `station-night-v2.png` | 雨夜站台、标题封面，替换测试背景 | 1672×941，不透明 |
+| `waiting-room.png` | 候车室读信 | 1672×941，不透明 |
+| `night-train.png` | 远行列车内部 | 1672×941，不透明 |
+| `morning-studio.png` | 新住处/画室及结尾 | 1672×941，不透明 |
+| `xia-thoughtful.png` | 小夏认真倾听，参考原 `xia-letter.png` | 1024×1536，角落 alpha=0、893,193 个全透明像素 |
+| `xia-smile.png` | 小夏安心微笑，同一参考立绘 | 1024×1536，角落 alpha=0、897,932 个全透明像素 |
+
+表情变体保持主要身份、衣着和构图，但生成式编辑不承诺逐像素一致；细微姿态/边缘差异和立绘自然度仍需人工美术复核。图像没有指定外部人物、品牌或 IP 参考。生成来源明确不等于最终发行许可已审清。
+
+`letter-icon.svg` 是原创代码绘制的雨滴/信封图标，`letter-icon.png` 是通过 `tools/create-rain-story-icon.mjs` 栅格化的 512×512 PNG。不是 AI 生成位图；可以从 SVG 重生成。
+
+`voice-01.wav`–`voice-09.wav` 是 Windows **System.Speech 合成语音样片**：林远采用 Microsoft Kangkang，小夏采用 Microsoft Huihui，速率 -1，单声道 PCM16 / 22,050 Hz。准确台词/声线见 `voice-lines.json`；生成脚本 `tools/generate-rain-story-voice.ps1` 需要本机安装相同声线。只覆盖九句角色对白，不是九十段旁白配音、真人录音或全篇配音。音轨在对应台词前播放、台词后停止；推进遵循工程的“等待语音结束”设置，当前默认开启，不能将这里旧有的“不强制听完”表述作为实际行为承诺。
+
+来源与发行状态：系统 TTS 声线/输出的再分发条件尚未确认；公网前应核实授权或换成有明确授权的录制/合成素材。全部图片、音乐、文本和图标也需由项目所有者完成最终来源确认与展示声明，不能因使用内部工具就统一标记授权通过。未提供真人演出者，也不声明任何真人声音授权。
+
+机器检查入口：`node tools/audit-rain-story-assets.mjs`，可设置 `STUDIO_CHROME` 为已安装 Chromium。16 项新源素材的字节、SHA-256、尺寸/透明度及 WAV 时长/RMS 见 [source-manifest-v1.3.json](source-manifest-v1.3.json)。该报告只检查技术可用性，`legalReviewPassed` 和 `releasePermissionConfirmed` 保持 false；与正式工程素材 digest 的对应检查见 `evidence/web-story-direction`。
+
+## 内置 imagegen 提示词
+
+立绘（transparent_background=true）：
+
+> Use case: stylized-concept. Asset type: production visual-novel transparent character portrait. Create one original young adult woman, Xia, around 24 years old, soft short dark chestnut bob hair and warm brown eyes, cream cardigan over muted dusty-blue dress, holding a small closed letter at chest height. Gentle thoughtful smile, natural anatomy, facing viewer at slight three-quarter angle. High quality hand-painted anime visual novel illustration with clean delicate linework and softly shaded fabric. Tall portrait composition, head through mid-thigh fully visible, empty margins around hair and shoulders. Neutral soft illumination, suitable for rainy evening backgrounds. Actual transparent alpha background, no solid backdrop, no floor, no shadow outside silhouette. Exactly one person; no extra limbs, no lettering, no interface, no logos, no watermarks. This is a reusable in-game foreground standing portrait, not a poster.
+
+背景（transparent_background=false）：
+
+> Use case: stylized-concept. Asset type: visual-novel environment background, wide landscape 16:9. Original hand-painted anime illustration of a small cozy noodle cafe near a quiet railway station on a rainy night. Eye-level view from a booth toward a rain-streaked large window and warm wooden counter; two empty ceramic bowls and cups on a modest table in the foreground, soft amber pendant lights, wet blue street seen outside. Rich atmospheric depth, calm intimate mood for reading a letter, restrained teal-blue and amber palette, detailed but uncluttered. No people; leave visual breathing room in the central foreground for a character overlay and bottom third for a dialogue box. No legible text, no signs with writing, no logos, no watermarks, no interface. Deliver a single polished background illustration, not a collage.
+
+海边背景（transparent_background=false）：
+
+> Use case: stylized-concept. Asset type: visual-novel environment background, wide landscape 16:9. Original hand-painted anime illustration of a quiet coastal town in the morning after rain. Eye-level view from a sheltered street toward a calm silver-blue sea, a small rail-side road and modest pale buildings, wet paving reflecting soft early light, clouds opening gradually. Gentle hopeful mood, restrained blue-gray and warm cream palette, detailed but uncluttered. No people; leave breathing room in central foreground for a character overlay and bottom third for a dialogue box. No legible text, no logos, no watermarks, no interface. Single polished game background, not a collage.

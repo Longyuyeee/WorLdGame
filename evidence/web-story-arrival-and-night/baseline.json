@@ -1,0 +1,38 @@
+{
+  "passed": true,
+  "actualOriginalGame": "evidence/web-version-retention/before-rain-stops.html",
+  "contentVersion": "1.9.0",
+  "observations": [
+    {
+      "id": "stmt_ui_5",
+      "text": "售票员把窗口里的灯关掉时，雨正沿着站台的屋檐连成一条线。站台上的钟比手机慢了三分钟。林远核对了两次，没有走去询问值班员。他看见玻璃上自己的倒影，才发现他已经穿着这件外套站了很久。行李箱旁挂着新公司的地址，手机里存着一份还没签字的合同；这些东西都能说明他要去哪里，却没有一样能替他解释为什么迟迟不肯往前走。",
+      "background": "sample_station",
+      "portraits": [
+        "xia_letter"
+      ]
+    },
+    {
+      "id": "stmt_ui_83",
+      "labels": [
+        "留下等雨停",
+        "去追最后一班车"
+      ]
+    },
+    {
+      "id": "stmt_ui_219",
+      "text": "见面前夜，他把房间整理到能够招待客人的程度，没有把未完成的画藏起来。桌边留出一个可以放书的位置，窗户也擦了。他知道小夏会看见他的新生活并没有处处整齐，但这正是他想邀请她来的地方，不是一张经过删改的展示照片。",
+      "background": "morning_studio",
+      "portraits": []
+    },
+    {
+      "id": "stmt_ui_238",
+      "text": "小夏在画边放下一张新照片，是她课程里第一张真正完成的修复作业。照片背面写着可以继续用。林远摸着那个字，想起旧海边照片背面那句“没到的地方不必作废”。从那时拖着没有寄出的回信，到现在能坐在同一张桌前继续说话，他终于明白：故事不必按原来的样子保存，才能继续被使用。",
+      "background": "day_cafe",
+      "portraits": [
+        "xia_smile"
+      ]
+    }
+  ],
+  "errors": [],
+  "scope": "Existing actual exported HTML route through the four issue locations; muted Chromium, phone-sized, not human acceptance or a full-route result."
+}

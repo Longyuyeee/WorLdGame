@@ -1,0 +1,30 @@
+
+ RUN  v4.1.10 E:/Project/AIProject/ClaudeProject/WorLdGame
+
+ ❯ packages/player-core/src/web-save-compatibility.test.ts (3 tests | 1 failed) 89ms
+     × rejects another work and invalidates receipts on every preserved source change 18ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/player-core/src/web-save-compatibility.test.ts > verified Web save updates > rejects another work and invalidates receipts on every preserved source change
+AssertionError: expected 'invalid' to be 'stale' // Object.is equality
+
+Expected: "stale"
+Received: "invalid"
+
+ ❯ packages/player-core/src/web-save-compatibility.test.ts:38:56
+     36|     ];
+     37|     for (const changed of variants) {
+     38|       expect(readWebSaveCompatibility(changed).status).toBe("stale");
+       |                                                        ^
+     39|       expect(() => verifyWebSaveCompatibility(changed, project("1.0.0"…
+     40|       expect(createPlayerCore(changed).compatibleSaveBuildIds).toEqual…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  11:20:46
+   Duration  3.38s (transform 694ms, setup 369ms, import 1.52s, tests 89ms, environment 1.14s)
+

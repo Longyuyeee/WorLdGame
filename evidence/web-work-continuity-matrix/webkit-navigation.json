@@ -1,0 +1,18 @@
+{
+  "passed": false,
+  "engine": "webkit",
+  "artifacts": {
+    "html": {
+      "bytes": 46790046,
+      "sha256": "d63fc9280774f6260ee4a85b6496e08c86666a655f28af7d1b0464015181c864"
+    },
+    "website": {
+      "bytes": 35376495,
+      "sha256": "f4c11fc1fc754a904069008e3a88b6d988e356d49bf4edea650985ca72aeeaf1"
+    }
+  },
+  "checks": [],
+  "errors": [],
+  "error": "TimeoutError: locator.waitFor: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.player-dialogue') to be visible\u001b[22m\n",
+  "stack": "locator.waitFor: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.player-dialogue') to be visible\u001b[22m\n\n    at navigateBack (E:\\ProjectSave\\GeminiProject\\WorLdGame\\tools\\run-web-work-continuity-matrix.mjs:67:42)\n    at async navigation (E:\\ProjectSave\\GeminiProject\\WorLdGame\\tools\\run-web-work-continuity-matrix.mjs:85:22)\n    at async file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-work-continuity-matrix.mjs:128:50"
+}

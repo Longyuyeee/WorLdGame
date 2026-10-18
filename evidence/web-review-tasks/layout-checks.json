@@ -1,0 +1,8 @@
+{
+  "passed": true,
+  "browser": "155.0.8059.41",
+  "checks": [
+    "targeted filter layout: desktop/390px controls fit, type and reset controls align, light/dark mobile checked, reset clears the query; no repeated review or delivery run"
+  ],
+  "errors": []
+}

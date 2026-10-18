@@ -1,0 +1,24 @@
+blank-project guidance creates a character and returns to the original writing scene; dirty Escape preserves input
+create number variable and two ending scenes directly from writing; new scenes enter writing without changing the opening scene
+write real dialogue, assign a numeric variable with a valid default, and connect named choices to two authored endings without script editing
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
++ actual - expected
+
++ 'scene_a8caf5a212a549c1'
+- 'scene_3e5ac693f5fab2f9c186'
+         ^
+
+    at file:///E:/Project/AIProject/ClaudeProject/WorLdGame/tools/run-web-authoring-flow.mjs:125:10 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: 'scene_a8caf5a212a549c1',
+  expected: 'scene_3e5ac693f5fab2f9c186',
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.14.0

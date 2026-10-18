@@ -1,0 +1,8 @@
+{
+  "checks": [
+    "Actual editor imports the retained source unchanged, exposes undo scope and produces both independent Web formats."
+  ],
+  "errors": [],
+  "failure": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n+ actual - expected\n\n+ '86618970b9c99c01661e71a675c911cecec47f68b0d30bd414015d568bdd021e'\n- '92254c8c2112ed7a1c1b2405eab839e5b6e526fcbc3110c0af365a3adf1ad95e'\n\n    at file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-save-preview.mjs:45:175",
+  "text": "九宫格与头像复用验证 · 0.1.0\n\n欣赏画面\n菜单 ☰\n←\n→\n☰\n历史\n文楷·回信字集 · 项目字体已加载\n自动\n已读\n存读档\n\n存档已读取，继续当前故事\n\n青禾·用于姓名框换行验证的较长名字\n边框不再随按钮一起拉宽。\n点击继续 →"
+}

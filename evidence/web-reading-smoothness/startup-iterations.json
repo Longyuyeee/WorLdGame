@@ -1,0 +1,28 @@
+{
+  "scope": "Observed title-ready/task summaries from intermediate source revisions, transcribed from actual command output before final report regeneration. These are not repeated samples of one fixed revision. Intermediate raw CPU profiles were overwritten; final raw reports are startup-current.json and startup-candidate.json.",
+  "physicalDevice": false,
+  "statisticalBenchmark": false,
+  "iterations": [
+    {
+      "phase": "before final history scrolling layout",
+      "currentReadyMs": [255.6, 224.6, 242.7, 246.4, 220.7],
+      "currentTaskDurationsMs": [[75], [58], [61], [65], [57]],
+      "candidateReadyMs": [282.4, 238.4, 237.6, 219.7, 217.3],
+      "candidateTaskDurationsMs": [[82], [65], [63], [59], [58]]
+    },
+    {
+      "phase": "history scrolling layout, before final non-string input guard",
+      "currentReadyMs": [292.9, 300.4, 246.2, 263.2, 244.7],
+      "currentTaskDurationsMs": [[91, 55], [86], [60], [66], [69]],
+      "candidateReadyMs": [270.4, 260, 257, 254.2, 334.9],
+      "candidateTaskDurationsMs": [[80], [69], [71], [71], [53, 99]]
+    },
+    {
+      "phase": "final source and actual re-export after non-string input guard",
+      "currentReadyMs": [234.2, 231, 232.5, 214.8, 214.9],
+      "currentTaskDurationsMs": [[69], [65], [67], [58], [55]],
+      "candidateReadyMs": [238.5, 229.2, 220.2, 244.9, 191.1],
+      "candidateTaskDurationsMs": [[73], [59], [58], [68], [56]]
+    }
+  ]
+}

@@ -1,0 +1,113 @@
+[
+  {
+    "db": "world-studio-local-projects",
+    "key": "project_990b7f9d443888472b94/project.json",
+    "manifest": {
+      "worldStudioWorkspaceContext": {
+        "schemaVersion": 1,
+        "workspaceMode": "writer",
+        "editorView": "sequence",
+        "experienceLevel": "pro",
+        "sceneId": "scene_9b8b51c91c5e7a4b15ed",
+        "statementId": "stmt_ui_6"
+      },
+      "schemaVersion": 2,
+      "projectId": "project_990b7f9d443888472b94",
+      "title": "雨停之前",
+      "entrySceneId": "scene_9b8b51c91c5e7a4b15ed",
+      "storageRevision": 11,
+      "scenes": [
+        {
+          "sceneId": "scene_88a5f532808c4a47",
+          "path": "scenes/scene_88a5f532808c4a47.json",
+          "sha256": "afdaf2601b898b9838b8b7a97034cac4bdb700b2190c116aa590ded5022705f1",
+          "length": 2610
+        },
+        {
+          "sceneId": "scene_9b8b51c91c5e7a4b15ed",
+          "path": "scenes/scene_9b8b51c91c5e7a4b15ed.json",
+          "sha256": "d4cf646cdbdad33b108f1cb867a3ea03dfcbdf2b966e94ecccace0ab7103d7e1",
+          "length": 3986
+        },
+        {
+          "sceneId": "scene_cd3c49496688462e",
+          "path": "scenes/scene_cd3c49496688462e.json",
+          "sha256": "f27a183f6cd9f4eab6c6d8e3cf5ce765a37d3b69effcc4417f65efe5e1a5c168",
+          "length": 2612
+        }
+      ]
+    }
+  },
+  {
+    "db": "world-studio-managed-project-workspaces",
+    "key": "project-a3859680-8619-43d9-8a0d-9f34af0f4dc8\u0000chapters/chapter_8a41a981c0d241b3.json",
+    "manifest": {
+      "id": "chapter_8a41a981c0d241b3",
+      "scenePaths": [
+        "scenes/scene_88a5f532808c4a47.json",
+        "scenes/scene_cd3c49496688462e.json"
+      ],
+      "schemaVersion": 1,
+      "title": "结局"
+    }
+  },
+  {
+    "db": "world-studio-managed-project-workspaces",
+    "key": "project-a3859680-8619-43d9-8a0d-9f34af0f4dc8\u0000chapters/chapter_ecf3e20767455c7e1b14.json",
+    "manifest": {
+      "id": "chapter_ecf3e20767455c7e1b14",
+      "scenePaths": [
+        "scenes/scene_9b8b51c91c5e7a4b15ed.json"
+      ],
+      "schemaVersion": 1,
+      "title": "Main"
+    }
+  },
+  {
+    "db": "world-studio-managed-project-workspaces",
+    "key": "project-a3859680-8619-43d9-8a0d-9f34af0f4dc8\u0000settings/project.json",
+    "manifest": {
+      "platforms": {
+        "android": {},
+        "web": {},
+        "windows": {}
+      },
+      "project": {
+        "text": {
+          "fontScale": 1.15
+        }
+      },
+      "schemaVersion": 6
+    }
+  },
+  {
+    "db": "world-studio-managed-project-workspaces",
+    "key": "project-a3859680-8619-43d9-8a0d-9f34af0f4dc8\u0000world.project.json",
+    "manifest": {
+      "assetsPath": "domain/assets.json",
+      "chapterPaths": [
+        "chapters/chapter_ecf3e20767455c7e1b14.json",
+        "chapters/chapter_8a41a981c0d241b3.json"
+      ],
+      "charactersPath": "domain/characters.json",
+      "defaultLocale": "und",
+      "entrySceneId": "scene_9b8b51c91c5e7a4b15ed",
+      "fileVersion": "1.0.0",
+      "localizationPath": "localization/catalog.json",
+      "pluginsPath": "plugins/plugins.json",
+      "projectId": "project_990b7f9d443888472b94",
+      "schemaVersion": 1,
+      "settingsPath": "settings/project.json",
+      "testRoutesPath": "tests/routes.json",
+      "title": "雨停之前",
+      "uiPath": "ui/screens.json",
+      "variablesPath": "domain/variables.json",
+      "webPublication": {
+        "iconAssetId": "",
+        "name": "雨停之前",
+        "schemaVersion": 1,
+        "version": "1.1.0"
+      }
+    }
+  }
+]

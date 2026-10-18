@@ -1,0 +1,8 @@
+
+ RUN  v4.1.10 E:/ProjectSave/GeminiProject/WorLdGame
+
+
+ Test Files  10 passed (10)
+      Tests  62 passed (62)
+   Start at  21:35:29
+   Duration  16.12s (transform 1.36s, setup 1.09s, import 2.60s, tests 6.73s, environment 4.54s)

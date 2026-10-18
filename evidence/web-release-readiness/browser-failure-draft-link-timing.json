@@ -1,0 +1,8 @@
+{
+  "passed": false,
+  "checks": [
+    "22 actual sources inspected; light/dark and 1180/800/390 layout; route/preview return retains directory format; partial playtest is not marked complete"
+  ],
+  "errors": [],
+  "failure": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\n0 !== 1\n\n    at file:///E:/Project/AIProject/ClaudeProject/WorLdGame/tools/run-web-release-readiness.mjs:127:10"
+}

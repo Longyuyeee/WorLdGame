@@ -1,0 +1,8 @@
+
+> world-studio@0.0.0-s0.41 typecheck
+> tsc -b
+
+apps/player-shell/src/PlayerShell.tsx(1891,20): error TS2375: Type '{ entries: readonly PlayerHistoryEntrySnapshotV1[]; currentEntryId: string | undefined; label: string; children: (visible: readonly PlayerHistoryEntrySnapshotV1[]) => Element; }' is not assignable to type '{ readonly entries: readonly PlayerHistoryEntrySnapshotV1[]; readonly currentEntryId?: string; readonly label: string; readonly children: (visible: readonly PlayerHistoryEntrySnapshotV1[]) => ReactNode; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'currentEntryId' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.

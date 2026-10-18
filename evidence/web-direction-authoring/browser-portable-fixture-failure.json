@@ -1,0 +1,6 @@
+{
+  "checks": [],
+  "errors": [],
+  "error": "TimeoutError: page.waitForFunction: Timeout 20000ms exceeded.",
+  "stack": "page.waitForFunction: Timeout 20000ms exceeded.\n    at ready (E:\\Project\\AIProject\\ClaudeProject\\WorLdGame\\tools\\run-web-direction-authoring.mjs:37:26)\n    at E:\\Project\\AIProject\\ClaudeProject\\WorLdGame\\tools\\run-web-direction-authoring.mjs:49:184"
+}

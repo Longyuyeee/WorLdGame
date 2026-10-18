@@ -1,0 +1,18 @@
+{
+  "title": "雨后的约定",
+  "experienceLevel": "beginner",
+  "fromBlankProject": true,
+  "characters": 2,
+  "scenes": 3,
+  "variableValueAtBothEndings": 1,
+  "branches": [
+    "海风结局",
+    "书香结局"
+  ],
+  "editedAfterPreview": true,
+  "reloadedFromRecentProject": true,
+  "speakerAndTextPreserved": true,
+  "noScriptAuthoring": true,
+  "projectArchive": "rainy-promise-beginner.zip",
+  "exceptions": []
+}

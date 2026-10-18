@@ -1,0 +1,66 @@
+{
+  "checks": [
+    {
+      "name": "chromium-real-http-failure-retry-keeps-healthy-rain-and-story"
+    },
+    {
+      "name": "chromium-silent-session-rotation-restore-retains-progress-and-preferences"
+    },
+    {
+      "name": "chromium-actual-1.7.5-update-two-windows-offline-backup-explicit-read",
+      "offlineAudioPlays": true,
+      "silentFallbackAndOnlineResume": false,
+      "outageMechanism": "browser-offline"
+    },
+    {
+      "name": "chromium-file-html-actual-old-backup-and-media",
+      "inlineWorkerChecked": true,
+      "imageDecodeModes": [
+        "owned-blob-bitmap",
+        "owned-blob-bitmap"
+      ]
+    },
+    {
+      "name": "chromium-同行的约定-full-route"
+    },
+    {
+      "name": "chromium-远行的约定-full-route"
+    },
+    {
+      "name": "firefox-real-http-failure-retry-keeps-healthy-rain-and-story"
+    },
+    {
+      "name": "firefox-silent-session-rotation-restore-retains-progress-and-preferences"
+    },
+    {
+      "name": "firefox-actual-1.7.5-update-two-windows-offline-backup-explicit-read",
+      "offlineAudioPlays": true,
+      "silentFallbackAndOnlineResume": false,
+      "outageMechanism": "browser-offline"
+    },
+    {
+      "name": "firefox-同行的约定-full-route"
+    },
+    {
+      "name": "firefox-远行的约定-full-route"
+    },
+    {
+      "name": "webkit-real-http-failure-retry-keeps-healthy-rain-and-story"
+    },
+    {
+      "name": "webkit-silent-session-rotation-restore-retains-progress-and-preferences"
+    },
+    {
+      "name": "webkit-actual-1.7.5-update-two-windows-offline-backup-explicit-read",
+      "offlineAudioPlays": false,
+      "silentFallbackAndOnlineResume": true,
+      "outageMechanism": "origin-stopped"
+    },
+    {
+      "name": "webkit-同行的约定-full-route"
+    }
+  ],
+  "errors": [],
+  "error": "TimeoutError: locator.click: Timeout 25000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: '继续下一句', exact: true })\u001b[22m\n\u001b[2m    - locator resolved to <button type=\"button\" aria-label=\"继续下一句\" data-text-ready=\"true\" data-text-reveal-duration=\"0\" class=\"player-dialogue player-dialogue--adv\">…</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n",
+  "stack": "locator.click: Timeout 25000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: '继续下一句', exact: true })\u001b[22m\n\u001b[2m    - locator resolved to <button type=\"button\" aria-label=\"继续下一句\" data-text-ready=\"true\" data-text-reveal-duration=\"0\" class=\"player-dialogue player-dialogue--adv\">…</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\n    at route (E:\\ProjectSave\\GeminiProject\\WorLdGame\\tools\\run-web-audio-recovery.mjs:111:136)\n    at async file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-audio-recovery.mjs:150:296"
+}

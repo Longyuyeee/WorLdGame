@@ -1,0 +1,43 @@
+
+ RUN  v4.1.10 E:/Project/AIProject/ClaudeProject/WorLdGame
+
+ ❯ apps/editor/src/web-release-readiness.test.ts (9 tests | 2 failed) 51ms
+     × validates source descriptors rather than claiming an invalid zero-size file is complete 6ms
+     × keeps warnings visible and exportable, without allowing QA suppression to hide export blockers 5ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  apps/editor/src/web-release-readiness.test.ts > Web release source inspection > validates source descriptors rather than claiming an invalid zero-size file is complete
+AssertionError: expected [ { severity: 'error', …(4) }, …(5) ] to have a length of 3 but got 6
+
+- Expected
++ Received
+
+- 3
++ 6
+
+ ❯ apps/editor/src/web-release-readiness.test.ts:52:66
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  apps/editor/src/web-release-readiness.test.ts > Web release source inspection > keeps warnings visible and exportable, without allowing QA suppression to hide export blockers
+ProjectDomainError: scene path mismatch
+ ❯ fail packages/project-domain/src/codec.ts:10:109
+
+ ❯ packages/project-domain/src/codec.ts:125:477
+ ❯ saveProject packages/project-domain/src/codec.ts:125:424
+ ❯ semanticHash packages/project-domain/src/codec.ts:127:97
+ ❯ compileProjectIncremental packages/project-compiler/src/compiler.ts:442:22
+ ❯ compileProject packages/project-compiler/src/compiler.ts:448:125
+ ❯ inspectWebReleaseSources apps/editor/src/web-release-readiness.ts:78:23
+ ❯ apps/editor/src/web-release-readiness.test.ts:66:26
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 7 passed (9)
+   Start at  12:37:20
+   Duration  3.08s (transform 712ms, setup 305ms, import 1.62s, tests 51ms, environment 855ms)
+

@@ -1,0 +1,11 @@
+
+> world-studio@0.0.0-s0.41 audit:web-save-backup:browser
+> node tools/run-web-save-backup.mjs
+
+"UI version 1.5.4, legacy source verification and all three exports; source story/media entries unchanged"
+"real 1.5.3 quick save is retained and exported by 1.5.4; current progress exports offline without writing a synthetic manual slot"
+"isolated browser context and different HTTP origin imports a verified older session into an empty manual slot; story changes only after explicit load, with native cached-source audio"
+"target refreshes offline and reexports the identical canonical session bytes/history from the imported manual slot"
+"cancelled overwrite leaves original bytes; a second real UI window changes the slot after review and atomic import rejects the stale confirmation"
+"fresh explicit overwrite succeeds without automatic story switch; corrupted and correctly resealed other-work files leave current progress and target slot intact"
+"single-file HTML imports the portable verified-version backup at a local file URL, then refreshes and reads it"

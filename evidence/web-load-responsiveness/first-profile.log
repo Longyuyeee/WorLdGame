@@ -1,0 +1,27 @@
+
+> world-studio@0.0.0-s0.41 audit:web-load-responsiveness:profile
+> node tools/run-web-load-responsiveness.mjs --profile
+
+PASS baseline: 120 real UI history/save/advance/load
+PASS baseline: 240 real UI history/save/advance/load
+PASS baseline: 480 real UI history/save/advance/load
+PASS current: 120 real UI history/save/advance/load
+PASS current: 240 real UI history/save/advance/load
+PASS current: 480 real UI history/save/advance/load
+PASS 320: title read native restore, no competing Start
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+locator.waitFor: Timeout 30000ms exceeded.
+Call log:
+  - waiting for getByText('存档损坏或与当前构建不兼容', { exact: true }) to be visible
+
+    at E:\Project\AIProject\ClaudeProject\WorLdGame\tools\run-web-title-load.mjs:27:58 {
+  log: [
+    "  - waiting for getByText('存档损坏或与当前构建不兼容', { exact: true }) to be visible"
+  ],
+  name: 'TimeoutError'
+}
+
+Node.js v24.14.0

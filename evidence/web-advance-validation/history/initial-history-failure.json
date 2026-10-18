@@ -1,0 +1,73 @@
+{
+  "error": "TimeoutError: page.waitForFunction: Timeout 30000ms exceeded.",
+  "stack": "page.waitForFunction: Timeout 30000ms exceeded.\n    at E:\\ProjectSave\\GeminiProject\\WorLdGame\\tools\\run-web-history-search.mjs:44:91",
+  "checks": [
+    {
+      "viewport": {
+        "width": 320,
+        "height": 740
+      },
+      "inputBounds": {
+        "x": 29,
+        "y": 120,
+        "width": 254,
+        "height": 44
+      },
+      "closeBounds": {
+        "x": 221,
+        "y": 33,
+        "width": 64,
+        "height": 48
+      },
+      "matchingBound": 40,
+      "noMatch": true,
+      "escapeClears": true,
+      "searchDidNotMoveStory": true
+    },
+    {
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "inputBounds": {
+        "x": 391,
+        "y": 120,
+        "width": 324,
+        "height": 44
+      },
+      "closeBounds": {
+        "x": 747,
+        "y": 36,
+        "width": 64,
+        "height": 44
+      },
+      "matchingBound": 40,
+      "noMatch": true,
+      "escapeClears": true,
+      "searchDidNotMoveStory": true
+    },
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "inputBounds": {
+        "x": 827,
+        "y": 120,
+        "width": 324,
+        "height": 44
+      },
+      "closeBounds": {
+        "x": 1183,
+        "y": 36,
+        "width": 64,
+        "height": 44
+      },
+      "matchingBound": 40,
+      "noMatch": true,
+      "escapeClears": true,
+      "searchDidNotMoveStory": true
+    }
+  ],
+  "errors": []
+}

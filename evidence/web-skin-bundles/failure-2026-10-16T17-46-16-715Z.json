@@ -1,0 +1,15 @@
+{
+  "passed": false,
+  "checks": [
+    "Export actual referenced cover/font bytes; public package excludes internal evidence by default, explicit collaboration package retains it with public license text.",
+    "Create another real project and preview the full package, then cancel: its actual exported source still has zero assets."
+  ],
+  "errors": [],
+  "failure": "locator.waitFor: Timeout 12000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('dialog', { name: '对应皮肤素材并预览', exact: true }).getByLabel('对应素材：文楷·回信字集', { exact: true }).getByRole('option', { name: /替代文件/ }) to be visible\u001b[22m\n\u001b[2m    27 × locator resolved to hidden <option value=\"file\">替代文件：repair-font.woff2</option>\u001b[22m\n\n    at E:\\ProjectSave\\GeminiProject\\WorLdGame\\tools\\run-web-skin-bundles.mjs:79:206",
+  "pages": [
+    {
+      "url": "http://127.0.0.1:5195/",
+      "text": "W\nWorLd Studio\n来信皮肤复用验证\n编辑器设置\n↶\n↷\n输入批次 · 未提交\n备份 0/5\n已保存 · s1\n故事\n素材\n游戏外观\n检查\n发布\n\n有尚未应用的修改，请先应用或放弃，再离开此页面。\n\n游戏外观与体验\n返回创作\n保存工程\n让游戏有自己的样子\n\n按页面调整，直接查看真实播放器。外观随工程保存。\n\n外观已同步\n玩家主题\n夜幕\n暖纸\n玩家强调色\n紫罗兰\n青绿\n玫瑰\n撤销外观调整\n重做外观调整\n01\n标题画面\n第一眼与开始入口\n02\n阅读与选项\n对白窗体与选择\n03\n字体\n为文字选择声音\n04\n皮肤与动效\n保存你的作品风格\n05\n其他页面\n菜单、存档与结局\n从一种风格开始\n\n选择预设后继续调整，随时可撤销。\n\n月夜剧场\n纸上来信\n海风书签\n自己的颜色\n舞台底色\n窗体颜色\n正文颜色\n辅助文字\n强调颜色\n主按钮文字\n姓名颜色\n边框颜色\n窗口与文字动效\n标题入场\n无\n渐显\n轻盈上浮\n对白框入场\n无\n渐显\n轻盈上浮\n文字呈现效果\n跟随逐字设置\n墨迹渐清\n按钮反馈\n无\n轻抬\n柔光\n外观动效时长\n450ms\n减少动效设置优先生效。人物演出在故事的演出工具中编辑。\n保存和复用这套皮肤\n皮肤名称\n导出皮肤配置\n导入皮肤配置\n配置不包含图片和字体文件。已导入的相同文件会自动对应，缺少的素材提示重新选择。\n带上图片和字体一起复用\n\n皮肤包会携带所选封面、窗体与明确指定的字体，导入前先对应、检查并静音预览。\n\n导出皮肤与素材\n导入皮肤与素材\n工程标题、简介、剧情与现有素材保留。同标识不同文件不会覆盖；导入的来源记录仍需复核发行条件。\n把“回信全页皮肤”带到当前作品\n\n只更新皮肤、所需素材与相关来源/公开署名，保留本作品的标题、简介、剧情和现有文件。\n\n车站最后的灯 · 图片\n\n包内文件已核对摘要\n\n对应方式\n请先选择…\n使用包内文件（不覆盖已有素材）\n不使用这张图片\n补齐或替代文件\n文楷·回信字集 · 字体\n\n包内缺少文件，请选已有素材、补齐文件或选择回退\n\n对应方式\n请先选择…\n替代文件：repair-font.woff2\n使用系统黑体\n补齐或替代文件\n公开署名与来源记录\n真实播放器预览\n当前外观草稿 · 静音 · 不计入结局试玩\n放大预览\n标题画面\n阅读对白\n分支选项\n阅读菜单\n存读档\n剧情历史\n玩家设置\n附加内容\n制作名单\n结局画面\n桌面\n手机\n重播效果\n\n修正参数后可继续预览。\n\n使用正式播放器显示作品片段与页面。预览存档仅临时保留，完整剧情与结局进度请回到故事试玩。\n\n对应已变化，请重新检查并预览。\n\n取消导入\n检查并预览皮肤\n导入皮肤与素材到工程\n真实播放器预览\n当前外观草稿 · 静音 · 不计入结局试玩\n放大预览\n标题画面\n阅读对白\n分支选项\n阅读菜单\n存读档\n剧情历史\n玩家设置\n附加内容\n制作名单\n结局画面\n桌面\n手机\n重播效果\n\n使用正式播放器显示作品片段与页面。预览存档仅临时保留，完整剧情与结局进度请回到故事试玩。\n\n修改参数后可在右侧查看效果。\n应用玩家外观\n放弃外观修改\n恢复默认外观\n\n玩家外观已应用。保存工程后，导出的游戏使用这套外观。\n\n基础\n高级\n搜索项目设置\n全部分区\n显示与平台\n文本与消息窗\n推进\n历史记录\n音频\n舞台默认策略\n选项展示\n界面展示\n输入\n无障碍\n项目\nWindows\nWeb\nAndroid\n来源预览\nWindows\nWeb\nAndroid\n0 当前层覆盖 · 0 待应用\n恢复项目默认\n✓\n选择一项修改；同一分区的关联字段会作为一个原子 ChangeSet 提交。\n工程已保存 · 手动保存已校验；保留 0/5 个轮换备份。\n撤销\n重做\n2\n项可见 · 核心配置\n当前解析平台：web\n\nDISPLAY\n\n显示与平台\n应用修改\n屏幕方向\ndisplay.orientation\n默认值\n\n横屏、竖屏或自适应布局方向。\n\n横屏\n竖屏\n自适应\n继承生效值\n恢复默认\n画面质量\ndisplay.quality\n默认值\n\n选择低、均衡或高质量渲染档位。\n\n低\n均衡\n高\n继承生效值\n恢复默认\n本地优先\n无账户"
+    }
+  ]
+}

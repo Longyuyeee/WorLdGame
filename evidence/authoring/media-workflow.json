@@ -1,0 +1,40 @@
+{
+  "title": "雨后的约定 · 媒体版",
+  "sourceProject": "rainy-promise.zip",
+  "importedMedia": 3,
+  "authoredThroughUi": true,
+  "typedResourceSelection": true,
+  "editedActorPositionAfterPreview": true,
+  "first": {
+    "pixels": {
+      "width": 1920,
+      "height": 1080,
+      "colors": 8235
+    },
+    "characterX": 50,
+    "canvasDigest": "5ceb7f69f2f199aac95402bdf19b4cbf236062be13409d95d7c24a7878c850df",
+    "audio": {
+      "decoded": true,
+      "loop": true,
+      "playbackTimeAdvanced": true,
+      "physicalSpeakerListening": "not performed"
+    }
+  },
+  "reopened": {
+    "pixels": {
+      "width": 1920,
+      "height": 1080,
+      "colors": 8274
+    },
+    "characterX": 30,
+    "canvasDigest": "aa2c9ea2dacfd0f3b999c5c888412a3efb47540d354226ce04912b10bd5808f2",
+    "audio": {
+      "decoded": true,
+      "loop": true,
+      "playbackTimeAdvanced": true,
+      "physicalSpeakerListening": "not performed"
+    }
+  },
+  "assets": "repository deterministic test PNG/WAV, not final artwork/music",
+  "exceptions": []
+}

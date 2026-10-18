@@ -33,7 +33,8 @@ function failure(code: "DERIVATIVE_UNAVAILABLE" | "RESOURCE_LIMIT", detail: stri
   return new AssetBlobError(code, "read", "dicing-runtime", detail);
 }
 
-export function resolveDicingRuntimeImageInWorker(request: DicingRuntimeRequest, timeoutMs = 20_000): Promise<DicingRuntimeResolution> {
+export function resolveDicingRuntimeImageInWorker(request: DicingRuntimeRequest, timeoutMs = 20_000, signal?: AbortSignal): Promise<DicingRuntimeResolution> {
+  if (signal?.aborted) return Promise.reject(new DOMException("派生校验已取消", "AbortError"));
   const maxDecodedPixels = request.maxDecodedPixels ?? 16_777_216;
   const maxAtlasPixels = request.maxAtlasPixels ?? 33_554_432;
   const maxEncodedBytes = request.maxEncodedBytes ?? 256 * 1024 * 1024;
@@ -56,8 +57,10 @@ export function resolveDicingRuntimeImageInWorker(request: DicingRuntimeRequest,
   catch (error) { return Promise.reject(failure("DERIVATIVE_UNAVAILABLE", error instanceof Error ? error.message : "Runtime Worker could not start")); }
   return new Promise((resolve, reject) => {
     let settled = false;
-    const finish = (action: () => void) => { if (settled) return; settled = true; clearTimeout(timeout); worker.terminate(); action(); };
+    const abort = () => finish(() => reject(new DOMException("派生校验已取消", "AbortError")));
+    const finish = (action: () => void) => { if (settled) return; settled = true; clearTimeout(timeout); signal?.removeEventListener("abort", abort); worker.terminate(); action(); };
     const timeout = setTimeout(() => finish(() => reject(failure("DERIVATIVE_UNAVAILABLE", "Runtime Worker exceeded its deadline"))), timeoutMs);
+    signal?.addEventListener("abort", abort, { once: true });
     worker.addEventListener("error", (event) => finish(() => reject(failure("DERIVATIVE_UNAVAILABLE", event.message || "Runtime Worker failed"))), { once: true });
     worker.addEventListener("message", (event: MessageEvent) => {
       const response = event.data as { readonly id?: number; readonly ok?: boolean; readonly strategy?: unknown; readonly width?: unknown;

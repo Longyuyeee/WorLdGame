@@ -1,0 +1,23 @@
+blank-project guidance creates a character and returns to the original writing scene; dirty Escape preserves input
+{"label":"created 留下","scenes":["车站的雨","留下"],"sceneId":"scene_7d5e971f33c64077","save":"保存到本机"}
+{"label":"created 远行","scenes":["车站的雨","留下","远行"],"sceneId":"scene_1c9a8680d4ab444e","save":"保存到本机"}
+create number variable and two ending scenes directly from writing; new scenes enter writing without changing the opening scene
+{"label":"before preview","scenes":["车站的雨","留下","远行"],"sceneId":"scene_9205eb3f7e05967148b9","save":"保存到本机"}
+write real dialogue, assign a numeric variable with a valid default, and connect named choices to two authored endings without script editing
+{"label":"after exit preview","scenes":["车站的雨","留下","远行"],"sceneId":"scene_7d5e971f33c64077","save":"保存到本机"}
+{"label":"selected entry","scenes":["车站的雨","留下","远行"],"sceneId":"scene_9205eb3f7e05967148b9","save":"保存到本机"}
+{"label":"reopened","scenes":["车站的雨","留下"],"sceneId":"scene_7d5e971f33c64077","save":"已恢复 · s5"}
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+locator.click: Timeout 15000ms exceeded.
+Call log:
+  - waiting for locator('.statement-card--choice')
+
+    at E:\Project\AIProject\ClaudeProject\WorLdGame\tools\run-web-authoring-flow.mjs:133:49 {
+  log: [ "  - waiting for locator('.statement-card--choice')" ],
+  name: 'TimeoutError'
+}
+
+Node.js v24.14.0

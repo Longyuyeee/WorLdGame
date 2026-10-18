@@ -17,6 +17,13 @@ describe("Debug & QA workspace projection", () => {
       warningCount: 0
     });
     expect(report.runtimeStatus).not.toBe("error");
+    expect(report.categories).toEqual([
+      expect.objectContaining({ category: "reachability", findingCount: 0, status: "clear" }),
+      expect.objectContaining({ category: "exit", findingCount: 0, status: "clear" }),
+      expect.objectContaining({ category: "reference", findingCount: 0, status: "clear" }),
+      expect.objectContaining({ category: "resource", findingCount: 0, status: "clear" }),
+      expect.objectContaining({ category: "loop", findingCount: 0, status: "clear" })
+    ]);
   });
 
   it("fails closed on an uncommitted authoring error instead of checking stale canonical content", () => {
@@ -32,5 +39,6 @@ describe("Debug & QA workspace projection", () => {
       nextAction: "定位首个阻断问题并回到同一稳定 ID 修复"
     });
     expect(report.findings[0]).toMatchObject({ origin: "authoring", sceneId: "scn_school_gate", line: 4 });
+    expect(report.findings[0]).toMatchObject({ category: "reference" });
   });
 });

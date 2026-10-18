@@ -1,0 +1,23 @@
+{
+  "passed": true,
+  "sourceContentAndAll25MediaUnchanged": true,
+  "reviewNotesUnchanged": 11,
+  "verifiedPreviousVersions": [
+    "1.7.0"
+  ],
+  "canonicalSourceHtmlDirectoryMatch": true,
+  "artifacts": {
+    "source": {
+      "bytes": 31666531,
+      "sha256": "dfac04e7d5543cbf59a9f190662063ea7bf73113ffe40f4fcc2e19b059710583"
+    },
+    "html": {
+      "bytes": 42814091,
+      "sha256": "e6f6be3dffbbd071474dc3463ea827d87f63eb6822cf0af604775b9e7cb01d78"
+    },
+    "directory": {
+      "bytes": 32311619,
+      "sha256": "2fe7df77fd75b3ad7fb063a08af4da619f1334f08b0b1a90398782662e901ca4"
+    }
+  }
+}

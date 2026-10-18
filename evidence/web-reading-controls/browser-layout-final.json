@@ -1,0 +1,24 @@
+{
+  "passed": true,
+  "layoutOnly": true,
+  "browser": "155.0.8059.41",
+  "checks": [
+    "actual production UI exports HTML and directory with the new reading controls; source remains Rain 1.5.4",
+    "desktop-stay: compact stage controls; artwork/restore preserves paragraph; desktop/mobile menu focus, resize, high contrast and return from additional content; advanced controls visible only in menu",
+    "mobile-go: compact stage controls; artwork/restore preserves paragraph; desktop/mobile menu focus, resize, high contrast and return from additional content; advanced controls visible only in menu"
+  ],
+  "errors": [],
+  "routes": {},
+  "exports": {
+    "rain.html": {
+      "bytes": 32808412,
+      "sha256": "0aa5e9a01c5ff169583712ee200a6812f23a70ee10b180c1cf68a497566acd1a"
+    },
+    "rain-web.zip": {
+      "bytes": 24797391,
+      "sha256": "0a53bbcfa0cc136a864a5615e307dcd9882385ff099002ad19006df5e0247b2e"
+    }
+  },
+  "artifactsRetained": false,
+  "scope": "same Rain 1.5.4 author source; fresh HTML/directory kept only in temporary storage; layout-only mode does not rerun full routes; no public deployment, human reading/listening acceptance, physical device or service-worker lifecycle rerun"
+}

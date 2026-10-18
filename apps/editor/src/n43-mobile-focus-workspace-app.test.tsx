@@ -31,7 +31,7 @@ describe("N43-E7 Mobile Focus real task", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "提交到工程" }));
     await waitFor(() => expect(screen.getByText("内容已提交")).toBeVisible(), { timeout: UI_BUDGET_MS });
-    expect(screen.getByText("本地事务 · r1")).toBeVisible();
+    expect(screen.getByText("修改已同步")).toBeVisible();
     expect(screen.getByRole("radio", { name: "Writer" })).toBeEnabled();
     fireEvent.click(screen.getByRole("button", { name: "下一句" }));
     expect(screen.getByTestId("workspace-shell")).toHaveAttribute("data-context-statement-id", "stmt_gate_002");

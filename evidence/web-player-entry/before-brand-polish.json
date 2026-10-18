@@ -1,0 +1,101 @@
+{
+  "passed": true,
+  "checkedAt": "2026-10-14T02:56:51.813Z",
+  "browser": "155.0.8059.41",
+  "version": "1.5.2",
+  "checks": [
+    "UI version 1.5.2 and three exports; all source entries unchanged except publication version",
+    {
+      "route": "desktop-stay",
+      "paragraphs": 60,
+      "voices": 6,
+      "visited": [
+        "车站的雨",
+        "候车室的旧信",
+        "站台前的约定",
+        "留下",
+        "灯下的回信",
+        "雨后的天明"
+      ],
+      "saveRefresh": true,
+      "nativeSaveDialog": true,
+      "physicalPhone": false,
+      "humanReadTiming": false
+    },
+    {
+      "route": "mobile-leave",
+      "paragraphs": 60,
+      "voices": 6,
+      "visited": [
+        "车站的雨",
+        "候车室的旧信",
+        "站台前的约定",
+        "远行",
+        "车窗与海",
+        "再一次见面"
+      ],
+      "saveRefresh": true,
+      "nativeSaveDialog": true,
+      "physicalPhone": false,
+      "humanReadTiming": false
+    },
+    "cached 1.5.1 restarts offline, restores quick progress and plays cached background audio",
+    "update waits without interrupting 1.5.1, then activates 1.5.2; old quick save is rejected with visible feedback; new-version manual save resumes offline with audio",
+    "operator restores original directory through the same offline update lifecycle; original 1.5.1 quick save remains readable"
+  ],
+  "routes": {
+    "desktop-stay": {
+      "route": "desktop-stay",
+      "paragraphs": 60,
+      "voices": 6,
+      "visited": [
+        "车站的雨",
+        "候车室的旧信",
+        "站台前的约定",
+        "留下",
+        "灯下的回信",
+        "雨后的天明"
+      ],
+      "saveRefresh": true,
+      "nativeSaveDialog": true,
+      "physicalPhone": false,
+      "humanReadTiming": false
+    },
+    "mobile-leave": {
+      "route": "mobile-leave",
+      "paragraphs": 60,
+      "voices": 6,
+      "visited": [
+        "车站的雨",
+        "候车室的旧信",
+        "站台前的约定",
+        "远行",
+        "车窗与海",
+        "再一次见面"
+      ],
+      "saveRefresh": true,
+      "nativeSaveDialog": true,
+      "physicalPhone": false,
+      "humanReadTiming": false
+    }
+  },
+  "artifacts": {
+    "before-rain-stops-project.zip": {
+      "byteLength": 24180489,
+      "sha256": "403d51dfece11d55b4be1a2462758aee72f380508f96660adafc401b3df070ff"
+    },
+    "before-rain-stops.html": {
+      "byteLength": 32768807,
+      "sha256": "b58556d3620e2a243d76b979bdf06e95ccedbe3f5a76377c85ca8e7ba02285d2"
+    },
+    "before-rain-stops-web.zip": {
+      "byteLength": 24756331,
+      "sha256": "56a6dac3ec9ae05369d976065a347c6043e8432a660de3eae9f05d138c977298"
+    }
+  },
+  "errors": [],
+  "publicDeployment": false,
+  "physicalDevicePassed": false,
+  "humanReadTimingPassed": false,
+  "releasePermissionConfirmed": false
+}

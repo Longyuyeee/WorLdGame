@@ -1,0 +1,23 @@
+{
+  "browser": "151.0.7922.34",
+  "measured": {
+    "stage": {
+      "x": 1121,
+      "y": 531,
+      "width": 299,
+      "height": 168.1875,
+      "bottom": 699.1875
+    },
+    "text": {
+      "x": 1131,
+      "y": 484.203125,
+      "width": 279,
+      "height": 202.984375,
+      "bottom": 687.1875
+    },
+    "overlapPixels": 156.1875,
+    "textClient": 203,
+    "textScroll": 203
+  },
+  "errors": []
+}

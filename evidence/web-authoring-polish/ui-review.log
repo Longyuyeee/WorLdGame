@@ -1,0 +1,20 @@
+"readable direction summaries, retained raw detail, separated preview/playing controls, 1280/1440 fitting and dark theme"
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+
+  assert.ok((await page.locator('main').textContent()).includes('存档损坏或与当前构建不兼容'))
+
+    at checkWebReleaseUpdate (file:///E:/Project/AIProject/ClaudeProject/WorLdGame/tools/check-web-release-update.mjs:29:12)
+    at async file:///E:/Project/AIProject/ClaudeProject/WorLdGame/tools/run-web-authoring-polish.mjs:120:11 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v24.14.0

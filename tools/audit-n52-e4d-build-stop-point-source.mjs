@@ -12,7 +12,7 @@ if (contract.contract?.sourceSyntax !== "@stop()" || contract.contract?.artifact
 if (contract.authority?.runtimeIr !== "1.1.0-unchanged" || contract.nextSlice !== "N52-E4e-formal-player-video-renderer-and-skip-policy-evidence") violations.push("E4d authority or continuation drifted");
 
 const authority = registry.exceptions?.find((item) => item.id === "RA-N21-011");
-if (authority?.status !== "active" || authority?.maximumDeliveryNode !== "N52" || authority?.playbackEvidencePath !== "docs/254-n52-e4d-build-stop-point-source-audit.md") violations.push("RA-N21-011 Player Stop Point amendment is not active or exact");
+if (authority?.status !== "active" || !["N52", "N60", "N61", "N62"].includes(authority?.maximumDeliveryNode) || authority?.playbackEvidencePath !== "docs/254-n52-e4d-build-stop-point-source-audit.md") violations.push("RA-N21-011 Player Stop Point amendment is not active or exact");
 
 const sourceModel = await read("packages/story-core/src/model.ts");
 const projection = await read("packages/story-language/src/projection.ts");

@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "mode": "atlas-compatible",
+  "sourceHash": "461aa09030c3ea38121ac673db50c4f78a23ec09098175d6bb1f45ec7caa920b",
+  "rows": [
+    {
+      "assetId": "media_actor_sprite",
+      "name": "小夏（测试立绘）",
+      "originalDigest": "sha256:0f25124ab85b9a6e348d6bf1538b1368b5d49bdd08253c462b868de2ce6d66a3",
+      "exportDigest": "sha256:483f92a464fd5ca9aa290a66378e5307d1a122147f7129d2ef7ab9cae5b45531",
+      "originalBytes": 262488,
+      "exportBytes": 2876,
+      "savedBytes": 259612,
+      "verified": true,
+      "reason": "Atlas 重建普通 PNG，当前源像素/兼容纹理对照通过"
+    },
+    {
+      "assetId": "media_sunset",
+      "name": "海边夕色（测试背景）",
+      "originalDigest": "sha256:aaf5e5489993e4e263a969d5b5cc477e291905b3a4666e0552edfd46ec6f7882",
+      "exportDigest": "sha256:9f391c896c81f678de2b7d6f4a721a2e1b90a35031c7521b9ca61554e668f29c",
+      "originalBytes": 262488,
+      "exportBytes": 2874,
+      "savedBytes": 259614,
+      "verified": true,
+      "reason": "Atlas 重建普通 PNG，当前源像素/兼容纹理对照通过"
+    },
+    {
+      "assetId": "media_theme",
+      "name": "雨后旋律（测试音）",
+      "originalDigest": "sha256:5f5d65d220facb3d7b93aa5d9de2e7421fe7a2de954182e5aa1052e24572c423",
+      "exportDigest": "sha256:5f5d65d220facb3d7b93aa5d9de2e7421fe7a2de954182e5aa1052e24572c423",
+      "originalBytes": 1644,
+      "exportBytes": 1644,
+      "savedBytes": 0,
+      "verified": false,
+      "reason": "已选择原素材导出"
+    }
+  ],
+  "atlasGroups": [
+    {
+      "groupId": "dicing-8ecb54b54d4b",
+      "status": "adopted",
+      "assetIds": [
+        "media_actor_sprite",
+        "media_sunset"
+      ],
+      "reason": "当前源图/Atlas/兼容 PNG 像素一致；仅采用更小文件。发布普通纹理，不携带 Atlas、不减少 GPU 内存。PNG 元数据不复制，原文件保留于源工程。"
+    }
+  ],
+  "uniqueOriginalBytes": 526620,
+  "uniqueExportBytes": 7394,
+  "limits": "IDAT 优化保留其他 PNG 块；选中的 Atlas 可重建为像素验证后的普通 PNG（不复制元数据），逐组报告采用/回退。发布包不使用原生图集渲染。统计去重资源字节，不等于 ZIP/HTML 总大小。解码/GPU 内存和 Draw Call 不减少，加载时间和设备表现未测量。源工程原 Blob 不修改，恢复原素材导出后重新构建即可恢复原文件。"
+}

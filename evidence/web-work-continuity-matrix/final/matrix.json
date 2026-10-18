@@ -1,0 +1,18 @@
+{
+  "passed": false,
+  "engine": "chromium",
+  "artifacts": {
+    "html": {
+      "bytes": 46790046,
+      "sha256": "d63fc9280774f6260ee4a85b6496e08c86666a655f28af7d1b0464015181c864"
+    },
+    "website": {
+      "bytes": 35376495,
+      "sha256": "f4c11fc1fc754a904069008e3a88b6d988e356d49bf4edea650985ca72aeeaf1"
+    }
+  },
+  "checks": [],
+  "errors": [],
+  "error": "TimeoutError: locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('dialog', { name: '存读档槽位', exact: true }).getByRole('button', { name: '读取', exact: true })\u001b[22m\n",
+  "stack": "locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('dialog', { name: '存读档槽位', exact: true }).getByRole('button', { name: '读取', exact: true })\u001b[22m\n\n    at route (E:\\ProjectSave\\GeminiProject\\WorLdGame\\tools\\run-web-work-continuity-matrix.mjs:126:210)\n    at async file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-work-continuity-matrix.mjs:137:88"
+}

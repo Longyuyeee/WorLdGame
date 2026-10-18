@@ -23,6 +23,14 @@ function deliveryFixture() {
 }
 
 describe("S0.27 isolated Dicing runtime client", () => {
+  it("terminates a pending worker immediately when its last consumer cancels", async () => {
+    const terminate = vi.fn();
+    vi.stubGlobal("Worker", class { addEventListener() {} postMessage() {} terminate = terminate; });
+    const controller = new AbortController();
+    const result = resolveDicingRuntimeImageInWorker({ assetId: "cg_cancel", originalMimeType: "image/png", originalBytes: new Uint8Array([1]) }, 20_000, controller.signal);
+    const assertion = expect(result).rejects.toMatchObject({ name: "AbortError" });
+    controller.abort(); await assertion; expect(terminate).toHaveBeenCalledTimes(1);
+  });
   it("accepts a correlated Atlas result only when pixels match the current source identity", async () => {
     const fixture = deliveryFixture();
     class RuntimeWorker {

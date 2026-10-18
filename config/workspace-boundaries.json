@@ -8,6 +8,7 @@
       "stability": "prototype",
       "owner": "Editor Owner",
       "allowedWorkspaceDependencies": [
+        "@world-studio/player-shell",
         "@world-studio/gal-settings",
         "@world-studio/project-compiler",
         "@world-studio/project-domain",
@@ -95,6 +96,7 @@
       "stability": "candidate",
       "owner": "Player Experience Owner",
       "allowedWorkspaceDependencies": [
+        "@world-studio/project-persistence",
         "@world-studio/gal-settings",
         "@world-studio/player-core",
         "@world-studio/project-domain"

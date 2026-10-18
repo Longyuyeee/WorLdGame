@@ -1,0 +1,49 @@
+
+ RUN  v4.1.10 E:/Project/AIProject/ClaudeProject/WorLdGame
+
+ ❯ apps/editor/src/direction-authoring.test.tsx (8 tests | 2 failed) 534ms
+   × lists actors before the selected step, excluding an exiting actor 18ms
+   × move/hide chooses an active actor and rejects an empty target 16ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  apps/editor/src/direction-authoring.test.tsx > lists actors before the selected step, excluding an exiting actor
+AssertionError: expected [ 'actor_1', 'primary' ] to deeply equal [ 'primary', 'actor_1' ]
+
+- Expected
++ Received
+
+  [
+-   "primary",
+    "actor_1",
++   "primary",
+  ]
+
+ ❯ apps/editor/src/direction-authoring.test.tsx:15:79
+     13| it("lists actors before the selected step, excluding an exiting actor"…
+     14|   expect(directionStageContext(scene, 0).characters).toHaveLength(0);
+     15|   expect(directionStageContext(scene, 2).characters.map(layer => layer…
+       |                                                                               ^
+     16|   const context = directionStageContext(scene, 4);
+     17|   expect(context.characters.map(layer => [layer.slot, layer.x])).toEqu…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  apps/editor/src/direction-authoring.test.tsx > move/hide chooses an active actor and rejects an empty target
+Error: expect(element).toHaveValue(primary)
+
+Expected the element to have value:
+  primary
+Received:
+  actor_1
+ ❯ apps/editor/src/direction-authoring.test.tsx:57:45
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed | 5 passed (6)
+      Tests  2 failed | 43 passed (45)
+   Start at  15:38:32
+   Duration  16.43s (transform 2.28s, setup 1.73s, import 5.66s, tests 1.79s, environment 5.72s)
+

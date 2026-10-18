@@ -1,0 +1,6 @@
+{
+  "passed": false,
+  "checks": [],
+  "errors": [],
+  "failure": "AssertionError [ERR_ASSERTION]: {\"left\":68,\"right\":359,\"viewport\":390,\"width\":291,\"scroll\":319}\n    at fit (file:///E:/Project/AIProject/ClaudeProject/WorLdGame/tools/run-web-branch-authoring.mjs:31:14)\n    at async file:///E:/Project/AIProject/ClaudeProject/WorLdGame/tools/run-web-branch-authoring.mjs:70:62"
+}

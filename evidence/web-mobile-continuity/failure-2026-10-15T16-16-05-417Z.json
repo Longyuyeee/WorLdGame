@@ -1,0 +1,14 @@
+{
+  "checks": [
+    {
+      "name": "release-ui-saved-reopened-exported-1.7.1-with-verified-1.7.0",
+      "detail": {}
+    },
+    {
+      "name": "exact-unchanged-content-media-notes-and-real-dual-artifacts",
+      "detail": {}
+    }
+  ],
+  "errors": [],
+  "failure": "AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:\n\n  assert.ok(nativeComposition.some(e => e.type === 'compositionend' && e.trusted))\n\n    at editorFlow (file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-mobile-continuity.mjs:103:157)\n    at async file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-mobile-continuity.mjs:196:50"
+}

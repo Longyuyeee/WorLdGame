@@ -1,0 +1,22 @@
+{
+  "passed": true,
+  "browser": "26.5",
+  "delivery": "http-html",
+  "artifactSha256": "e342827d80a0bd18944cc84655437ded37f25f901d81b4bf4229fd9d97080510",
+  "htmlSha256": "e342827d80a0bd18944cc84655437ded37f25f901d81b4bf4229fd9d97080510",
+  "checks": [
+    {
+      "name": "explicit-menu-silent-fallback-without-a-native-error",
+      "native": {
+        "paused": true,
+        "time": 0,
+        "readyState": 0,
+        "error": null,
+        "playback": "playing"
+      },
+      "nativePlaybackAccepted": false
+    }
+  ],
+  "errors": [],
+  "scope": "Actual 1.10.0 production export, native audio at accelerated/slowed rates, public controls and unchanged IndexedDB quick slot. Persisted page-transition events and a held play request are explicit fault injections; native play/pause/ended are not synthesized. WebKit HTTP website playback does not prove embedded HTML/data/Blob or offline audio. Desktop engines/phone-sized windows are not human listening, physical-phone/Safari or long-soak acceptance."
+}

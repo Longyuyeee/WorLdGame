@@ -1,0 +1,19 @@
+{
+  "passed": false,
+  "checks": [
+    "Author imports thirteen procedural PNG fixtures, selects nine independent backgrounds and four button states, and previews all nine pages at desktop/phone sizes using the muted formal Player.",
+    "Actual portable package carries fifteen referenced assets, imports the whole batch into a newly authored project and preserves all page/button selections after save/reload/reopen; default package excludes private provenance."
+  ],
+  "errors": [],
+  "error": "locator.click: Error: strict mode violation: getByRole('button', { name: '关闭剧情历史', exact: true }) resolved to 2 elements:\n    1) <button type=\"button\" aria-label=\"关闭剧情历史\" aria-expanded=\"true\" class=\"player-history-controls__open\">…</button> aka getByText('☰历史')\n    2) <button type=\"button\" aria-label=\"关闭剧情历史\">关闭</button> aka getByText('关闭', { exact: true })\n\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: '关闭剧情历史', exact: true })\u001b[22m\n\n    at game (E:\\ProjectSave\\GeminiProject\\WorLdGame\\tools\\run-web-skin-images.mjs:78:160)\n    at async file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-skin-images.mjs:127:156",
+  "pages": [
+    {
+      "url": "http://127.0.0.1:5195/",
+      "text": "W\nWorLd Studio\n页面素材复用验证\n编辑器设置\n↶\n↷\n修改已同步\n备份 1/5\n已保存 · s2\n故事\n素材\n游戏外观\n检查\n发布\n\n让故事与更多人相遇\n\n发布游戏\n\n完成作品信息，选择导出方式，将你的故事交给玩家。\n\n1\n作品信息\n2\n导出方式\n3\n生成游戏\n4\n试玩与部署\n检查当前作品并生成游戏\n\n自动核对故事和源文件，发现问题后可以直接定位修复。\n\n页面素材复用验证\n0.1.0 · Web · 单文件 HTML\n故事场景\n1 个\n创作素材\n15 项\n运行方式\n离线可运行\n许可与上线准备\n\n15 项素材 · 0 项已记录依据并匹配署名 · 15 项仍待处理\n\n游戏可以继续导出用于本地验证；生成成功不代表素材已获授权或公网已验收。来源依据、联系人等内部信息不会进入玩家游戏。\n\n核对素材来源\n下载发布准备清单（内部）\n接下来如何部署和验收\n故事与素材检查通过\n\n15 项素材已核对源文件、大小和摘要\n\n重新检查\n生成时会再次核对文件；此检查不代表素材许可、分支、阅读节奏和配音已经确认，也不代表网站已上线。\n结局试玩进度\n当前版本已从开头到达 0 / 1 个结局\n\n从开头运行到结局后会自动记录，刷新或重开工程后仍可查看。\n\n从头试玩当前版本\n查看路线\n查看结局进度 · 1 个待试玩\n备份或合并试玩进度\n这是编辑器中的运行记录，不代表全部分支、阅读听感或导出后的游戏已验收。平时保存在本浏览器，换机前请备份。\n← 导出方式\n↗ 导出游戏\n继续：试玩与部署 →\n✓\n游戏已生成\n\n可以下载并试玩。文件还未上传到网站。\n\n▤\n页面素材复用验证.html\n文件大小\n4.3 MiB\n格式\n单文件 HTML\n下载游戏\n▷ 打开试玩\n修改工程后，需要重新生成文件。\n本地优先\n无账户"
+    },
+    {
+      "url": "file:///E:/ProjectSave/GeminiProject/WorLdGame/evidence/web-skin-images/page-images.html",
+      "text": "页面素材复用验证 · 0.1.0\n\n←\n→\n☰\n历史\nHISTORY\n剧情历史\n关闭\n查找已记录的剧情\n\n查找当前主线与只读归档；前方及归档记录不能回退。\n\n当前主线\n旁白 · 当前\n每一页都有自己的底图，按钮也会回应操作。\n文楷·回信字集 · 项目字体已加载\n自动\n已读\n存读档\n\n进度已自动保存\n\n每一页都有自己的底图，按钮也会回应操作。\n点击继续 →"
+    }
+  ]
+}

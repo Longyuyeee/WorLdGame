@@ -1,0 +1,64 @@
+{
+  "passed": true,
+  "checkedAt": "2026-10-16T18:40:43.579Z",
+  "browser": "151.0.7922.34",
+  "checks": [
+    "Actual editor imports the retained source unchanged, exposes undo scope and produces both independent Web formats.",
+    "HTML file:// saves real skin/portrait/text pixels and matching bounded excerpt; stored image digest, exact selected-line load and refresh/reopen all match.",
+    "The downloaded .worldsave restores the same picture, excerpt and authoritative session in a separate clean browser context.",
+    "HTTP /gal/ directory game captures portrait and landscape layouts, restores the same line and reaches the mini-work ending on a 390×844 touch-enabled viewport.",
+    "Explicitly injected canvas-encoding failure keeps a readable saved-line excerpt and restores the selected sentence without a screenshot.",
+    "The unchanged main story 0.4.0 is separately re-exported with current code; an actual media-stage sentence yields a real thumbnail and reloads the same text. This is not a full route or performance acceptance."
+  ],
+  "errors": [],
+  "screenshots": [
+    "author-undo-scope.png",
+    "desktop-reading.png",
+    "desktop-save.png",
+    "restored-cards.png",
+    "phone-save.png",
+    "landscape-save.png",
+    "capture-failure-save.png",
+    "story-reading.png",
+    "story-media-save.png"
+  ],
+  "desktop": {
+    "width": 512,
+    "height": 288,
+    "opaque": 147456,
+    "colors": 3937
+  },
+  "mobile": {
+    "width": 257,
+    "height": 512,
+    "opaque": 131584,
+    "colors": 5387
+  },
+  "validatedSiteFiles": 30,
+  "projectsEqualRetainedSources": true,
+  "formalEndingCoverage": "1/1 mini-work directory; no full original story coverage",
+  "realDevice": false,
+  "publicDeployment": false,
+  "artifacts": [
+    {
+      "name": "identity.html",
+      "bytes": 4507727,
+      "sha256": "d07672cda808e27eda011339719fba34f3bfe86073b087e16475507bb1635f35"
+    },
+    {
+      "name": "identity-web.zip",
+      "bytes": 3646490,
+      "sha256": "c4f60a30da9c7189d442c3b88c5be9b5c214fbbcb9ade6d45bb4165913210ce3"
+    },
+    {
+      "name": "tomorrow-letter-0.4.0.html",
+      "bytes": 15006767,
+      "sha256": "653f4e3083ea1024bec89b2fa1d231dfed25519048671f82aa57fcafb8d564ca"
+    },
+    {
+      "name": "saved.worldsave",
+      "bytes": 10486,
+      "sha256": "9c700bd50d0a361da2b309ba32e67befc7ef1408d888e631e80f9c9f5b1e853b"
+    }
+  ]
+}

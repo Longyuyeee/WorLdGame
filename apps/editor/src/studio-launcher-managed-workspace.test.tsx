@@ -21,15 +21,17 @@ describe("E8b Studio Launcher managed workspace", () => {
     vi.stubGlobal("crypto", { randomUUID: vi.fn(() => `018f08d8-71a1-7bc2-a627-${String(++serial).padStart(12, "0")}`) });
     const first = render(<StudioLauncher />);
 
+    fireEvent.click(screen.getByRole("button", { name: "新建项目" }));
     fireEvent.change(screen.getByLabelText("项目名称"), { target: { value: "E8b Managed Story" } });
-    fireEvent.click(screen.getByRole("button", { name: "新建工程" }));
+    fireEvent.click(screen.getByRole("button", { name: "创建并开始写作" }));
 
     expect(await screen.findByRole("heading", { name: "E8b Managed Story" })).toBeVisible();
-    expect(screen.getAllByText("浏览器事务工作区/受管工程")).toHaveLength(2);
-    expect(screen.getByText("可编辑")).toBeVisible();
+    expect(await screen.findByTestId("workspace-shell")).toBeVisible();
+    expect(screen.queryByRole("main", { name: "项目结构管理" })).not.toBeInTheDocument();
     first.unmount();
 
     render(<StudioLauncher />);
+    fireEvent.click(await screen.findByLabelText("E8b Managed Story的更多选项"));
     const quickRoute = await screen.findByRole("button", { name: "快速查看 E8b Managed Story Route" });
     fireEvent.click(quickRoute);
 
@@ -58,11 +60,8 @@ describe("E8b Studio Launcher managed workspace", () => {
     fireEvent.click(screen.getByRole("button", { name: "加载完整工程" }));
 
     await waitFor(() => expect(screen.getByRole("heading", { name: "E8b Managed Story" })).toBeVisible());
-    expect(screen.getAllByText("浏览器事务工作区/E8b Managed Story")).toHaveLength(2);
-    expect(screen.getByRole("button", { name: "进入编辑器" })).toBeEnabled();
-    fireEvent.click(screen.getByRole("button", { name: "进入编辑器" }));
-    fireEvent.click(screen.getByRole("button", { name: "进入内容编辑器" }));
-    fireEvent.click(await screen.findByRole("tab", { name: "Script" }));
+    expect(await screen.findByTestId("workspace-shell")).toBeVisible();
+    fireEvent.click(screen.getByRole("button", { name: "脚本" }));
     expect((screen.getByLabelText("权威脚本编辑器") as HTMLTextAreaElement).value).toContain("Closed loop ending");
   });
 });

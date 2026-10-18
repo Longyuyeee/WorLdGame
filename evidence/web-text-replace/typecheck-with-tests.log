@@ -1,0 +1,22 @@
+
+> world-studio@0.0.0-s0.41 typecheck
+> tsc -b
+
+apps/editor/src/text-replace-app.test.tsx(13,377): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Object literal may only specify known properties, and 'exact' does not exist in type 'ByRoleOptions'.
+apps/editor/src/text-replace-app.test.tsx(13,504): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Object literal may only specify known properties, and 'exact' does not exist in type 'ByRoleOptions'.
+apps/editor/src/text-replace-app.test.tsx(13,588): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Object literal may only specify known properties, and 'exact' does not exist in type 'ByRoleOptions'.
+apps/editor/src/text-replace-app.test.tsx(14,124): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Object literal may only specify known properties, and 'exact' does not exist in type 'ByRoleOptions'.
+apps/editor/src/text-replace-app.test.tsx(14,262): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Object literal may only specify known properties, and 'exact' does not exist in type 'ByRoleOptions'.
+apps/editor/src/text-replace-app.test.tsx(18,644): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Object literal may only specify known properties, and 'exact' does not exist in type 'ByRoleOptions'.

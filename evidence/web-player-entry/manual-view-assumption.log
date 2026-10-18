@@ -1,0 +1,48 @@
+"UI version 1.5.2 and three exports; all source entries unchanged except publication version"
+{"route":"desktop-stay","paragraphs":60,"voices":6,"visited":["车站的雨","候车室的旧信","站台前的约定","留下","灯下的回信","雨后的天明"],"saveRefresh":true,"nativeSaveDialog":true,"physicalPhone":false,"humanReadTiming":false}
+{"route":"mobile-leave","paragraphs":60,"voices":6,"visited":["车站的雨","候车室的旧信","站台前的约定","远行","车窗与海","再一次见面"],"saveRefresh":true,"nativeSaveDialog":true,"physicalPhone":false,"humanReadTiming":false}
+"cached 1.5.1 restarts offline, restores quick progress and plays cached background audio"
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+locator.click: Timeout 30000ms exceeded.
+Call log:
+  - waiting for getByRole('dialog', { name: '存读档槽位' }).getByRole('button', { name: '读取', exact: true }).first()
+    - locator resolved to <button disabled type="button">读取</button>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not enabled
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not enabled
+    - retrying click action
+      - waiting 100ms
+    58 × waiting for element to be visible, enabled and stable
+       - element is not enabled
+     - retrying click action
+       - waiting 500ms
+
+    at E:\Project\AIProject\ClaudeProject\WorLdGame\tools\run-web-player-entry.mjs:121:194 {
+  log: [
+    "  - waiting for getByRole('dialog', { name: '存读档槽位' }).getByRole('button', { name: '读取', exact: true }).first()",
+    '    - locator resolved to <button disabled type="button">读取</button>',
+    '  - attempting click action',
+    '    2 × waiting for element to be visible, enabled and stable',
+    '      - element is not enabled',
+    '    - retrying click action',
+    '    - waiting 20ms',
+    '    2 × waiting for element to be visible, enabled and stable',
+    '      - element is not enabled',
+    '    - retrying click action',
+    '      - waiting 100ms',
+    '    58 × waiting for element to be visible, enabled and stable',
+    '       - element is not enabled',
+    '     - retrying click action',
+    '       - waiting 500ms'
+  ],
+  name: 'TimeoutError'
+}
+
+Node.js v24.14.0

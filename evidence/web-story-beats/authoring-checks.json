@@ -1,0 +1,23 @@
+{
+  "passed": true,
+  "browser": "151.0.7922.34",
+  "checks": [
+    {
+      "name": "eight-existing-notes-imported-and-three-actual-issues-recorded",
+      "detail": {}
+    },
+    {
+      "name": "ten-text-revisions-and-nine-voice-beats-applied-through-editor-with-undo-redo",
+      "detail": {}
+    },
+    {
+      "name": "voice-replacement-save-refresh-reopen-and-real-html-directory-exports",
+      "detail": {}
+    }
+  ],
+  "errors": [],
+  "notes": {
+    "count": 11,
+    "humanVerified": false
+  }
+}

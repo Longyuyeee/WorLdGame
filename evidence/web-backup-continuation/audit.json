@@ -1,0 +1,123 @@
+{
+  "passed": true,
+  "contentVersion": "1.11.0",
+  "technicalVersion": "S0.41",
+  "promoted": true,
+  "artifacts": {
+    "html": {
+      "bytes": 46805164,
+      "sha256": "48cc3c4f2cd96ba30fc25ed9dad774882e433d5aeccaab69c7acacbe053c1447"
+    },
+    "website": {
+      "bytes": 35391613,
+      "sha256": "43cfbfecb69eb4f8e2d086047e05bc85ef4b405a9b2233619e903ad7ee24761e"
+    }
+  },
+  "sourceAndNotes": "evidence/web-story-plans-and-farewell",
+  "pendingNotes": 25,
+  "retained": [
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops-project.zip",
+      "sha256": "43ef6e1673ed3dffbf705b4f178b2122fc960971eaf47286b33742fa285f0576"
+    },
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops.worldreview",
+      "sha256": "747534249345da6ce337054b4e7f47a1516556beda7079ef7b6d093e590bce8f"
+    },
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops.html",
+      "sha256": "6e5dfb4dfb88b5e210354fbcaeb8ccc4e79d50aa935a1d449f750bde8fc822fa"
+    },
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops-website.zip",
+      "sha256": "25ef0ab90a396f01dcfb09e60f754fb31a82f59aedb8da869b4a199a59e8f19e"
+    },
+    {
+      "file": "evidence/web-audio-readiness/before-rain-stops.html",
+      "sha256": "f65366bdab455c7f41b2c958703dfac00fd074f5dd1a49afebba917aaa631bd1"
+    },
+    {
+      "file": "evidence/web-audio-readiness/before-rain-stops-website.zip",
+      "sha256": "0812a76a9d41dded4e6ac43fe739d1f3fe1e384f1a018396c117f6d6b6e435e1"
+    }
+  ],
+  "backupSha256": "bd882800bb2d8bf8b29b315eb8812364c1994f4e80c4d1b25930d3c92b06d6a2",
+  "browsers": [
+    {
+      "engine": "chromium",
+      "browser": "151.0.7922.34",
+      "nativeFileReadAndCryptoCancellation": true,
+      "actualPortableBackupAndCleanContextExplicitLoad": true
+    },
+    {
+      "engine": "firefox",
+      "browser": "153.0",
+      "nativeFileReadAndCryptoCancellation": true,
+      "actualPortableBackupAndCleanContextExplicitLoad": true
+    },
+    {
+      "engine": "webkit",
+      "browser": "26.5",
+      "nativeFileReadAndCryptoCancellation": true,
+      "actualPortableBackupAndCleanContextExplicitLoad": true
+    }
+  ],
+  "history": {
+    "engine": "chromium",
+    "fileMode": true,
+    "passed": true
+  },
+  "tests": {
+    "files": 147,
+    "distinctTests": 1365,
+    "newBackupTests": 27,
+    "nodeTests": 70
+  },
+  "architecture": {
+    "audit-architecture": {
+      "status": "PASS",
+      "auditedPortableFiles": 118,
+      "auditedNodeAdapterFiles": 4,
+      "guarantees": [
+        "narrative-vm-spike has no UI, DOM, platform-shell, filesystem, process, crypto-provider, wall-clock, or ambient-random dependency",
+        "story-core has no UI, DOM, platform-shell, filesystem, or process dependency",
+        "story-language has no UI, DOM, platform-shell, filesystem, or process dependency",
+        "story-language depends only on story-core",
+        "project-compiler is portable and depends only on project-domain/story-language, never the VM spike or platform APIs",
+        "runtime is portable and depends only on project-compiler, never the VM spike, editor, filesystem, wall clock, randomness, or platform APIs",
+        "runtime-host is portable and depends only on formal runtime, never UI, DOM, shell, filesystem, wall clock, randomness, or platform APIs",
+        "player-core is portable and consumes only canonical project, formal Compiler IR, Runtime, and Runtime Host without a parallel StoryStatement interpreter",
+        "gal-settings is dependency-free and portable with no UI, DOM, filesystem, process, shell, wall-clock, or ambient-random dependency",
+        "route-graph is portable and projects only canonical project and compiler facts through the Project Service boundary",
+        "project-persistence has no UI, DOM, platform-shell, filesystem, process, or runtime third-party dependency",
+        "project-domain depends only on portable Gal settings and has no UI, DOM, platform-shell, filesystem, process, crypto-provider, or runtime third-party dependency",
+        "project-persistence-node is isolated from the web editor and depends only on portable project-domain/project-persistence contracts",
+        "editor declares the Gal settings dependency explicitly",
+        "editor declares the story-core dependency explicitly",
+        "editor declares the story-language dependency explicitly",
+        "editor declares the project-persistence dependency explicitly",
+        "web editor does not bundle the Node filesystem adapter",
+        "VM Web Worker conformance Harness depends only on the portable Spike, formal Runtime, and portable Runtime Host and imports no shell or Node adapter",
+        "VM conformance CLI is an isolated Node reference host and depends only on the portable narrative VM",
+        "Windows Electron host keeps isolation and sandboxing enabled with the frozen WindowsHostV1 storage bridge",
+        "Windows Tauri host exposes only the frozen WindowsHostV1 storage commands and no generic privileged plugin",
+        "Windows project grant roots stay native-only and both hosts reject reparse roots and existing reparse path segments",
+        "story-core has no runtime third-party dependency"
+      ]
+    },
+    "audit-n52-e5b-runtime-history-v2": {
+      "status": "PASS",
+      "node": "N52-E5b-runtime-history-v2",
+      "engineeringStatus": "complete",
+      "productAcceptance": "blocked",
+      "continuation": {
+        "node": "N52-E5c-gal-history-policy-and-player-core-projection",
+        "gate": "only-after-e5b-exact-head-windows-ci-is-green"
+      },
+      "violations": []
+    }
+  },
+  "pendingMediaPermissions": 26,
+  "approvedMediaPermissions": 0,
+  "scope": "Actual author save/reopen/dual export, unchanged 1.11 story/media, two complete routes and original same-content backup. Three desktop engines use actual native files, controlled file-start/result and Web Crypto delays, explicit cancel/retry/download/import, actual readonly IndexedDB payload digests and clean browser contexts. Four viewport controls and scroll-readable wait text. One Chromium file history-voice regression. Preparation cancellation does not undo submitted physical writes; synchronous JSON/canonical envelope/snapshot and underlying storage waits remain. Early red fixture synchronization failures are not baseline product proof. Not a full new format/route matrix, natural listening/timing, physical phone/Safari/background/lock/BFCache, WebKit embedded/Blob/offline-audio fix, rights/public HTTPS or long soak approval."
+}

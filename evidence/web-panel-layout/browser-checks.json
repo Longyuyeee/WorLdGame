@@ -1,0 +1,76 @@
+{
+  "passed": true,
+  "checkedAt": "2026-10-16T19:35:18.246Z",
+  "browser": "151.0.7922.34",
+  "checks": [
+    "The actual main story authors menu/save/history viewport layouts with isolated content and return regions, real-preview drag/one undo/keyboard, matching desktop/phone geometry, safe action lists and phone-hidden art.",
+    "Save/reopen, source project, portable configuration/skin bytes and both formal exports retain all three layouts without changing story, characters, seven assets or the existing title layout.",
+    "Independent desktop file:// Player retains native menu actions, current-sentence save, overwrite/read confirmation across resize, custom return cancellation, actual validated read, backup export and history search/rollback before finishing the first route.",
+    "Touch-enabled 390×844 directory Player keeps native return controls in-view, preserves confirmations at 844×390, keeps history search at a short viewport, imports and explicitly reads the actual desktop backup, and reaches the other ending.",
+    "A second blank project reuses all three page layouts, hidden-device image references and actual media bytes without copying scripts or characters; its actual save preview remains editable."
+  ],
+  "errors": [],
+  "screenshots": [
+    "author-menu-desktop.png",
+    "author-menu-phone.png",
+    "author-save-desktop.png",
+    "author-save-phone.png",
+    "author-history-desktop.png",
+    "author-history-phone.png",
+    "desktop-menu.png",
+    "desktop-save.png",
+    "desktop-overwrite-resized.png",
+    "desktop-history.png",
+    "desktop-ending.png",
+    "phone-menu.png",
+    "phone-save.png",
+    "phone-overwrite-resized.png",
+    "phone-short-viewport-history.png",
+    "phone-ending.png",
+    "author-reused-save.png"
+  ],
+  "formalEndingCoverage": "2/2 combined: HTML first route, directory other route; not all format×route combinations",
+  "editorFullRouteCoverage": "not run",
+  "realDevice": false,
+  "publicDeployment": false,
+  "desktopChoice": "1\n留下来，把今晚写完",
+  "phoneChoice": "2\n带上信，去下一座城市",
+  "siteFiles": 18,
+  "artifacts": [
+    {
+      "name": "tomorrow-letter-0.7.0-project.zip",
+      "bytes": 10695364,
+      "sha256": "49eda5e30192abb9ce06460a750f678344a69b9b22e5ee4a52cf461a3c0bef92"
+    },
+    {
+      "name": "tomorrow-letter-0.7.0.html",
+      "bytes": 15032988,
+      "sha256": "cfd2c695414855330bd6411c92b3ee34ebaa8c3bfd563c792a3fe0dc116220fd"
+    },
+    {
+      "name": "tomorrow-letter-0.7.0-web.zip",
+      "bytes": 11537592,
+      "sha256": "761f46c7089c876eeed7b1993a4e47f656a7553cd90c44fcf65a9f273a917d77"
+    },
+    {
+      "name": "letter-panels.worldskin.json",
+      "bytes": 14616,
+      "sha256": "5ada5ce78d0cd1a91377fd51d3a72c9660c9c2f0171daa9f862acd6d16149078"
+    },
+    {
+      "name": "letter-panels.worldskin.zip",
+      "bytes": 4637302,
+      "sha256": "913db7812f8d03a6df1bb885d5d25aa3a65c991864c4caca68b02edcd16b4197"
+    },
+    {
+      "name": "reused-panels-project.zip",
+      "bytes": 4642086,
+      "sha256": "c59f71de4cd840c039c6b6641c8590f8b91e9f8e0f32078b476020ec261ebaf3"
+    },
+    {
+      "name": "desktop-progress.worldsave",
+      "bytes": 35021,
+      "sha256": "a80885f7824393470c2a46dbee4f160b285fa59058d1f48d057ef21fee60b5fe"
+    }
+  ]
+}

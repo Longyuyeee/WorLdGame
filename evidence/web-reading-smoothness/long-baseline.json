@@ -1,0 +1,360 @@
+{
+  "passed": true,
+  "label": "baseline",
+  "priorCommit": "3bc08b8",
+  "fixtureSourceHash": "385bff0a2034159d95ae4a1c49af697dd5d7ff616f85a3698b2f2eea091986f8",
+  "bundleHash": "519c541a88f6d555e4c7128158939e73dd41ed831008cf8e8e07df3c01b7d9df",
+  "browser": "151.0.7922.34",
+  "rows": [
+    {
+      "count": 120,
+      "historyLength": 120,
+      "savedHash": "1f0a07d54e426ba018faa84f8d93a2b7ea5adfd09c8ce2b4353c569a8f5307a5",
+      "advancedHash": "03b5e298e4ff3c30a2d6b0eb296cd3957e9fffb2c527a71f0084e4f2db98c05d",
+      "loadedHash": "f1267bf34d9712fb662505b0257ffa810bd3d4e2d44a321f7d0e3b9f5138beee"
+    },
+    {
+      "count": 240,
+      "historyLength": 240,
+      "savedHash": "92df689430d80ee954c1ee51da0228e7d37cc4d47ba4338768921620b7d2e049",
+      "advancedHash": "d5f4e84961a9c1e78e8b8bcf0fbc653b4122166359dec0f1c4a6ed03464f9403",
+      "loadedHash": "393dba0f287f1b01b03da030e8b5b2fe04346a45149eab180dc032c80eaf3008"
+    },
+    {
+      "count": 480,
+      "historyLength": 480,
+      "savedHash": "4a021baf224c0d9f9c0e33fed05b8a4e935a8920fe9958469df298126aa40825",
+      "advancedHash": "b1a1d80ccf0f63d5447dbd15b34687a54123baafb0c386d28c83bea18e74482c",
+      "loadedHash": "f5df6f6cc2dc62b1b0aba3bc7d2e8787910fe6ae789d7fc7c8eba6132ce6560e"
+    }
+  ],
+  "operations": [
+    {
+      "name": "120-quick-save",
+      "wallMs": 195.20000000298023,
+      "longTasks": [],
+      "longFrames": [],
+      "maximumHeartbeatGapMs": 22.5
+    },
+    {
+      "name": "120-advance",
+      "wallMs": 108.3999999910593,
+      "cpu": [
+        {
+          "location": "(program) ",
+          "sampledMs": 75.25799999999998
+        },
+        {
+          "location": "(idle) ",
+          "sampledMs": 74.864
+        },
+        {
+          "location": "createObjectURL ",
+          "sampledMs": 5.149
+        },
+        {
+          "location": "../packages/runtime/src/canonical.ts:41 Vn",
+          "sampledMs": 4.963
+        },
+        {
+          "location": "../packages/runtime/src/sha256.ts:10 Jn",
+          "sampledMs": 4.856999999999999
+        },
+        {
+          "location": " ",
+          "sampledMs": 3.3819999999999997
+        },
+        {
+          "location": "getAnimations ",
+          "sampledMs": 1.681
+        },
+        {
+          "location": "../packages/runtime/src/canonical.ts:74 P",
+          "sampledMs": 1.657
+        },
+        {
+          "location": "../node_modules/react-dom/cjs/react-dom-client.production.js:5153 hs",
+          "sampledMs": 1.649
+        },
+        {
+          "location": "getGamepads ",
+          "sampledMs": 1.639
+        },
+        {
+          "location": "../apps/player-shell/src/recovery-session-client.ts:32 ",
+          "sampledMs": 1.632
+        },
+        {
+          "location": "../packages/runtime/src/history.ts:167 Oi",
+          "sampledMs": 1.614
+        }
+      ],
+      "longTasks": [],
+      "longFrames": [],
+      "maximumHeartbeatGapMs": 41.70000000298023
+    },
+    {
+      "name": "120-quick-load",
+      "wallMs": 318.09999999403954,
+      "longTasks": [],
+      "longFrames": [
+        {
+          "start": 7347.29999999702,
+          "duration": 59.599999994039536
+        }
+      ],
+      "maximumHeartbeatGapMs": 34.30000001192093
+    },
+    {
+      "name": "240-quick-save",
+      "wallMs": 294.30000001192093,
+      "longTasks": [],
+      "longFrames": [],
+      "maximumHeartbeatGapMs": 53.5
+    },
+    {
+      "name": "240-advance",
+      "wallMs": 110.69999998807907,
+      "cpu": [
+        {
+          "location": "(idle) ",
+          "sampledMs": 55.96799999999999
+        },
+        {
+          "location": "(program) ",
+          "sampledMs": 28.478999999999996
+        },
+        {
+          "location": "../packages/runtime/src/canonical.ts:74 P",
+          "sampledMs": 13.986999999999998
+        },
+        {
+          "location": "../packages/runtime/src/canonical.ts:16 zn",
+          "sampledMs": 9.324
+        },
+        {
+          "location": "../packages/runtime/src/sha256.ts:10 Jn",
+          "sampledMs": 6.212000000000001
+        },
+        {
+          "location": "../apps/player-shell/src/recovery-session-client.ts:32 ",
+          "sampledMs": 4.466
+        },
+        {
+          "location": "createObjectURL ",
+          "sampledMs": 3.376
+        },
+        {
+          "location": "../packages/runtime/src/canonical.ts:32 Bn",
+          "sampledMs": 1.695
+        },
+        {
+          "location": "Blob ",
+          "sampledMs": 1.655
+        },
+        {
+          "location": "../packages/runtime/src/canonical.ts:60 ",
+          "sampledMs": 1.596
+        },
+        {
+          "location": "../packages/runtime/src/runtime.ts:46 ",
+          "sampledMs": 1.592
+        },
+        {
+          "location": "elementsFromPoint ",
+          "sampledMs": 1.559
+        },
+        {
+          "location": "../packages/runtime/src/canonical.ts:41 Vn",
+          "sampledMs": 1.122
+        },
+        {
+          "location": "../packages/runtime/src/runtime.ts:55 wr",
+          "sampledMs": 1.104
+        }
+      ],
+      "longTasks": [],
+      "longFrames": [
+        {
+          "start": 19848.5,
+          "duration": 50.5
+        }
+      ],
+      "maximumHeartbeatGapMs": 61.19999998807907
+    },
+    {
+      "name": "240-quick-load",
+      "wallMs": 487,
+      "longTasks": [],
+      "longFrames": [
+        {
+          "start": 20005.79999999702,
+          "duration": 77.09999999403954
+        },
+        {
+          "start": 20112.79999999702,
+          "duration": 76.90000000596046
+        }
+      ],
+      "maximumHeartbeatGapMs": 29.600000008940697
+    },
+    {
+      "name": "480-quick-save",
+      "wallMs": 620.2999999970198,
+      "longTasks": [
+        {
+          "start": 55498.09999999404,
+          "duration": 73
+        },
+        {
+          "start": 55584.29999999702,
+          "duration": 79
+        }
+      ],
+      "longFrames": [
+        {
+          "start": 55498.09999999404,
+          "duration": 73.79999999701977
+        },
+        {
+          "start": 55582,
+          "duration": 82.20000000298023
+        }
+      ],
+      "maximumHeartbeatGapMs": 85.70000000298023
+    },
+    {
+      "name": "480-advance",
+      "wallMs": 239.30000001192093,
+      "cpu": [
+        {
+          "location": "(idle) ",
+          "sampledMs": 66.74099999999999
+        },
+        {
+          "location": "../packages/runtime/src/canonical.ts:74 P",
+          "sampledMs": 37.900000000000006
+        },
+        {
+          "location": "../packages/runtime/src/sha256.ts:10 Jn",
+          "sampledMs": 32.357
+        },
+        {
+          "location": "(program) ",
+          "sampledMs": 32.321
+        },
+        {
+          "location": "../packages/runtime/src/canonical.ts:16 zn",
+          "sampledMs": 23.307000000000006
+        },
+        {
+          "location": "../packages/runtime/src/canonical.ts:32 Bn",
+          "sampledMs": 17.676
+        },
+        {
+          "location": "../apps/player-shell/src/recovery-session-client.ts:32 ",
+          "sampledMs": 14.547999999999998
+        },
+        {
+          "location": "../packages/runtime/src/canonical.ts:41 Vn",
+          "sampledMs": 10.601
+        },
+        {
+          "location": "../packages/runtime/src/runtime.ts:46 ",
+          "sampledMs": 6.655
+        },
+        {
+          "location": "createObjectURL ",
+          "sampledMs": 4.885
+        },
+        {
+          "location": "../packages/runtime/src/runtime.ts:55 wr",
+          "sampledMs": 3.4749999999999996
+        },
+        {
+          "location": "../packages/runtime/src/runtime.ts:49 V",
+          "sampledMs": 2.854
+        },
+        {
+          "location": "../packages/runtime/src/runtime.ts:45 Cr",
+          "sampledMs": 2.651
+        },
+        {
+          "location": "../packages/runtime/src/history.ts:167 Oi",
+          "sampledMs": 2.3920000000000003
+        },
+        {
+          "location": "../packages/runtime/src/runtime.ts:117 Ar",
+          "sampledMs": 1.683
+        },
+        {
+          "location": "removeChild ",
+          "sampledMs": 1.648
+        },
+        {
+          "location": "../node_modules/react/cjs/react-jsx-runtime.production.js:14 r",
+          "sampledMs": 1.623
+        },
+        {
+          "location": "innerSerialize ",
+          "sampledMs": 1.595
+        },
+        {
+          "location": "../packages/runtime/src/canonical.ts:110 Wn",
+          "sampledMs": 1.213
+        }
+      ],
+      "longTasks": [
+        {
+          "start": 55781.59999999404,
+          "duration": 165
+        }
+      ],
+      "longFrames": [
+        {
+          "start": 55778.89999999106,
+          "duration": 169
+        }
+      ],
+      "maximumHeartbeatGapMs": 174.5
+    },
+    {
+      "name": "480-quick-load",
+      "wallMs": 983.7999999970198,
+      "longTasks": [
+        {
+          "start": 56349.20000000298,
+          "duration": 62
+        }
+      ],
+      "longFrames": [
+        {
+          "start": 56055.29999999702,
+          "duration": 76.29999999701977
+        },
+        {
+          "start": 56162.20000000298,
+          "duration": 84.19999998807907
+        },
+        {
+          "start": 56349.20000000298,
+          "duration": 63.3999999910593
+        }
+      ],
+      "maximumHeartbeatGapMs": 77.30000001192093
+    }
+  ],
+  "errors": [],
+  "foregroundSerializer": {
+    "active": 0,
+    "peakActive": 1,
+    "started": 7,
+    "completed": 7,
+    "cancelled": 0,
+    "fallback": 0,
+    "failed": 0
+  },
+  "scope": "synthetic text, real UI/IndexedDB; no injected history, media, forced GC or physical device",
+  "physicalDevice": false,
+  "twoHourSoakPassed": false
+}

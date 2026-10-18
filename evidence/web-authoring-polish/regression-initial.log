@@ -1,0 +1,101 @@
+
+ RUN  v4.1.10 E:/Project/AIProject/ClaudeProject/WorLdGame
+
+ ❯ apps/editor/src/preview-structure-continuity.test.tsx (4 tests | 2 failed) 9364ms
+     × retains a choice, future, diagnostics and route across repeated structure visits, but not project reopen 5127ms
+     × applies a scene title correction, but requests an explicit restart after adding a variable 1899ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  apps/editor/src/preview-structure-continuity.test.tsx > author Preview continuity across structure > retains a choice, future, diagnostics and route across repeated structure visits, but not project reopen
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ apps/editor/src/preview-structure-continuity.test.tsx:30:3
+     28|
+     29| describe("author Preview continuity across structure", () => {
+     30|   it("retains a choice, future, diagnostics and route across repeated …
+       |   ^
+     31|     await example(); fireEvent.click(screen.getByText("调试详情"));
+     32|     fireEvent.click(screen.getByRole("button", { name: "选择路线：去广播室" }));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  apps/editor/src/preview-structure-continuity.test.tsx > author Preview continuity across structure > applies a scene title correction, but requests an explicit restart after adding a variable
+TestingLibraryElementError: Unable to find an accessible element with the role "button" and name "修改场景：放学后的校门"
+
+Here are the accessible roles:
+
+  status:
+
+  Name "":
+  <div
+    aria-live="polite"
+    class="startup-gate"
+    role="status"
+  />
+
+  --------------------------------------------------
+  paragraph:
+
+  Name "":
+  <p
+    class="eyebrow"
+  />
+
+  Name "":
+  <p />
+
+  --------------------------------------------------
+  heading:
+
+  Name "正在获取安全编辑权…":
+  <h1 />
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      aria-live="polite"
+      class="startup-gate"
+      role="status"
+    >
+      <span
+        aria-hidden="true"
+        class="startup-gate__orb"
+      />
+      <p
+        class="eyebrow"
+      >
+        SINGLE-WRITER STARTUP
+      </p>
+      <h1>
+        正在获取安全编辑权…
+      </h1>
+      <p>
+        取得带 fencing token 的写入租约后，再检查版本、WAL 与 SHA-256 完整性。
+      </p>
+    </div>
+  </div>
+</body>
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ apps/editor/src/preview-structure-continuity.test.tsx:63:28
+     61|   it("applies a scene title correction, but requests an explicit resta…
+     62|     await example(); await structure();
+     63|     fireEvent.click(screen.getByRole("button", { name: "修改场景：放学后的校门" }…
+       |                            ^
+     64|     fireEvent.change(screen.getByLabelText("新场景名称"), { target: { value…
+     65|     fireEvent.click(screen.getByRole("button", { name: "保存场景" }));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed | 3 passed (4)
+      Tests  2 failed | 17 passed (19)
+   Start at  09:38:34
+   Duration  45.55s (transform 2.67s, setup 4.89s, import 6.48s, tests 15.70s, environment 17.21s)
+

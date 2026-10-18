@@ -1,0 +1,219 @@
+
+ RUN  v4.1.10 E:/Project/AIProject/ClaudeProject/WorLdGame
+
+ ❯ apps/player-shell/src/memory-pressure.test.tsx (12 tests | 1 failed) 7966ms
+   × protects before shrinking, preserves the current line, coalesces pressure and exposes readonly history 1146ms
+   ✓ keeps rollback on write failure and allows the player to retry  716ms
+   ✓ does not shrink a changed story state after a delayed save  764ms
+   ✓ times out safely, ignores late completion, and rejects pressure after unmount  635ms
+   ✓ invalidates an old request when changing projects  593ms
+   ✓ supports a suspended host without resuming it, and does not notify another mounted player  1058ms
+   ✓ does not compact below the moderate window and validates notification values  493ms
+   ✓ does not remove history when the resource owner fails to release  556ms
+   ✓ ignores a saved protection result after unmount  512ms
+   ✓ does not write an old proposal when reading advances during background preparation  533ms
+   ✓ terminates background preparation on timeout and ignores late success  483ms
+   ✓ terminates background preparation on unmount and ignores late success  475ms
+ ✓ apps/player-shell/src/player-history-search.test.tsx (4 tests) 1022ms
+   ✓ bounds matching rows and returns to the current page after clearing an empty result  323ms
+   ✓ lets a reader find an earlier line, return to it and continue reading; Escape clears before closing  348ms
+ ✓ packages/runtime/src/canonical.test.ts (13 tests) 314ms
+ ✓ packages/runtime/src/sha256.test.ts (2 tests) 303ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  apps/player-shell/src/memory-pressure.test.tsx > protects before shrinking, preserves the current line, coalesces pressure and exposes readonly history
+TestingLibraryElementError: Found multiple elements with the role "button" and name "关闭剧情历史"
+
+Here are the matching elements:
+
+Ignored nodes: comments, script, style
+<button
+  aria-expanded="true"
+  aria-label="关闭剧情历史"
+  class="player-history-controls__open"
+  type="button"
+>
+  <span
+    aria-hidden="true"
+  >
+    ☰
+  </span>
+  <span>
+    历史
+  </span>
+</button>
+
+Ignored nodes: comments, script, style
+<button
+  aria-label="关闭剧情历史"
+  type="button"
+>
+  关闭
+</button>
+
+(If this is intentional, then use the `*AllBy*` variant of the query (like `queryAllByText`, `getAllByText`, or `findAllByText`)).
+
+Ignored nodes: comments, script, style
+<div>
+  <main
+    class="player-shell"
+    data-additional-content="closed"
+    data-artwork-view="false"
+    data-audio-mode="enabled"
+    data-auto-playback="off"
+    data-compact-reading="false"
+    data-compiler="0.2.0"
+    data-effect-operation="none"
+    data-history-archives="1"
+    data-history-can-back="true"
+    data-history-can-forward="false"
+    data-history-cursor="64"
+    data-history-forward-policy="true"
+    data-history-length="64"
+    data-history-panel="open"
+    data-host-activity="active"
+    data-input-accepted="true"
+    data-input-source="lifecycle"
+    data-memory-pressure="protected"
+    data-memory-pressure-serial="1"
+    data-playback-activation="none"
+    data-playback-mode="normal"
+    data-playback-policy="1.2.0"
+    data-playback-speed="normal"
+    data-playback-stop-reason="none"
+    data-player-core="0.5.0"
+    data-player-font="system"
+    data-player-fullscreen="false"
+    data-player-locale="und"
+    data-player-locale-fallbacks="0"
+    data-player-media-fallbacks="0"
+    data-player-media-locale="und"
+    data-player-media-missing="0"
+    data-player-muted="false"
+    data-player-status="presenting"
+    data-player-typography="standard"
+    data-preferences-open="false"
+    data-reading-menu-open="false"
+    data-reading-pace="standard"
+    data-reading-unread-below="false"
+    data-recovery-operation="loaded"
+    data-recovery-store="memory-test"
+    data-recovery-store-version="1.0.0"
+    data-runtime="0.6.0"
+    data-runtime-host="0.1.0"
+    data-runtime-host-snapshot-hash="da94ee51aab7b93b8fe634f38cf1d82f358cc8e3573d79fb8a9eb5d2ab1fa095"
+    data-runtime-state-hash="1d62318a41e2e013437110c11a07188e81fe71e94a6fd413c7bb72b061151fc5"
+    data-save-operation="idle"
+    data-save-store="unavailable"
+    data-save-store-version="none"
+    data-scene-replay="inactive"
+    data-settings-allow-hold="true"
+    data-settings-application="1"
+    data-settings-audio-ambient="0.8"
+    data-settings-audio-bgm="0.8"
+    data-settings-audio-master="1"
+    data-settings-audio-resume="true"
+    data-settings-audio-sfx="0.9"
+    data-settings-audio-ui="0.9"
+    data-settings-audio-voice="1"
+    data-settings-audio-voice-ducking="0.35"
+    data-settings-choice-layout="vertical"
+    data-settings-choice-numbers="true"
+    data-settings-high-contrast="false"
+    data-settings-history-forward="true"
+    data-settings-input-gamepad="true"
+    data-settings-input-hints="true"
+    data-settings-input-keyboard="true"
+    data-settings-input-pointer="true"
+    data-settings-input-touch="true"
+    data-settings-orientation="landscape"
+    data-settings-platform="web"
+    data-settings-quality="high"
+    data-settings-reduce-flashing="false"
+    data-settings-reduce-motion="false"
+    data-settings-safe-area="system"
+    data-settings-stage-duration="360"
+    data-settings-stage-easing="linear"
+    data-settings-text-cps="30"
+    data-settings-text-minimum="350"
+    data-settings-text-punctuation="120"
+    data-settings-textbox-default="adv"
+    data-settings-wait-for-voice="true"
+    data-skip-active="false"
+    data-skip-media="normal"
+    data-stage-images-pending="false"
+    data-video-policy-stop-reason="none"
+    style="--gal-stage-aspect: 1920 / 1080; --gal-stage-ratio: 1.7777777777777777; --gal-font-scale: 1; --gal-message-opacity: 0.88; --gal-line-height: 1.75; --gal-letter-spacing: 0em; --player-font-family: \"Noto Sans\", Inter, system-ui, sans-serif;"
+  >
+    <div
+      class="player-glow player-glow--violet"
+    />
+    <div
+      class="player-glow player-glow--cyan"
+    />
+    <section
+      aria-label="Memory 游戏画面"
+      class="player-stage"
+    >
+      <div
+        aria-label="正式媒体舞台"
+        class="player-stage-world"
+        data-skip-media="normal"
+        style="transform: translate(0%, 0%) scale(1) rotate(0deg);"
+      />
+      <header
+        aria-label="播放器状态"
+        class="player-brand"
+      >
+        <span
+          aria-hidden="true"
+          class="player-brand__mark"
+        >
+          W
+        </span>
+        <span>
+          WorLd Player
+        </span>
+        <span
+          class="player-brand__status"
+        >
+          presenting
+        </span>
+      </header>
+      <div
+        class="player-compact-toolbar"
+      >
+        <button
+          aria-label="欣赏画面"
+          class="player-artwork-trigger"
+          disabled=""
+          title="隐藏对白并停止自动推进（H）"
+          type="button"
+        >
+          <svg
+            aria-hidden="true"
+            fill="none"
+            height=[32...
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ getElementError node_modules/@testing-library/dom/dist/query-helpers.js:20:35
+ ❯ getMultipleElementsFoundError node_modules/@testing-library/dom/dist/query-helpers.js:23:10
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:55:13
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ apps/player-shell/src/memory-pressure.test.tsx:51:42
+     49|   expect(within(test.container).getByRole("heading", { name: "归档记录 1" …
+     50|   expect(test.container.querySelector('.player-memory-pressure')).toBe…
+     51|   fireEvent.click(within(test.container).getByRole('button', { name: '…
+       |                                          ^
+     52|   expect(test.container.querySelector('.player-memory-pressure')).not.…
+     53| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 3 passed (4)
+      Tests  1 failed | 30 passed (31)
+   Start at  14:11:57
+   Duration  18.53s (transform 2.25s, setup 788ms, import 4.53s, tests 9.61s, environment 2.78s)
+
+JSON report written to E:/Project/AIProject/ClaudeProject/WorLdGame/evidence/web-reading-throughput/final-focused-tests.json

@@ -1,0 +1,122 @@
+{
+  "desktop": [
+    {
+      "label": "存读档",
+      "clientWidth": 920,
+      "fontSize": "16px",
+      "radius": "16px",
+      "screen": "save",
+      "scrollWidth": 920,
+      "width": 922
+    },
+    {
+      "label": "阅读菜单",
+      "clientWidth": 758,
+      "fontSize": "16px",
+      "radius": "16px",
+      "screen": "menu",
+      "scrollWidth": 758,
+      "width": 760
+    },
+    {
+      "label": "剧情历史",
+      "clientWidth": 458,
+      "fontSize": "16px",
+      "radius": "16px",
+      "screen": "history",
+      "scrollWidth": 458,
+      "width": 460
+    },
+    {
+      "label": "玩家设置",
+      "clientWidth": 663,
+      "fontSize": "16px",
+      "radius": "16px",
+      "screen": "preferences",
+      "scrollWidth": 663,
+      "width": 680
+    },
+    {
+      "label": "附加内容",
+      "clientWidth": 915,
+      "fontSize": "16px",
+      "radius": "16px",
+      "screen": "additional",
+      "scrollWidth": 915,
+      "width": 932
+    },
+    {
+      "label": "制作名单",
+      "clientWidth": 743,
+      "fontSize": "16px",
+      "radius": "16px",
+      "screen": "credits",
+      "scrollWidth": 743,
+      "width": 760
+    }
+  ],
+  "phone": [
+    {
+      "label": "存读档",
+      "clientWidth": 335,
+      "height": 708,
+      "saveGrid": "291px",
+      "screen": "save",
+      "scrollWidth": 335,
+      "top": 16,
+      "width": 352
+    },
+    {
+      "label": "阅读菜单",
+      "clientWidth": 349,
+      "height": 708,
+      "screen": "menu",
+      "scrollWidth": 349,
+      "top": 16,
+      "width": 366
+    },
+    {
+      "label": "剧情历史",
+      "clientWidth": 364,
+      "height": 708,
+      "screen": "history",
+      "scrollWidth": 364,
+      "top": 16,
+      "width": 366
+    },
+    {
+      "label": "玩家设置",
+      "clientWidth": 349,
+      "height": 708,
+      "screen": "preferences",
+      "scrollWidth": 349,
+      "top": 16,
+      "width": 366
+    },
+    {
+      "label": "附加内容",
+      "clientWidth": 349,
+      "height": 708,
+      "screen": "additional",
+      "scrollWidth": 349,
+      "top": 16,
+      "width": 366
+    },
+    {
+      "label": "制作名单",
+      "clientWidth": 349,
+      "height": 708,
+      "screen": "credits",
+      "scrollWidth": 349,
+      "top": 16,
+      "width": 366
+    }
+  ],
+  "finalPhoneSave": {
+    "width": 366,
+    "clientWidth": 349,
+    "scrollWidth": 349,
+    "grid": "305px",
+    "note": "After overriding the browser dialog maximum width; one column, no horizontal overflow."
+  }
+}

@@ -1,0 +1,333 @@
+{
+  "totals": {
+    "cssAnimations": 95,
+    "detachedDialogueButtons": 48,
+    "detachedDialogueTextNodes": 73,
+    "detachedIndicators": 48
+  },
+  "nativeCounts": [
+    [
+      "InternalNode detached=0",
+      4157
+    ],
+    [
+      "system / ExternalStringData detached=0",
+      537
+    ],
+    [
+      "EventListener detached=0",
+      217
+    ],
+    [
+      "V8EventListener detached=0",
+      155
+    ],
+    [
+      "TaskAttributionTiming detached=0",
+      149
+    ],
+    [
+      "PerformanceLongTaskTiming detached=0",
+      149
+    ],
+    [
+      "CSSAnimation detached=0",
+      95
+    ],
+    [
+      "KeyframeEffect detached=0",
+      95
+    ],
+    [
+      "Text detached=0",
+      88
+    ],
+    [
+      "Text detached=2",
+      79
+    ],
+    [
+      "CSSStyleDeclaration detached=0",
+      77
+    ],
+    [
+      "V8EventHandlerNonNull detached=0",
+      62
+    ],
+    [
+      "<button class=\"player-dialogue player-dialogue--adv\" type=\"button\" data-text-ready=\"true\" data-text-reveal-duration=\"0\" aria-label=\"继续下一句\"> detached=2",
+      48
+    ],
+    [
+      "<i aria-hidden=\"true\"> detached=2",
+      48
+    ],
+    [
+      "<span class=\"player-dialogue__text player-typography-text\" lang=\"und\" data-cjk-line-break=\"standard\" aria-live=\"polite\" style=\"--gal-text-reveal-duration: 0ms;\"> detached=2",
+      47
+    ],
+    [
+      "<span class=\"player-dialogue__text player-typography-text\" lang=\"und\" data-cjk-line-break=\"standard\" aria-live=\"polite\"> detached=2",
+      26
+    ],
+    [
+      "ShadowRoot detached=0",
+      9
+    ],
+    [
+      "Text detached=1",
+      8
+    ],
+    [
+      "<span pseudo=\"-internal-option-label-container\" aria-hidden=\"true\"> detached=0",
+      7
+    ],
+    [
+      "<slot pseudo=\"-internal-option-slot\"> detached=0",
+      7
+    ],
+    [
+      "<span aria-hidden=\"true\"> detached=1",
+      5
+    ],
+    [
+      "<span> detached=1",
+      5
+    ],
+    [
+      "DOMStringMap detached=0",
+      3
+    ],
+    [
+      "HTMLOptionsCollection detached=0",
+      2
+    ],
+    [
+      "MessagePort detached=0",
+      2
+    ],
+    [
+      "<label> detached=1",
+      2
+    ],
+    [
+      "IDBDatabase detached=0",
+      2
+    ],
+    [
+      "IDBOpenDBRequest detached=0",
+      2
+    ],
+    [
+      "VisibilityStateEntry detached=0",
+      2
+    ],
+    [
+      "DOMTokenList detached=0",
+      2
+    ],
+    [
+      "CSSStyleSheet detached=0",
+      2
+    ],
+    [
+      "<div aria-hidden=\"true\" pseudo=\"-internal-select-inner-element\"> detached=0",
+      2
+    ],
+    [
+      "<div pseudo=\"-internal-select-autofill-preview\" popover=\"manual\"> detached=0",
+      2
+    ],
+    [
+      "<div pseudo=\"-internal-select-autofill-preview-text\"> detached=0",
+      2
+    ],
+    [
+      "<div pseudo=\"picker(select)\" popover=\"auto\"> detached=0",
+      2
+    ],
+    [
+      "<slot id=\"select-popover-options\"> detached=0",
+      2
+    ],
+    [
+      "<slot pseudo=\"-internal-select-button-slot\"> detached=0",
+      2
+    ],
+    [
+      "PerformancePaintTiming detached=0",
+      2
+    ],
+    [
+      "Navigator detached=0",
+      1
+    ],
+    [
+      "<div class=\"player-title-screen\"> detached=1",
+      1
+    ],
+    [
+      "<span class=\"player-hint\"> detached=1",
+      1
+    ],
+    [
+      "<button class=\"player-primary\" type=\"button\"> detached=1",
+      1
+    ],
+    [
+      "<p> detached=1",
+      1
+    ],
+    [
+      "<h1> detached=1",
+      1
+    ],
+    [
+      "<p class=\"player-eyebrow\"> detached=1",
+      1
+    ],
+    [
+      "<div class=\"player-choice\" data-choice-layout=\"vertical\" role=\"group\" aria-labelledby=\"player-choice-prompt\"> detached=2",
+      1
+    ],
+    [
+      "<button type=\"button\" aria-label=\"自动播放\" aria-pressed=\"false\" disabled=\"\"> detached=1",
+      1
+    ],
+    [
+      "<button type=\"button\" aria-label=\"快进已读\" aria-pressed=\"false\" disabled=\"\"> detached=1",
+      1
+    ],
+    [
+      "<button type=\"button\" aria-label=\"快进全部\" aria-pressed=\"false\" disabled=\"\"> detached=1",
+      1
+    ],
+    [
+      "<option value=\"toggle\"> detached=1",
+      1
+    ]
+  ],
+  "paths": [
+    [
+      {
+        "node": "3570:hidden:system / NativeContext / file://",
+        "edge": "2",
+        "edgeType": "shortcut"
+      },
+      {
+        "node": "35939:object:Window (global*) / file://",
+        "edge": "global_object",
+        "edgeType": "internal"
+      },
+      {
+        "node": "13083:native:HTMLDocument",
+        "edge": "<symbol Window#DocumentCachedAccessor>",
+        "edgeType": "property"
+      },
+      {
+        "node": "62869:native:DocumentTimeline",
+        "edge": 29,
+        "edgeType": "element"
+      },
+      {
+        "node": "62396:native:InternalNode",
+        "edge": 3,
+        "edgeType": "element"
+      },
+      {
+        "node": "62419:native:CSSAnimation",
+        "edge": 23,
+        "edgeType": "element"
+      },
+      {
+        "node": "12795:native:<i aria-hidden=\"true\">",
+        "edge": 4,
+        "edgeType": "element"
+      },
+      {
+        "node": "12755:native:<span class=\"player-dialogue__text player-typography-text\" lang=\"und\" data-cjk-line-break=\"standard\" aria-live=\"polite\">",
+        "edge": 8,
+        "edgeType": "element"
+      }
+    ],
+    [
+      {
+        "node": "3570:hidden:system / NativeContext / file://",
+        "edge": "2",
+        "edgeType": "shortcut"
+      },
+      {
+        "node": "35939:object:Window (global*) / file://",
+        "edge": "global_object",
+        "edgeType": "internal"
+      },
+      {
+        "node": "13083:native:HTMLDocument",
+        "edge": "<symbol Window#DocumentCachedAccessor>",
+        "edgeType": "property"
+      },
+      {
+        "node": "62869:native:DocumentTimeline",
+        "edge": 29,
+        "edgeType": "element"
+      },
+      {
+        "node": "62396:native:InternalNode",
+        "edge": 3,
+        "edgeType": "element"
+      },
+      {
+        "node": "62485:native:CSSAnimation",
+        "edge": 89,
+        "edgeType": "element"
+      },
+      {
+        "node": "12767:native:<i aria-hidden=\"true\">",
+        "edge": 4,
+        "edgeType": "element"
+      },
+      {
+        "node": "12766:native:<button class=\"player-dialogue player-dialogue--adv\" type=\"button\" data-text-ready=\"true\" data-text-reveal-duration=\"0\" aria-label=\"继续下一句\">",
+        "edge": 7,
+        "edgeType": "element"
+      }
+    ],
+    [
+      {
+        "node": "3570:hidden:system / NativeContext / file://",
+        "edge": "2",
+        "edgeType": "shortcut"
+      },
+      {
+        "node": "35939:object:Window (global*) / file://",
+        "edge": "global_object",
+        "edgeType": "internal"
+      },
+      {
+        "node": "13083:native:HTMLDocument",
+        "edge": "<symbol Window#DocumentCachedAccessor>",
+        "edgeType": "property"
+      },
+      {
+        "node": "62869:native:DocumentTimeline",
+        "edge": 29,
+        "edgeType": "element"
+      },
+      {
+        "node": "62396:native:InternalNode",
+        "edge": 3,
+        "edgeType": "element"
+      },
+      {
+        "node": "62485:native:CSSAnimation",
+        "edge": 89,
+        "edgeType": "element"
+      },
+      {
+        "node": "12767:native:<i aria-hidden=\"true\">",
+        "edge": 4,
+        "edgeType": "element"
+      }
+    ]
+  ]
+}

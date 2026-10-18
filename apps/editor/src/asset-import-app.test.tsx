@@ -14,16 +14,29 @@ afterEach(() => {
 });
 
 describe("S0.30 typed resource manifest compiler integration", () => {
+  it("keeps the asset dialog open for IME Escape and closes it for a normal Escape", async () => {
+    vi.stubGlobal("indexedDB", new IDBFactory()); render(<App />);
+    fireEvent.click(await screen.findByRole("button", { name: "素材" }));
+    fireEvent.click(screen.getByText("素材处理进度与检查"));
+    fireEvent.click(await screen.findByRole("button", { name: "导入与管理素材" }));
+    const dialog = screen.getByRole("dialog", { name: "素材管理" }), input = screen.getByLabelText("资源显示名称");
+    fireEvent.keyDown(input, { key: "Escape", isComposing: true }); expect(dialog).toBeInTheDocument();
+    fireEvent.keyDown(input, { key: "Escape", keyCode: 229 }); expect(dialog).toBeInTheDocument();
+    fireEvent.keyDown(input, { key: "Escape" }); expect(screen.queryByRole("dialog", { name: "素材管理" })).not.toBeInTheDocument();
+  });
   it("imports real File bytes, persists stable metadata and reports exact deduplication", async () => {
     vi.stubGlobal("indexedDB", new IDBFactory());
     render(<App />);
-    fireEvent.click(await screen.findByRole("radio", { name: "Production" }));
-    expect(screen.getByRole("heading", { name: "资源生产工作区" })).toBeVisible();
+    fireEvent.click(await screen.findByRole("button", { name: "素材" }));
+    expect(screen.getByRole("heading", { name: "素材库" })).toBeVisible();
+    fireEvent.click(screen.getByText("素材处理进度与检查"));
     await waitFor(() => expect(screen.getByText("导入第一项生产资源")).toBeVisible());
-    await waitFor(() => expect(screen.getByRole("button", { name: "打开资源生产流水线" })).toBeEnabled());
-    fireEvent.click(screen.getByRole("button", { name: "打开资源生产流水线" }));
+    await waitFor(() => expect(screen.getByRole("button", { name: "导入与管理素材" })).toBeEnabled());
+    fireEvent.click(screen.getByRole("button", { name: "导入与管理素材" }));
 
-    const vault = screen.getByRole("dialog", { name: "资源保险库" });
+    const vault = screen.getByRole("dialog", { name: "素材管理" });
+    fireEvent.click(screen.getByText("文件信息与维护 · 0 项素材"));
+    fireEvent.click(screen.getByText("高级资源维护与优化"));
     expect(screen.getByRole("heading", { name: "资源血缘与安全回收" })).toBeVisible();
     expect(within(vault).getByText("Lifecycle r1")).toBeVisible();
     expect(screen.getByRole("button", { name: "安全扫描" })).toBeEnabled();
@@ -43,8 +56,11 @@ describe("S0.30 typed resource manifest compiler integration", () => {
     await waitFor(() => expect(screen.getByText(/媒体检查通过；新 Blob 与 broadcast_cg 已原子写入 Index r1/)).toBeVisible());
     expect(within(vault).getByText("Lifecycle r2")).toBeVisible();
     expect(screen.getAllByText("1", { selector: ".asset-lifecycle__metrics strong" })).toHaveLength(2);
+    // Import selects the new asset's detail; the maintenance list is now collapsed.
+    expect(within(screen.getByLabelText("当前素材预览")).getByRole("heading", { name: "Broadcast CG" })).toBeVisible();
+    fireEvent.click(screen.getByText("文件信息与维护 · 1 项素材"));
     expect(within(screen.getByLabelText("已导入资源")).getByText("Broadcast CG")).toBeVisible();
-    expect(screen.getByText(/PASS · PNG · 1920×1080/)).toBeVisible();
+    expect(within(screen.getByLabelText("已导入资源")).getByText(/PASS · PNG · 1920×1080/)).toBeVisible();
     expect(screen.getByRole("button", { name: "生成缩略图" })).toBeEnabled();
     expect(screen.getByRole("button", { name: "分析候选 · 1" })).toBeDisabled();
     expect(screen.getByRole("button", { name: "保存到本机" })).toBeVisible();
@@ -170,9 +186,10 @@ describe("S0.30 typed resource manifest compiler integration", () => {
     expect(screen.getByText(/转场依赖 2 · 分支公共预取 1 · 未从描述文字猜测资源/)).toBeVisible();
     vi.stubGlobal("Worker", undefined);
     fireEvent.click(screen.getByRole("button", { name: "关闭资源保险库" }));
-    expect(screen.getByRole("heading", { name: "资源映射批量表" })).toBeVisible();
-    expect(screen.getByText("2/2 项可见")).toBeVisible();
-    expect(screen.getByText("审阅并发布可获益的 Atlas 候选")).toBeVisible();
+    fireEvent.click(screen.getByText("查看素材详细清单"));
+    expect(screen.getByRole("table", { name: "资源映射批量表" })).toBeVisible();
+    expect(screen.getByRole("button", { name: "管理素材：Broadcast CG" })).toBeVisible();
+    expect(screen.getByRole("button", { name: "管理素材：Broadcast CG Copy" })).toBeVisible();
     expect(screen.getAllByText("✓ 已通过")).toHaveLength(2);
   }, 20_000);
 
@@ -188,7 +205,7 @@ describe("S0.30 typed resource manifest compiler integration", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: "导入到资源保险库" }));
     await waitFor(() => expect(screen.getByText("文件声明与真实内容不一致")).toBeVisible());
-    expect(screen.getByText(/0 资源/)).toBeVisible();
+    expect(screen.getByText("文件信息与维护 · 0 项素材")).toBeVisible();
     expect(screen.getAllByText(/Index r0/)).not.toHaveLength(0);
     expect(within(screen.getByLabelText("已导入资源")).queryAllByRole("article")).toHaveLength(0);
   }, 10_000);

@@ -1,0 +1,42 @@
+{
+  "passed": true,
+  "story": {
+    "version": "1.9.0",
+    "scenes": 9,
+    "narration": 90,
+    "dialogue": 9,
+    "endings": 2,
+    "directions": 85,
+    "revisedNarrations": 1,
+    "addedDirections": 4,
+    "existingIdsAndVoiceBeatsPreserved": true,
+    "unchangedMedia": 25,
+    "addedMedia": 1,
+    "textCharacters": 9751,
+    "oldSaveCompatibility": "not-approved-content-changed"
+  },
+  "notes": {
+    "total": 19,
+    "previousPreserved": 16,
+    "newFixed": 3,
+    "humanVerified": 0
+  },
+  "exactSourceAndGameScripts": true,
+  "allOld25MediaByteIdentical": true,
+  "newMediaMatchesGeneratedOriginal": true,
+  "websiteFilesVerified": 37,
+  "artifacts": {
+    "source": {
+      "byteLength": 34475426,
+      "sha256": "e4b13a27dc72fda43efe655d49a9b5ca5091c01382b9d0cd0c79932eaa86400d"
+    },
+    "html": {
+      "byteLength": 46743938,
+      "sha256": "43866963a9f43cf156fd96c0940b9121797789e8ba7a85a7b449c43bc97a8125"
+    },
+    "website": {
+      "byteLength": 35301554,
+      "sha256": "4f6dd372d4acf00fcf4efd2033141edbe3b0480bbcefef8584613deaedbfb771"
+    }
+  }
+}

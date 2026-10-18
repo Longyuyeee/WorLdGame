@@ -1,0 +1,337 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "name": "all-nine-scenes-and-one-paragraph-edited",
+      "detail": {
+        "scenes": [
+          "灯下的回信",
+          "车窗与海",
+          "车站的雨",
+          "再一次见面",
+          "雨后的天明",
+          "留下",
+          "站台前的约定",
+          "远行",
+          "候车室的旧信"
+        ],
+        "scene": "灯下的回信",
+        "statementId": "stmt_ui_119"
+      }
+    },
+    {
+      "name": "eleven-paragraph-continuity-cues-focus-undo-empty-draft-and-mobile-layout",
+      "detail": {
+        "paragraphs": 11,
+        "hitAreas": [
+          {
+            "label": "上一段文字",
+            "width": 96,
+            "height": 44
+          },
+          {
+            "label": "下一段文字",
+            "width": 96,
+            "height": 44
+          },
+          {
+            "label": "应用修改",
+            "width": 82,
+            "height": 44
+          }
+        ]
+      }
+    },
+    {
+      "name": "full-project-cross-scene-preview-revision-and-three-workspace-returns",
+      "detail": {
+        "visited": [
+          "scene_87825610ea97b89eeea8",
+          "scene_fff36353633c42d1"
+        ],
+        "revised": {
+          "location": "scene_fff36353633c42d1 / stmt_ui_31 #2",
+          "history": "试玩记录 21/21",
+          "text": "旁白候车室里只剩一排灯还亮着。小夏选了靠窗的两张椅子，隔着玻璃能看见站台上的信号灯。林远把箱子放在脚边，拆信前先问她是否介意读出声。她摇头，说如果有哪句让他不知道怎么接，也可以先停下来。信不是考试，不要求谁立刻给出正确答案。【试玩定位修订】"
+        }
+      }
+    },
+    {
+      "name": "saved-reopened-and-exported-four-edits-with-stable-scripts-scenes-and-all-25-blobs",
+      "detail": {
+        "edits": {
+          "stmt_ui_119": "林远在第一行写了三次谢谢，又把前两次划掉。他觉得这两个字太轻，后来才发现自己总想找到一个足够重的句子，好让后面的行动可以晚一点开始。小夏看见划痕，没有追问内容；她只是把水杯移开，提醒他纸边快碰到碗里的汤了。【连续制作验证副本】",
+          "stmt_ui_230": "小夏从人群中走出来，先看了看车站的钟，问这里会不会也慢三分钟。林远说不知道，今天不需要它帮忙。她笑着把手里的包交给他，说带了新修好的那本书。书不新，却能重新打开，扉页旁留下的修补痕迹也没有被刻意遮住。【连续校读 1】",
+          "stmt_ui_232": "他们先去吃了一顿普通的早餐。林远讲新城市的路，讲哪家店晚上还开着，讲工作里仍然需要慢慢学的部分。小夏没有把这些话听成他是否应该回来的一份说明，也没有替他打分。她问了一些具体的问题，好像只是想认识他正在生活的地方。【连续校读 2】",
+          "stmt_ui_31": "候车室里只剩一排灯还亮着。小夏选了靠窗的两张椅子，隔着玻璃能看见站台上的信号灯。林远把箱子放在脚边，拆信前先问她是否介意读出声。她摇头，说如果有哪句让他不知道怎么接，也可以先停下来。信不是考试，不要求谁立刻给出正确答案。【试玩定位修订】"
+        },
+        "blobs": 25,
+        "sourceArchiveSha256": "3cfa1e8793d85986b9086e5cee2143a0d7dc69ef831cbbfe20913d523818f8e5"
+      }
+    },
+    {
+      "name": "fresh-editor-html-both-independent-endings-and-every-saved-text-edit",
+      "detail": {
+        "htmlSha256": "98d0dd7cea50e2a17149b38667462f04f97346309be1afad056cfe0b6e39b5ab",
+        "routes": [
+          {
+            "branch": "留下等雨停",
+            "ending": "同行的约定",
+            "changedStatementsSeen": [
+              "stmt_ui_31",
+              "stmt_ui_119"
+            ],
+            "advances": 67,
+            "naturallyEndedVoices": [
+              "voice_01",
+              "voice_02",
+              "voice_03",
+              "voice_04",
+              "voice_05",
+              "voice_06"
+            ]
+          },
+          {
+            "branch": "去追最后一班车",
+            "ending": "远行的约定",
+            "changedStatementsSeen": [
+              "stmt_ui_31",
+              "stmt_ui_230",
+              "stmt_ui_232"
+            ],
+            "advances": 67,
+            "naturallyEndedVoices": [
+              "voice_01",
+              "voice_02",
+              "voice_03",
+              "voice_07",
+              "voice_08",
+              "voice_09"
+            ]
+          }
+        ],
+        "candidateUnchanged": true
+      }
+    }
+  ],
+  "timings": [
+    {
+      "name": "cold-import-1.6.0",
+      "elapsedMs": 2285,
+      "longTasks": [
+        {
+          "start": 157.19999999925494,
+          "duration": 1301
+        },
+        {
+          "start": 1469.699999999255,
+          "duration": 696
+        },
+        {
+          "start": 2313.0999999996275,
+          "duration": 58
+        }
+      ]
+    },
+    {
+      "name": "switch-scene:灯下的回信",
+      "elapsedMs": 456.40000000037253,
+      "longTasks": [
+        {
+          "start": 2528.199999999255,
+          "duration": 58
+        },
+        {
+          "start": 2755.7999999988824,
+          "duration": 98
+        },
+        {
+          "start": 2855.5,
+          "duration": 66
+        }
+      ]
+    },
+    {
+      "name": "switch-scene:车窗与海",
+      "elapsedMs": 334.2000000011176,
+      "longTasks": [
+        {
+          "start": 3103.7999999988824,
+          "duration": 98
+        },
+        {
+          "start": 3204.199999999255,
+          "duration": 56
+        }
+      ]
+    },
+    {
+      "name": "switch-scene:车站的雨",
+      "elapsedMs": 378.8999999985099,
+      "longTasks": [
+        {
+          "start": 3428.39999999851,
+          "duration": 125
+        },
+        {
+          "start": 3556.39999999851,
+          "duration": 67
+        }
+      ]
+    },
+    {
+      "name": "switch-scene:再一次见面",
+      "elapsedMs": 366.90000000037253,
+      "longTasks": [
+        {
+          "start": 3815,
+          "duration": 132
+        },
+        {
+          "start": 3948.89999999851,
+          "duration": 53
+        }
+      ]
+    },
+    {
+      "name": "switch-scene:雨后的天明",
+      "elapsedMs": 332.09999999962747,
+      "longTasks": [
+        {
+          "start": 4178.5999999996275,
+          "duration": 92
+        },
+        {
+          "start": 4272.39999999851,
+          "duration": 64
+        }
+      ]
+    },
+    {
+      "name": "switch-scene:留下",
+      "elapsedMs": 313.5,
+      "longTasks": [
+        {
+          "start": 4507.5,
+          "duration": 92
+        }
+      ]
+    },
+    {
+      "name": "switch-scene:站台前的约定",
+      "elapsedMs": 366.5,
+      "longTasks": [
+        {
+          "start": 4829.699999999255,
+          "duration": 109
+        },
+        {
+          "start": 4941.299999998882,
+          "duration": 72
+        }
+      ]
+    },
+    {
+      "name": "switch-scene:远行",
+      "elapsedMs": 330.19999999925494,
+      "longTasks": [
+        {
+          "start": 5195.39999999851,
+          "duration": 101
+        }
+      ]
+    },
+    {
+      "name": "switch-scene:候车室的旧信",
+      "elapsedMs": 317.59999999962747,
+      "longTasks": [
+        {
+          "start": 5522.5999999996275,
+          "duration": 83
+        },
+        {
+          "start": 5607.39999999851,
+          "duration": 69
+        }
+      ]
+    },
+    {
+      "name": "edit-narration",
+      "elapsedMs": 674.5999999996275,
+      "longTasks": [
+        {
+          "start": 6081.5,
+          "duration": 55
+        },
+        {
+          "start": 6579.799999998882,
+          "duration": 61
+        }
+      ]
+    },
+    {
+      "name": "next-paragraph:1",
+      "elapsedMs": 330.59999999962747,
+      "longTasks": []
+    },
+    {
+      "name": "next-paragraph:2",
+      "elapsedMs": 231.09999999962747,
+      "longTasks": []
+    },
+    {
+      "name": "next-paragraph:3",
+      "elapsedMs": 115.10000000149012,
+      "longTasks": []
+    },
+    {
+      "name": "next-paragraph:4",
+      "elapsedMs": 77.09999999962747,
+      "longTasks": []
+    },
+    {
+      "name": "next-paragraph:5",
+      "elapsedMs": 96,
+      "longTasks": []
+    },
+    {
+      "name": "next-paragraph:6",
+      "elapsedMs": 128.90000000037253,
+      "longTasks": []
+    },
+    {
+      "name": "next-paragraph:7",
+      "elapsedMs": 101.40000000037253,
+      "longTasks": []
+    },
+    {
+      "name": "next-paragraph:8",
+      "elapsedMs": 88.60000000149012,
+      "longTasks": []
+    },
+    {
+      "name": "next-paragraph:9",
+      "elapsedMs": 159,
+      "longTasks": []
+    },
+    {
+      "name": "next-paragraph:10",
+      "elapsedMs": 81.29999999888241,
+      "longTasks": []
+    },
+    {
+      "name": "save-and-return-home",
+      "elapsedMs": 434,
+      "longTasks": []
+    },
+    {
+      "name": "cold-reopen-1.6.0-copy",
+      "elapsedMs": 218.90000000037253,
+      "longTasks": []
+    }
+  ],
+  "errors": [],
+  "browser": "151.0.7922.34",
+  "physicalPhone": false,
+  "statisticalBenchmark": false
+}

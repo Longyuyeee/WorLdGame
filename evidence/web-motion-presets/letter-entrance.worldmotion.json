@@ -1,0 +1,15 @@
+{
+  "format": "world-story-motion",
+  "schemaVersion": 1,
+  "preset": {
+    "name": "回信·轻步入场",
+    "target": "character",
+    "motion": {
+      "kind": "rise-in",
+      "duration": 1200,
+      "strength": 1.25,
+      "easing": "ease-in-out",
+      "repeat": 1
+    }
+  }
+}

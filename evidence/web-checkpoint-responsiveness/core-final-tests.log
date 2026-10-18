@@ -1,0 +1,11 @@
+
+ RUN  v4.1.10 E:/Project/AIProject/ClaudeProject/WorLdGame
+
+ ✓ packages/player-core/src/deferred-checkpoint.test.ts (3 tests) 101ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  12:55:29
+   Duration  3.09s (transform 833ms, setup 225ms, import 1.87s, tests 101ms, environment 679ms)
+
+JSON report written to E:/Project/AIProject/ClaudeProject/WorLdGame/evidence/web-checkpoint-responsiveness/core-final-tests.json

@@ -1,0 +1,9 @@
+{
+  "passed": false,
+  "browser": "26.5",
+  "delivery": "http-html",
+  "artifactSha256": "c6569ac9b41370d3a5d8eb54906214047e3908644a23d8c50fe2d160b4972a3b",
+  "error": "TimeoutError: page.waitForFunction: Timeout 30000ms exceeded.",
+  "checks": [],
+  "errors": []
+}

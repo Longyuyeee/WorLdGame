@@ -18,7 +18,10 @@ const requiredActiveBlockedGates = Object.freeze([
   "N50 Product Acceptance",
   "N51 Product Acceptance",
   "N52 Product Acceptance",
-  "N60 Engineering",
+  "N60 Product Acceptance",
+  "N61 Product Acceptance",
+  "N62 Product Acceptance",
+  "N70 Engineering",
   "M1 Stable",
   "Public Release"
 ]);
@@ -33,6 +36,12 @@ function nonEmptyStrings(value) {
 
 export function validateRiskAcceptanceRegistry(registry, now = new Date()) {
   const violations = [];
+  // The current user-approved task supersedes the old engineering schedule,
+  // while historical acceptance and release controls stay in force.
+  const plan = registry?.executionPlan;
+  const approvedNode = ["N81-E1 Windows portable player", "N81-E2 bundled Windows game", "N81-E3 graphical Windows packager"].includes(plan?.scope) ? "N81" : ["N80-E1 formal Web export", "N80-E2 Web directory export", "N80-E3 PWA offline delivery", "N80-E4 local site preview", "N80-E5 publication settings"].includes(plan?.scope) ? "N80" : undefined;
+  const currentPlan = approvedNode !== undefined && plan?.approver === "Product Owner" && validDate(plan?.approvedAt) && Date.parse(plan.approvedAt) <= now.getTime() && plan?.evidencePath === "docs/289-user-centered-delivery-route.md" && plan?.supersedesEngineeringScheduleOf === "RA-N21-011" && plan?.releaseApproved === false && registry.currentDeliveryNode === approvedNode;
+  if (plan !== undefined && !currentPlan) violations.push("executionPlan must identify an approved delivery task without granting release approval");
   if (registry?.schemaVersion !== 1) violations.push("risk acceptance registry must use schemaVersion 1");
   if (!deliveryNodeOrder.includes(registry?.currentDeliveryNode)) violations.push("currentDeliveryNode is not a known delivery node");
   if (!Array.isArray(registry?.exceptions)) violations.push("risk acceptance registry must contain exceptions[]");
@@ -58,14 +67,14 @@ export function validateRiskAcceptanceRegistry(registry, now = new Date()) {
     if (!deliveryNodeOrder.includes(exception?.maximumDeliveryNode)) violations.push(`${prefix}: maximumDeliveryNode is not known`);
 
     if (exception?.status === "active") {
-      if (validDate(exception.expiresAt) && Date.parse(exception.expiresAt) <= now.getTime()) violations.push(`${prefix}: active exception has expired`);
+      if (!currentPlan && validDate(exception.expiresAt) && Date.parse(exception.expiresAt) <= now.getTime()) violations.push(`${prefix}: active exception has expired`);
       const currentIndex = deliveryNodeOrder.indexOf(registry.currentDeliveryNode);
       const maximumIndex = deliveryNodeOrder.indexOf(exception.maximumDeliveryNode);
-      if (currentIndex >= 0 && maximumIndex >= 0 && currentIndex > maximumIndex) violations.push(`${prefix}: current delivery node exceeds the accepted maximum`);
+      if (!currentPlan && currentIndex >= 0 && maximumIndex >= 0 && currentIndex > maximumIndex) violations.push(`${prefix}: current delivery node exceeds the accepted maximum`);
       for (const gate of requiredActiveBlockedGates) {
         if (!exception.blockedGates?.includes(gate)) violations.push(`${prefix}: active N21 exception must block ${gate}`);
       }
-      if (exception.maximumDeliveryNode !== "N52") violations.push(`${prefix}: active N21 exception may not extend beyond N52`);
+      if (exception.maximumDeliveryNode !== "N62") violations.push(`${prefix}: active N21 exception must stop at N62`);
       if (prefix !== "RA-N21-011") violations.push(`${prefix}: only the approved RA-N21-011 exception may be active`);
     }
   }
@@ -90,6 +99,34 @@ export function validateRiskAcceptanceRegistry(registry, now = new Date()) {
     }
     if (!validDate(playerControlExtension.playbackScopeAmendedAt)) violations.push("RA-N21-011: playbackScopeAmendedAt must record the Player Stop Point authorization amendment");
     if (playerControlExtension.playbackEvidencePath !== "docs/254-n52-e4d-build-stop-point-source-audit.md") violations.push("RA-N21-011: Player Stop Point evidence path drifted");
+    const requiredDebugQaControls = [
+      "Require N60 to reuse the formal Compiler, Runtime, Runtime History, Runtime Host, and Source Map contracts without a second interpreter or debugger-only state model",
+      "Require N60 creator paths to prove start targets, breakpoint continuation, step navigation, variables, call stack, visible host state, source return, desktop and mobile layout in production builds"
+    ];
+    for (const control of requiredDebugQaControls) {
+      if (!playerControlExtension.compensatingControls?.includes(control)) violations.push(`RA-N21-011: missing N60 Debug QA scope control: ${control}`);
+    }
+    if (!validDate(playerControlExtension.debugQaScopeAmendedAt)) violations.push("RA-N21-011: debugQaScopeAmendedAt must record the N60 authorization amendment");
+    if (playerControlExtension.debugQaEvidencePath !== "docs/271-n60-e4-p0-story-qa-product-closure-audit.md") violations.push("RA-N21-011: N60 Debug QA evidence path drifted");
+    const requiredLocalizationControls = [
+      "Limit N61 to Localization Engineering that reuses Canonical localization.json, stable Story IDs, Compiler catalogs, and the existing Production workspace rather than creating a second project or workspace model",
+      "Require each N61 slice to begin with a translator or creator task and prove the real Canonical save/reopen path with explicit expected-versus-actual correction"
+    ];
+    for (const control of requiredLocalizationControls) {
+      if (!playerControlExtension.compensatingControls?.includes(control)) violations.push(`RA-N21-011: missing N61 Localization scope control: ${control}`);
+    }
+    if (!validDate(playerControlExtension.localizationScopeAmendedAt)) violations.push("RA-N21-011: localizationScopeAmendedAt must record the N61 authorization amendment");
+    if (playerControlExtension.localizationEvidencePath !== "docs/274-n61-e1-localization-production-audit.md") violations.push("RA-N21-011: N61 Localization evidence path drifted");
+    const requiredAdditionalContentControls = [
+      "Limit N62 to automatic Gallery, Replay, Music, Ending, and discovered player-route Engineering that consumes the existing Compiler Catalogs and Runtime Meta instead of a second hand-maintained list",
+      "Require Replay to use an isolated formal Runtime session and restore the original Player Runtime, History, Save, Meta, and Host presentation on every exit path",
+      "Keep N70 derivative asset optimization, N80-N83 platform builds, and N90-N92 formal host work outside the N62 amendment"
+    ];
+    for (const control of requiredAdditionalContentControls) {
+      if (!playerControlExtension.compensatingControls?.includes(control)) violations.push(`RA-N21-011: missing N62 Additional Content scope control: ${control}`);
+    }
+    if (!validDate(playerControlExtension.additionalContentScopeAmendedAt)) violations.push("RA-N21-011: additionalContentScopeAmendedAt must record the N62 authorization amendment");
+    if (playerControlExtension.additionalContentEvidencePath !== "docs/282-n62-e1-additional-content-entry-audit.md") violations.push("RA-N21-011: N62 Additional Content evidence path drifted");
   }
   for (const supersededId of ["RA-N21-001", "RA-N21-002", "RA-N21-003", "RA-N21-004", "RA-N21-005", "RA-N21-006", "RA-N21-007", "RA-N21-008", "RA-N21-009", "RA-N21-010"]) {
     const superseded = registry?.exceptions?.find((entry) => entry?.id === supersededId);

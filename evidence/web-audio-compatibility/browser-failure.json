@@ -1,0 +1,10 @@
+{
+  "checks": [
+    {
+      "name": "chromium-real-http-failure-retry-keeps-healthy-rain-and-story"
+    }
+  ],
+  "errors": [],
+  "error": "TimeoutError: locator.click: Timeout 20000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('dialog', { name: '读取进度', exact: true }).getByRole('tab', { name: '快速', exact: true })\u001b[22m\n",
+  "stack": "locator.click: Timeout 20000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('dialog', { name: '读取进度', exact: true }).getByRole('tab', { name: '快速', exact: true })\u001b[22m\n\n    at loadQuick (E:\\ProjectSave\\GeminiProject\\WorLdGame\\tools\\run-web-audio-recovery.mjs:49:388)\n    at async recovery (E:\\ProjectSave\\GeminiProject\\WorLdGame\\tools\\run-web-audio-recovery.mjs:57:122)\n    at async file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-audio-recovery.mjs:77:140"
+}

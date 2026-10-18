@@ -1,0 +1,50 @@
+{
+  "passed": true,
+  "reports": [
+    {
+      "name": "chromium",
+      "delivery": "http-html",
+      "browser": "151.0.7922.34",
+      "checks": 11
+    },
+    {
+      "name": "firefox",
+      "delivery": "http-html",
+      "browser": "153.0",
+      "checks": 11
+    },
+    {
+      "name": "webkit-website",
+      "delivery": "http-website",
+      "browser": "26.5",
+      "checks": 11
+    },
+    {
+      "name": "chromium-file",
+      "delivery": "file-html",
+      "browser": "151.0.7922.34",
+      "checks": 11
+    }
+  ],
+  "inlineWebKitSilentFallback": true,
+  "inlineWebKitAudioAccepted": false,
+  "paragraphResumeChecks": 9,
+  "artifact": {
+    "passed": true,
+    "unchangedPayloadAndAll26Media": true,
+    "sameContentVersion": "1.10.0",
+    "unchangedNotesPending": 23,
+    "sourceAndNotes": "evidence/web-story-arrival-and-night",
+    "websiteFiles": 37,
+    "artifacts": {
+      "html": {
+        "bytes": 46777645,
+        "sha256": "c6569ac9b41370d3a5d8eb54906214047e3908644a23d8c50fe2d160b4972a3b"
+      },
+      "website": {
+        "bytes": 35364094,
+        "sha256": "200805c96327f3a05f2659c49b06b6d510558189ab05d4d471120f9af139cb4e"
+      }
+    }
+  }
+}

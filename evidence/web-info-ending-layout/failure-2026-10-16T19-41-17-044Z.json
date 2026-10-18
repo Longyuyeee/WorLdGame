@@ -1,0 +1,9 @@
+{
+  "checks": [
+    "The actual main story authors preferences/credits/ending viewport layouts with isolated content and return regions, real-preview drag/one undo/keyboard, matching desktop/phone geometry, safe action lists and phone-hidden art.",
+    "Save/reopen, source project, portable configuration/skin bytes and both formal exports retain all three layouts without changing story, characters, seven assets or the existing title/reading/menu/save/history layouts."
+  ],
+  "errors": [],
+  "failure": "page.waitForFunction: Timeout 20000ms exceeded.\n    at fit (E:\\ProjectSave\\GeminiProject\\WorLdGame\\tools\\run-web-info-ending-layout.mjs:41:14)\n    at play (E:\\ProjectSave\\GeminiProject\\WorLdGame\\tools\\run-web-info-ending-layout.mjs:68:71)\n    at async file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-info-ending-layout.mjs:118:19",
+  "text": "给明天的回信 · 0.8.0\n\n玩家设置\n\n即时应用，只影响你的阅读；不会修改作品和存档。\n\n返回故事\n文字与阅读\n个人字号\n125%\n文字显示\n作品默认\n立即显示\n逐字显示\n逐字速度\n慢（0.5×）\n作品原速\n较快（1.5×）\n快（2×）\n字号和速度相对作品原设定调整，不改变演出画幅。Auto 节奏仍在播放控制中。\n声音\n静音全部声音\n总音量\n0%\n背景音乐\n100%\n语音\n100%\n音效\n100%\n环境音\n100%\n界面音\n100%\n音量在作品混音基础上降低，静音不会跳过剧情或语音时序。\n显示与无障碍\n减少动效\n高对比阅读\n作品或系统已要求减少动效时不会被个人关闭覆盖。\n进入游戏全屏\n\n全屏由浏览器决定是否支持，不会强制旋转手机。\n\n恢复作品默认\n只恢复本页的显示和声音，语言与 Auto 节奏保持不变。\n\n个人设置保存在此浏览器；不影响存档进度。\n\n回到玩家设置之前\n\n回信将从这里开始\n\n阅读之前设置\n\n视觉小说\n\n给明天的回信\n\n不必先成为理想中的大人，也可以给明天写一封信。\n\n打开这封回信\n→\n按 Enter 或空格开始\n读取存档\n设置\n制作名单\n附加内容"
+}

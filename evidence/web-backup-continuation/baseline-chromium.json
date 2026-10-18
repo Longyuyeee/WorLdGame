@@ -1,0 +1,38 @@
+{
+  "passed": true,
+  "engine": "chromium",
+  "browser": "151.0.7922.34",
+  "artifacts": {
+    "html": {
+      "bytes": 46799698,
+      "sha256": "f65366bdab455c7f41b2c958703dfac00fd074f5dd1a49afebba917aaa631bd1"
+    },
+    "website": {
+      "bytes": 35386147,
+      "sha256": "0812a76a9d41dded4e6ac43fe739d1f3fe1e384f1a018396c117f6d6b6e435e1"
+    }
+  },
+  "checks": [
+    {
+      "name": "frozen-game-pending-real-backup-file-read-locks-save-dialog-with-no-cancel",
+      "before": {
+        "status": "title",
+        "hash": "none",
+        "cursor": "0",
+        "save": "idle",
+        "auto": "off"
+      },
+      "after": {
+        "status": "title",
+        "hash": "none",
+        "cursor": "0",
+        "save": "busy",
+        "auto": "off"
+      },
+      "selectedBackupSha256": "bd882800bb2d8bf8b29b315eb8812364c1994f4e80c4d1b25930d3c92b06d6a2",
+      "nativeFileReadResultOrStartHeld": true
+    }
+  ],
+  "errors": [],
+  "scope": "Actual exported game and actual original same-content backup. Controlled delays retain native file bytes/start or actual Web Crypto results, never replace a validated save or write fake database state. Not OS file-system failure, human reading/listening, physical phone/Safari/background/lock, public deployment, rights or long soak."
+}

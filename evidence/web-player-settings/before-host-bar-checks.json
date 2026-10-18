@@ -1,0 +1,54 @@
+{
+  "passed": false,
+  "checks": [
+    "UI import, version 1.5.0, source ZIP, production HTML and directory export",
+    {
+      "width": 320,
+      "portraitFrame": {
+        "width": 320,
+        "height": 180,
+        "ratio": 1.7777777777777777,
+        "inside": true
+      },
+      "landscapeFrame": {
+        "width": 650.65625,
+        "height": 365.984375,
+        "ratio": 1.7777777777777777,
+        "inside": true
+      },
+      "touchContext": true,
+      "compactToolbar": true,
+      "menuFocusAndNoProgress": true,
+      "saveRefresh": true,
+      "paceRestored": true,
+      "history": true,
+      "viewportRotation": true
+    },
+    {
+      "width": 390,
+      "portraitFrame": {
+        "width": 390,
+        "height": 219.375,
+        "ratio": 1.7777777777777777,
+        "inside": true
+      },
+      "landscapeFrame": {
+        "width": 650.65625,
+        "height": 365.984375,
+        "ratio": 1.7777777777777777,
+        "inside": true
+      },
+      "touchContext": true,
+      "compactToolbar": true,
+      "menuFocusAndNoProgress": true,
+      "saveRefresh": true,
+      "paceRestored": true,
+      "history": true,
+      "viewportRotation": true
+    },
+    "desktop-stay: complete route, all 60 paragraphs, voices and menu-based save/refresh",
+    "touch-leave: complete route, all 60 paragraphs, voices and menu-based save/refresh"
+  ],
+  "errors": [],
+  "failure": "AssertionError [ERR_ASSERTION]: false == true\n    at bounds (file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-reading-mobile.mjs:33:10)\n    at async route (file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-reading-mobile.mjs:48:5)\n    at async file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-reading-mobile.mjs:97:3"
+}

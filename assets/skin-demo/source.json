@@ -1,0 +1,10 @@
+{
+  "upstream": "https://github.com/lxgw/LxgwWenKai-Lite/releases/tag/v1.522",
+  "source": "https://github.com/lxgw/LxgwWenKai-Lite/releases/download/v1.522/LXGWWenKaiLite-Regular.ttf",
+  "license": "SIL Open Font License 1.1; unmodified license in OFL.txt",
+  "operation": "Web-only WOFF2 subset for the short story and UI sample characters; other characters use the player's fallback stack.",
+  "sourceSha256": "140c99ba4e28e817cec49bf82a0c5fcdc4fe633fb9dfda16d0ee8d59a8545f15",
+  "outputSha256": "98047083a6a3c82c7d33277d59ea687c16b7cde56bedf198d899db652eff9f9b",
+  "outputBytes": 110992,
+  "requestedCharacters": 559
+}

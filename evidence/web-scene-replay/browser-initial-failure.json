@@ -1,0 +1,8 @@
+{
+  "checks": [
+    "desktop HTML: full stay route creates the actual Rain replay entry; replay starts, reaches its ending, and Space restores exactly the parent Runtime hash, host hash, history cursor and ending; save entry stays hidden during replay"
+  ],
+  "errors": [],
+  "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:\n+ actual - expected\n\n  {\n+   cursor: '4',\n+   host: '003856e5f6f98087bf9412c7e5725db48e436e142feb00dfd538a6224311d60b',\n+   runtime: '50eaa7da2be42901692d42e1bf246a29b4f5c971ff24729e2b960792350b7cd5',\n+   status: 'presenting'\n-   cursor: '111',\n-   host: '9adfe225a58ce0ad18ba9f1df7be212bb00689a44197447fd4fbcafd8f39db44',\n-   runtime: '2249301cfbae53ce6444dc26af2b1c9bb12ca44b92b3541142dd68a58eb9faee',\n-   status: 'ended'\n  }\n",
+  "stack": "AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:\n+ actual - expected\n\n  {\n+   cursor: '4',\n+   host: '003856e5f6f98087bf9412c7e5725db48e436e142feb00dfd538a6224311d60b',\n+   runtime: '50eaa7da2be42901692d42e1bf246a29b4f5c971ff24729e2b960792350b7cd5',\n+   status: 'presenting'\n-   cursor: '111',\n-   host: '9adfe225a58ce0ad18ba9f1df7be212bb00689a44197447fd4fbcafd8f39db44',\n-   runtime: '2249301cfbae53ce6444dc26af2b1c9bb12ca44b92b3541142dd68a58eb9faee',\n-   status: 'ended'\n  }\n\n    at returned (file:///E:/Project/AIProject/ClaudeProject/WorLdGame/tools/run-web-scene-replay.mjs:64:45)\n    at async file:///E:/Project/AIProject/ClaudeProject/WorLdGame/tools/run-web-scene-replay.mjs:77:129"
+}

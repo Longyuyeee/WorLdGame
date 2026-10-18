@@ -1,0 +1,15 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: {"textTop":771.9375,"inputTop":789.28125,"textLeft":359.796875,"inputRight":342.796875}
+    at file:///E:/Project/AIProject/ClaudeProject/WorLdGame/tools/run-web-playtest-handoff.mjs:41:16 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v24.14.0

@@ -1,0 +1,5 @@
+"actual production UI exports HTML and directory with the new reading controls; source remains Rain 1.5.4"
+"desktop-stay: compact stage controls; artwork/restore preserves paragraph; desktop/mobile menu focus, resize and high contrast; advanced controls visible only in menu"
+{"route":"desktop-stay","paragraphs":60,"voices":6,"visited":["车站的雨","候车室的旧信","站台前的约定","留下","灯下的回信","雨后的天明"],"quickSaveReload":true,"physicalPhone":false,"humanReadTiming":false}
+"mobile-go: compact stage controls; artwork/restore preserves paragraph; desktop/mobile menu focus, resize and high contrast; advanced controls visible only in menu"
+{"route":"mobile-go","paragraphs":60,"voices":6,"visited":["车站的雨","候车室的旧信","站台前的约定","远行","车窗与海","再一次见面"],"quickSaveReload":true,"physicalPhone":false,"humanReadTiming":false}

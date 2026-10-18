@@ -1,0 +1,31 @@
+{
+  "engine": "26.5",
+  "offlineFlag": {
+    "passed": false,
+    "error": "Error: page.goto: WebKit encountered an internal error\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:13364/sw-test/uncached-flag\", waiting until \"load\"\u001b[22m\n"
+  },
+  "originStopped": {
+    "passed": true,
+    "fromServiceWorker": true
+  },
+  "negativeControl": {
+    "networkFailed": false,
+    "status": 502,
+    "headers": {
+      "connection": "keep-alive",
+      "keep-alive": "timeout=4",
+      "content-length": "0",
+      "proxy-connection": "keep-alive"
+    },
+    "fromServiceWorker": false,
+    "body": "",
+    "url": "http://127.0.0.1:13364/no-worker-control",
+    "controller": null
+  },
+  "notGameCode": true,
+  "nodeOriginControl": {
+    "failed": true,
+    "error": "TypeError: fetch failed"
+  },
+  "validOriginOutageControl": true
+}

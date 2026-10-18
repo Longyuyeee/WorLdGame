@@ -1,0 +1,39 @@
+import prior editable work, rename protagonist and create six connected writing scenes through ordinary authoring UI
+import all six original media files with inspections; actively audition music and close/release the audio preview
+bulk text: dirty Escape and shortcut isolation, ordered insertion and one-step undo/redo through the writing UI
+Authored 车站的雨: 10 paragraphs + dialogue
+Authored 候车室的旧信: 10 paragraphs + dialogue
+Authored 站台前的约定: 10 paragraphs + dialogue
+Authored 留下: 10 paragraphs + dialogue
+Authored 灯下的回信: 10 paragraphs + dialogue
+Authored 雨后的天明: 10 paragraphs + dialogue
+Authored 远行: 10 paragraphs + dialogue
+Authored 车窗与海: 10 paragraphs + dialogue
+Authored 再一次见面: 10 paragraphs + dialogue
+author nine scenes with 90 original paragraphs, character lines, six-scene routes, position/volume/loops, transitions and media stops before endings
+writer full preview follows the complete six-scene stay route to its authored ending
+save/reopen all nine scenes, preserve appearance, apply 1.2.0 and audit actual exported source counts
+desktop-stay: 车站的雨
+desktop-stay: 候车室的旧信
+mid-story quick save / page refresh / load restores exactly the same runtime state and resumes actual audio
+desktop-stay: 站台前的约定
+desktop-stay: 留下
+desktop-stay: 灯下的回信
+desktop-stay: 雨后的天明
+desktop-stay: all six scenes, selected ending, decoded portrait/background, audible music/rain and ending cleanup
+mobile-leave: 车站的雨
+mobile-leave: 候车室的旧信
+mobile-leave: 站台前的约定
+mobile-leave: 远行
+mobile-leave: 车窗与海
+mobile-leave: 再一次见面
+mobile-leave: all six scenes, selected ending, decoded portrait/background, audible music/rain and ending cleanup
+http-stay: 车站的雨
+http-stay: 候车室的旧信
+mid-story quick save / page refresh / load restores exactly the same runtime state and resumes actual audio
+http-stay: 站台前的约定
+http-stay: 留下
+http-stay: 灯下的回信
+http-stay: 雨后的天明
+http-stay: all six scenes, selected ending, decoded portrait/background, audible music/rain and ending cleanup
+{"passed":true,"checks":11,"story":{"scenes":9,"paragraphs":90,"dialogueLines":9,"textCharacters":9544,"originalProseCharacters":9392,"routeProseCharacters":{"stay":6330,"leave":6354}},"errors":[]}

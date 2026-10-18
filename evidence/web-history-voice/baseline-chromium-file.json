@@ -1,0 +1,31 @@
+{
+  "passed": true,
+  "engine": "chromium",
+  "browser": "151.0.7922.34",
+  "fileMode": true,
+  "artifacts": {
+    "html": {
+      "bytes": 46790046,
+      "sha256": "d63fc9280774f6260ee4a85b6496e08c86666a655f28af7d1b0464015181c864"
+    },
+    "website": {
+      "bytes": 35376495,
+      "sha256": "f4c11fc1fc754a904069008e3a88b6d988e356d49bf4edea650985ca72aeeaf1"
+    }
+  },
+  "checks": [
+    {
+      "name": "original-game-can-find-the-past-line-but-only-offers-story-rollback",
+      "before": {
+        "hash": "a44c449acea9ab2bcf89a4448d21cb40cbc88141f347cb1764b7bd17b15edef5",
+        "cursor": "32",
+        "auto": "off",
+        "host": "active",
+        "text": "把那个日期圈起来，变化了我们提前说。"
+      },
+      "first": "进去读吧。我想先把今天的话说完。"
+    }
+  ],
+  "errors": [],
+  "scope": "Frozen #400 actual game: past voice line found through visible history, only rollback offered. No current acceptance claim."
+}

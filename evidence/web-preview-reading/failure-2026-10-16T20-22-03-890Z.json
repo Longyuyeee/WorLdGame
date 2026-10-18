@@ -1,0 +1,8 @@
+{
+  "error": "AssertionError [ERR_ASSERTION]: {\"measured\":{\"stage\":{\"x\":16,\"y\":345.796875,\"width\":288,\"height\":162,\"bottom\":507.796875},\"text\":{\"x\":16,\"y\":519.796875,\"width\":288,\"height\":278.25,\"bottom\":798.046875},\"overlapPixels\":0,\"textClient\":276,\"textScroll\":276},\"ratio\":0.5625}",
+  "stack": "AssertionError [ERR_ASSERTION]: {\"measured\":{\"stage\":{\"x\":16,\"y\":345.796875,\"width\":288,\"height\":162,\"bottom\":507.796875},\"text\":{\"x\":16,\"y\":519.796875,\"width\":288,\"height\":278.25,\"bottom\":798.046875},\"overlapPixels\":0,\"textClient\":276,\"textScroll\":276},\"ratio\":0.5625}\n    at textSeparated (file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-preview-reading.mjs:31:10)\n    at async file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-preview-reading.mjs:99:93",
+  "checks": [
+    "Long original Rain paragraph is outside the unchanged-ratio stage; focus widens it, preserves native canvas pixels, current sentence and history, and never approves the note."
+  ],
+  "errors": []
+}

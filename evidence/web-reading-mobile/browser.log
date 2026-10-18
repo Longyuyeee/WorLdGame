@@ -1,0 +1,26 @@
+UI import, version 1.4.0, source ZIP, production HTML and directory export
+{"width":320,"portraitFrame":{"width":320,"height":180,"ratio":1.7777777777777777,"inside":true},"landscapeFrame":{"width":650.65625,"height":365.984375,"ratio":1.7777777777777777,"inside":true},"touchContext":true,"compactToolbar":true,"menuFocusAndNoProgress":true,"saveRefresh":true,"paceRestored":true,"history":true,"viewportRotation":true}
+{"width":390,"portraitFrame":{"width":390,"height":219.375,"ratio":1.7777777777777777,"inside":true},"landscapeFrame":{"width":650.65625,"height":365.984375,"ratio":1.7777777777777777,"inside":true},"touchContext":true,"compactToolbar":true,"menuFocusAndNoProgress":true,"saveRefresh":true,"paceRestored":true,"history":true,"viewportRotation":true}
+desktop-stay: 车站的雨
+desktop-stay: 候车室的旧信
+desktop-stay: 站台前的约定
+desktop-stay: 留下
+desktop-stay: 灯下的回信
+desktop-stay: 雨后的天明
+desktop-stay: complete route, all 60 paragraphs, voices and menu-based save/refresh
+touch-leave: 车站的雨
+touch-leave: 候车室的旧信
+touch-leave: 站台前的约定
+touch-leave: 远行
+touch-leave: 车窗与海
+touch-leave: 再一次见面
+touch-leave: complete route, all 60 paragraphs, voices and menu-based save/refresh
+http-touch-stay: 车站的雨
+http-touch-stay: 候车室的旧信
+http-touch-stay: 站台前的约定
+http-touch-stay: 留下
+http-touch-stay: 灯下的回信
+http-touch-stay: 雨后的天明
+http-touch-stay: complete route, all 60 paragraphs, voices and menu-based save/refresh
+{"autoStandardTiming":true,"units":121,"expectedDelay":22280,"measuredDelay":22329,"reducedMotionNeedsNoExtraRevealTap":true,"humanTiming":false}
+1400-character UI-authored paragraph: native touch scroll, Auto below-fold wait, next-screen reading, final flip/reset

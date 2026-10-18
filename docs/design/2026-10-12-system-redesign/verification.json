@@ -1,0 +1,39 @@
+{
+  "date": "2026-10-12",
+  "scope": "design prototype only; not a runtime, publication or physical-device acceptance",
+  "routes": 26,
+  "widths": [
+    320,
+    390,
+    736,
+    1024,
+    1440
+  ],
+  "layoutChecks": 130,
+  "overflows": [],
+  "errors": [],
+  "interactions": [
+    "dialogue editing survives page changes",
+    "choice draft and selected target survive nested picker",
+    "theme switching",
+    "Escape closes layer",
+    "asset type and search filtering",
+    "publication steps",
+    "save error recovery",
+    "draft blocks preview",
+    "player return to source page",
+    "debug step example"
+  ],
+  "screenshots": [
+    "writing-light-desktop.png",
+    "stage-dark-desktop.png",
+    "flow-light-desktop.png",
+    "assets-light-desktop-detail.png",
+    "publish-paper-desktop.png",
+    "home-light-desktop.png",
+    "writing-light-mobile.png",
+    "writing-paper-mobile-detail.png",
+    "player-title-dark-desktop.png",
+    "player-saves-dark-desktop.png"
+  ]
+}

@@ -1,0 +1,34 @@
+
+> world-studio@0.0.0-s0.41 typecheck
+> tsc -b
+
+apps/player-shell/src/player-compatible-save.test.tsx(39,68): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Object literal may only specify known properties, and 'exact' does not exist in type 'ByRoleOptions'.
+apps/player-shell/src/player-compatible-save.test.tsx(40,68): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Object literal may only specify known properties, and 'exact' does not exist in type 'ByRoleOptions'.
+apps/player-shell/src/player-compatible-save.test.tsx(45,61): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Object literal may only specify known properties, and 'exact' does not exist in type 'ByRoleOptions'.
+apps/player-shell/src/player-compatible-save.test.tsx(47,68): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Object literal may only specify known properties, and 'exact' does not exist in type 'ByRoleOptions'.
+apps/player-shell/src/player-compatible-save.test.tsx(48,71): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Object literal may only specify known properties, and 'exact' does not exist in type 'ByRoleOptions'.
+apps/player-shell/src/player-compatible-save.test.tsx(56,78): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Object literal may only specify known properties, and 'exact' does not exist in type 'ByRoleOptions'.
+apps/player-shell/src/player-compatible-save.test.tsx(57,67): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Object literal may only specify known properties, and 'exact' does not exist in type 'ByRoleOptions'.
+apps/player-shell/src/player-compatible-save.test.tsx(64,78): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Object literal may only specify known properties, and 'exact' does not exist in type 'ByRoleOptions'.
+apps/player-shell/src/player-compatible-save.test.tsx(67,68): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Object literal may only specify known properties, and 'exact' does not exist in type 'ByRoleOptions'.
+apps/player-shell/src/player-compatible-save.test.tsx(68,68): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Object literal may only specify known properties, and 'exact' does not exist in type 'ByRoleOptions'.

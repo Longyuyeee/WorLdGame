@@ -1,0 +1,18 @@
+{
+  "scope": "Actual directory game at 127.0.0.1:5298; muted before start; DOM-based observations.",
+  "version": "0.2.0",
+  "titleStartLabel": "打开这封回信",
+  "saveReopen": {
+    "slot": 1,
+    "text": "你说自己只是顺路来还一把伞。那把蓝色的旧伞陪你换过两座城市，伞柄上仍刻着一个歪歪扭扭的“晚”字。",
+    "sameSentenceRecovered": true
+  },
+  "choiceSaveSlot": 2,
+  "endings": [
+    "有人等你回来",
+    "把明天写进信里"
+  ],
+  "endingCount": "2 / 2",
+  "fullFontLicenseInCredits": true,
+  "logs": []
+}

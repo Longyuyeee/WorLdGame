@@ -1,0 +1,11 @@
+{
+  "error": "TimeoutError: locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('region', { name: '当前校订任务', exact: true }).getByRole('button', { name: '查看试玩画面', exact: true })\u001b[22m\n",
+  "stack": "locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('region', { name: '当前校订任务', exact: true }).getByRole('button', { name: '查看试玩画面', exact: true })\u001b[22m\n\n    at finishRoute (E:\\ProjectSave\\GeminiProject\\WorLdGame\\tools\\run-web-preview-reading.mjs:58:120)\n    at async file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-preview-reading.mjs:150:43",
+  "checks": [
+    "Long original Rain paragraph is outside the unchanged-ratio stage; focus widens it, preserves native canvas pixels, current sentence and history, and never approves the note.",
+    "390/844/320 viewports and four aspect presets retain geometry; native text scrolling reaches the end without advancing; Escape returns to the same editor toggle.",
+    "An actual six-paragraph temporary edit overflows, scrolls to the last line by keyboard and retains that reading position through focus toggles; undo restores the original sentence and does not advance Runtime.",
+    "Director stage no longer collapses; repeated focus/return retains the actual two playing muted audio nodes and their time without a playback restart."
+  ],
+  "errors": []
+}

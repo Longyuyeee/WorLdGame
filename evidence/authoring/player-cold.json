@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 1,
+  "scope": "real-IndexedDB-reload-CDP-touch-synthetic-WAV-injected-permission-storage-faults-not-device",
+  "elapsedMilliseconds": 3906.5288,
+  "rows": [
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "mobile": false
+      },
+      "sameProjectColdStarts": 2,
+      "stableStartPoint": {
+        "x": 720,
+        "y": 421.296875
+      },
+      "scanningHeld": true,
+      "explicitDecision": true,
+      "permissionRetry": true,
+      "interruptionRetry": true,
+      "resumeRetry": true,
+      "clearFailureHeld": true,
+      "audioRecovery": {
+        "plays": 3,
+        "ended": 0,
+        "unmounted": true
+      },
+      "quickSavePreserved": true,
+      "loadedAfterNewGame": true,
+      "plays": 2,
+      "ended": 0,
+      "unmounted": true
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "mobile": true
+      },
+      "sameProjectColdStarts": 2,
+      "stableStartPoint": {
+        "x": 195,
+        "y": 372.296875
+      },
+      "scanningHeld": true,
+      "explicitDecision": true,
+      "permissionRetry": true,
+      "interruptionRetry": true,
+      "resumeRetry": true,
+      "clearFailureHeld": true,
+      "audioRecovery": {
+        "plays": 3,
+        "ended": 0,
+        "unmounted": true
+      },
+      "quickSavePreserved": true,
+      "loadedAfterNewGame": true,
+      "plays": 2,
+      "ended": 0,
+      "unmounted": true
+    }
+  ],
+  "exceptions": []
+}

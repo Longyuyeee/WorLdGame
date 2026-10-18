@@ -1,0 +1,570 @@
+{
+  "passed": true,
+  "baseline": true,
+  "browser": "26.5",
+  "artifactSha256": "e342827d80a0bd18944cc84655437ded37f25f901d81b4bf4229fd9d97080510",
+  "checks": [
+    {
+      "attempt": 0,
+      "open": "true",
+      "status": "title",
+      "events": [
+        {
+          "type": "pointerdown",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "preferencesOpen": "false",
+          "host": "active"
+        },
+        {
+          "type": "pointerup",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "preferencesOpen": "false",
+          "host": "active"
+        },
+        {
+          "type": "click",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "preferencesOpen": "false",
+          "host": "active"
+        }
+      ]
+    },
+    {
+      "attempt": 1,
+      "open": "true",
+      "status": "title",
+      "events": [
+        {
+          "type": "pointerdown",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "preferencesOpen": "false",
+          "host": "active"
+        },
+        {
+          "type": "pointerup",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "preferencesOpen": "false",
+          "host": "active"
+        },
+        {
+          "type": "click",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "preferencesOpen": "false",
+          "host": "active"
+        }
+      ]
+    },
+    {
+      "attempt": 2,
+      "open": "true",
+      "status": "title",
+      "events": [
+        {
+          "type": "pointerdown",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "preferencesOpen": "false",
+          "host": "active"
+        },
+        {
+          "type": "pointerup",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "preferencesOpen": "false",
+          "host": "active"
+        },
+        {
+          "type": "click",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "preferencesOpen": "false",
+          "host": "active"
+        }
+      ]
+    },
+    {
+      "attempt": 3,
+      "open": "true",
+      "status": "title",
+      "events": [
+        {
+          "type": "pointerdown",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "preferencesOpen": "false",
+          "host": "active"
+        },
+        {
+          "type": "pointerup",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "preferencesOpen": "false",
+          "host": "active"
+        },
+        {
+          "type": "click",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "preferencesOpen": "false",
+          "host": "active"
+        }
+      ]
+    },
+    {
+      "attempt": 4,
+      "open": "true",
+      "status": "title",
+      "events": [
+        {
+          "type": "pointerdown",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "preferencesOpen": "false",
+          "host": "active"
+        },
+        {
+          "type": "pointerup",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "preferencesOpen": "false",
+          "host": "active"
+        },
+        {
+          "type": "click",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "preferencesOpen": "false",
+          "host": "active"
+        }
+      ]
+    },
+    {
+      "attempt": 5,
+      "open": "true",
+      "status": "title",
+      "events": [
+        {
+          "type": "pointerdown",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "preferencesOpen": "false",
+          "host": "active"
+        },
+        {
+          "type": "pointerup",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "preferencesOpen": "false",
+          "host": "active"
+        },
+        {
+          "type": "click",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "preferencesOpen": "false",
+          "host": "active"
+        }
+      ]
+    },
+    {
+      "attempt": 6,
+      "open": "true",
+      "status": "title",
+      "events": [
+        {
+          "type": "pointerdown",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "preferencesOpen": "false",
+          "host": "active"
+        },
+        {
+          "type": "pointerup",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "preferencesOpen": "false",
+          "host": "active"
+        },
+        {
+          "type": "click",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "preferencesOpen": "false",
+          "host": "active"
+        }
+      ]
+    },
+    {
+      "attempt": 7,
+      "open": "true",
+      "status": "title",
+      "events": [
+        {
+          "type": "pointerdown",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "preferencesOpen": "false",
+          "host": "active"
+        },
+        {
+          "type": "pointerup",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "preferencesOpen": "false",
+          "host": "active"
+        },
+        {
+          "type": "click",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "preferencesOpen": "false",
+          "host": "active"
+        }
+      ]
+    },
+    {
+      "attempt": 8,
+      "open": "true",
+      "status": "title",
+      "events": [
+        {
+          "type": "pointerdown",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "preferencesOpen": "false",
+          "host": "active"
+        },
+        {
+          "type": "pointerup",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "preferencesOpen": "false",
+          "host": "active"
+        },
+        {
+          "type": "click",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "preferencesOpen": "false",
+          "host": "active"
+        }
+      ]
+    },
+    {
+      "attempt": 9,
+      "open": "true",
+      "status": "title",
+      "events": [
+        {
+          "type": "pointerdown",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "preferencesOpen": "false",
+          "host": "active"
+        },
+        {
+          "type": "pointerup",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "preferencesOpen": "false",
+          "host": "active"
+        },
+        {
+          "type": "click",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "preferencesOpen": "false",
+          "host": "active"
+        }
+      ]
+    },
+    {
+      "attempt": 10,
+      "open": "true",
+      "status": "title",
+      "events": [
+        {
+          "type": "pointerdown",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "preferencesOpen": "false",
+          "host": "active"
+        },
+        {
+          "type": "pointerup",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "preferencesOpen": "false",
+          "host": "active"
+        },
+        {
+          "type": "click",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "preferencesOpen": "false",
+          "host": "active"
+        }
+      ]
+    },
+    {
+      "attempt": 11,
+      "open": "true",
+      "status": "title",
+      "events": [
+        {
+          "type": "pointerdown",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "preferencesOpen": "false",
+          "host": "active"
+        },
+        {
+          "type": "pointerup",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "preferencesOpen": "false",
+          "host": "active"
+        },
+        {
+          "type": "click",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "preferencesOpen": "false",
+          "host": "active"
+        }
+      ]
+    },
+    {
+      "attempt": 12,
+      "open": "true",
+      "status": "title",
+      "events": [
+        {
+          "type": "pointerdown",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "preferencesOpen": "false",
+          "host": "active"
+        },
+        {
+          "type": "pointerup",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "preferencesOpen": "false",
+          "host": "active"
+        },
+        {
+          "type": "click",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "preferencesOpen": "false",
+          "host": "active"
+        }
+      ]
+    },
+    {
+      "attempt": 13,
+      "open": "true",
+      "status": "title",
+      "events": [
+        {
+          "type": "pointerdown",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "preferencesOpen": "false",
+          "host": "active"
+        },
+        {
+          "type": "pointerup",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "preferencesOpen": "false",
+          "host": "active"
+        },
+        {
+          "type": "click",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "preferencesOpen": "false",
+          "host": "active"
+        }
+      ]
+    },
+    {
+      "attempt": 14,
+      "open": "true",
+      "status": "title",
+      "events": [
+        {
+          "type": "pointerdown",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "preferencesOpen": "false",
+          "host": "active"
+        },
+        {
+          "type": "pointerup",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "preferencesOpen": "false",
+          "host": "active"
+        },
+        {
+          "type": "click",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "preferencesOpen": "false",
+          "host": "active"
+        }
+      ]
+    },
+    {
+      "attempt": 15,
+      "open": "true",
+      "status": "title",
+      "events": [
+        {
+          "type": "pointerdown",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "preferencesOpen": "false",
+          "host": "active"
+        },
+        {
+          "type": "pointerup",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "preferencesOpen": "false",
+          "host": "active"
+        },
+        {
+          "type": "click",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "preferencesOpen": "false",
+          "host": "active"
+        }
+      ]
+    },
+    {
+      "attempt": 16,
+      "open": "true",
+      "status": "title",
+      "events": [
+        {
+          "type": "pointerdown",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "preferencesOpen": "false",
+          "host": "active"
+        },
+        {
+          "type": "pointerup",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "preferencesOpen": "false",
+          "host": "active"
+        },
+        {
+          "type": "click",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "preferencesOpen": "false",
+          "host": "active"
+        }
+      ]
+    },
+    {
+      "attempt": 17,
+      "open": "true",
+      "status": "title",
+      "events": [
+        {
+          "type": "pointerdown",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "preferencesOpen": "false",
+          "host": "active"
+        },
+        {
+          "type": "pointerup",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "preferencesOpen": "false",
+          "host": "active"
+        },
+        {
+          "type": "click",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "preferencesOpen": "false",
+          "host": "active"
+        }
+      ]
+    },
+    {
+      "attempt": 18,
+      "open": "true",
+      "status": "title",
+      "events": [
+        {
+          "type": "pointerdown",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "preferencesOpen": "false",
+          "host": "active"
+        },
+        {
+          "type": "pointerup",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "preferencesOpen": "false",
+          "host": "active"
+        },
+        {
+          "type": "click",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "preferencesOpen": "false",
+          "host": "active"
+        }
+      ]
+    },
+    {
+      "attempt": 19,
+      "open": "true",
+      "status": "title",
+      "events": [
+        {
+          "type": "pointerdown",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "preferencesOpen": "false",
+          "host": "active"
+        },
+        {
+          "type": "pointerup",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "preferencesOpen": "false",
+          "host": "active"
+        },
+        {
+          "type": "click",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "preferencesOpen": "false",
+          "host": "active"
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "scope": "Twenty fresh contexts with the first real pointer click opening settings, native input event observation and actual panel. No automatic click retry or synthetic input. Bounded diagnostic only: does not close the #393 intermittent settings timeout, prove OS cold start, physical phone/Safari or long-soak acceptance."
+}

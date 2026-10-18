@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { loadProject, migrateS0Project, type CanonicalProject, type JsonObject, type S0Project } from "@world-studio/project-domain";
 import { canonicalJson } from "./canonical-json";
+import { updateAdditionalContentCatalogOverride } from "./catalog-overrides";
 import { analyzeProjectIncremental, compileProject, compileProjectIncremental } from "./compiler";
 
 const fixtureNames = ["tiny", "branching", "media", "cjk"] as const;
@@ -26,6 +27,58 @@ function replaceScript(project: CanonicalProject, sceneId: string, statements: r
 }
 
 describe("project compiler N30-E1/E2", () => {
+  it("preserves replay ending order and excludes unreachable scenes in full and incremental analysis", () => {
+    let project = replaceScript(loadFixture("branching"), "branch_start", [
+      { id: "to_left", kind: "jump", targetLabel: "branch_left" }
+    ]);
+    project = replaceScript(project, "branch_left", [
+      { id: "test_path", kind: "condition", expression: "true", targetLabel: "alternative" },
+      { id: "z_ending", kind: "end", endingName: "Z" },
+      { id: "alternative_label", kind: "label", name: "alternative" },
+      { id: "a_ending", kind: "end", endingName: "A" }
+    ]);
+    project = updateAdditionalContentCatalogOverride(project, "replay", "branch_left", { title: "两种回想" });
+    const full = compileProjectIncremental(project);
+    expect(full.ok).toBe(true);
+    if (!full.ok) throw new Error("Expected reachable ending compilation");
+    expect(full.artifacts.catalogs.replay).toEqual([
+      expect.objectContaining({ replayId: "branch_left", title: "两种回想", endingIds: ["a_ending", "z_ending"] })
+    ]);
+    const analyzed = analyzeProjectIncremental(project, { previousCache: full.cache, trustedChangedSceneIds: [] });
+    expect(analyzed.diagnostics).toEqual(full.diagnostics);
+    const changed = replaceScript(project, "branch_start", [{ id: "to_right", kind: "jump", targetLabel: "branch_right" }]);
+    const rebuilt = compileProjectIncremental(changed, { previousCache: full.cache });
+    expect(rebuilt.ok).toBe(false);
+    expect(analyzeProjectIncremental(changed, { previousCache: full.cache, trustedChangedSceneIds: ["branch_start"] }).diagnostics).toEqual(rebuilt.diagnostics);
+    expect(rebuilt.diagnostics).toContainEqual(expect.objectContaining({ code: "MISSING_CATALOG_ENTRY", entityId: "branch_left" }));
+  });
+  it('compiles scene control targets, tracks reachability and invalidates removed targets', () => {
+    const project = replaceScript(loadFixture('branching'), 'branch_start', [
+      {id:'check',kind:'condition',expression:'true',targetLabel:'branch_left'},
+      {id:'goto',kind:'jump',targetLabel:'branch_right'}
+    ]);
+    const result = compileProjectIncremental(project);
+    expect(result.ok).toBe(true);
+    expect(result.diagnostics.some(item=>item.code==='UNREACHABLE_SCENE' || item.code==='SCENE_NO_EXIT')).toBe(false);
+    if (!result.ok) return;
+    expect(result.artifacts.story.scenes.find(item=>item.sceneId==='branch_start')?.instructions.map(item=>item.operands)).toEqual([
+      {targetSceneId:'branch_left',expressionAst:{kind:'literal',value:true,valueType:'boolean',start:0,end:4}}, {targetSceneId:'branch_right'}
+    ]);
+    const removed = compileProjectIncremental({...project,scenes:project.scenes.filter(item=>item.id!=='branch_left')}, {previousCache:result.cache});
+    expect(removed.ok).toBe(false);
+    expect(removed.diagnostics).toContainEqual(expect.objectContaining({code:'MISSING_LABEL',entityId:'branch_left'}));
+  });
+
+  it('keeps local labels authoritative when their names match a scene ID', () => {
+    const result = compileProject(replaceScript(loadFixture('branching'), 'branch_start', [
+      {id:'goto',kind:'jump',targetLabel:'branch_left'},
+      {id:'local',kind:'label',name:'branch_left'},
+      {id:'done',kind:'end',endingName:'Local'}
+    ]));
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.artifacts.story.scenes.find(item=>item.sceneId==='branch_start')?.instructions[0]?.operands).toEqual({targetLabel:'branch_left'});
+  });
+
   it.each(fixtureNames)("compiles the %s golden project deterministically", (name) => {
     const project = loadFixture(name);
     const first = compileProject(project, "debug");
@@ -64,10 +117,10 @@ describe("project compiler N30-E1/E2", () => {
       }];
     }));
     expect(outputs).toEqual({
-      tiny: { buildId: "39c0985c76f19d99e9e5ef0d082754264881a51d18f23572375c69b4c3ecd180", storyIrHash: "e0a7445cc893cd9ede388747a365c90a417e4c44f618b68184fac7ba2ea53b42" },
-      branching: { buildId: "7f7510c48f71cb8e2d56e00bd39a445d95f2dff5ff6b133b7365d16e0cc68a8f", storyIrHash: "bb7e605baf4c47ad9b6cb4666f406ae463936fb80f6bf07d9a60b8506174b548" },
-      media: { buildId: "7cb8a6e1835f71f24d16719cb64b4203397da7ce8622c523ddbb41437c7adf8f", storyIrHash: "0c4a582b94afba6ff0d6793303168e99c4184f13fd9b7c25c1bcfd8a126263a2" },
-      cjk: { buildId: "53a0e5f05f49cd55f1d09ce5461ae4ce2d1fdeeda70d416cfb53089b59d44d75", storyIrHash: "adfd8cc36965a343e18b99737ced8d719b67919b7180866c9aa5d7587e2ae1da" }
+      tiny: { buildId: "3c66723b0b6ff1d2bb9e4e85b81f7ccb187c1ca64dc2f6de5b4a28e11870bec6", storyIrHash: "351ea6466d706a80e18bfe0d15267377f6e3c03071787f4696df2b535af6c4c9" },
+      branching: { buildId: "ef4f2eb427a4d382e43ed6148ca8ddcc31a4eb27fa706455c0962e6ce3e15572", storyIrHash: "e28db438d3abf4550dbfbebb4877ef7568805d1b60a3d6ed56e70158b1045a39" },
+      media: { buildId: "a3a1eec3e98ae1df35183373c4f387b30207d0a1518dfb9c5af6c867a528ba6a", storyIrHash: "a5ba931984208a11c781abcf9024f5aec8b64cde97a979195bc531b2325b2630" },
+      cjk: { buildId: "be5e32c1cf51b94f1250c1c1130f746e832279a2484e736004000dd90c6f9d22", storyIrHash: "7e0e1745b66b2ef0ddadef1c826325980308c015efa135a3d0bfd1de88562589" }
     });
   });
 
@@ -130,7 +183,7 @@ describe("project compiler N30-E1/E2", () => {
     if (!result.ok) return;
     expect(result.artifacts.story.scenes[0]?.instructions.map((item) => item.opcode)).toEqual(["label", "set", "condition", "wait", "end"]);
     expect(result.artifacts.story.scenes[0]?.instructions[3]?.operands).toEqual({ durationMilliseconds: 250 });
-    expect(result.artifacts.catalogs.endings).toEqual([{ endingId: "ending", name: "Complete", sceneId: "tiny_start" }]);
+    expect(result.artifacts.catalogs.endings).toEqual([{ endingId: "ending", name: "Complete", sceneId: "tiny_start", coverAssetId: null, revealBeforeUnlock: false }]);
   });
 
   it("emits Runtime IR 1.1 and lowers a checkpoint with its stable step ID", () => {
@@ -140,7 +193,7 @@ describe("project compiler N30-E1/E2", () => {
     ]));
     expect(result.ok).toBe(true);
     if (!result.ok) return;
-    expect(result.artifacts.story.irVersion).toBe("1.1.0");
+    expect(result.artifacts.story.irVersion).toBe("1.2.0");
     expect(result.artifacts.story.scenes[0]?.instructions[0]).toEqual({
       instructionId: "checkpoint_arrival",
       opcode: "checkpoint",
@@ -162,7 +215,7 @@ describe("project compiler N30-E1/E2", () => {
       stopInstructionIds: ["stop_line"]
     });
     expect(JSON.parse(result.artifacts.files["player-playback-policy.json"]!)).toEqual(result.artifacts.playerPlaybackPolicy);
-    expect(result.artifacts.story.irVersion).toBe("1.1.0");
+    expect(result.artifacts.story.irVersion).toBe("1.2.0");
     expect(result.artifacts.story.scenes[0]?.instructions[0]).toEqual({
       instructionId: "stop_line",
       opcode: "narration",
@@ -186,7 +239,7 @@ describe("project compiler N30-E1/E2", () => {
     expect(result.ok).toBe(true);
     if (!result.ok) return;
     expect(result.artifacts.assetManifest.assets).toContainEqual(expect.objectContaining({ assetId: "media_intro_video", kind: "video", mimeType: "video/webm" }));
-    expect(result.artifacts.story.irVersion).toBe("1.1.0");
+    expect(result.artifacts.story.irVersion).toBe("1.2.0");
     expect(result.artifacts.story.scenes[0]?.instructions[0]).toMatchObject({
       instructionId: "video_effect",
       opcode: "direction",
@@ -402,7 +455,7 @@ describe("project compiler N30-E1/E2", () => {
       { id: "reachable_end", kind: "end", endingName: "Done" }
     ]));
     expect(result.ok).toBe(true);
-    expect(result.diagnostics).toEqual([]);
+    expect(result.diagnostics.filter((item) => item.severity === "error")).toEqual([]);
   });
 
   it("reuses unchanged scene compilation and invalidates only the edited scene", () => {
@@ -486,12 +539,52 @@ describe("project compiler N30-E1/E2", () => {
     if (!result.ok) return;
     expect(result.artifacts.catalogs.gallery.map((item) => item.assetId)).toEqual(["media_actor_sprite", "media_sunset"]);
     expect(result.artifacts.catalogs.music.map((item) => item.assetId)).toEqual(["media_theme"]);
-    expect(result.artifacts.catalogs.replay).toEqual([{ replayId: "media_stage", title: "Stage", sceneId: "media_stage", endingIds: ["media_end"] }]);
+    expect(result.artifacts.catalogs.replay).toEqual([{ replayId: "media_stage", title: "Stage", sceneId: "media_stage", endingIds: ["media_end"], coverAssetId: null, revealBeforeUnlock: false }]);
     expect(result.artifacts.releaseInputs.components.map((item) => item.name)).toEqual([
       "@world-studio/project-compiler", "@world-studio/project-domain", "@world-studio/story-language"
     ]);
     expect(result.artifacts.releaseInputs.assetLicenses).toHaveLength(3);
     expect(result.artifacts.files["asset-manifest.json"]).not.toContain("base64");
+  });
+
+  it("applies sparse additional-content presentation overrides without replacing generated entries", () => {
+    const project = updateAdditionalContentCatalogOverride(
+      updateAdditionalContentCatalogOverride(loadFixture("media"), "gallery", "media_sunset", { title: "黄昏收藏", order: -10, coverAssetId: "media_actor_sprite", revealBeforeUnlock: true }),
+      "replay", "media_stage", { title: "黄昏回想", coverAssetId: "media_sunset" }
+    );
+    const result = compileProject(project, "release");
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.artifacts.catalogs.gallery[0]).toEqual({ assetId: "media_sunset", displayName: "黄昏收藏", kind: "cg", coverAssetId: "media_actor_sprite", revealBeforeUnlock: true });
+    expect(result.artifacts.catalogs.replay[0]).toMatchObject({ replayId: "media_stage", title: "黄昏回想", coverAssetId: "media_sunset" });
+    expect(result.artifacts.catalogs.gallery).toHaveLength(2);
+  });
+
+  it("fails closed for stale catalog targets and non-image covers", () => {
+    const stale = compileProject(updateAdditionalContentCatalogOverride(loadFixture("media"), "replay", "deleted_scene", { title: "Stale" }));
+    expect(stale.ok).toBe(false);
+    expect(stale.diagnostics).toContainEqual(expect.objectContaining({ code: "MISSING_CATALOG_ENTRY", entityId: "deleted_scene" }));
+    const audioCover = compileProject(updateAdditionalContentCatalogOverride(loadFixture("media"), "replay", "media_stage", { coverAssetId: "media_theme" }));
+    expect(audioCover.ok).toBe(false);
+    expect(audioCover.diagnostics).toContainEqual(expect.objectContaining({ code: "INVALID_CATALOG_OVERRIDE", entityId: "media_theme" }));
+  });
+
+  it("reports missing generated thumbnails as non-blocking author diagnostics", () => {
+    const result = compileProject(updateAdditionalContentCatalogOverride(loadFixture("media"), "gallery", "media_sunset", { title: "Sunset" }));
+    expect(result.ok).toBe(true);
+    expect(result.diagnostics).toEqual(expect.arrayContaining([
+      expect.objectContaining({ severity: "warning", code: "MISSING_CATALOG_COVER", entityId: "media_theme" }),
+      expect.objectContaining({ severity: "warning", code: "MISSING_CATALOG_COVER", entityId: "media_stage" }),
+      expect.objectContaining({ severity: "warning", code: "MISSING_CATALOG_COVER", entityId: "media_end" })
+    ]));
+  });
+
+  it("invalidates only the resource catalog cache signal when presentation overrides change", () => {
+    const project = loadFixture("media");
+    const first = compileProjectIncremental(project);
+    const changed = compileProjectIncremental(updateAdditionalContentCatalogOverride(project, "music", "media_theme", { title: "黄昏主题" }), { previousCache: first.cache });
+    expect(changed.stats.compiledSceneIds).toEqual([]);
+    expect(changed.stats.resourceCatalogChanged).toBe(true);
   });
 });
 

@@ -109,7 +109,7 @@ export class RuntimeResourceScheduler<T> {
         reject(this.cancelled(request.key));
         if (activeJob.consumers.size === 0) {
           if (activeJob.state === "queued") this.jobs.delete(request.key);
-          else activeJob.controller.abort();
+          else { this.jobs.delete(request.key); activeJob.controller.abort(); }
         }
         this.pump();
       };
@@ -129,7 +129,7 @@ export class RuntimeResourceScheduler<T> {
         this.cancellations += 1;
       }
       job.consumers.clear();
-      if (job.state === "loading") job.controller.abort();
+      if (job.state === "loading") { this.jobs.delete(job.request.key); job.controller.abort(); }
       else this.jobs.delete(job.request.key);
     }
     this.evictUntil(0, true);
@@ -205,7 +205,7 @@ export class RuntimeResourceScheduler<T> {
         job.consumers.clear();
       }
     } finally {
-      this.jobs.delete(job.request.key);
+      if (this.jobs.get(job.request.key) === job) this.jobs.delete(job.request.key);
       this.activeLoads -= 1;
       this.reservedBytes -= job.request.reservedBytes;
       this.pump();

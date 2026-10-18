@@ -1,0 +1,44 @@
+{
+  "provider": "built-in image_gen",
+  "createdOn": "2026-10-13",
+  "specs": [
+    {
+      "key": "station",
+      "file": "station-night-v2.png",
+      "transparent": false,
+      "prompt": "Use case: stylized-concept. Asset type: original visual-novel environment background, wide landscape 16:9. Primary request: a small quiet railway station platform beside a coastal town on a rainy night, eye-level under a modest wooden canopy. A long bench, warm station lamps, wet tracks, a train stopped at the far platform, blue hills and distant town lights. Hand-painted anime game illustration, delicate realistic brushwork, muted blue and warm amber matching an intimate letter-reading story. No people, no readable writing, no logos, no watermarks, no interface. Uncluttered foreground with room for a standing portrait; bottom third suitable behind a dialogue box. One polished game environment, not a collage."
+    },
+    {
+      "key": "waiting",
+      "file": "waiting-room.png",
+      "transparent": false,
+      "prompt": "Use case: stylized-concept. Asset type: original visual-novel environment background, wide landscape 16:9. Primary request: an almost empty warm railway waiting room on a rainy night. Eye-level view of two adjacent simple wooden seats by a large rain-streaked window, station signal lights and wet platform beyond, a modest heater, an old paper bag and closed book on a bench. Hand-painted anime game illustration, delicate detailed brushwork, blue night and restrained amber light. Intimate calm setting for two adults reading an old letter. No people, no legible text, no logos, no watermarks, no interface. Natural perspective, uncluttered central room for character overlay and bottom third for dialogue. One polished game background, not a collage."
+    },
+    {
+      "key": "train",
+      "file": "night-train.png",
+      "transparent": false,
+      "prompt": "Use case: stylized-concept. Asset type: original visual-novel environment background, wide landscape 16:9. Primary request: inside a modest passenger train at night after departure in the rain. Eye-level seated viewpoint across two empty blue-gray seats toward a dark rain-streaked window, blurred small station lights outside, one small suitcase near the seat, soft overhead warm lights. Hand-painted anime visual novel background, detailed but uncluttered, gentle wistful mood, restrained teal blue and amber. No people, no legible words, no logos, no watermark, no interface. Space for portrait overlays and clear bottom third for a dialogue box. One environment, not a collage."
+    },
+    {
+      "key": "studio",
+      "file": "morning-studio.png",
+      "transparent": false,
+      "prompt": "Use case: stylized-concept. Asset type: original visual-novel environment background, wide landscape 16:9. Primary request: a small rented artist room in the morning after rain, eye-level view. An easel beside an open window, several unfinished sketches without readable words, a modest desk with blank letter paper and an envelope, two simple chairs, moving boxes pushed neatly aside, fresh pale morning light and distant quiet town rooftops. Warm cream and muted blue palette, hand-painted anime game background with delicate consistent brushwork, hopeful lived-in atmosphere, realistic modest furniture. No people, no legible text, no logos, no watermark, no interface. Open center for character overlay and bottom third for dialogue. One polished game background."
+    },
+    {
+      "key": "thoughtful",
+      "file": "xia-thoughtful.png",
+      "transparent": true,
+      "reference": "assets/rain-story/xia-letter.png",
+      "prompt": "Use case: identity-preserve. Asset type: visual-novel transparent expression variant. Input image 1 is the edit target and sole character identity anchor: Xia holding a letter. Change only her facial expression to a quietly thoughtful, slightly concerned look, closed relaxed lips and subtle brow tension, eyes open looking toward viewer. Preserve exactly the same adult woman, face shape, chestnut bob, eyes, body proportions, cream cardigan, dusty-blue dress, necklace, letter, pose, hand anatomy, lighting, art style, framing and silhouette size. Keep head through mid-thigh visible. Preserve actual transparent alpha background; no new backdrop, ground, text, logos or watermark. Do not redraw her outfit or turn her into another character."
+    },
+    {
+      "key": "smile",
+      "file": "xia-smile.png",
+      "transparent": true,
+      "reference": "assets/rain-story/xia-letter.png",
+      "prompt": "Use case: identity-preserve. Asset type: visual-novel transparent expression variant. Input image 1 is the edit target and sole character identity anchor: Xia holding a letter. Change only her facial expression to a warm relieved smile, gently lifted mouth corners and slightly softened eyes, natural and understated, not exaggerated. Preserve exactly the same adult woman, face shape, chestnut bob, body proportions, cream cardigan, dusty-blue dress, necklace, letter, pose, hand anatomy, lighting, art style, framing and silhouette size. Keep head through mid-thigh visible. Preserve actual transparent alpha background; no new backdrop, ground, text, logos or watermark. Do not redraw the clothing or change identity."
+    }
+  ]
+}

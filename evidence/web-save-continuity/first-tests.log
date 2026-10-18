@@ -1,0 +1,49 @@
+
+ RUN  v4.1.10 E:/Project/AIProject/ClaudeProject/WorLdGame
+
+ ❯ apps/player-shell/src/deferred-checkpoint.test.tsx (4 tests | 2 failed) 1381ms
+   × lets reading continue and writes only the earlier exact checkpoint, once 776ms
+   ✓ ignores late checkpoint results after unmount 216ms
+   ✓ ignores late checkpoint results after project 233ms
+   × ignores late checkpoint results after timeout 154ms
+ ✓ apps/player-shell/src/foreground-session-client.test.ts (27 tests) 190ms
+ ✓ apps/player-shell/src/recovery-session-client.test.ts (15 tests) 113ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  apps/player-shell/src/deferred-checkpoint.test.tsx > lets reading continue and writes only the earlier exact checkpoint, once
+AssertionError: expected "vi.fn()" to be called once, but got 0 times
+ ❯ apps/player-shell/src/deferred-checkpoint.test.tsx:44:33
+     42|   test.rerender(<PlayerShell project={test.project} saveStore={test.st…
+     43|   expect(vi.mocked(test.store.write).mock.calls.filter(([slot]) => slo…
+     44|   expect(test.worker.terminate).toHaveBeenCalledOnce(); expect(test.re…
+       |                                 ^
+     45| });
+     46| it.each(['unmount', 'project', 'timeout'] as const)('ignores late chec…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  apps/player-shell/src/deferred-checkpoint.test.tsx > ignores late checkpoint results after timeout
+Error: expect(element).toHaveAttribute("data-save-operation", "error") // element.getAttribute("data-save-operation") === "error"
+
+Expected the element to have attribute:
+  data-save-operation="error"
+Received:
+  data-save-operation="idle"
+ ❯ apps/player-shell/src/deferred-checkpoint.test.tsx:55:50
+     53|   expect(test.slots.get('checkpoint-1')).toBeUndefined();
+     54|   if (reason === 'timeout') {
+     55|     expect(test.container.querySelector('main')).toHaveAttribute('data…
+       |                                                  ^
+     56|     expect(test.container.querySelector('.player-dialogue__text')).toH…
+     57|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed | 2 passed (3)
+      Tests  2 failed | 44 passed (46)
+   Start at  13:22:01
+   Duration  9.99s (transform 1.87s, setup 740ms, import 4.58s, tests 1.68s, environment 2.26s)
+
+JSON report written to E:/Project/AIProject/ClaudeProject/WorLdGame/evidence/web-save-continuity/first-tests.json

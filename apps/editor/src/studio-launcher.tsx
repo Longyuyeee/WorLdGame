@@ -10,13 +10,18 @@ import { projectCanonicalFromStory, projectCanonicalWithStory } from "./canonica
 import { IndexedDbAssetRepository } from "./indexeddb-asset-repository";
 import { IndexedDbProjectFileStore } from "./indexeddb-project-store";
 import { IndexedDbProjectWorkspace } from "./indexeddb-project-workspace";
-import { exportPortableProjectBundle, importPortableProjectBundle } from "./portable-project-bundle";
+import { exportPortableProjectBundle } from "./portable-project-bundle";
+import { importProjectArchiveInWorker } from "./project-archive-import-client";
+import { stageDeliveryMaterials, pendingDeliveryMaterial, consumeDeliveryMaterial } from "./pending-delivery-materials";
 import { loadN23BenchmarkProject } from "./n23-benchmark-project";
 import { compileLifecycleProject, openCompiledLifecycleProject, saveCompiledLifecycleProject, type CompiledLifecycleProject, type EditorProjectCompilerState } from "./editor-project-compilation";
 import { readTrustedRouteOverview } from "./trusted-route-overview";
 import { readTrustedLazyEditIndex } from "./trusted-lazy-edit-index";
 import { beginLazyScenePageLoad, createLazyScenePage, loadLazyScenePage, saveLazyScenePage } from "./lazy-scene-session";
 import { prepareN42MediaStageFixture } from "./n42-media-stage-fixture";
+import type { ProjectStructureIntent } from "./project-entity-dialog";
+import type { StudioContinuity } from "./studio-continuity";
+import { studioWorkDescription } from "./studio-work-position";
 
 function entropy(): string { return crypto.randomUUID(); }
 function browserApi(): BrowserProjectPicker {
@@ -29,7 +34,8 @@ export function StudioLauncher() {
   const [recent, setRecent] = useState<readonly RecentProject[]>([]);
   const workspaces=useRef(new Map<string,ProjectWorkspace>());
   const compilers=useRef(new Map<string,EditorProjectCompilerState|null>());
-  const [editing, setEditing] = useState<{session:ProjectLifecycleSession;workspace:ProjectWorkspace;compiler:EditorProjectCompilerState|null;view:"structure"|"content"}|null>(null);
+  const importedReferences = useRef(new Set<string>());
+  const [editing, setEditing] = useState<{session:ProjectLifecycleSession;workspace:ProjectWorkspace;compiler:EditorProjectCompilerState|null;view:"structure"|"content";sceneId?:string;intent?:ProjectStructureIntent|undefined;preferInitialProject?:boolean;continuity?:StudioContinuity|undefined;deliveryReview?:string|undefined;deliveryProgress?:string|undefined}|null>(null);
   useEffect(() => { void recentStore.load().then(setRecent); }, [recentStore]);
   const finish = async (workspace:ProjectWorkspace,opened:CompiledLifecycleProject) => {const {session,compiler}=opened;workspaces.current.set(session.reference.referenceId,workspace);compilers.current.set(session.reference.referenceId,compiler);await rememberRecent(recentStore, session, Date.now()); setRecent(await recentStore.load()); return session; };
   const managedWorkspace = () => new IndexedDbProjectWorkspace(globalThis.indexedDB, `project-${entropy()}`, "受管工程");
@@ -68,31 +74,44 @@ export function StudioLauncher() {
       await workspace.writeFiles(saveProject(prepared.project), null);
       return finish(workspace, await openCompiledLifecycleProject(workspace));
     },
-    importArchive: async (file) => {
-      const imported = importPortableProjectBundle(new Uint8Array(await file.arrayBuffer())); const workspace = managedWorkspace();
-      await workspace.writeFiles(saveProject(imported.project), null);
-      if (!imported.legacyTextOnly) {
-        const now = Date.now(); const ownerId = `portable-import-${entropy()}`;
-        const files = new IndexedDbProjectFileStore(globalThis.indexedDB, imported.project.manifest.projectId);
-        const acquisition = await files.acquire(ownerId, now, 30_000);
-        if (acquisition.status !== "acquired") throw new Error("同一项目的资源库正在被其他编辑器写入，请关闭该项目后重试导入");
-        const assets = new IndexedDbAssetRepository(globalThis.indexedDB, imported.project.manifest.projectId);
-        files.activateWriterLease(acquisition.lease); assets.activateWriterLease(acquisition.lease);
-        try { await assets.replaceFromPortableBundle(imported.index, imported.blobs); }
-        finally { assets.activateWriterLease(null); files.activateWriterLease(null); await files.release(acquisition.lease).catch(() => false); }
-      }
-      return finish(workspace,await openCompiledLifecycleProject(workspace));
+    importArchive: async (file, options) => {
+      const imported = await importProjectArchiveInWorker(file, options);
+      options?.signal?.throwIfAborted();
+      // Cancellation ends here: source and asset publication must finish or
+      // report a write failure, not abandon a live IndexedDB transaction/lease.
+      options?.onProgress?.('writing');
+      const workspace = managedWorkspace();
+      stageDeliveryMaterials(workspace.reference.referenceId, imported.project.manifest.projectId, imported.reviewNotes, imported.playtestProgress);
+      try {
+        await workspace.writeFiles(saveProject(imported.project), null);
+        if (!imported.legacyTextOnly) {
+          const now = Date.now(); const ownerId = `portable-import-${entropy()}`;
+          const files = new IndexedDbProjectFileStore(globalThis.indexedDB, imported.project.manifest.projectId);
+          const acquisition = await files.acquire(ownerId, now, 30_000);
+          if (acquisition.status !== "acquired") throw new Error("同一项目的资源库正在被其他编辑器写入，请关闭该项目后重试导入");
+          const assets = new IndexedDbAssetRepository(globalThis.indexedDB, imported.project.manifest.projectId);
+          files.activateWriterLease(acquisition.lease); assets.activateWriterLease(acquisition.lease);
+          try { await assets.replaceFromPortableBundle(imported.index, imported.blobs); }
+          finally { assets.activateWriterLease(null); files.activateWriterLease(null); await files.release(acquisition.lease).catch(() => false); }
+        }
+        options?.onProgress?.('opening');
+        const opened = await finish(workspace,await openCompiledLifecycleProject(workspace));
+        importedReferences.current.add(opened.reference.referenceId);
+        return opened;
+      } catch (error) { consumeDeliveryMaterial(workspace.reference.referenceId, "notes"); consumeDeliveryMaterial(workspace.reference.referenceId, "progress"); throw error; }
     },
     exportArchive: async (session) => {
       const assets = new IndexedDbAssetRepository(globalThis.indexedDB, session.projectId);
       const archive = await exportPortableProjectBundle(session, assets); const url = URL.createObjectURL(new Blob([archive as Uint8Array<ArrayBuffer>], { type: "application/zip" }));
-      return { href: url, filename: `${session.title.replace(/[^a-z0-9_-]+/gi, "-") || "world-project"}.zip`, byteLength: archive.byteLength, dispose: () => URL.revokeObjectURL(url) };
+      return { href: url, filename: `${session.title.replace(/[<>:"/\\|?*\u0000-\u001f]/g, "-").replace(/[. ]+$/g, "").trim() || "world-project"}.zip`, byteLength: archive.byteLength, dispose: () => URL.revokeObjectURL(url) };
     }
   };
   if (editing?.session.project) {
     if (editing.view === "structure") return <>
-      <button className="project-home-return" onClick={() => setEditing(null)}>返回项目首页</button>
       <ProjectEntityManager
+        returnLabel="返回创作"
+        {...(editing.intent ? { initialCreate: editing.intent.create, returnAfterCreate: true } : {})}
+        {...(editing.sceneId === undefined ? {} : { initialSceneId: editing.sceneId })}
         session={editing.session}
         workspace={editing.workspace}
         onSession={async (session) => {
@@ -100,18 +119,35 @@ export function StudioLauncher() {
           compilers.current.set(session.reference.referenceId, compiled.compiler);
           setEditing((current) => current === null ? current : { ...current, session: compiled.session, compiler: compiled.compiler });
         }}
-        onOpenEditor={(project) => setEditing({ ...editing, session: { ...editing.session, project }, view: "content" })}
+        onOpenEditor={(project,sceneId) => setEditing(current => current === null ? current : { ...current, intent: undefined, preferInitialProject: true, session: markProjectDirty(current.session, project), view: "content", sceneId: sceneId ?? current.sceneId ?? project.manifest.entrySceneId })}
       />
     </>;
     return <>
-      <button className="project-home-return" onClick={() => setEditing({ ...editing, view: "structure" })}>返回项目结构</button>
       <App
+        workspaceReferenceId={editing.session.reference.referenceId}
+        initialDeliveryReview={editing.deliveryReview}
+        initialDeliveryProgress={editing.deliveryProgress}
+        onDeliveryProgressConsumed={() => { consumeDeliveryMaterial(editing.session.reference.referenceId, "progress"); setEditing(current => current === null ? null : { ...current, deliveryProgress: undefined }); }}
+        onDeliveryReviewConsumed={() => { consumeDeliveryMaterial(editing.session.reference.referenceId, "notes"); setEditing(current => current === null ? null : { ...current, deliveryReview: undefined }); }}
+        onReturnHome={() => setEditing(null)}
+        onExportProject={async project => {
+          const download = await actions.exportArchive(markProjectDirty(editing.session, project));
+          const anchor = document.createElement("a");
+          anchor.href = download.href; anchor.download = download.filename;
+          document.body.append(anchor); anchor.click(); anchor.remove();
+          setTimeout(download.dispose, 60_000);
+        }}
+        onOpenProject={(sceneId, intent, continuity) => setEditing(current => current === null ? current : { ...current, view: "structure", intent, continuity, ...(sceneId === undefined ? {} : { sceneId }) })}
+        {...(editing.continuity === undefined ? {} : { continuity: editing.continuity })}
         initialProject={editing.session.project}
+        preferInitialProject={editing.preferInitialProject ?? false}
+        {...(editing.sceneId===undefined?{}:{initialSceneId:editing.sceneId})}
         {...(editing.compiler === null ? {} : { routeCompiler: editing.compiler })}
         onCanonicalProjectChange={(project) => setEditing((current) => current === null ? current : { ...current, session: markProjectDirty(current.session, project) })}
         onProjectChange={(story) => setEditing((current) => {
           if (current === null || current.session.project === null) return current;
-          return { ...current, session: markProjectDirty(current.session, projectCanonicalWithStory(current.session.project, story)) };
+          // App owns the resumed history now; release the older handoff graph.
+          return { ...current, continuity: undefined, session: markProjectDirty(current.session, projectCanonicalWithStory(current.session.project, story)) };
         })}
         onCanonicalProjectSave={async (project) => {
           const current = editing;
@@ -130,5 +166,5 @@ export function StudioLauncher() {
       />
     </>;
   }
-  return <ProjectHome recent={recent} actions={actions} onEnter={(session)=>{const workspace=workspaces.current.get(session.reference.referenceId),compiler=compilers.current.get(session.reference.referenceId);if(workspace===undefined||compiler===undefined)throw new Error("Project workspace is unavailable");setEditing({session,workspace,compiler,view:"structure"});}} />;
+  return <ProjectHome recent={recent} actions={actions} resumeDescription={item => studioWorkDescription(item.reference.referenceId, item.projectId)} onEnter={(session)=>{const workspace=workspaces.current.get(session.reference.referenceId),compiler=compilers.current.get(session.reference.referenceId);if(workspace===undefined||compiler===undefined)throw new Error("Project workspace is unavailable");setEditing({session,workspace,compiler,view:"content",preferInitialProject:importedReferences.current.delete(session.reference.referenceId),deliveryReview:pendingDeliveryMaterial(session.reference.referenceId, "notes"),deliveryProgress:pendingDeliveryMaterial(session.reference.referenceId, "progress")});}} />;
 }

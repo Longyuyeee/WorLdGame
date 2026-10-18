@@ -1,0 +1,32 @@
+{
+  "expectedFailuresReproduced": true,
+  "observations": [
+    {
+      "engine": "chromium",
+      "version": "151.0.7922.34",
+      "originalArtifact": "web-story-beats/1.7.0",
+      "imeAdvanced": true,
+      "pagehideActivity": "active",
+      "syntheticBoundaryEvents": true,
+      "physicalPhone": false
+    },
+    {
+      "engine": "firefox",
+      "version": "153.0",
+      "originalArtifact": "web-story-beats/1.7.0",
+      "imeAdvanced": true,
+      "pagehideActivity": "active",
+      "syntheticBoundaryEvents": true,
+      "physicalPhone": false
+    },
+    {
+      "engine": "webkit",
+      "version": "26.5",
+      "originalArtifact": "web-story-beats/1.7.0",
+      "imeAdvanced": true,
+      "pagehideActivity": "active",
+      "syntheticBoundaryEvents": true,
+      "physicalPhone": false
+    }
+  ]
+}

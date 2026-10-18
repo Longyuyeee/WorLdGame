@@ -1,4 +1,5 @@
 import { createEvent, fireEvent, render, screen, within } from "@testing-library/react";
+import type { ReactElement } from "react";
 import { describe, expect, it } from "vitest";
 import { ProjectStoreError } from "@world-studio/project-persistence";
 import { compileProject, compileProjectIncremental } from "@world-studio/project-compiler";
@@ -6,6 +7,12 @@ import { semanticHash } from "@world-studio/project-domain";
 import { campusStoryProject, type StoryProject } from "@world-studio/story-core";
 import { App, persistenceErrorLabel, persistenceFailure } from "./App";
 import { projectCanonicalFromStory } from "./canonical-project-adapter";
+
+function openRouteTools() {
+  for (const panel of document.querySelectorAll<HTMLDetailsElement>(".route-tools, .route-properties, .route-connections, .route-diagnostics-panel")) {
+    if (!panel.open) fireEvent.click(panel.querySelector("summary")!);
+  }
+}
 
 function legacyDirectionProject() {
   const story: StoryProject = {
@@ -22,8 +29,22 @@ function legacyDirectionProject() {
   return projectCanonicalFromStory(story, "app-legacy-direction-tests");
 }
 
+function renderDirectorApp(ui: ReactElement) {
+  const result = render(ui);
+  fireEvent.click(within(screen.getByRole("navigation", { name: "故事工作区" })).getByRole("button", { name: "演出" }));
+  fireEvent.click(screen.getByText("添加与整理演出"));
+  fireEvent.click(screen.getByText("插入与整理内容"));
+  return result;
+}
+
+function openDirectorTools() {
+  for (const panel of document.querySelectorAll<HTMLDetailsElement>(".stage-track, .director-tools")) {
+    if (!panel.open) fireEvent.click(panel.querySelector("summary")!);
+  }
+}
+
 function renderLegacyDirectionApp() {
-  return render(<App initialProject={legacyDirectionProject()} />);
+  return renderDirectorApp(<App initialProject={legacyDirectionProject()} />);
 }
 
 function characterDirectionProject({ y = 80, scale = 0.9, rotation = 4 } = {}) {
@@ -81,7 +102,7 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     fireEvent.click(screen.getByRole("option", { name: /打开场景 · 风中的天台/ }));
     expect(screen.getByRole("heading", { name: "风中的天台" })).toBeVisible();
     expect(screen.getByRole("button", { name: /选择演出/ })).toHaveFocus();
-    expect(screen.getByText("本地事务 · r0")).toBeVisible();
+    expect(screen.getByTestId("workspace-shell")).toHaveAttribute("data-source-revision", "0");
     fireEvent.change(search, { target: { value: "旧广播室" } });
     fireEvent.submit(screen.getByRole("search", { name: "搜索全部场景" }));
     expect(screen.getByRole("heading", { name: "旧广播室" })).toBeVisible();
@@ -98,7 +119,7 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
   });
 
   it("searches committed scene steps by text and number without changing the project revision", () => {
-    render(<App />);
+    renderDirectorApp(<App />);
     const search = screen.getByRole("searchbox", { name: "定位步骤" });
     fireEvent.change(search, { target: { value: "广播站" } });
     expect(screen.getByText("1 / 1 项")).toBeVisible();
@@ -110,11 +131,11 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     fireEvent.change(search, { target: { value: "#4" } });
     fireEvent.submit(screen.getByRole("search", { name: "搜索当前场景步骤" }));
     expect(screen.getByRole("button", { name: /选择选择：先去哪里调查/ })).toHaveFocus();
-    expect(screen.getByText("本地事务 · r0")).toBeVisible();
+    expect(screen.getByTestId("workspace-shell")).toHaveAttribute("data-source-revision", "0");
   });
 
   it("reports empty stage searches and exposes keyboard-sized result navigation", () => {
-    render(<App />);
+    renderDirectorApp(<App />);
     const search = screen.getByRole("searchbox", { name: "定位步骤" });
     fireEvent.change(search, { target: { value: "不存在的对白" } });
     expect(screen.getByText("没有匹配步骤")).toBeVisible();
@@ -125,11 +146,11 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
 
   it("exposes a typed graphical Inspector for the selected direction without guessing legacy text", () => {
     renderLegacyDirectionApp();
-    expect(screen.getByText("图形化演出参数")).toBeVisible();
+    expect(screen.getByText('调整后应用，立即在舞台预览中查看')).toBeVisible();
     expect(screen.getByText("检测到旧式描述")).toBeVisible();
     expect(screen.getByLabelText("演出主资源")).toHaveValue("");
     expect(screen.getByRole("button", { name: "迁移旧描述并应用" })).toBeDisabled();
-    expect(screen.getByText(/Asset Index 中没有可用于 @background 的资源/)).toBeVisible();
+    expect(screen.getByText('还没有适合这项演出的素材，请在素材页导入')).toBeVisible();
   });
 
   it("exposes bounded character geometry without requiring Script syntax", () => {
@@ -143,12 +164,26 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     ) } });
     fireEvent.keyDown(scriptEditor, { key: "s", ctrlKey: true });
     fireEvent.click(screen.getByRole("tab", { name: "Sequence" }));
+    fireEvent.click(screen.getByText('精细位置、缩放与锚点'));
     expect(screen.getByLabelText("角色舞台几何")).toBeVisible();
     expect(screen.getByLabelText("角色水平位置")).toHaveAttribute("min", "0");
     expect(screen.getByLabelText("角色缩放")).toHaveAttribute("max", "4");
     fireEvent.change(screen.getByLabelText("角色水平锚点"), { target: { value: "1.1" } });
     expect(screen.getByText(/位置 0–100/)).toBeVisible();
     expect(screen.getByRole("button", { name: "应用演出参数" })).toBeDisabled();
+  });
+
+  it("protects direction drafts from advanced view changes as well as primary tasks", () => {
+    renderLegacyDirectionApp();
+    fireEvent.change(screen.getByLabelText("演出动作"), { target: { value: "clear" } });
+    expect(screen.getByRole("tab", { name: "Script" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "素材" })).toBeDisabled();
+    fireEvent.click(screen.getByRole("tab", { name: "Script" }));
+    expect(screen.getByLabelText("演出动作")).toHaveValue("clear");
+    fireEvent.click(screen.getByRole("button", { name: "放弃演出修改" }));
+    expect(screen.getByRole("tab", { name: "Script" })).toBeEnabled();
+    fireEvent.click(screen.getByRole("tab", { name: "Script" }));
+    expect((screen.getByLabelText("权威脚本编辑器") as HTMLTextAreaElement).value).toContain("@background 黄昏校门 · 云层缓慢移动");
   });
 
   it("converts an existing Show cue into a resource-free Move without dropping geometry controls", () => {
@@ -163,6 +198,7 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     fireEvent.keyDown(scriptEditor, { key: "s", ctrlKey: true });
     fireEvent.click(screen.getByRole("tab", { name: "Sequence" }));
     fireEvent.change(screen.getByLabelText("演出动作"), { target: { value: "move" } });
+    fireEvent.click(screen.getByText('精细位置、缩放与锚点'));
     expect(screen.queryByLabelText("演出主资源")).not.toBeInTheDocument();
     expect(screen.queryByLabelText("角色表情")).not.toBeInTheDocument();
     expect(screen.getByLabelText("角色舞台几何")).toBeVisible();
@@ -191,15 +227,16 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
 
     const stage = screen.getByTestId("preview-stage");
     Object.defineProperty(stage, "getBoundingClientRect", { configurable: true, value: () => ({ left: 0, top: 0, width: 1000, height: 562.5, right: 1000, bottom: 562.5, x: 0, y: 0, toJSON: () => ({}) }) });
-    const stageContent = stage.querySelector(".stage-content");
-    expect(stageContent).not.toBeNull();
-    fireEvent.pointerDown(stageContent!, { clientX: 750, clientY: 253.125 });
+    // Reading copy is no longer a spatial editing surface.
+    fireEvent.pointerDown(screen.getByTestId('preview-step'), { clientX: 750, clientY: 253.125 });
+    expect(screen.getByTestId("workspace-shell")).toHaveAttribute("data-source-revision", "1");
+    fireEvent.pointerDown(stage, { clientX: 750, clientY: 253.125 });
 
     expect(screen.getByText("lead 已定位到 X 75% · Y 45%")).toBeVisible();
     fireEvent.click(screen.getByRole("tab", { name: "Script" }));
     const placed = String((screen.getByLabelText("权威脚本编辑器") as HTMLTextAreaElement).value);
     expect(placed).toContain("@show action=show asset=asset_missing slot=lead x=75 y=45 @id(stmt_gate_bg)");
-    expect(screen.getByText("本地事务 · r2")).toBeVisible();
+    expect(screen.getByTestId("workspace-shell")).toHaveAttribute("data-source-revision", "2");
   });
 
   it("fails closed to the visual placeholder when a legacy direction has no executable Asset ID", async () => {
@@ -215,35 +252,37 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     expect(screen.getByLabelText("演出过渡")).toHaveValue("");
     expect(screen.queryByLabelText("过渡资源")).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "迁移旧描述并应用" }));
-    expect(screen.getByRole("button", { name: "选择演出：action=clear" })).toBeVisible();
+    expect(screen.getByRole("button", { name: "选择演出：清除背景" })).toBeVisible();
     expect(screen.queryByTestId("preview-background")).not.toBeInTheDocument();
-    expect(screen.getByText("本地事务 · r1")).toBeVisible();
+    expect(screen.getByTestId("workspace-shell")).toHaveAttribute("data-source-revision", "1");
   });
   it("inserts stage directions from the graphical track and supports keyboard access", () => {
-    render(<App />);
+    renderDirectorApp(<App />);
     expect(screen.getByLabelText("图形化演出轨道")).toBeVisible();
-    expect(screen.getAllByText("BG")).toHaveLength(1);
+    expect(screen.getAllByText("背景", { selector: ".stage-lane__label" })).toHaveLength(1);
     fireEvent.click(screen.getByRole("button", { name: "＋ 背景" }));
     expect(screen.getByRole("form", { name: "新增背景演出" })).toBeVisible();
     expect(screen.getByRole("button", { name: "插入演出" })).toBeDisabled();
     fireEvent.change(screen.getByLabelText("新增演出动作"), { target: { value: "clear" } });
     expect(screen.queryByLabelText("新增演出资源")).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "插入演出" }));
-    expect(screen.getAllByText("action=clear").length).toBeGreaterThan(0);
-    expect(screen.getByText("本地事务 · r1")).toBeVisible();
+    expect(document.querySelector('.statement-card.is-active')).toHaveAccessibleName('选择演出：清除背景');
+    expect(document.querySelector('.statement-card.is-active')).toBeVisible();
+    expect(screen.getByTestId("workspace-shell")).toHaveAttribute("data-source-revision", "1");
 
     fireEvent.keyDown(window, { key: "3", altKey: true });
     expect(screen.getByRole("form", { name: "新增音频演出" })).toBeVisible();
     fireEvent.change(screen.getByLabelText("新增演出动作"), { target: { value: "stop" } });
     fireEvent.click(screen.getByRole("button", { name: "插入演出" }));
-    expect(screen.getAllByText("action=stop bus=bgm").length).toBeGreaterThan(0);
+    expect(within(document.querySelector('.statement-list') as HTMLElement).getByRole('button', { name: '选择演出：停止背景音乐' })).toBeVisible();
     fireEvent.click(screen.getByRole("button", { name: "撤销" }));
-    expect(screen.queryAllByText("action=stop bus=bgm")).toHaveLength(0);
+    expect(screen.queryByRole('button', { name: '选择演出：停止背景音乐' })).not.toBeInTheDocument();
   });
   it("inserts a resource-free bounded Move cue from the graphical Stage track", () => {
     render(<App />);
     fireEvent.click(screen.getByRole("button", { name: "＋ 角色" }));
     fireEvent.change(screen.getByLabelText("新增演出动作"), { target: { value: "move" } });
+    fireEvent.change(screen.getByLabelText('新增角色槽位'), { target: { value: 'primary' } });
     expect(screen.queryByLabelText("新增演出资源")).not.toBeInTheDocument();
     expect(screen.getByLabelText("新增移动水平位置")).toHaveValue(50);
     expect(screen.getByLabelText("新增移动垂直位置")).toHaveValue(100);
@@ -275,19 +314,19 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     );
   });
   it("authors a canonical NVL textbox template from the graphical Stage track", () => {
-    render(<App />);
+    renderDirectorApp(<App />);
     fireEvent.click(screen.getByRole("button", { name: "＋ 文本框" }));
     expect(screen.getByRole("form", { name: "新增文本框演出" })).toBeVisible();
     fireEvent.change(screen.getByLabelText("新增文本框模板"), { target: { value: "nvl" } });
     fireEvent.click(screen.getByRole("button", { name: "插入演出" }));
-    expect(screen.getByText("TEXT")).toBeVisible();
+    expect(screen.getByText("文本", { selector: ".stage-lane__label" })).toBeVisible();
     fireEvent.click(screen.getByRole("tab", { name: "Script" }));
     expect(String((screen.getByLabelText("权威脚本编辑器") as HTMLTextAreaElement).value)).toContain(
       "@textbox action=set template=nvl"
     );
   });
   it("authors a bounded camera cue and exposes it on the dedicated timeline lane", () => {
-    render(<App />);
+    renderDirectorApp(<App />);
     fireEvent.click(screen.getByRole("button", { name: "＋ 镜头" }));
     expect(screen.queryByLabelText("新增演出资源")).not.toBeInTheDocument();
     expect(screen.getByLabelText("新增镜头倍率")).toHaveValue(1.15);
@@ -299,14 +338,14 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     fireEvent.change(screen.getByLabelText("新增镜头垂直偏移"), { target: { value: "-10" } });
     fireEvent.click(screen.getByRole("button", { name: "插入演出" }));
     expect(screen.getByRole("button", { name: /轨道步骤 2：action=move x=18 y=-10 zoom=1.25/ })).toBeVisible();
-    expect(screen.getByText("CAM")).toBeVisible();
+    expect(screen.getByText("镜头", { selector: ".stage-lane__label" })).toBeVisible();
     fireEvent.click(screen.getByRole("tab", { name: "Script" }));
     expect(String((screen.getByLabelText("权威脚本编辑器") as HTMLTextAreaElement).value)).toContain(
       "@camera action=move x=18 y=-10 zoom=1.25 rotation=0 duration=600ms easing=ease-in-out"
     );
   });
   it("authors the next character keyframe from the selected Show cue and writes it back to Script", () => {
-    render(<App initialProject={characterDirectionProject({ y: 100, scale: 1, rotation: 0 })} />);
+    renderDirectorApp(<App initialProject={characterDirectionProject({ y: 100, scale: 1, rotation: 0 })} />);
 
     fireEvent.click(screen.getByRole("button", { name: "＋ 关键帧" }));
     expect(screen.getByRole("form", { name: "新增角色关键帧" })).toBeVisible();
@@ -341,7 +380,7 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     fireEvent.change(screen.getByLabelText("终点移动时长"), { target: { value: "650ms" } });
     fireEvent.click(screen.getByRole("button", { name: "创建运动路径" }));
 
-    expect(screen.getByText("本地事务 · r1")).toBeVisible();
+    expect(screen.getByTestId("workspace-shell")).toHaveAttribute("data-source-revision", "1");
     fireEvent.click(screen.getByRole("tab", { name: "Script" }));
     const pathSource = String((screen.getByLabelText("权威脚本编辑器") as HTMLTextAreaElement).value);
     expect(pathSource).toMatch(/@show action=move slot=hero z=2 x=45 y=55 scale=0\.9 rotation=4 anchorX=0\.5 anchorY=1 transition=slide duration=400ms easing=ease-out @id\(stmt_[^)]+\)\r?\n@show action=move slot=hero z=2 x=75 y=82 scale=0\.9 rotation=4 anchorX=0\.5 anchorY=1 transition=slide duration=650ms easing=ease-in-out @id\(stmt_[^)]+\)/u);
@@ -381,7 +420,7 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     );
   });
   it("reorders and deletes direction cues through accessible track controls", () => {
-    render(<App />);
+    renderDirectorApp(<App />);
     fireEvent.click(screen.getByRole("button", { name: "演出右移" }));
     fireEvent.click(screen.getByRole("tab", { name: "Script" }));
     const movedSource = String((screen.getByLabelText("权威脚本编辑器") as HTMLTextAreaElement).value);
@@ -397,7 +436,7 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     expect(screen.getByRole("button", { name: /轨道步骤 2：/ })).toBeVisible();
   });
   it("accepts a direction drop before React drag state has rerendered", () => {
-    render(<App />);
+    renderDirectorApp(<App />);
     fireEvent.click(screen.getByRole("button", { name: "＋ 背景" }));
     fireEvent.change(screen.getByLabelText("新增演出动作"), { target: { value: "clear" } });
     fireEvent.click(screen.getByRole("button", { name: "插入演出" }));
@@ -415,12 +454,12 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     fireEvent.dragOver(targetCue, { dataTransfer });
     fireEvent.drop(targetCue, { dataTransfer });
     expect(screen.getByRole("button", { name: /轨道步骤 3：action=clear/ })).toBeVisible();
-    expect(screen.getByText("本地事务 · r2")).toBeVisible();
+    expect(screen.getByTestId("workspace-shell")).toHaveAttribute("data-source-revision", "2");
   });
   it("duplicates a cue and applies one atomic batch parameter transaction", () => {
     renderLegacyDirectionApp();
     fireEvent.click(screen.getByRole("button", { name: "复制演出" }));
-    expect(screen.getByText("本地事务 · r1")).toBeVisible();
+    expect(screen.getByTestId("workspace-shell")).toHaveAttribute("data-source-revision", "1");
     expect(screen.getAllByRole("button", { name: /轨道步骤 [12]：黄昏校门/ })).toHaveLength(2);
 
     fireEvent.click(screen.getByRole("button", { name: "开始演出多选" }));
@@ -437,7 +476,7 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     expect(within(batchForm).getByLabelText("2 将修改")).toBeVisible();
     expect(within(batchForm).getByLabelText("0 已一致")).toBeVisible();
     fireEvent.click(screen.getByRole("button", { name: "原子应用 2 项修改" }));
-    expect(screen.getByText("本地事务 · r2")).toBeVisible();
+    expect(screen.getByTestId("workspace-shell")).toHaveAttribute("data-source-revision", "2");
     expect(within(batchForm).getByLabelText("0 将修改")).toBeVisible();
     expect(within(batchForm).getByLabelText("2 已一致")).toBeVisible();
     expect(screen.getByRole("button", { name: "原子应用 0 项修改" })).toBeDisabled();
@@ -460,14 +499,14 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     expect(screen.getByText("尚未选择")).toBeVisible();
     expect(screen.getByText("请选择至少两个同类 Cue 后再预检。")).toBeVisible();
     expect(screen.queryByText(/类型不一致；当前选择不会被部分修改/)).not.toBeInTheDocument();
-    expect(screen.getByText("本地事务 · r0")).toBeVisible();
+    expect(screen.getByTestId("workspace-shell")).toHaveAttribute("data-source-revision", "0");
   });
 
   it("selects a same-command range by keyboard and offers touch-equivalent lane controls", () => {
     renderLegacyDirectionApp();
     fireEvent.click(screen.getByRole("button", { name: "复制演出" }));
     fireEvent.click(screen.getByRole("button", { name: "复制演出" }));
-    expect(screen.getByText("本地事务 · r2")).toBeVisible();
+    expect(screen.getByTestId("workspace-shell")).toHaveAttribute("data-source-revision", "2");
 
     fireEvent.click(screen.getByRole("button", { name: "开始演出多选" }));
     const firstCue = screen.getByRole("button", { name: "轨道步骤 1：黄昏校门 · 云层缓慢移动" });
@@ -480,7 +519,7 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
 
     fireEvent.keyDown(firstCue, { key: "Delete" });
     expect(screen.getAllByRole("button", { name: /轨道步骤 [123]：黄昏校门/ })).toHaveLength(3);
-    expect(screen.getByText("本地事务 · r2")).toBeVisible();
+    expect(screen.getByTestId("workspace-shell")).toHaveAttribute("data-source-revision", "2");
 
     fireEvent.click(screen.getByRole("button", { name: "清空选择" }));
     fireEvent.click(screen.getByRole("button", { name: "BG · 3" }));
@@ -490,7 +529,7 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "AUDIO · 0" }));
     expect(screen.getByText("该轨道没有 Cue；选择已清空。")).toBeVisible();
-    expect(screen.getByText("本地事务 · r2")).toBeVisible();
+    expect(screen.getByTestId("workspace-shell")).toHaveAttribute("data-source-revision", "2");
   });
   it("surfaces the audited asset-vault contract and unavailable state without claiming content", () => {
     render(<App />);
@@ -501,7 +540,7 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     expect(within(vault).getByText("SHA-256 去重")).toBeVisible();
     expect(within(vault).getByText(/本机资源存储不可用/)).toBeVisible();
     fireEvent.click(vault);
-    expect(screen.getByRole("heading", { name: "资源保险库" })).toBeVisible();
+    expect(screen.getByRole("heading", { name: "素材管理" })).toBeVisible();
     expect(screen.getByLabelText("选择资源文件")).toBeDisabled();
   });
   it("maps storage failures to actionable local-save labels", () => {
@@ -543,7 +582,7 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     expect(
       within(screen.getByTestId("preview-step")).getByText("这句修改通过稳定 ID 写回脚本。")
     ).toBeVisible();
-    expect(screen.getByText("本地事务 · r1")).toBeVisible();
+    expect(screen.getByTestId("workspace-shell")).toHaveAttribute("data-source-revision", "1");
 
     fireEvent.click(screen.getByRole("tab", { name: "Script" }));
     expect(String((screen.getByLabelText("权威脚本编辑器") as HTMLTextAreaElement).value))
@@ -580,7 +619,7 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
   });
 
   it("isolates invalid Script drafts without polluting Writer or Preview", () => {
-    render(<App />);
+    renderDirectorApp(<App />);
     fireEvent.click(screen.getByRole("tab", { name: "Script" }));
     const scriptEditor = screen.getByLabelText("权威脚本编辑器");
     const source = String((scriptEditor as HTMLTextAreaElement).value);
@@ -596,6 +635,7 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     expect(screen.getByText("错误草稿 · 未提交")).toBeVisible();
 
     fireEvent.click(screen.getByRole("tab", { name: "Sequence" }));
+    openDirectorTools();
     expect(screen.getByRole("searchbox", { name: "定位步骤" })).toHaveValue("");
     expect(screen.getByText("当前 Script 草稿尚未提交；搜索继续使用最后一次有效场景。")).toBeVisible();
     selectFirstDialogue();
@@ -624,7 +664,7 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     expect(screen.getByText("BUFFER")).toBeVisible();
     fireEvent.blur(editor);
 
-    expect(screen.getByText("本地事务 · r1")).toBeVisible();
+    expect(screen.getByTestId("workspace-shell")).toHaveAttribute("data-source-revision", "1");
     expect(within(screen.getByTestId("preview-step")).getByText("批次提交")).toBeVisible();
   });
 
@@ -644,7 +684,7 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     fireEvent.compositionEnd(editor);
     fireEvent.blur(editor);
 
-    expect(screen.getByText("本地事务 · r1")).toBeVisible();
+    expect(screen.getByTestId("workspace-shell")).toHaveAttribute("data-source-revision", "1");
     expect(
       within(screen.getByTestId("preview-step")).getByText("拼音输入完成")
     ).toBeVisible();
@@ -663,7 +703,7 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     fireEvent.keyDown(scriptEditor, { key: "s", ctrlKey: true });
 
     expect(screen.getByText("脚本已原子提交")).toBeVisible();
-    expect(screen.getByText("本地事务 · r1")).toBeVisible();
+    expect(screen.getByTestId("workspace-shell")).toHaveAttribute("data-source-revision", "1");
   });
 
   it("keeps rejected Writer text buffered and exposes the patch error", () => {
@@ -673,8 +713,9 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     fireEvent.change(editor, { target: { value: "暂不支持\n多行对白" } });
     fireEvent.blur(editor);
 
-    expect(screen.getByText("操作未执行")).toBeVisible();
-    expect(screen.getByText(/raw newline/)).toBeVisible();
+    expect(screen.getByRole('alert')).toHaveTextContent('对白暂不支持直接换行');
+    fireEvent.click(screen.getByRole('button', { name: '下一段文字' }));
+    expect(screen.getByLabelText('对白内容')).toHaveValue('暂不支持\n多行对白');
     expect(screen.getByText("BUFFER")).toBeVisible();
     expect(editor).toHaveValue("暂不支持\n多行对白");
     expect(
@@ -720,7 +761,7 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
 
   it("steps through statements and derives the route map from projection", () => {
     render(<App />);
-    expect(within(screen.getByTestId("preview-step")).getByText("演出指令")).toBeVisible();
+    expect(within(screen.getByTestId("preview-step")).getByText("演出预览")).toBeVisible();
     fireEvent.click(screen.getByRole("button", { name: "下一步" }));
     expect(
       within(screen.getByTestId("preview-step")).getByText(
@@ -728,11 +769,13 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
       )
     ).toBeVisible();
 
-    fireEvent.click(screen.getByRole("tab", { name: "Flow" }));
-    expect(screen.getByRole("heading", { name: "Route Map" })).toBeVisible();
-    expect(screen.getByText("Compiler 图事实")).toBeVisible();
+    fireEvent.click(screen.getByRole("tab", { name: "Flow" })); openRouteTools();
+    expect(screen.getByRole("heading", { name: "故事路线" })).toBeVisible();
+    expect(screen.getByLabelText("路线图统计")).toBeVisible();
     expect(screen.getByRole("button", { name: "路线场景：风中的天台 · scn_rooftop" })).toBeVisible();
-    expect(screen.getByText("去天台")).toBeVisible();
+    const routeLink = within(screen.getByLabelText("路线连接")).getByRole("button", { name: /^修改连接：去天台 · / });
+    expect(routeLink).toBeVisible();
+    expect(routeLink).toHaveTextContent("去天台");
   });
 
   it("shows the verified workspace Compiler cache result consumed by Route", () => {
@@ -740,7 +783,7 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     const first = compileProject(project, "debug");
     const compilation = compileProjectIncremental(project, { profile: "debug", previousCache: first.cache });
     render(<App initialProject={project} routeCompiler={{ cacheStatus: "hit", projectHash: semanticHash(project), compilation }} />);
-    fireEvent.click(screen.getByRole("tab", { name: "Flow" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Flow" })); openRouteTools();
     expect(screen.getByRole("status", { name: "Route Compiler 缓存状态" })).toHaveTextContent("缓存命中");
     expect(screen.getByRole("status", { name: "Route Compiler 缓存状态" })).toHaveTextContent("0 编译");
     fireEvent.change(screen.getByLabelText("路线场景名称"), { target: { value: "内存修改" } });
@@ -753,7 +796,7 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
 
   it("edits and resets a canonical route layout sidecar through Project Service", () => {
     render(<App />);
-    fireEvent.click(screen.getByRole("tab", { name: "Flow" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Flow" })); openRouteTools();
     fireEvent.click(screen.getByRole("button", { name: "路线场景：风中的天台 · scn_rooftop" }));
     fireEvent.change(screen.getByLabelText("路线节点 X"), { target: { value: "640" } });
     fireEvent.change(screen.getByLabelText("路线节点 Y"), { target: { value: "360" } });
@@ -771,7 +814,7 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
   });
 
   it("groups, folds, pans, zooms, and keyboard-moves Route nodes through canonical commands", () => {
-    render(<App />);fireEvent.click(screen.getByRole("tab",{name:"Flow"}));
+    render(<App />);fireEvent.click(screen.getByRole("tab",{name:"Flow"})); openRouteTools();
     fireEvent.change(screen.getByLabelText("新路线分组 ID"),{target:{value:"group_rooftop"}});
     fireEvent.change(screen.getByLabelText("新路线分组名称"),{target:{value:"天台线"}});
     fireEvent.click(screen.getByRole("button",{name:"创建路线分组"}));
@@ -799,7 +842,7 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
   });
 
   it("writes pointer drag coordinates through the same canonical layout command",()=>{
-    render(<App/>);fireEvent.click(screen.getByRole("tab",{name:"Flow"}));const node=screen.getByRole("button",{name:"路线场景：风中的天台 · scn_rooftop"}),canvas=screen.getByLabelText("路线场景节点");const dataTransfer={effectAllowed:"move",setData:()=>undefined,getData:()=>"scn_rooftop"};
+    render(<App/>);fireEvent.click(screen.getByRole("tab",{name:"Flow"})); openRouteTools();const node=screen.getByRole("button",{name:"路线场景：风中的天台 · scn_rooftop"}),canvas=screen.getByLabelText("路线场景节点");const dataTransfer={effectAllowed:"move",setData:()=>undefined,getData:()=>"scn_rooftop"};
     expect(node).toHaveAttribute("draggable","true");const drop=createEvent.drop(canvas,{dataTransfer});Object.defineProperty(drop,"clientX",{value:500});Object.defineProperty(drop,"clientY",{value:300});fireEvent(canvas,drop);
     expect(node.style.getPropertyValue("--route-x")).toBe("500px");expect(node.style.getPropertyValue("--route-y")).toBe("300px");expect(screen.getByText(/拖拽位置已写入 Layout Sidecar/)).toBeVisible();
   });
@@ -819,6 +862,8 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     expect(screen.getByTestId("preview-visual-host")).toHaveAttribute("data-render-contract", "2");
     expect(screen.getByTestId("preview-visual-host")).toHaveAttribute("data-render-backend", "dom-media-v1");
     expect(stage.style.getPropertyValue("--preview-aspect")).toBe("1920 / 1080");
+    expect(screen.queryByTestId("preview-safe-area")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByLabelText("安全区"));
     expect(screen.getByTestId("preview-safe-area")).toBeInTheDocument();
     fireEvent.click(screen.getByLabelText("安全区"));
     expect(screen.queryByTestId("preview-safe-area")).not.toBeInTheDocument();
@@ -836,18 +881,18 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     expect(screen.getByLabelText("自定义预览比例")).toHaveTextContent("1:1");
     expect(stage).toHaveAttribute("data-preview-width", "1000");
     expect(stage).toHaveAttribute("data-preview-height", "1000");
-    expect(screen.getByText("本地事务 · r0")).toBeVisible();
+    expect(screen.getByTestId("workspace-shell")).toHaveAttribute("data-source-revision", "0");
   });
 
   it("shares one bounded render window between the stage track and statement cards", () => {
-    render(<App />);
+    renderDirectorApp(<App />);
     expect(screen.getByRole("group", { name: "演出轨道可视窗口" })).toBeVisible();
     expect(screen.getByText("步骤 1–4 / 4")).toBeVisible();
     expect(screen.getByRole("button", { name: "上一段演出步骤" })).toBeDisabled();
     expect(screen.getByRole("button", { name: "下一段演出步骤" })).toBeDisabled();
     expect(screen.getByRole("button", { name: "定位当前演出步骤" })).toBeDisabled();
-    expect(screen.getByRole("region", { name: "图形化演出轨道" })).toHaveAttribute("data-window-size", "64");
-    expect(screen.getByRole("region", { name: "图形化演出轨道" })).toHaveAttribute("data-rendered-statements", "4");
+    expect(screen.getByLabelText("图形化演出轨道")).toHaveAttribute("data-window-size", "64");
+    expect(screen.getByLabelText("图形化演出轨道")).toHaveAttribute("data-rendered-statements", "4");
     expect(screen.getByLabelText("剧情步骤，当前显示 1 至 4，共 4 步")).toBeVisible();
     expect(screen.getAllByRole("button", { name: /^选择/ })).toHaveLength(4);
     expect(screen.getByText("窗口外选择仍保留 · 拖放仅限当前窗口")).toBeVisible();
@@ -863,14 +908,14 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     expect(screen.getByRole("radio", { name: "Mobile Focus" })).toBeEnabled();
 
     fireEvent.click(screen.getByRole("radio", { name: "Production" }));
-    expect(screen.getByRole("heading", { name: "资源生产工作区" })).toBeVisible();
+    expect(screen.getByRole("heading", { name: "素材库" })).toBeVisible();
     expect(screen.getByTestId("workspace-shell")).toHaveAttribute("data-context-statement-id", "stmt_gate_001");
-    expect(screen.getByText("本地事务 · r0")).toBeVisible();
+    expect(screen.getByTestId("workspace-shell")).toHaveAttribute("data-source-revision", "0");
 
     fireEvent.click(screen.getByRole("radio", { name: "Debug & QA" }));
-    expect(screen.getByRole("heading", { name: "诊断与运行检查台" })).toBeVisible();
+    expect(screen.getByRole("heading", { name: "检查与调试" })).toBeVisible();
     expect(screen.getByTestId("workspace-shell")).toHaveAttribute("data-context-statement-id", "stmt_gate_001");
-    expect(screen.getByText("本地事务 · r0")).toBeVisible();
+    expect(screen.getByTestId("workspace-shell")).toHaveAttribute("data-source-revision", "0");
 
     fireEvent.click(screen.getByRole("radio", { name: "Mobile Focus" }));
     expect(screen.getByRole("heading", { name: "移动专注编辑" })).toBeVisible();
@@ -878,25 +923,25 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
       "广播站的灯还亮着。你也听见那段没有署名的留言了吗？"
     );
     expect(screen.getByTestId("workspace-shell")).toHaveAttribute("data-context-statement-id", "stmt_gate_001");
-    expect(screen.getByText("本地事务 · r0")).toBeVisible();
+    expect(screen.getByTestId("workspace-shell")).toHaveAttribute("data-source-revision", "0");
 
     fireEvent.click(screen.getByRole("radio", { name: "Director" }));
     expect(screen.getByTestId("workspace-shell")).toHaveAttribute("data-workspace-mode", "director");
     expect(screen.getByLabelText("对白内容")).toHaveValue(
       "广播站的灯还亮着。你也听见那段没有署名的留言了吗？"
     );
-    expect(screen.getByText("本地事务 · r0")).toBeVisible();
+    expect(screen.getByTestId("workspace-shell")).toHaveAttribute("data-source-revision", "0");
 
     fireEvent.click(screen.getByRole("radio", { name: "Flow 模式" }));
-    expect(screen.getByRole("heading", { name: "Route Map" })).toBeVisible();
+    expect(screen.getByRole("heading", { name: "故事路线" })).toBeVisible();
     fireEvent.click(screen.getByRole("radio", { name: "Quick Start" }));
     expect(screen.getByTestId("workspace-shell")).toHaveAttribute("data-workspace-mode", "quick-start");
     expect(screen.getByRole("heading", { name: "放学后的校门" })).toBeVisible();
-    expect(screen.getByText("本地事务 · r0")).toBeVisible();
+    expect(screen.getByTestId("workspace-shell")).toHaveAttribute("data-source-revision", "0");
   });
 
   it("scrubs a derived time ruler through canonical statement selection", () => {
-    render(<App />);
+    renderDirectorApp(<App />);
     const timeline = screen.getByRole("group", { name: "时间线播放头" });
     const playhead = within(timeline).getByRole("slider", { name: "时间线播放头位置" });
     expect(timeline).toHaveAttribute("data-playhead-source", "selection");

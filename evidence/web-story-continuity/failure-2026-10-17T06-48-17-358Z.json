@@ -1,0 +1,59 @@
+{
+  "passed": false,
+  "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n+ actual - expected\n\n+ 'ae0c5b3a25ed721e9589c2801ed32154824346a600ac0e4e45cd2ddcdd396c89'\n- 'cc755467bed7934807d5d0a5a5bb691ac1342a7d81e2227ce3233dc77ca30660'\n",
+  "stack": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n+ actual - expected\n\n+ 'ae0c5b3a25ed721e9589c2801ed32154824346a600ac0e4e45cd2ddcdd396c89'\n- 'cc755467bed7934807d5d0a5a5bb691ac1342a7d81e2227ce3233dc77ca30660'\n\n    at playerRoute (file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-story-continuity.mjs:164:216)\n    at async file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-story-continuity.mjs:194:3",
+  "checks": [
+    {
+      "name": "five-new-issues-recorded-from-actual-scene-context-original-eleven-notes-preserved",
+      "detail": {
+        "build": {
+          "/assets/index-BK5ePXo9.js": "e223b6b1b105ddb6a6234851463cf30cb1d24df5c31d347a3fed3cbdb3e0cb0b",
+          "/assets/index-DNbmjF5j.css": "67271527adceeeb5cdc822f62bb23802fa266c60b28c48c2be0620e5fae1832d"
+        }
+      }
+    },
+    {
+      "name": "five-paragraphs-and-seven-cues-authored-with-undo-redo-and-old-content-compatibility-explicitly-refused",
+      "detail": {}
+    },
+    {
+      "name": "both-editor-entry-routes-two-endings-save-reopen-and-exact-planned-source-delta",
+      "detail": {
+        "version": "1.8.0",
+        "scenes": 9,
+        "narration": 90,
+        "dialogue": 9,
+        "endings": 2,
+        "directions": 81,
+        "revisedNarrations": 5,
+        "addedDirections": 7,
+        "existingIdsAndVoiceBeatsPreserved": true,
+        "unchangedMedia": 25,
+        "textCharacters": 9729,
+        "oldSaveCompatibility": "removed-content-changed"
+      }
+    },
+    {
+      "name": "actual-html-website-and-private-production-roundtrip-with-sixteen-pending-notes-and-two-entry-receipts",
+      "detail": {}
+    },
+    {
+      "name": "strict-five-paragraph-seven-cue-source-media-notes-and-both-game-audit",
+      "detail": {
+        "version": "1.8.0",
+        "scenes": 9,
+        "narration": 90,
+        "dialogue": 9,
+        "endings": 2,
+        "directions": 81,
+        "revisedNarrations": 5,
+        "addedDirections": 7,
+        "existingIdsAndVoiceBeatsPreserved": true,
+        "unchangedMedia": 25,
+        "textCharacters": 9729,
+        "oldSaveCompatibility": "removed-content-changed"
+      }
+    }
+  ],
+  "errors": []
+}

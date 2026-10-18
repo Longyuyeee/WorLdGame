@@ -1,0 +1,178 @@
+{
+  "passed": true,
+  "browser": "26.5",
+  "artifactSha256": "e342827d80a0bd18944cc84655437ded37f25f901d81b4bf4229fd9d97080510",
+  "checks": [
+    {
+      "attempt": 0,
+      "before": {
+        "preferences": "false",
+        "host": "active"
+      },
+      "after": {
+        "preferences": "true",
+        "host": "active"
+      },
+      "clicks": [
+        {
+          "type": "pointerdown",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "text": "设置",
+          "beforeOpen": "false"
+        },
+        {
+          "type": "pointerup",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "text": "设置",
+          "beforeOpen": "false"
+        },
+        {
+          "type": "click",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "text": "设置",
+          "beforeOpen": "false"
+        }
+      ]
+    },
+    {
+      "attempt": 1,
+      "before": {
+        "preferences": "false",
+        "host": "active"
+      },
+      "after": {
+        "preferences": "true",
+        "host": "active"
+      },
+      "clicks": [
+        {
+          "type": "pointerdown",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "text": "设置",
+          "beforeOpen": "false"
+        },
+        {
+          "type": "pointerup",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "text": "设置",
+          "beforeOpen": "false"
+        },
+        {
+          "type": "click",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "text": "设置",
+          "beforeOpen": "false"
+        }
+      ]
+    },
+    {
+      "attempt": 2,
+      "before": {
+        "preferences": "false",
+        "host": "active"
+      },
+      "after": {
+        "preferences": "true",
+        "host": "active"
+      },
+      "clicks": [
+        {
+          "type": "pointerdown",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "text": "设置",
+          "beforeOpen": "false"
+        },
+        {
+          "type": "pointerup",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "text": "设置",
+          "beforeOpen": "false"
+        },
+        {
+          "type": "click",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "text": "设置",
+          "beforeOpen": "false"
+        }
+      ]
+    },
+    {
+      "attempt": 3,
+      "before": {
+        "preferences": "false",
+        "host": "active"
+      },
+      "after": {
+        "preferences": "true",
+        "host": "active"
+      },
+      "clicks": [
+        {
+          "type": "pointerdown",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "text": "设置",
+          "beforeOpen": "false"
+        },
+        {
+          "type": "pointerup",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "text": "设置",
+          "beforeOpen": "false"
+        },
+        {
+          "type": "click",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "text": "设置",
+          "beforeOpen": "false"
+        }
+      ]
+    },
+    {
+      "attempt": 4,
+      "before": {
+        "preferences": "false",
+        "host": "active"
+      },
+      "after": {
+        "preferences": "true",
+        "host": "active"
+      },
+      "clicks": [
+        {
+          "type": "pointerdown",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "text": "设置",
+          "beforeOpen": "false"
+        },
+        {
+          "type": "pointerup",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "text": "设置",
+          "beforeOpen": "false"
+        },
+        {
+          "type": "click",
+          "tag": "BUTTON",
+          "label": "打开玩家设置",
+          "text": "设置",
+          "beforeOpen": "false"
+        }
+      ]
+    }
+  ],
+  "scope": "Five fresh WebKit contexts, one real settings click each, observed native pointer/click events and actual panel. Does not resolve the retained intermittent initial settings timeout or prove physical Safari."
+}

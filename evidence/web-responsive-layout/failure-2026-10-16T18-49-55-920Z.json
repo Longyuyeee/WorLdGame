@@ -1,0 +1,9 @@
+{
+  "checks": [
+    "Actual main-story authoring configures four title components and two reading actions, rejects invalid width, undoes deletion, saves/reopens and exports a source project, skin configuration and both formal formats.",
+    "Desktop file:// title and reading anchors stay in-stage; custom load/preferences/save actions preserve the current paragraph and return focus; the full first route reaches its ending."
+  ],
+  "errors": [],
+  "failure": "AssertionError [ERR_ASSERTION]: {\"name\":\"player-compact-toolbar\",\"left\":130.546875,\"top\":16,\"right\":373.984375,\"bottom\":149.90625}\n    at fit (file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-responsive-layout.mjs:34:45)\n    at async game (file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-responsive-layout.mjs:42:133)\n    at async file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-responsive-layout.mjs:73:139",
+  "text": "离线与安装 · 尚未下载离线内容\n\n版本 0.5.0\n\n记住这一句\n阅读选项\n欣赏画面\n菜单 ☰\n文楷·回信字集 · 项目字体已加载\n\n进度已自动保存\n\n旧车站将在今晚停用。屋檐下的广播重复着同一条通知：距离末班车出发，还有四十分钟。"
+}

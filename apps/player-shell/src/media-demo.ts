@@ -79,6 +79,52 @@ export function createPlayerMediaMultichannelDemoV1(): PlayerMediaDemoV1 {
   };
 }
 
+export function createPlayerLocalizedMediaDemoV1(): PlayerMediaDemoV1 {
+  const base = createPlayerMediaDemoV1();
+  const scene = base.project.scripts.media_stage;
+  if (scene === undefined) throw new Error("Player localized media demo is missing media_stage");
+  const background = scene.statements.find((statement) => statement.id === "media_background")!;
+  const theme = base.mediaAssets.find((asset) => asset.assetId === "media_theme")!;
+  const localizedBackground = {
+    assetId: "media_sunset_zh",
+    kind: "cg",
+    displayName: "日落 · 简体中文",
+    mimeType: "image/svg+xml",
+    localeVariantOf: "media_sunset",
+    locale: "zh-Hans"
+  } as const;
+  const voices = [
+    { assetId: "media_voice_en", kind: "audio", displayName: "Actor · English", mimeType: "audio/wav", voiceTextId: "media_text", locale: "en" },
+    { assetId: "media_voice_zh", kind: "audio", displayName: "Actor · 简体中文", mimeType: "audio/wav", voiceTextId: "media_text", locale: "zh-Hans" }
+  ] as const;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720"><defs><linearGradient id="g" x2="1" y2="1"><stop stop-color="#0f766e"/><stop offset="1" stop-color="#172554"/></linearGradient></defs><rect width="1280" height="720" fill="url(#g)"/><circle cx="1000" cy="180" r="92" fill="#fbbf24" opacity=".9"/><path d="M0 520 Q320 410 640 530 T1280 500 V720 H0Z" fill="#071b2d"/><text x="80" y="120" fill="#ecfeff" font-size="44" font-family="system-ui">简体中文场景资源</text></svg>`;
+  return {
+    project: {
+      ...base.project,
+      manifest: { ...base.project.manifest, projectId: "player_localized_media", title: "WorLd Player · Localized Media", defaultLocale: "en" },
+      assets: { ...base.project.assets, assets: [...base.project.assets.assets, localizedBackground, ...voices] },
+      localization: {
+        schemaVersion: 1,
+        locales: [
+          { id: "locale_zh_hans", locale: "zh-Hans", sourceLocale: "en", entries: [{ key: "media_text", sourceText: "Every cue must remain ordered.", translation: "每条演出指令都必须保持顺序。", status: "reviewed" }] },
+          { id: "locale_ja", locale: "ja", sourceLocale: "en", entries: [{ key: "media_text", sourceText: "Every cue must remain ordered.", translation: "すべての演出指示は順番どおりでなければなりません。", status: "reviewed" }] }
+        ]
+      },
+      scripts: { ...base.project.scripts, media_stage: { ...scene, statements: [
+        background,
+        { id: "media_line", kind: "dialogue", speakerId: "media_actor", textId: "media_text", text: "Every cue must remain ordered." },
+        { id: "media_end", kind: "end", endingName: "Curtain" }
+      ] } }
+    },
+    mediaAssets: [
+      ...base.mediaAssets,
+      { assetId: localizedBackground.assetId, displayName: localizedBackground.displayName, mimeType: localizedBackground.mimeType, url: `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}` },
+      { assetId: voices[0].assetId, displayName: voices[0].displayName, mimeType: voices[0].mimeType, url: theme.url },
+      { assetId: voices[1].assetId, displayName: voices[1].displayName, mimeType: voices[1].mimeType, url: theme.url }
+    ]
+  };
+}
+
 export function createPlayerVideoDemoV1(videoUrl: string): PlayerMediaDemoV1 {
   const base = createPlayerMediaDemoV1();
   const scene = base.project.scripts.media_stage;

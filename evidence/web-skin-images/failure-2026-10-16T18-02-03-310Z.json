@@ -1,0 +1,20 @@
+{
+  "passed": false,
+  "checks": [
+    "Author imports thirteen procedural PNG fixtures, selects nine independent backgrounds and four button states, and previews all nine pages at desktop/phone sizes using the muted formal Player.",
+    "Actual portable package carries fifteen referenced assets, imports the whole batch into a newly authored project and preserves all page/button selections after save/reload/reopen; default package excludes private provenance.",
+    "Downloaded HTML runs from file://, shows page artwork and real normal/hover/keyboard-focus/pressed/disabled button textures, honors high contrast and reaches the new ending, muted."
+  ],
+  "errors": [],
+  "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n+ actual - expected\n\n+ 'url(\"http://127.0.0.1:5257/gal/media/e4928f48c8e60e8408d6c65746c008bbd938a19b1b5f6d3d42354d40725decd3.png\")'\n- 'url(\"media/e4928f48c8e60e8408d6c65746c008bbd938a19b1b5f6d3d42354d40725decd3.png\")'\n\n    at game (file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-skin-images.mjs:63:10)\n    at async file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-skin-images.mjs:132:150",
+  "pages": [
+    {
+      "url": "http://127.0.0.1:5195/",
+      "text": "W\nWorLd Studio\n页面素材复用验证\n编辑器设置\n↶\n↷\n修改已同步\n备份 1/5\n已保存 · s2\n故事\n素材\n游戏外观\n检查\n发布\n\n让故事与更多人相遇\n\n发布游戏\n\n完成作品信息，选择导出方式，将你的故事交给玩家。\n\n1\n作品信息\n2\n导出方式\n3\n生成游戏\n4\n试玩与部署\n检查当前作品并生成游戏\n\n自动核对故事和源文件，发现问题后可以直接定位修复。\n\n页面素材复用验证\n0.1.0 · Web · 网页目录 ZIP\n故事场景\n1 个\n创作素材\n15 项\n运行方式\n离线可运行\n许可与上线准备\n\n15 项素材 · 0 项已记录依据并匹配署名 · 15 项仍待处理\n\n游戏可以继续导出用于本地验证；生成成功不代表素材已获授权或公网已验收。来源依据、联系人等内部信息不会进入玩家游戏。\n\n核对素材来源\n下载发布准备清单（内部）\n接下来如何部署和验收\n故事与素材检查通过\n\n15 项素材已核对源文件、大小和摘要\n\n重新检查\n生成时会再次核对文件；此检查不代表素材许可、分支、阅读节奏和配音已经确认，也不代表网站已上线。\n结局试玩进度\n当前版本已从开头到达 0 / 1 个结局\n\n从开头运行到结局后会自动记录，刷新或重开工程后仍可查看。\n\n从头试玩当前版本\n查看路线\n查看结局进度 · 1 个待试玩\n备份或合并试玩进度\n这是编辑器中的运行记录，不代表全部分支、阅读听感或导出后的游戏已验收。平时保存在本浏览器，换机前请备份。\n← 导出方式\n↗ 导出游戏\n继续：试玩与部署 →\n✓\n游戏已生成\n\n可以下载并试玩。文件还未上传到网站。\n\n▤\n页面素材复用验证-web.zip\n文件大小\n3.5 MiB\n格式\n目录 ZIP\n下载游戏\n修改工程后，需要重新生成文件。\n本地优先\n无账户"
+    },
+    {
+      "url": "file:///E:/ProjectSave/GeminiProject/WorLdGame/evidence/web-skin-images/page-images.html",
+      "text": "页面素材复用验证 · 0.1.0\n\n菜单 ☰\n\n进度已自动保存\n\n谢谢你，读完这封回信\n页面复用完成\n\n已达成 1 / 1 个结局\n\n这一程已写完。愿你带着自己的答案，走向明天。也可以读取存档，看看另一种选择。\n\n查看收藏与结局\n制作名单\n读取存档探索其他路线\n合上信，回到封面"
+    }
+  ]
+}

@@ -1,0 +1,217 @@
+雨停之前 · 1.7.1 · 发布准备（作者内部）
+
+作者内部准备清单；未执行源字节检查、授权核实或部署验收。只记录作者填写的依据。
+源工程摘要：289ae287e90cd59e681d4a0bce301e7e8ba3445333bed18013d63a730f8e9879
+游戏工程摘要：d48be5a70d04e076020c26fe8d51675c482746ed39dfd60bdfb65f345333eb43
+
+素材总数 25；已记录依据且署名匹配 0；仍待处理 25。
+
+雨后的海边街道 [coastal_morning]
+sha256:558c25c6e369f18b98ff550165c38a06fc96f1ba0fba89ab69c3dc45f08bf94e
+待确认发行条件
+来源：assets/rain-story/coastal-morning.png；内置 imagegen 生成；提示词与制作事实见 assets/rain-story/README.md。 图像没有指定外部人物/品牌/IP 参考；此为仓库来源记录，不是最终美术或发行许可确认。适用工具条款、展示声明及所有者确认仍待核实。
+确认依据：待核实
+确认人/日期：未填写 / 未填写
+公开署名：未记录要求，仍需所有者核对
+
+白天的面馆 [day_cafe]
+sha256:cd749f04403e3b4c8483350b77e79fb01bf9166de3f65e9d701583d43afead75
+待确认发行条件
+来源：assets/rain-story/day-cafe.png；内置 imagegen 光照/天气编辑；参考关系/提示词见 image-prompts-v1.6.json，摘要见 source-manifest-v1.6.json。 图像没有指定外部人物/品牌/IP 参考；此为仓库来源记录，不是最终美术或发行许可确认。适用工具条款、展示声明及所有者确认仍待核实。
+确认依据：待核实
+确认人/日期：未填写 / 未填写
+公开署名：未记录要求，仍需所有者核对
+
+雨停之前·作品图标 [letter_icon]
+sha256:1ed954eeb7d22cd6176cb702dbc78977684c6a47261a8b36e152654d2700968a
+待确认发行条件
+来源：assets/rain-story/letter-icon.png；由项目代码绘制的 letter-icon.svg 经 tools/create-rain-story-icon.mjs 栅格化，512×512 PNG。不是生成式位图。项目所有者/署名及最终展示说明尚待确认，不据此统一声明授权通过。
+确认依据：待核实
+确认人/日期：未填写 / 未填写
+公开署名：未记录要求，仍需所有者核对
+
+雨后的画室 [morning_studio]
+sha256:598b41535295814f1e98a4388d8df83012897402090b83d988e5e2c6b583b57f
+待确认发行条件
+来源：assets/rain-story/morning-studio.png；内置 imagegen 生成/编辑；参考关系/提示词见 image-prompts-v1.3.json，摘要见 source-manifest-v1.3.json。 图像没有指定外部人物/品牌/IP 参考；此为仓库来源记录，不是最终美术或发行许可确认。适用工具条款、展示声明及所有者确认仍待核实。
+确认依据：待核实
+确认人/日期：未填写 / 未填写
+公开署名：未记录要求，仍需所有者核对
+
+雨夜面馆 [night_cafe]
+sha256:9ded1d5e951474c53f36f92fa7dc5ab6fcf575ebc3d6fb648a2759c5f9015698
+待确认发行条件
+来源：assets/rain-story/night-cafe.png；内置 imagegen 生成；提示词与制作事实见 assets/rain-story/README.md。 图像没有指定外部人物/品牌/IP 参考；此为仓库来源记录，不是最终美术或发行许可确认。适用工具条款、展示声明及所有者确认仍待核实。
+确认依据：待核实
+确认人/日期：未填写 / 未填写
+公开署名：未记录要求，仍需所有者核对
+
+夜归的画室 [night_studio]
+sha256:d8721a9d412e6589161ceffc2ada4f65e9c20ff7402319569b4a86623ab00c96
+待确认发行条件
+来源：assets/rain-story/night-studio.png；内置 imagegen 光照/天气编辑；参考关系/提示词见 image-prompts-v1.6.json，摘要见 source-manifest-v1.6.json。 图像没有指定外部人物/品牌/IP 参考；此为仓库来源记录，不是最终美术或发行许可确认。适用工具条款、展示声明及所有者确认仍待核实。
+确认依据：待核实
+确认人/日期：未填写 / 未填写
+公开署名：未记录要求，仍需所有者核对
+
+夜行列车 [night_train]
+sha256:6ef4b958c86328d5515b034a7060e5081430fcdc279536ceeaac43f15ce7f83b
+待确认发行条件
+来源：assets/rain-story/night-train.png；内置 imagegen 生成/编辑；参考关系/提示词见 image-prompts-v1.3.json，摘要见 source-manifest-v1.3.json。 图像没有指定外部人物/品牌/IP 参考；此为仓库来源记录，不是最终美术或发行许可确认。适用工具条款、展示声明及所有者确认仍待核实。
+确认依据：待核实
+确认人/日期：未填写 / 未填写
+公开署名：未记录要求，仍需所有者核对
+
+夜行与回信（原创合成音乐） [night_travel_theme]
+sha256:d69d2e28ca0d7d547c27f32cbd49703ebc40ddf36b0224f56001f7d2a73bd16a
+待确认发行条件
+来源：assets/rain-story/night-travel-theme.wav；tools/generate-rain-story-audio.mjs 程序合成，单声道 PCM16 / 22050 Hz。项目原始旋律/和弦，不是录音或真人演奏。 项目所有者、署名与最终发行展示说明待确认。
+确认依据：待核实
+确认人/日期：未填写 / 未填写
+公开署名：未记录要求，仍需所有者核对
+
+雨夜站台 [sample_station]
+sha256:7b0aeee0aef6219584fef7833b6960ecb316bffa3b565ab13f847151068ba0bd
+待确认发行条件
+来源：assets/rain-story/station-night-v2.png；内置 imagegen 生成/编辑；参考关系/提示词见 image-prompts-v1.3.json，摘要见 source-manifest-v1.3.json。 图像没有指定外部人物/品牌/IP 参考；此为仓库来源记录，不是最终美术或发行许可确认。适用工具条款、展示声明及所有者确认仍待核实。
+确认依据：待核实
+确认人/日期：未填写 / 未填写
+公开署名：未记录要求，仍需所有者核对
+
+屋檐雨声（原创合成） [soft_rain]
+sha256:fbbc665d5ebb4e5dad123383d1077f3d968a620b7e36cce46795c08669605c98
+待确认发行条件
+来源：assets/rain-story/soft-rain.wav；tools/generate-rain-story-audio.mjs 程序合成，单声道 PCM16 / 22050 Hz。固定随机种子的滤波雨声。 项目所有者、署名与最终发行展示说明待确认。
+确认依据：待核实
+确认人/日期：未填写 / 未填写
+公开署名：未记录要求，仍需所有者核对
+
+进站提示音（原创合成） [station_chime]
+sha256:78c4a9d21f19861265c4ce8c8e3b56f4a8bdb0777515ec93a9e53facbb17b863
+待确认发行条件
+来源：assets/rain-story/station-chime.wav；tools/generate-rain-story-audio.mjs 程序合成，单声道 PCM16 / 22050 Hz。合成进站提示音。 项目所有者、署名与最终发行展示说明待确认。
+确认依据：待核实
+确认人/日期：未填写 / 未填写
+公开署名：未记录要求，仍需所有者核对
+
+雨后白天站台 [station_day]
+sha256:49e0d7f4aedf5242a8c5001d3875ec3cae7836d5c73e57415db7f5fdaf627807
+待确认发行条件
+来源：assets/rain-story/station-day.png；内置 imagegen 光照/天气编辑；参考关系/提示词见 image-prompts-v1.6.json，摘要见 source-manifest-v1.6.json。 图像没有指定外部人物/品牌/IP 参考；此为仓库来源记录，不是最终美术或发行许可确认。适用工具条款、展示声明及所有者确认仍待核实。
+确认依据：待核实
+确认人/日期：未填写 / 未填写
+公开署名：未记录要求，仍需所有者核对
+
+林远·合成语音01 [voice_01]
+sha256:26be1da92d18729069c0fda981697a09631fbe7525d4517af5f3633824bf13c0
+待确认发行条件
+来源：assets/rain-story/voice-01.wav；Windows System.Speech / Microsoft Kangkang / rate -1 / mono PCM16 22050 Hz。台词/声线见 voice-lines.json；生成脚本 tools/generate-rain-story-voice.ps1。 系统合成样片，不是真人录音；声线/输出再分发条件待核实，若无法确认需替换为有明确发行依据的素材。
+确认依据：待核实
+确认人/日期：未填写 / 未填写
+公开署名：未记录要求，仍需所有者核对
+
+小夏·合成语音02 [voice_02]
+sha256:342b2b082636ff9d0e8fff71a0ad7f53dfc5bb3fb6125927371b0828cf417197
+待确认发行条件
+来源：assets/rain-story/voice-02.wav；Windows System.Speech / Microsoft Huihui Desktop / rate -1 / mono PCM16 22050 Hz。台词/声线见 voice-lines.json；生成脚本 tools/generate-rain-story-voice.ps1。 系统合成样片，不是真人录音；声线/输出再分发条件待核实，若无法确认需替换为有明确发行依据的素材。
+确认依据：待核实
+确认人/日期：未填写 / 未填写
+公开署名：未记录要求，仍需所有者核对
+
+林远·合成语音03 [voice_03]
+sha256:9851880463e1d27bb758947fd998c834d942817f5c589fdd1b3ef31f870add27
+待确认发行条件
+来源：assets/rain-story/voice-03.wav；Windows System.Speech / Microsoft Kangkang / rate -1 / mono PCM16 22050 Hz。台词/声线见 voice-lines.json；生成脚本 tools/generate-rain-story-voice.ps1。 系统合成样片，不是真人录音；声线/输出再分发条件待核实，若无法确认需替换为有明确发行依据的素材。
+确认依据：待核实
+确认人/日期：未填写 / 未填写
+公开署名：未记录要求，仍需所有者核对
+
+林远·合成语音04 [voice_04]
+sha256:d2cd20b0b73ee05ee5ae19a1d6f0af29956e492144a3f708747cdc84bb6cd1d8
+待确认发行条件
+来源：assets/rain-story/voice-04-v1.7.wav；Windows System.Speech / Microsoft Kangkang / rate -1 / mono PCM16 22050 Hz。1.7 修订，台词/生成方式见 voice-revision-v1.7.json、source-manifest-v1.7.json；tools/generate-rain-story-voice-v1.7.ps1。 系统合成样片，不是真人录音；声线/输出再分发条件待核实，若无法确认需替换为有明确发行依据的素材。
+确认依据：待核实
+确认人/日期：未填写 / 未填写
+公开署名：未记录要求，仍需所有者核对
+
+小夏·合成语音05 [voice_05]
+sha256:eeff44bae98f46d3fefaf1b8d9e3f27ee08ac635043e8d660e759f57946d8057
+待确认发行条件
+来源：assets/rain-story/voice-05.wav；Windows System.Speech / Microsoft Huihui Desktop / rate -1 / mono PCM16 22050 Hz。台词/声线见 voice-lines.json；生成脚本 tools/generate-rain-story-voice.ps1。 系统合成样片，不是真人录音；声线/输出再分发条件待核实，若无法确认需替换为有明确发行依据的素材。
+确认依据：待核实
+确认人/日期：未填写 / 未填写
+公开署名：未记录要求，仍需所有者核对
+
+小夏·合成语音06 [voice_06]
+sha256:0e68ac781943cf48422d833c6eb6550f66ee4fb31901f12f492e3ca8c079695a
+待确认发行条件
+来源：assets/rain-story/voice-06.wav；Windows System.Speech / Microsoft Huihui Desktop / rate -1 / mono PCM16 22050 Hz。台词/声线见 voice-lines.json；生成脚本 tools/generate-rain-story-voice.ps1。 系统合成样片，不是真人录音；声线/输出再分发条件待核实，若无法确认需替换为有明确发行依据的素材。
+确认依据：待核实
+确认人/日期：未填写 / 未填写
+公开署名：未记录要求，仍需所有者核对
+
+小夏·合成语音07 [voice_07]
+sha256:cc0bd25e03762753601ed2464aff8cb0fadd99db43610a7eaebb752a7acef028
+待确认发行条件
+来源：assets/rain-story/voice-07.wav；Windows System.Speech / Microsoft Huihui Desktop / rate -1 / mono PCM16 22050 Hz。台词/声线见 voice-lines.json；生成脚本 tools/generate-rain-story-voice.ps1。 系统合成样片，不是真人录音；声线/输出再分发条件待核实，若无法确认需替换为有明确发行依据的素材。
+确认依据：待核实
+确认人/日期：未填写 / 未填写
+公开署名：未记录要求，仍需所有者核对
+
+林远·合成语音08 [voice_08]
+sha256:b7b78ec4e28133260db750e20de3e4c56bda60e6e65f73b58b09412e75e76d4c
+待确认发行条件
+来源：assets/rain-story/voice-08.wav；Windows System.Speech / Microsoft Kangkang / rate -1 / mono PCM16 22050 Hz。台词/声线见 voice-lines.json；生成脚本 tools/generate-rain-story-voice.ps1。 系统合成样片，不是真人录音；声线/输出再分发条件待核实，若无法确认需替换为有明确发行依据的素材。
+确认依据：待核实
+确认人/日期：未填写 / 未填写
+公开署名：未记录要求，仍需所有者核对
+
+小夏·合成语音09 [voice_09]
+sha256:f90e09e4c2dadc8c6d255c137cd4ce3bc5b40d8a7331e9467c813075a809786a
+待确认发行条件
+来源：assets/rain-story/voice-09.wav；Windows System.Speech / Microsoft Huihui Desktop / rate -1 / mono PCM16 22050 Hz。台词/声线见 voice-lines.json；生成脚本 tools/generate-rain-story-voice.ps1。 系统合成样片，不是真人录音；声线/输出再分发条件待核实，若无法确认需替换为有明确发行依据的素材。
+确认依据：待核实
+确认人/日期：未填写 / 未填写
+公开署名：未记录要求，仍需所有者核对
+
+候车室·旧信 [waiting_room]
+sha256:9a2a3bce8a89205a0ae6ac1cd22620dedae77bd519db5ec5c90b2302b55db47b
+待确认发行条件
+来源：assets/rain-story/waiting-room.png；内置 imagegen 生成/编辑；参考关系/提示词见 image-prompts-v1.3.json，摘要见 source-manifest-v1.3.json。 图像没有指定外部人物/品牌/IP 参考；此为仓库来源记录，不是最终美术或发行许可确认。适用工具条款、展示声明及所有者确认仍待核实。
+确认依据：待核实
+确认人/日期：未填写 / 未填写
+公开署名：未记录要求，仍需所有者核对
+
+小夏·手中的信 [xia_letter]
+sha256:db56676dcd83122d0f0442173693870abb9f6df05d732d510f9915ccea963fc6
+待确认发行条件
+来源：assets/rain-story/xia-letter.png；内置 imagegen 生成；提示词与制作事实见 assets/rain-story/README.md。 图像没有指定外部人物/品牌/IP 参考；此为仓库来源记录，不是最终美术或发行许可确认。适用工具条款、展示声明及所有者确认仍待核实。
+确认依据：待核实
+确认人/日期：未填写 / 未填写
+公开署名：未记录要求，仍需所有者核对
+
+小夏·安心微笑 [xia_smile]
+sha256:5ab4b3cf1b83bf897d386238f1fad4e87f36b6eea3d940e0c3d4101204404e37
+待确认发行条件
+来源：assets/rain-story/xia-smile.png；内置 imagegen 生成/编辑；参考关系/提示词见 image-prompts-v1.3.json，摘要见 source-manifest-v1.3.json。 图像没有指定外部人物/品牌/IP 参考；此为仓库来源记录，不是最终美术或发行许可确认。适用工具条款、展示声明及所有者确认仍待核实。
+确认依据：待核实
+确认人/日期：未填写 / 未填写
+公开署名：未记录要求，仍需所有者核对
+
+小夏·认真倾听 [xia_thoughtful]
+sha256:02ab310670cd897e865ebb590e66094b188c305ee61959e8b4160e6f30ba2e9a
+待确认发行条件
+来源：assets/rain-story/xia-thoughtful.png；内置 imagegen 生成/编辑；参考关系/提示词见 image-prompts-v1.3.json，摘要见 source-manifest-v1.3.json。 图像没有指定外部人物/品牌/IP 参考；此为仓库来源记录，不是最终美术或发行许可确认。适用工具条款、展示声明及所有者确认仍待核实。
+确认依据：待核实
+确认人/日期：未填写 / 未填写
+公开署名：未记录要求，仍需所有者核对
+
+实际部署：未验收；未填写公网地址。
+
+接下来：
+1. 由作品所有者确认作者/发行身份、展示资料和全部素材发行条件；来源台账只记录依据，不自动作法律或授权结论。
+2. 需要公开的署名在制作名单中单独核对。内部来源路径、联系人和确认依据仅用于作者交接，不要上传源工程或 release/review 文件夹。
+3. 导出网页目录 ZIP，完整解压到新目录。网站仅上传 build-info.json 列出的游戏文件，最后更新 sw.js；不要将缺失文件回退为 index.html，sw.js 建议 no-cache。
+4. 在自己有权限的 HTTPS 实际地址核对标题、版本、所有媒体、完整路线和两结局、声音、保存刷新与显式读取；本机预览不是公网地址。
+5. 使用实际手机检查竖屏/横屏、阅读菜单、系统键盘、锁屏/后台、声音恢复和低内存；桌面触控模拟不代替真机。
+6. 在同一实际地址主动下载离线内容，等就绪后断网重开；更新前备份玩家 .worldsave，核对上一版工程，再测试旧版离线→新版等待→关闭所有窗口→重开→读取旧档。内容已变时保留原版入口。

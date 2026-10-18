@@ -1,0 +1,13 @@
+
+ RUN  v4.1.10 E:/Project/AIProject/ClaudeProject/WorLdGame
+
+ ✓ apps/editor/src/direction-authoring.test.tsx (10 tests) 1068ms
+   ✓ offers cross-scene actor references without pretending they are active or choosing them automatically  326ms
+ ✓ apps/editor/src/direction-inspector.test.tsx (2 tests) 340ms
+
+ Test Files  2 passed (2)
+      Tests  12 passed (12)
+   Start at  15:08:46
+   Duration  13.01s (transform 3.79s, setup 536ms, import 8.01s, tests 1.41s, environment 2.27s)
+
+JSON report written to E:/Project/AIProject/ClaudeProject/WorLdGame/evidence/web-blank-short-story/direction-tests.json

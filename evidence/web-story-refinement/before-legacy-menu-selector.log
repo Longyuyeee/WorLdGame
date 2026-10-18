@@ -1,0 +1,23 @@
+PASS eight-real-editor-review-notes
+PASS native-refresh-warning-preserves-unapplied-draft
+PASS editor-applied-five-texts-five-backgrounds-two-audio-cues-and-version
+PASS source-and-both-web-artifacts
+PASS html-stay
+PASS directory-leave
+node:internal/modules/run_main:122
+    triggerUncaughtException(
+    ^
+
+locator.click: Timeout 30000ms exceeded.
+Call log:
+  - waiting for getByRole('button', { name: '打开阅读菜单', exact: true })
+
+    at rejectOldContentSave (E:\ProjectSave\GeminiProject\WorLdGame\tools\run-web-story-refinement.mjs:49:66)
+    at async file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-story-refinement.mjs:156:3 {
+  log: [
+    "  - waiting for getByRole('button', { name: '打开阅读菜单', exact: true })"
+  ],
+  name: 'TimeoutError'
+}
+
+Node.js v22.12.0

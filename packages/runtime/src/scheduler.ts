@@ -1,5 +1,5 @@
 import { canonicalRuntimeStringify } from "./canonical";
-import { commitRuntimeHistoryStepV1, validateRuntimeHistorySessionV1 } from "./history";
+import { commitValidatedRuntimeHistoryStepInternal, validateRuntimeHistorySessionV1 } from "./history";
 import { runRuntime, validateRuntimeStateStructureV1 } from "./runtime";
 import {
   RUNTIME_VERSION,
@@ -126,7 +126,9 @@ export function scheduleRuntimeBatchV1(program: RuntimeProgramV1, initial: Runti
     const descriptorUnavailable = run.effects.some((effect) => unavailable.has(effect.descriptorId)) || (run.barrierRequest !== null && unavailable.has(run.barrierRequest.descriptorId));
     if (descriptorUnavailable) return output(stepStart, "resourceUnavailable", executedInBatch, events, effects);
 
-    const committed = commitRuntimeHistoryStepV1(program, current.history, run, current.accumulatedInstructions + run.executedInstructions);
+    // The chain was validated at this synchronous call's entry. Only locally
+    // generated steps have extended it since; no host callback or await intervenes.
+    const committed = commitValidatedRuntimeHistoryStepInternal(program, current.history, run, current.accumulatedInstructions + run.executedInstructions);
     if (committed.diagnostics.length > 0) return output(current, "history", executedInBatch, events, effects, committed.diagnostics);
     current = { schemaVersion: 1, runtimeVersion: RUNTIME_VERSION, history: committed.session, baseCheckpointId: committed.session.checkpoints[committed.session.cursor]!.checkpointId, workingState: committed.state, accumulatedInstructions: 0 };
     executedInBatch += run.executedInstructions;

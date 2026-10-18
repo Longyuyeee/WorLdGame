@@ -1,0 +1,17 @@
+{
+  "source": "Read-only DOM media properties after normal UI preview playback",
+  "audio": [
+    {
+      "muted": false,
+      "paused": true
+    },
+    {
+      "muted": true,
+      "paused": false
+    },
+    {
+      "muted": true,
+      "paused": false
+    }
+  ]
+}

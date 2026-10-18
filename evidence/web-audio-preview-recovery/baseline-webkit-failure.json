@@ -1,0 +1,66 @@
+{
+  "passed": false,
+  "error": "AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:\n\n  assert.ok(afterControl.status.includes('点击播放试听'))\n",
+  "stack": "AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:\n\n  assert.ok(afterControl.status.includes('点击播放试听'))\n\n    at file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-audio-preview-recovery.mjs:29:48",
+  "checks": [
+    {
+      "name": "observed-native-controls-versus-explicit-play",
+      "afterControl": {
+        "paused": true,
+        "ended": false,
+        "time": 0,
+        "readyState": 0,
+        "error": 4,
+        "status": "试听：林远·合成语音04\n\n音频无法播放，可重新导入支持的格式后重试。\n\n重新准备试听",
+        "events": [
+          {
+            "name": "pointerdown",
+            "at": 8611,
+            "paused": true,
+            "time": 0,
+            "readyState": 0,
+            "error": 4
+          },
+          {
+            "name": "click",
+            "at": 8615,
+            "paused": true,
+            "time": 0,
+            "readyState": 0,
+            "error": 4
+          }
+        ],
+        "promise": null
+      },
+      "afterExplicitPlay": {
+        "paused": true,
+        "ended": false,
+        "time": 0,
+        "readyState": 0,
+        "error": 4,
+        "status": "试听：林远·合成语音04\n\n音频无法播放，可重新导入支持的格式后重试。\n\n重新准备试听",
+        "events": [
+          {
+            "name": "pointerdown",
+            "at": 8611,
+            "paused": true,
+            "time": 0,
+            "readyState": 0,
+            "error": 4
+          },
+          {
+            "name": "click",
+            "at": 8615,
+            "paused": true,
+            "time": 0,
+            "readyState": 0,
+            "error": 4
+          }
+        ],
+        "promise": "NotSupportedError"
+      },
+      "explicitPendingWaitMs": 10000
+    }
+  ],
+  "errors": []
+}

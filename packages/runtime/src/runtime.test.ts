@@ -1,9 +1,10 @@
 import { readFileSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { compileProject, type RuntimeSourceMapV1, type RuntimeStoryIrV1 } from "@world-studio/project-compiler";
 import { loadProject, migrateS0Project, type S0Project } from "@world-studio/project-domain";
-import { advanceRuntimeHistoryV1, backRuntimeHistoryV1, canonicalRuntimeStringify, createRuntimeHistorySessionV1, createRuntimeSaveV1, createRuntimeSchedulerSessionV1, createRuntimeSessionSaveV1, createRuntimeState, createRuntimeStoryOutcomeV1, drawRuntimeRandom, executeRuntimeBoundedTenThousandV1, executeRuntimeConformanceV1, forwardRuntimeHistoryV1, loadRuntimeSaveV1, loadRuntimeSessionSaveV1, mapRuntimeDiagnosticsV1, mergeRuntimeMetaProgressV1, runRuntime, runtimeHistoryReconciliationPlanHashV1, runtimeHistorySessionHashSchemaV1, runtimeHistorySessionHashV1, runtimeMetaProgressHashV1, runtimeSessionSaveArtifactHashSchemaV1, runtimeStateHashV1, scheduleRuntimeBatchV1, validateRuntimeHistorySessionV1, validateRuntimeMetaProgressV1, validateRuntimeSchedulerSessionV1, validateRuntimeSourceMapV1, type RuntimeChoiceInputV1, type RuntimeDiagnosticV1, type RuntimeHistorySessionLegacyV1, type RuntimeHistorySessionV1, type RuntimeMetaProgressV1, type RuntimeSchedulePolicyV1, type RuntimeScheduleResultV1, type RuntimeSchedulerSessionV1, type RuntimeSessionSaveLegacyV1, type RuntimeStateV1 } from "./index";
+import { advanceRuntimeHistoryV1, backRuntimeHistoryV1, canonicalRuntimeStringify, createRuntimeHistorySessionV1, createRuntimeSaveV1, createRuntimeSchedulerSessionV1, createRuntimeSessionSaveV1, createRuntimeState, createRuntimeStoryOutcomeV1, drawRuntimeRandom, evaluateRuntimeExpressionV1, executeRuntimeBoundedTenThousandV1, executeRuntimeConformanceV1, forwardRuntimeHistoryV1, loadRuntimeSaveV1, loadRuntimeSessionSaveV1, mapRuntimeDiagnosticsV1, mergeRuntimeMetaProgressV1, runRuntime, runtimeHistoryReconciliationPlanHashV1, runtimeHistorySessionHashSchemaV1, runtimeHistorySessionHashV1, runtimeMetaProgressHashV1, runtimeSessionSaveArtifactHashSchemaV1, runtimeStateHashV1, scheduleRuntimeBatchV1, validateRuntimeHistorySessionV1, validateRuntimeMetaProgressV1, validateRuntimeSchedulerSessionV1, validateRuntimeSourceMapV1, type RuntimeChoiceInputV1, type RuntimeDiagnosticV1, type RuntimeHistorySessionLegacyV1, type RuntimeHistorySessionV1, type RuntimeMetaProgressV1, type RuntimeSchedulePolicyV1, type RuntimeScheduleResultV1, type RuntimeSchedulerSessionV1, type RuntimeSessionSaveLegacyV1, type RuntimeStateV1 } from "./index";
 
 function branching(): { readonly story: RuntimeStoryIrV1; readonly sourceMap: RuntimeSourceMapV1; readonly buildId: string } {
   const source = JSON.parse(readFileSync(join(process.cwd(), "fixtures/projects/branching/project.s0.json"), "utf8")) as S0Project;
@@ -33,6 +34,31 @@ function select(state: RuntimeStateV1, optionId: string, inputId = "input-choice
 }
 
 describe("N31-E1 formal narrative runtime", () => {
+  it('executes cross-scene call/return, false fallthrough and conditional jumps', () => {
+    const main = program([
+      {instructionId:'call_other',opcode:'call',operands:{targetSceneId:'other'}},
+      {instructionId:'false_check',opcode:'condition',operands:{targetSceneId:'wrong',expressionAst:{kind:'literal',value:false}}},
+      {instructionId:'true_check',opcode:'condition',operands:{targetSceneId:'success',expressionAst:{kind:'literal',value:true}}}
+    ]);
+    const story: RuntimeStoryIrV1 = {...main, scenes:[...main.scenes,
+      {sceneId:'other',instructions:[{instructionId:'return_main',opcode:'return',operands:{}}]},
+      {sceneId:'success',instructions:[{instructionId:'jump_done',opcode:'jump',operands:{targetSceneId:'done'}}]},
+      {sceneId:'wrong',instructions:[{instructionId:'bad_end',opcode:'end',operands:{endingId:'bad_end',name:'Wrong'}}]},
+      {sceneId:'done',instructions:[{instructionId:'good_end',opcode:'end',operands:{endingId:'good_end',name:'Complete'}}]}
+    ]};
+    const result = runRuntime(story, start(story));
+    expect(result.diagnostics).toEqual([]);
+    expect(result.event).toMatchObject({kind:'ending',name:'Complete'});
+    expect(result.state.callStack).toEqual([]);
+  });
+
+  it("uses the production evaluator for read-only debugger expressions without mutating variables", () => {
+    const variables = { score: 2, label: "A" } as const;
+    const expression = { kind: "binary", operator: "+", left: { kind: "identifier", name: "score" }, right: { kind: "literal", value: 1 } };
+    expect(evaluateRuntimeExpressionV1(expression, variables)).toEqual({ ok: true, value: 3, valueType: "number" });
+    expect(evaluateRuntimeExpressionV1({ ...expression, left: { kind: "identifier", name: "missing" } }, variables)).toEqual({ ok: false, code: "RUNTIME_VARIABLE_MISSING", message: "missing:missing" });
+    expect(variables).toEqual({ score: 2, label: "A" });
+  });
   it("executes Compiler IR through a choice, dialogue, and exact ending", () => {
     const { story, buildId } = branching();
     const initial = start(story, buildId);
@@ -168,7 +194,7 @@ describe("N31-E2 deterministic state foundations", () => {
     expect(character.state.sceneState.characters.aya).toEqual({ assetId: "char_aya", expression: "smile" });
     const audio = runRuntime(story, character.state);
     expect(audio.state.audioState.tracks.bgm).toEqual({ assetId: "bgm_theme", status: "playing", loop: true, volumePermille: 750 });
-    expect(audio.state.metaProgress.unlockedGalleryAssetIds).toEqual(["bg_gate", "char_aya"]);
+    expect(audio.state.metaProgress.unlockedGalleryAssetIds).toEqual(["bg_gate", "bgm_theme", "char_aya"]);
   });
 
   it("records read text and reached endings as sorted monotonic Meta Progress", () => {
@@ -669,6 +695,7 @@ describe("N31-E11 canonical Runtime Session Save", () => {
   function save(story: RuntimeStoryIrV1, session: RuntimeHistorySessionV1) {
     const created = createRuntimeSessionSaveV1(story, session);
     if (!created.ok) throw new Error(JSON.stringify(created.diagnostics));
+    expect(created.artifactHash).toBe(createHash("sha256").update("WORLd-RUNTIME-SESSION-SAVE\0v2\0").update(created.serialized, "utf8").digest("hex"));
     return created;
   }
 
@@ -713,6 +740,21 @@ describe("N31-E11 canonical Runtime Session Save", () => {
     expect(runtimeStateHashV1(loaded.state)).toBe(runtimeStateHashV1(waiting.state));
   });
 
+  it("revalidates a previously saved history after an in-place checkpoint mutation", () => {
+    const { story, buildId } = branching();
+    const waiting = advanceRuntimeHistoryV1(story, history(story, start(story, buildId)));
+    const mutable = JSON.parse(JSON.stringify(waiting.session)) as RuntimeHistorySessionV1;
+    const original = save(story, mutable);
+    const state = mutable.checkpoints[0]!.state as { buildId: string };
+    state.buildId = "tampered-after-save";
+    expect(createRuntimeSessionSaveV1(story, mutable)).toMatchObject({ ok: false });
+    expect(validateRuntimeHistorySessionV1(story, mutable)).not.toEqual([]);
+    const restored = loadRuntimeSessionSaveV1(story, original.serialized, { expectedBuildId: buildId });
+    expect(restored.ok).toBe(true);
+    state.buildId = buildId;
+    expect(save(story, mutable).serialized).toBe(original.serialized);
+  });
+
   it("dual-reads a strict v1 artifact, verifies its v1 hash before normalization, and writes only v2", () => {
     const { story, buildId } = branching();
     const waiting = advanceRuntimeHistoryV1(story, history(story, start(story, buildId)));
@@ -738,6 +780,7 @@ describe("N31-E11 canonical Runtime Session Save", () => {
     const loaded = loadRuntimeSessionSaveV1(story, serialized, { expectedBuildId: buildId });
     if (!loaded.ok) throw new Error(JSON.stringify(loaded.diagnostics));
     expect(loaded.artifactHash).toBe(runtimeSessionSaveArtifactHashSchemaV1(legacySave));
+    expect(loaded.artifactHash).toBe(createHash("sha256").update("WORLd-RUNTIME-SESSION-SAVE\0v1\0").update(serialized, "utf8").digest("hex"));
     expect(loaded.save.schemaVersion).toBe(2);
     expect(loaded.session).toEqual(waiting.session);
     expect(loaded.save.historyHash).toBe(runtimeHistorySessionHashV1(waiting.session));
@@ -780,6 +823,7 @@ describe("N31-E12 monotonic Meta Progress boundary", () => {
     return program([
       { instructionId: "meta-line", opcode: "narration", operands: { textId: "text.meta", text: "Remember this." } },
       { instructionId: "meta-cg", opcode: "direction", operands: { command: "background", parameters: { action: "set", asset: "cg.meta" } } },
+      { instructionId: "meta-music", opcode: "direction", operands: { command: "audio", parameters: { action: "play", asset: "music.meta", bus: "bgm", loop: true } } },
       { instructionId: "meta-end", opcode: "end", operands: { endingId: "ending.meta", name: "Remembered" } }
     ]);
   }
@@ -788,12 +832,13 @@ describe("N31-E12 monotonic Meta Progress boundary", () => {
     return createRuntimeHistorySessionV1(story, start(story, "build-meta")).session;
   }
 
-  it("preserves read, Gallery, and ending progress across repeated Back and Forward", () => {
+  it("preserves read, Gallery, Music, and ending progress across repeated Back and Forward", () => {
     const story = metaStory();
     const line = advanceRuntimeHistoryV1(story, history(story));
     const cg = advanceRuntimeHistoryV1(story, line.session);
     const ended = advanceRuntimeHistoryV1(story, cg.session);
     const expected = ended.state.metaProgress;
+    expect(expected.unlockedGalleryAssetIds).toEqual(["cg.meta", "music.meta"]);
     const backFromEnding = backRuntimeHistoryV1(story, ended.session);
     const backFromCg = backRuntimeHistoryV1(story, backFromEnding.session);
     expect(backFromEnding.state.metaProgress).toEqual(expected);
@@ -811,6 +856,7 @@ describe("N31-E12 monotonic Meta Progress boundary", () => {
     const cg = advanceRuntimeHistoryV1(story, line.session);
     const ended = advanceRuntimeHistoryV1(story, cg.session);
     const current = ended.state.metaProgress;
+    expect(current.unlockedGalleryAssetIds).toEqual(["cg.meta", "music.meta"]);
     const stateLoaded = loadRuntimeSaveV1(story, oldStateSave.serialized, { expectedBuildId: "build-meta", currentMetaProgress: current });
     const sessionLoaded = loadRuntimeSessionSaveV1(story, oldSessionSave.serialized, { expectedBuildId: "build-meta", currentMetaProgress: current });
     if (!stateLoaded.ok || !sessionLoaded.ok) throw new Error("older saves did not load");

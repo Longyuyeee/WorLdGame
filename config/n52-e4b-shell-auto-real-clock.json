@@ -13,7 +13,7 @@
     "schedulerAuthority": "runtime-only-through-player-core",
     "clockAuthority": "shell-owned-window-timeout",
     "textReveal": "auto-delay-starts-after-real-reveal-completion",
-    "voiceTiming": "actual-media-duration-minus-current-time-plus-versioned-tail",
+    "voiceTiming": "actual-ended-event-plus-versioned-tail-concurrent-reading-error-fallback",
     "hostSuspend": "owned-timer-cleared-and-fresh-delay-after-resume",
     "manualInput": "disables-auto-before-dispatch",
     "terminalAndStop": "structured-core-stop-disables-auto",

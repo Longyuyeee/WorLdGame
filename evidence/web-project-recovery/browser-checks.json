@@ -1,0 +1,112 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "name": "actual-original-1.7.14-website-local-html-and-production-generated-source-65-entries-unchanged",
+      "detail": {}
+    },
+    {
+      "name": "chromium-eight-wrong-selections-repeat-chooser-focus-three-layouts-and-no-indexeddb-writes",
+      "detail": {
+        "version": "151.0.7922.34",
+        "files": 8,
+        "workspaceAssetAndRecentUnchanged": true,
+        "physicalPhone": false
+      }
+    },
+    {
+      "name": "chromium-correct-production-recovery-edit-undo-save-reopen-and-exact-source-export",
+      "detail": {
+        "entries": 65,
+        "byteLength": 31683169,
+        "sha256": "69d7baf39c919f429c3ef3f4921bd569190a068e0e4c8ae34ff6608fed3a4cec",
+        "originalEntriesByteIdentical": true
+      }
+    },
+    {
+      "name": "firefox-eight-wrong-selections-repeat-chooser-focus-three-layouts-and-no-indexeddb-writes",
+      "detail": {
+        "version": "153.0",
+        "files": 8,
+        "workspaceAssetAndRecentUnchanged": true,
+        "physicalPhone": false
+      }
+    },
+    {
+      "name": "firefox-correct-source-recovery-edit-undo-save-reopen-and-exact-source-export",
+      "detail": {
+        "entries": 65,
+        "byteLength": 31683169,
+        "sha256": "69d7baf39c919f429c3ef3f4921bd569190a068e0e4c8ae34ff6608fed3a4cec",
+        "originalEntriesByteIdentical": true
+      }
+    },
+    {
+      "name": "webkit-eight-wrong-selections-repeat-chooser-focus-three-layouts-and-no-indexeddb-writes",
+      "detail": {
+        "version": "26.5",
+        "files": 8,
+        "workspaceAssetAndRecentUnchanged": true,
+        "physicalPhone": false
+      }
+    },
+    {
+      "name": "webkit-correct-source-recovery-edit-undo-save-reopen-and-exact-source-export",
+      "detail": {
+        "entries": 65,
+        "byteLength": 31683169,
+        "sha256": "69d7baf39c919f429c3ef3f4921bd569190a068e0e4c8ae34ff6608fed3a4cec",
+        "originalEntriesByteIdentical": true
+      }
+    }
+  ],
+  "errors": [],
+  "results": [
+    {
+      "engine": "chromium",
+      "version": "151.0.7922.34",
+      "passed": true
+    },
+    {
+      "engine": "firefox",
+      "version": "153.0",
+      "passed": true
+    },
+    {
+      "engine": "webkit",
+      "version": "26.5",
+      "passed": true
+    }
+  ],
+  "artifacts": {
+    "editor": {
+      "/assets/index-BK5ePXo9.js": "e223b6b1b105ddb6a6234851463cf30cb1d24df5c31d347a3fed3cbdb3e0cb0b",
+      "/assets/index-DNbmjF5j.css": "67271527adceeeb5cdc822f62bb23802fa266c60b28c48c2be0620e5fae1832d"
+    },
+    "originalExport": {
+      "entries": 65,
+      "byteLength": 31683169,
+      "sha256": "69d7baf39c919f429c3ef3f4921bd569190a068e0e4c8ae34ff6608fed3a4cec",
+      "originalEntriesByteIdentical": true
+    },
+    "games": {
+      "website": {
+        "byteLength": 32507489,
+        "sha256": "0ef5d3b3acebe18f8f34f3cf56ad2927ce996e7211e04863254b190df8963528"
+      },
+      "local": {
+        "byteLength": 32534807,
+        "sha256": "84a3d21e012431867762482ec78aa117bd38068a0007fdc14da7560f27c37f57"
+      },
+      "html": {
+        "byteLength": 43019896,
+        "sha256": "0dac0407ab84e274e6fa993270225ada337c799c2b8347214f2e27f2d2b99597"
+      },
+      "production": {
+        "byteLength": 64243389,
+        "sha256": "b6f0f42c481b5bda5bcca31078e31211a8bea2cd9866dd718d823ebbda43a9d8"
+      }
+    }
+  },
+  "scope": "Desktop Chromium/Firefox/WebKit real Worker imports, wrong-file diagnosis without IndexedDB writes, touch-sized layout, explicit retry, source/production restore and editing/save/reopen/source export. Original 1.7.14 and 25 media preserved. No physical devices, public hosting, owner approval or new story version."
+}

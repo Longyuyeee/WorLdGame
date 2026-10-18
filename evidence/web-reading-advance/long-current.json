@@ -1,0 +1,150 @@
+{
+  "passed": true,
+  "label": "current",
+  "priorCommit": null,
+  "baselineSourceSnapshot": "evidence/web-reading-advance/baseline-sources.json",
+  "formalStyle": true,
+  "cssHash": "c865aca6a780daeaee2ae5c715ccdc6d3562f081556da4a6ae89e8f40f07eb91",
+  "fixtureSourceHash": "4c8d11c00aea631a394c09a46113c58c6ffa026a69705bcdb2f6f4e5bc70397c",
+  "bundleHash": "013ce4fe552f2d9d068150c78c026591dcc63525dd2b6d088b9027fbba3a7b24",
+  "browser": "151.0.7922.34",
+  "rows": [
+    {
+      "count": 120,
+      "historyLength": 120,
+      "savedHash": "1f0a07d54e426ba018faa84f8d93a2b7ea5adfd09c8ce2b4353c569a8f5307a5",
+      "advancedHash": "03b5e298e4ff3c30a2d6b0eb296cd3957e9fffb2c527a71f0084e4f2db98c05d",
+      "loadedHash": "f1267bf34d9712fb662505b0257ffa810bd3d4e2d44a321f7d0e3b9f5138beee"
+    },
+    {
+      "count": 240,
+      "historyLength": 240,
+      "savedHash": "92df689430d80ee954c1ee51da0228e7d37cc4d47ba4338768921620b7d2e049",
+      "advancedHash": "d5f4e84961a9c1e78e8b8bcf0fbc653b4122166359dec0f1c4a6ed03464f9403",
+      "loadedHash": "393dba0f287f1b01b03da030e8b5b2fe04346a45149eab180dc032c80eaf3008"
+    },
+    {
+      "count": 480,
+      "historyLength": 480,
+      "savedHash": "4a021baf224c0d9f9c0e33fed05b8a4e935a8920fe9958469df298126aa40825",
+      "advancedHash": "b1a1d80ccf0f63d5447dbd15b34687a54123baafb0c386d28c83bea18e74482c",
+      "loadedHash": "f5df6f6cc2dc62b1b0aba3bc7d2e8787910fe6ae789d7fc7c8eba6132ce6560e"
+    }
+  ],
+  "operations": [
+    {
+      "name": "120-quick-save",
+      "wallMs": 289.09999999403954,
+      "longTasks": [],
+      "longFrames": [],
+      "maximumHeartbeatGapMs": 42.8999999910593
+    },
+    {
+      "name": "120-advance",
+      "wallMs": 84.70000000298023,
+      "longTasks": [],
+      "longFrames": [],
+      "maximumHeartbeatGapMs": 51.5
+    },
+    {
+      "name": "120-quick-load",
+      "wallMs": 783.2000000029802,
+      "longTasks": [],
+      "longFrames": [
+        {
+          "start": 10205,
+          "duration": 51.099999994039536
+        },
+        {
+          "start": 10518.70000000298,
+          "duration": 56.8999999910593
+        }
+      ],
+      "maximumHeartbeatGapMs": 56.8999999910593
+    },
+    {
+      "name": "240-quick-save",
+      "wallMs": 287.5,
+      "longTasks": [],
+      "longFrames": [],
+      "maximumHeartbeatGapMs": 54.5
+    },
+    {
+      "name": "240-advance",
+      "wallMs": 90.5,
+      "longTasks": [],
+      "longFrames": [],
+      "maximumHeartbeatGapMs": 46.400000005960464
+    },
+    {
+      "name": "240-quick-load",
+      "wallMs": 341.20000000298023,
+      "longTasks": [],
+      "longFrames": [
+        {
+          "start": 26978.79999999702,
+          "duration": 64.29999999701977
+        }
+      ],
+      "maximumHeartbeatGapMs": 36.8999999910593
+    },
+    {
+      "name": "480-quick-save",
+      "wallMs": 342.3999999910593,
+      "longTasks": [],
+      "longFrames": [
+        {
+          "start": 47695.5,
+          "duration": 51
+        }
+      ],
+      "maximumHeartbeatGapMs": 51
+    },
+    {
+      "name": "480-advance",
+      "wallMs": 110.70000000298023,
+      "longTasks": [
+        {
+          "start": 47862.70000000298,
+          "duration": 60
+        }
+      ],
+      "longFrames": [
+        {
+          "start": 47860.20000000298,
+          "duration": 63.20000000298023
+        }
+      ],
+      "maximumHeartbeatGapMs": 68.69999998807907
+    },
+    {
+      "name": "480-quick-load",
+      "wallMs": 592.9000000059605,
+      "longTasks": [],
+      "longFrames": [
+        {
+          "start": 48055.90000000596,
+          "duration": 52.599999994039536
+        },
+        {
+          "start": 48127.90000000596,
+          "duration": 64.5
+        }
+      ],
+      "maximumHeartbeatGapMs": 64.3999999910593
+    }
+  ],
+  "errors": [],
+  "foregroundSerializer": {
+    "active": 0,
+    "peakActive": 1,
+    "started": 7,
+    "completed": 7,
+    "cancelled": 0,
+    "fallback": 0,
+    "failed": 0
+  },
+  "scope": "synthetic text, real UI/IndexedDB; no injected history, media, forced GC or physical device",
+  "physicalDevice": false,
+  "twoHourSoakPassed": false
+}

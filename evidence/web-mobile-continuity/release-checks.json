@@ -1,0 +1,11 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "name": "release-ui-saved-reopened-exported-1.7.1-with-verified-1.7.0",
+      "detail": {}
+    }
+  ],
+  "errors": [],
+  "humanReviewNotesUnchanged": true
+}

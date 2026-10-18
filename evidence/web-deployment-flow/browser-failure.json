@@ -1,0 +1,13 @@
+{
+  "checks": [
+    {
+      "name": "downloaded-kit-prepares-only-public-files-and-local-preview-validates-and-serves-exact-inventory",
+      "detail": {}
+    }
+  ],
+  "results": [],
+  "errors": [],
+  "error": "Error: Native media failed after offline save restore",
+  "stack": "Error: Native media failed after offline save restore\n    at mediaReady (file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-deployment-flow.mjs:76:1233)\n    at async matrix (file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-deployment-flow.mjs:118:644)\n    at async file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-deployment-flow.mjs:137:428",
+  "scratch": ".browser-diagnostic\\deployment-flow\\run-Ekrhvb"
+}

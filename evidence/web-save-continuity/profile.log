@@ -1,0 +1,13 @@
+
+> world-studio@0.0.0-s0.41 audit:web-save-continuity:profile
+> node tools/run-web-save-continuity.mjs --profile
+
+PASS baseline: 120 real UI history/save/advance/load
+PASS baseline: 240 real UI history/save/advance/load
+PASS baseline: 480 real UI history/save/advance/load
+PASS current: 120 real UI history/save/advance/load
+PASS current: 240 real UI history/save/advance/load
+PASS current: 480 real UI history/save/advance/load
+PASS 320: background failure visible, continued reading and native manual save
+PASS 844: background failure visible, continued reading and native manual save
+PASS 1280: background failure visible, continued reading and native manual save

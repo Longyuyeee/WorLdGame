@@ -1,0 +1,95 @@
+{
+  "passed": true,
+  "matrixComplete": true,
+  "sourceReused": false,
+  "exportAndDeliveryChecked": true,
+  "checks": [
+    {
+      "name": "all-25-real-media-matched-by-sha-and-written-via-ui-saved-reopened-source-roundtrip",
+      "detail": {
+        "imagegen": 12,
+        "systemTts": 9,
+        "proceduralAudio": 3,
+        "icon": 1,
+        "permissionConfirmed": 0,
+        "unchangedNonManifestEntries": 64
+      }
+    },
+    {
+      "name": "actual-both-game-exports-have-identical-public-project-and-verified-1.7.0-receipt-private-report-in-delivery-only",
+      "detail": {
+        "productionFiles": 43,
+        "originalStoryAnd25MediaPreserved": true,
+        "publicFilesCheckedForPrivateLeak": true
+      }
+    },
+    {
+      "name": "production-delivery-import-in-fresh-author-profile-restores-private-provenance",
+      "detail": {}
+    },
+    {
+      "name": "chromium-author-drafts-rotate-replace-invalidates-recheck-save-reopen",
+      "detail": {
+        "desktopEngine": "151.0.7922.34",
+        "responsiveTouchEmulationOnly": true,
+        "publicPermissionReview": false
+      }
+    },
+    {
+      "name": "firefox-author-drafts-rotate-replace-invalidates-recheck-save-reopen",
+      "detail": {
+        "desktopEngine": "153.0",
+        "responsiveTouchEmulationOnly": true,
+        "publicPermissionReview": false
+      }
+    },
+    {
+      "name": "webkit-author-drafts-rotate-replace-invalidates-recheck-save-reopen",
+      "detail": {
+        "desktopEngine": "26.5",
+        "responsiveTouchEmulationOnly": true,
+        "publicPermissionReview": false
+      }
+    }
+  ],
+  "errors": [],
+  "artifacts": {
+    "source": {
+      "byteLength": 31682969,
+      "sha256": "7790a8b5b519e6d55fb79f0a4b20b90c63636198493a42c4bfbf1f284d4cfaec"
+    },
+    "preparation": {
+      "byteLength": 16256,
+      "sha256": "d0105f151d6569092d3688a3cafab92d46e17b1c549a0eee8797ae8700117a2d"
+    },
+    "verification": {
+      "html": {
+        "byteLength": 42814348,
+        "sha256": "fca9a3b1721b0a9d35efa743ac4868acde62ca45031f2f46d5e025bca36079eb"
+      },
+      "production": {
+        "byteLength": 64047448,
+        "sha256": "9eade9954e1fc9c55845638cabb05fbbb9566ed989a061d49148177541ca9ca5"
+      },
+      "storedIn": ".browser-diagnostic\\release-preparation\\run-RNNj3H (not a new public game release)"
+    }
+  },
+  "results": [
+    {
+      "engine": "chromium",
+      "version": "151.0.7922.34",
+      "passed": true
+    },
+    {
+      "engine": "firefox",
+      "version": "153.0",
+      "passed": true
+    },
+    {
+      "engine": "webkit",
+      "version": "26.5",
+      "passed": true
+    }
+  ],
+  "scope": "Only checks listed above executed this run. Actual author provenance and responsive replacement on desktop engines; not legal approval, public deployment, physical phones, full reading or offline/update-chain acceptance. Verification games are scratch artifacts; public 1.7.1 is unchanged."
+}

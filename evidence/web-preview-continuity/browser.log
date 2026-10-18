@@ -1,0 +1,12 @@
+PASS choice-history-future
+PASS actual-story-choice-handoff
+PASS character-hit-area-does-not-cover-portrait
+PASS native-media-release-and-reload-without-story-advance
+PASS four-author-workspaces-return-to-same-preview
+PASS scene-title-correction-preserves-branch
+PASS character-correction-preserves-branch
+PASS actual-story-route-and-ending
+PASS variable-change-explicit-restart
+PASS deleted-start-no-crash-entry-recovery
+PASS actual-story-second-route-and-ending
+PASS project-close-and-browser-reload-do-not-revive-preview

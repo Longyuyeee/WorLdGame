@@ -1,0 +1,81 @@
+{
+  "passed": true,
+  "browser": "151.0.7922.34",
+  "bundleHash": "02da49ee7d964120f763dd7eb76df37b327924452863d6d78b3fd7d08bf50139",
+  "cssHash": "521e7e0a9f3148dcf8de4a7bc1952a9880d953fedb7c51e8b0465c9de0bdec69",
+  "checks": [
+    {
+      "viewport": {
+        "width": 320,
+        "height": 740
+      },
+      "inputBounds": {
+        "x": 29,
+        "y": 120,
+        "width": 254,
+        "height": 44
+      },
+      "closeBounds": {
+        "x": 221,
+        "y": 33,
+        "width": 64,
+        "height": 48
+      },
+      "matchingBound": 40,
+      "noMatch": true,
+      "escapeClears": true,
+      "searchDidNotMoveStory": true
+    },
+    {
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "inputBounds": {
+        "x": 391,
+        "y": 120,
+        "width": 324,
+        "height": 44
+      },
+      "closeBounds": {
+        "x": 747,
+        "y": 36,
+        "width": 64,
+        "height": 44
+      },
+      "matchingBound": 40,
+      "noMatch": true,
+      "escapeClears": true,
+      "searchDidNotMoveStory": true
+    },
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "inputBounds": {
+        "x": 827,
+        "y": 120,
+        "width": 324,
+        "height": 44
+      },
+      "closeBounds": {
+        "x": 1183,
+        "y": 36,
+        "width": 64,
+        "height": 44
+      },
+      "matchingBound": 40,
+      "noMatch": true,
+      "escapeClears": true,
+      "searchDidNotMoveStory": true
+    }
+  ],
+  "errors": [],
+  "returnedToCursor": 21,
+  "continuedToCursor": 22,
+  "recordedFutureRetained": 95,
+  "nativeQuickLoad": true,
+  "archiveSearchReadonly": true,
+  "scope": "actual UI/native Worker/IndexedDB; public host pressure notification, not physical memory; viewport simulation, not physical devices"
+}

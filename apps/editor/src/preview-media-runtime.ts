@@ -1,4 +1,5 @@
 import type { StoryStatement } from "@world-studio/story-core";
+import type { NativeAtlasSource } from "@world-studio/player-shell/native-atlas";
 import type { AssetIndex, AssetIndexEntry, BlobDigest } from "@world-studio/project-persistence";
 import {
   CAMERA_GEOMETRY_PARAMETERS,
@@ -37,6 +38,7 @@ import {
 } from "@world-studio/story-language";
 
 export interface PreviewVisualLayerPlan {
+  readonly atlas?: NativeAtlasSource | undefined;
   readonly statementId: string;
   readonly assetId: string;
   readonly transition?: StageTransition;
@@ -370,6 +372,7 @@ function applyDirection(statement: StoryStatement, state: MutableStageState): bo
         ...(optional(inspected.parameters, "duration") === undefined ? {} : { duration: inspected.parameters.duration })
       };
     } else if (statement.command === "textbox") {
+      if (action === "motion") return true; // Formal Player preview renders the portable text cue; layout is unchanged.
       if (action === "reset") {
         state.dialogueTemplate = state.defaultDialogueTemplate;
         return true;

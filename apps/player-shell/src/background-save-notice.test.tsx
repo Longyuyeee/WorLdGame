@@ -1,0 +1,70 @@
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import '@testing-library/jest-dom/vitest';
+import { afterEach, expect, it, vi } from 'vitest';
+import { loadProject, migrateS0Project } from '@world-studio/project-domain';
+import { withProjectSettings } from '@world-studio/gal-settings';
+import { PlayerShell } from './PlayerShell';
+import type { WorldPlayerSaveSlotV3, WorldPlayerSaveStoreV3 } from './player-save-store';
+
+afterEach(() => { cleanup(); localStorage.clear(); vi.useRealTimers(); });
+function setup(write?: (value: WorldPlayerSaveSlotV3) => Promise<void>) {
+  const base = loadProject(migrateS0Project({ schemaVersion: 0, id: 'save_notice', title: 'Save notice', entrySceneId: 'main', characters: [], scenes: [{ id: 'main', title: 'Main', statements: [{ id: 'before', kind: 'narration', textId: 'before_text', text: 'Before' }, { id: 'after', kind: 'narration', textId: 'after_text', text: 'After' }, { id: 'end', kind: 'end', endingName: 'Done' }] }] }).files);
+  const project = { ...base, settings: withProjectSettings(base.settings, { text: { revealMode: 'instant', minimumDisplayMilliseconds: 0 } }) }, slots = new Map<string, WorldPlayerSaveSlotV3>();
+  const store: WorldPlayerSaveStoreV3 = { version: '3.0.0', backend: 'notice-test', async list() { return [...slots.values()]; }, async read(_id, slot) { return slots.get(slot) ?? null; }, async readPreview() { return null; }, async write(value) { if (value.schemaVersion !== 3) throw Error('legacy'); await write?.(value); slots.set(value.slotId, value); } };
+  const view = render(<PlayerShell project={project} saveStore={store} />);
+  fireEvent.click(screen.getByRole('button', { name: '开始故事' }));
+  return { ...view, slots };
+}
+it('shows a persistent nonmodal failure and lets the player save current progress manually', async () => {
+  const test = setup(async slot => { if (slot.kind === 'auto') throw Error('disk'); });
+  await screen.findByRole('button', { name: '查看保存问题' });
+  expect(test.container.querySelector('main')).toHaveAttribute('data-save-operation', 'idle');
+  fireEvent.click(screen.getByRole('button', { name: '继续下一句' }));
+  expect(test.container.querySelector('.player-dialogue__text')).toHaveTextContent('After');
+  fireEvent.click(screen.getByRole('button', { name: '查看保存问题' }));
+  const notice = screen.getByRole('alert', { name: '后台保存提醒' });
+  expect(notice).toHaveTextContent('自动保存失败');
+  fireEvent.click(within(notice).getByRole('button', { name: '保存当前进度' }));
+  const panel = screen.getByRole('dialog', { name: '存读档槽位' });
+  expect(within(panel).getByRole('button', { name: '保存进度' })).toHaveAttribute('aria-pressed', 'true');
+  await waitFor(() => expect(within(panel).getAllByRole('button', { name: /^保存$/u })[0]).toBeEnabled());
+  fireEvent.click(within(panel).getAllByRole('button', { name: /^保存$/u })[0]!);
+  await waitFor(() => expect(test.slots.get('manual-1')).toBeDefined());
+  await waitFor(() => expect(test.container.querySelector('main')).toHaveAttribute('data-save-operation', 'saved'));
+  fireEvent.click(screen.getByRole('button', { name: '关闭存读档' }));
+  expect(screen.queryByRole('dialog', { name: '存读档槽位' })).not.toBeInTheDocument();
+  expect(screen.queryByRole('alert', { name: '后台保存提醒' })).not.toBeInTheDocument();
+  expect(screen.queryByRole('button', { name: '查看保存问题' })).not.toBeInTheDocument();
+  expect(test.container.querySelector('.player-dialogue__text')).toHaveTextContent('After');
+});
+it('does not replace an active manual write status when an earlier background write fails', async () => {
+  let failAuto!: (reason: Error) => void, finishManual!: () => void;
+  const test = setup(slot => slot.kind === 'auto' ? new Promise((_resolve, reject) => { failAuto = reject; }) : new Promise(resolve => { finishManual = resolve; }));
+  await waitFor(() => expect(failAuto).toBeTypeOf('function'));
+  fireEvent.click(screen.getByRole('button', { name: '存读档' }));
+  const panel = screen.getByRole('dialog', { name: '存读档槽位' });
+  await waitFor(() => expect(within(panel).getAllByRole('button', { name: /^保存$/u })[0]).toBeEnabled());
+  fireEvent.click(within(panel).getAllByRole('button', { name: /^保存$/u })[0]!);
+  expect(test.container.querySelector('main')).toHaveAttribute('data-save-operation', 'busy');
+  await act(async () => { failAuto(Error('disk')); });
+  await waitFor(() => expect(finishManual).toBeTypeOf('function'));
+  expect(test.container.querySelector('main')).toHaveAttribute('data-save-operation', 'busy');
+  expect(within(panel).getByText('正在写入…')).toBeInTheDocument();
+  expect(within(panel).getByRole('button', { name: '关闭存读档' })).toBeDisabled();
+  await act(async () => { finishManual(); });
+  await waitFor(() => expect(test.container.querySelector('main')).toHaveAttribute('data-save-operation', 'saved'));
+  expect(test.slots.get('manual-1')).toBeDefined();
+});
+it('keeps the reminder until explicitly dismissed without taking focus or stopping reading', async () => {
+  const test = setup(async () => { throw Error('disk'); });
+  const entrance = await screen.findByRole('button', { name: '查看保存问题' });
+  expect(entrance).not.toHaveFocus();
+  vi.useFakeTimers(); await act(async () => { await vi.advanceTimersByTimeAsync(6001); });
+  expect(screen.getByRole('button', { name: '查看保存问题' })).toBeInTheDocument();
+  fireEvent.click(entrance); const notice = screen.getByRole('alert', { name: '后台保存提醒' });
+  fireEvent.click(within(notice).getByRole('button', { name: '关闭保存提醒' }));
+  expect(screen.queryByRole('alert', { name: '后台保存提醒' })).not.toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: '返回故事' }));
+  fireEvent.click(screen.getByRole('button', { name: '继续下一句' }));
+  expect(test.container.querySelector('.player-dialogue__text')).toHaveTextContent('After');
+});

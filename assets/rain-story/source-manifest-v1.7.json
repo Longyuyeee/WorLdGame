@@ -1,0 +1,25 @@
+{
+  "version": "1.7.0",
+  "assets": [
+    {
+      "file": "voice-04-v1.7.wav",
+      "assetId": "voice_04",
+      "method": "Windows System.Speech / Microsoft Kangkang / rate -1 / mono PCM16 22050 Hz",
+      "generator": "tools/generate-rain-story-voice-v1.7.ps1",
+      "lineManifest": "voice-revision-v1.7.json",
+      "sha256": "d2cd20b0b73ee05ee5ae19a1d6f0af29956e492144a3f708747cdc84bb6cd1d8",
+      "byteLength": 221984,
+      "durationSeconds": 5.032607709750567,
+      "rms": 0.08287022965004526,
+      "peak": 0.644378662109375,
+      "clippedSamples": 0,
+      "replacesFile": "voice-04.wav",
+      "previousSha256": "eccfe5a280ecf38ef861570ed7239cb4046caa94f53ad62709e387f990ed9221",
+      "oldFilePreserved": true,
+      "humanListeningPassed": false,
+      "releasePermissionConfirmed": false
+    }
+  ],
+  "unchangedCandidateMedia": 24,
+  "legalReviewPassed": false
+}

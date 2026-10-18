@@ -135,5 +135,5 @@ export function updateFormalPreviewProject(project: CanonicalProject, state: For
   if (reasons.length > 0) return { kind: "restart-required", state, candidateBuildId: buildId, reasons };
   const replayed = replaySession(project, state);
   if (replayed === null) return { kind: "restart-required", state, candidateBuildId: buildId, reasons: ["新 IR 回放后的剧情状态与当前 Session 不一致"] };
-  return { kind: "applied", state: replayed, previousBuildId: state.buildId, buildId };
+  return { kind: "applied", state: { ...replayed, playtestSourceHash: null }, previousBuildId: state.buildId, buildId };
 }

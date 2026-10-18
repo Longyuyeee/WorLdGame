@@ -1,0 +1,889 @@
+
+ RUN  v4.1.10 E:/Project/AIProject/ClaudeProject/WorLdGame
+
+ ✓ apps/player-shell/src/title-load-continuity.test.tsx (2 tests) 640ms
+   ✓ keeps the title and keyboard stable while a recent save is pending: success  364ms
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+ ❯ apps/player-shell/src/player-shell.test.tsx (80 tests | 1 failed) 15425ms
+     ✓ does not replay held gamepad buttons across title, selection and text-ready renders  545ms
+     ✓ requires neutral after panels, host suspension and gamepad reconnection  393ms
+     ✓ releases dialogue animations at a story boundary without cancelling live text on panel changes 150ms
+     ✓ exposes formal identities and supports pointer input from title through choice 91ms
+     ✓ provides keyboard-equivalent start, choice, and advance controls 75ms
+     ✓ uses directional keyboard selection and returns from an ending to a fresh title state 141ms
+     ✓ fails closed to a fresh Core when the platform host replaces the project identity 91ms
+     ✓ renders real Stage media and completes an awaited Effect from the visible transition lifecycle 87ms
+     ✓ stops automatic playback when deferred picture integrity fails 127ms
+     ✓ 自动播放 waits for the current picture and resumes only after actual rendering 238ms
+     ✓ 快进全部 waits for the current picture and resumes only after actual rendering 231ms
+     ✓ 自动播放 stops on timeout across host suspension and retry requires explicit playback  499ms
+     ✓ 快进全部 stops on timeout across host suspension and retry requires explicit playback  510ms
+     ✓ retries all failed stage pictures from one prompt without restarting audio or changing the story 159ms
+     ✓ shows budget guidance in the real stage and retries without changing progress or audio 196ms
+     ✓ does not leave a second media error blocking effects after emergency IMG retry 150ms
+     ✓ fails visibly when a required media asset is unavailable instead of auto-completing the Effect 84ms
+     ✓ recovers a missing awaited asset from a new platform source generation 141ms
+     ✓ keeps two character slots and two audio buses active without channel overwrite 58ms
+     ✓ freezes input and media while the host is suspended, then resumes the same Core 96ms
+     ✓ always pauses on interruption but keeps media paused when automatic resume is disabled 71ms
+     ✓ maps real document visibility to host activity and restores keyboard input on return 46ms
+     ✓ pins the Web host to the Web settings layer even when an untyped caller injects another platform 18ms
+     ✓ releases removed audio buses instead of resuming detached media 84ms
+     ✓ exposes accessible Back and Forward controls with truthful disabled state 131ms
+     ✓ opens a readable History page and backs to a selected active line 195ms
+     ✓ shows a truncated route as a read-only old branch 214ms
+     ✓ applies the project Forward policy and explains why Forward is blocked 163ms
+     ✓ hot-applies a changed Forward policy without resetting the current History position 167ms
+     ✓ explains the nearest committed Barrier reason and distance 111ms
+     ✓ keeps the archived branch after save, unmount, remount, and load  613ms
+     ✓ holds Auto while reading 打开剧情历史 and restarts a full delay on close 246ms
+     ✓ holds Auto while reading 存读档 and restarts a full delay on close 246ms
+     ✓ does not cancel an awaited video when Skip is requested in the background 92ms
+     ✓ stops Auto on the build-authored Player Stop Point 131ms
+     ✓ uses a real Shell timer to advance one formal Scheduler boundary and exposes truthful playback state 133ms
+     ✓ does not start the Auto delay until the real text reveal has completed 197ms
+     ✓ waits for actual voice completion plus tail, not estimated duration, and stops at the terminal boundary  370ms
+     ✓ recovers Auto from a failed voice and never replays completed voice on host resume 217ms
+     ✓ clears its owned timer during Host suspend and only starts a fresh delay after resume  388ms
+     ✓ stops queued Skip behind 打开剧情历史 without resuming it on close 153ms
+     ✓ stops queued Skip behind 存读档 without resuming it on close 173ms
+     ✓ stops skipRead/toggle on the same build-authored Player Stop Point 109ms
+     ✓ stops skipAll/toggle on the same build-authored Player Stop Point 109ms
+     ✓ stops skipRead/hold on the same build-authored Player Stop Point 126ms
+     ✓ stops skipAll/hold on the same build-authored Player Stop Point 127ms
+     ✓ runs Skip Read through the formal Scheduler and stops on the first unread text 139ms
+     ✓ runs Toggle Skip All at the selected speed and stops cleanly at terminal 162ms
+     ✓ ends Hold Skip on pointer release, cancel, blur, and host suspend without a stale timer 248ms
+     ✓ accelerates real text/stage media and restores audio and presentation policy on stop 136ms
+     ✓ allows manual video resume when automatic interruption recovery is disabled 129ms
+     ✓ offers a gesture retry for blocked video without advancing its awaited boundary 178ms
+     ✓ ignores late video permission rejection and playing events after suspension 101ms
+     ✓ does not pause an attached video on UI ref replay, but releases the detached video 95ms
+     ✓ renders an authored video asset at the existing awaited Effect boundary 73ms
+     ✓ keeps Auto waiting for real video ended and then continues the formal Scheduler 115ms
+     ✓ uses skipRead video cancel-and-continue without leaving a media element 174ms
+     ✓ uses skipAll video cancel-and-continue without leaving a media element 107ms
+     ✓ pauses on Host suspend, resumes by policy, fails closed on error, and cleans up on unmount 142ms
+     ✓ keeps the active Core when a persisted v1 settings document is normalized to current v5 60ms
+     ✓ hot-applies presentation settings without resetting the active formal Core 75ms
+     ✓ hides only the title input hint while preserving keyboard start 48ms
+     ✓ uses the selected platform layer and hot-applies pointer and keyboard gates 96ms
+     ✓ distinguishes touch from pointer and applies allow-hold to repeated confirms 71ms
+     ✓ applies canonical audio gain and waits for actual voice completion before advancing 120ms
+     ✓ reopens saved platform settings and applies them through the same Player contract 21ms
+     ✓ saves and loads a manual Host slot through the formal bridge (summary API: false)  768ms
+     ✓ saves and loads a manual Host slot through the formal bridge (summary API: true)  727ms
+     ✓ paginates twelve manual slots six at a time 116ms
+     ✓ requires explicit overwrite confirmation and commits Host-composited preview metadata  324ms
+     ✓ keeps a valid v3 save when preview capture fails 164ms
+     ✓ writes one automatic save per scene identity and exposes the five-slot view  319ms
+     ✓ replaces and loads the fixed quick slot without overwrite confirmation  414ms
+     ✓ persists, lists, and loads an exact build-authored checkpoint without stopping presentation  464ms
+     × writes isolated recovery boundaries and restores them only after an explicit player decision 714ms
+     ✓ gates all title input during scanning and ignores a stale same-store scan 81ms
+     ✓ offers an explicit audio retry after permission rejection without advancing the story 116ms
+     ✓ releases replaced audio owners without pausing connected nodes during ref replay 85ms
+     ✓ lets a timed-out recovery scan retry without deleting or applying its late result 76ms
+     ✓ isolates corrupt recovery and lets the player clear it without touching formal slots 73ms
+ ✓ apps/player-shell/src/player-compatible-save.test.tsx (2 tests) 950ms
+   ✓ loads verified old slots, writes checkpoints/manual/recovery with the original identity and resumes after refresh  730ms
+ ✓ packages/player-core/src/player-core.test.ts (25 tests) 242ms
+ ✓ packages/player-core/src/web-save-compatibility.test.ts (5 tests) 226ms
+ ✓ apps/player-shell/src/foreground-session-client.test.ts (34 tests) 200ms
+ ✓ apps/player-shell/src/pooled-session-client.test.ts (8 tests) 80ms
+ ✓ packages/player-core/src/player-replay-entry.test.ts (5 tests) 69ms
+ ✓ packages/player-core/src/deferred-checkpoint.test.ts (3 tests) 63ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  apps/player-shell/src/player-shell.test.tsx > N51-E5 Player settings application > writes isolated recovery boundaries and restores them only after an explicit player decision
+TestingLibraryElementError: Unable to find an accessible element with the role "button" and name "快速"
+
+Here are the accessible roles:
+
+  main:
+
+  Name "":
+  <main
+    class="player-shell"
+    data-additional-content="closed"
+    data-artwork-view="false"
+    data-audio-mode="enabled"
+    data-auto-playback="off"
+    data-compact-reading="false"
+    data-compiler="0.2.0"
+    data-effect-operation="none"
+    data-history-archives="0"
+    data-history-can-back="false"
+    data-history-can-forward="false"
+    data-history-cursor="0"
+    data-history-forward-policy="true"
+    data-history-length="0"
+    data-history-panel="closed"
+    data-host-activity="active"
+    data-input-accepted="true"
+    data-input-source="lifecycle"
+    data-memory-pressure="idle"
+    data-memory-pressure-serial="0"
+    data-playback-activation="none"
+    data-playback-mode="normal"
+    data-playback-policy="1.2.0"
+    data-playback-speed="normal"
+    data-playback-stop-reason="none"
+    data-player-core="0.5.0"
+    data-player-font="system"
+    data-player-fullscreen="false"
+    data-player-locale="und"
+    data-player-locale-fallbacks="0"
+    data-player-media-fallbacks="0"
+    data-player-media-locale="und"
+    data-player-media-missing="0"
+    data-player-muted="false"
+    data-player-status="title"
+    data-player-typography="standard"
+    data-preferences-open="false"
+    data-reading-menu-open="false"
+    data-reading-pace="standard"
+    data-reading-unread-below="false"
+    data-recovery-operation="scanning"
+    data-recovery-store="memory-recovery"
+    data-recovery-store-version="1.0.0"
+    data-runtime="0.6.0"
+    data-runtime-host="0.1.0"
+    data-runtime-host-snapshot-hash="f54b5eb474f9ef52719d2d36e70e76699864f341c4d3a1b75eee8b3328706258"
+    data-runtime-state-hash="none"
+    data-save-operation="idle"
+    data-save-store="memory-save"
+    data-save-store-version="3.0.0"
+    data-scene-replay="inactive"
+    data-settings-allow-hold="true"
+    data-settings-application="1"
+    data-settings-audio-ambient="0.8"
+    data-settings-audio-bgm="0.8"
+    data-settings-audio-master="1"
+    data-settings-audio-resume="true"
+    data-settings-audio-sfx="0.9"
+    data-settings-audio-ui="0.9"
+    data-settings-audio-voice="1"
+    data-settings-audio-voice-ducking="0.35"
+    data-settings-choice-layout="vertical"
+    data-settings-choice-numbers="true"
+    data-settings-high-contrast="false"
+    data-settings-history-forward="true"
+    data-settings-input-gamepad="true"
+    data-settings-input-hints="true"
+    data-settings-input-keyboard="true"
+    data-settings-input-pointer="true"
+    data-settings-input-touch="true"
+    data-settings-orientation="landscape"
+    data-settings-platform="web"
+    data-settings-quality="high"
+    data-settings-reduce-flashing="false"
+    data-settings-reduce-motion="false"
+    data-settings-safe-area="system"
+    data-settings-stage-duration="360"
+    data-settings-stage-easing="linear"
+    data-settings-text-cps="30"
+    data-settings-text-minimum="350"
+    data-settings-text-punctuation="120"
+    data-settings-textbox-default="adv"
+    data-settings-wait-for-voice="true"
+    data-skip-active="false"
+    data-skip-media="normal"
+    data-stage-images-pending="false"
+    data-video-policy-stop-reason="none"
+    style="--gal-stage-aspect: 1920 / 1080; --gal-stage-ratio: 1.7777777777777777; --gal-font-scale: 1; --gal-message-opacity: 0.88; --gal-line-height: 1.75; --gal-letter-spacing: 0em; --player-font-family: \"Noto Sans\", Inter, system-ui, sans-serif;"
+  />
+
+  --------------------------------------------------
+  region:
+
+  Name "Branching Golden 游戏画面":
+  <section
+    aria-label="Branching Golden 游戏画面"
+    class="player-stage"
+  />
+
+  --------------------------------------------------
+  complementary:
+
+  Name "":
+  <aside
+    class="player-save"
+    data-open="false"
+  />
+
+  --------------------------------------------------
+  paragraph:
+
+  Name "":
+  <p
+    class="player-eyebrow"
+  />
+
+  Name "":
+  <p />
+
+  --------------------------------------------------
+  heading:
+
+  Name "Branching Golden":
+  <h1 />
+
+  --------------------------------------------------
+  button:
+
+  Name "开始故事":
+  <button
+    class="player-primary"
+    disabled=""
+    type="button"
+  />
+
+  Name "读取存档":
+  <button
+    disabled=""
+    type="button"
+  />
+
+  Name "打开玩家设置":
+  <button
+    aria-label="打开玩家设置"
+    disabled=""
+    type="button"
+  />
+
+  Name "打开附加内容":
+  <button
+    aria-label="打开附加内容"
+    disabled=""
+    type="button"
+  />
+
+  --------------------------------------------------
+  navigation:
+
+  Name "作品菜单":
+  <nav
+    aria-label="作品菜单"
+    class="player-title-actions"
+  />
+
+  --------------------------------------------------
+  status:
+
+  Name "":
+  <div
+    aria-busy="true"
+    aria-live="polite"
+    class="player-recovery"
+    role="status"
+  />
+
+  --------------------------------------------------
+  strong:
+
+  Name "":
+  <strong />
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+<body>
+  <div />
+  <div />
+  <div />
+  <div>
+    <main
+      class="player-shell"
+      data-additional-content="closed"
+      data-artwork-view="false"
+      data-audio-mode="enabled"
+      data-auto-playback="off"
+      data-compact-reading="false"
+      data-compiler="0.2.0"
+      data-effect-operation="none"
+      data-history-archives="0"
+      data-history-can-back="false"
+      data-history-can-forward="false"
+      data-history-cursor="0"
+      data-history-forward-policy="true"
+      data-history-length="0"
+      data-history-panel="closed"
+      data-host-activity="active"
+      data-input-accepted="true"
+      data-input-source="lifecycle"
+      data-memory-pressure="idle"
+      data-memory-pressure-serial="0"
+      data-playback-activation="none"
+      data-playback-mode="normal"
+      data-playback-policy="1.2.0"
+      data-playback-speed="normal"
+      data-playback-stop-reason="none"
+      data-player-core="0.5.0"
+      data-player-font="system"
+      data-player-fullscreen="false"
+      data-player-locale="und"
+      data-player-locale-fallbacks="0"
+      data-player-media-fallbacks="0"
+      data-player-media-locale="und"
+      data-player-media-missing="0"
+      data-player-muted="false"
+      data-player-status="title"
+      data-player-typography="standard"
+      data-preferences-open="false"
+      data-reading-menu-open="false"
+      data-reading-pace="standard"
+      data-reading-unread-below="false"
+      data-recovery-operation="scanning"
+      data-recovery-store="memory-recovery"
+      data-recovery-store-version="1.0.0"
+      data-runtime="0.6.0"
+      data-runtime-host="0.1.0"
+      data-runtime-host-snapshot-hash="f54b5eb474f9ef52719d2d36e70e76699864f341c4d3a1b75eee8b3328706258"
+      data-runtime-state-hash="none"
+      data-save-operation="idle"
+      data-save-store="memory-save"
+      data-save-store-version="3.0.0"
+      data-scene-replay="inactive"
+      data-settings-allow-hold="true"
+      data-settings-application="1"
+      data-settings-audio-ambient="0.8"
+      data-settings-audio-bgm="0.8"
+      data-settings-audio-master="1"
+      data-settings-audio-resume="true"
+      data-settings-audio-sfx="0.9"
+      data-settings-audio-ui="0.9"
+      data-settings-audio-voice="1"
+      data-settings-audio-voice-ducking="0.35"
+      data-settings-choice-layout="vertical"
+      data-settings-choice-numbers="true"
+      data-settings-high-contrast="false"
+      data-settings-history-forward="true"
+      data-settings-input-gamepad="true"
+      data-settings-input-hints="true"
+      data-settings-input-keyboard="true"
+      data-settings-input-pointer="true"
+      data-settings-input-touch="true"
+      data-settings-orientation="landscape"
+      data-settings-platform="web"
+      data-settings-quality="high"
+      data-settings-reduce-flashing="false"
+      data-settings-reduce-motion="false"
+      data-settings-safe-area="system"
+      data-settings-stage-duration="360"
+      data-settings-stage-easing="linear"
+      data-settings-text-cps="30"
+      data-settings-text-minimum="350"
+      data-settings-text-punctuation="120"
+      data-settings-textbox-default="adv"
+      data-settings-wait-for-voice="true"
+      data-skip-active="false"
+      data-skip-media="normal"
+      data-stage-images-pending="false"
+      data-video-policy-stop-reason="none"
+      style="--gal-stage-aspect: 1920 / 1080; --gal-stage-ratio: 1.7777777777777777; --gal-font-scale: 1; --gal-message-opacity: 0.88; --gal-line-height: 1.75; --gal-letter-spacing: 0em; --player-font-family: \"Noto Sans\", Inter, system-ui, sans-serif;"
+    >
+      <div
+        class="player-glow player-glow--violet"
+      />
+      <div
+        class="player-glow player-glow--cyan"
+      />
+      <section
+        aria-label="Branching Golden 游戏画面"
+        class="player-stage"
+      >
+        <div
+          aria-label="正式媒体舞台"
+          class="player-stage-world"
+          data-skip-media="normal"
+          style="transform: translate(0%, 0%) scale(1) rotate(0deg);"
+        />
+        <header
+          aria-label="播放器状态"
+          class="player-brand"
+          hidden=""
+        >
+          <span
+            aria-hidden="true"
+            class="player-brand__mark"
+          >
+            W
+          </span>
+          <span>
+            WorLd Player
+          </span>
+          <span
+            class="player-brand__status"
+          >
+            title
+          </span>
+        </header>
+        <div
+          class="player-control-layer"
+          data-open="false"
+          id="player-reading-menu"
+        >
+          <nav
+            aria-label="剧情历史控制"
+            class="player-history-controls"
+            hidden=""
+          >
+            <h3
+              class="player-menu-only player-menu-section-title"
+            >
+              回看与内容
+            </h3>
+            <button
+              aria-label="打开玩家设置"
+              class="player-menu-only"
+              type="button"
+            >
+              设置
+            </button>
+            <button
+              aria-label="后退一步"
+              disabled=""
+              type="button"
+            >
+              <span
+                aria-hidden="true"
+              >
+                ←
+              </span>
+              <span>
+                后退
+              </span>
+            </button>
+            <span
+              aria-label="历史位置"
+              class="player-history-controls__position"
+            >
+              0
+              /
+              0
+            </span>
+            <button
+              aria-label="前进一步"
+              disabled=""
+              type="button"
+            >
+              <span>
+                前进
+              </span>
+              <span
+                aria-hidden="true"
+              >
+                →
+              </span>
+            </button>
+            <button
+              aria-expanded="false"
+              aria-label="打开剧情历史"
+              class="player-history-controls__open"
+              type="button"
+            >
+              <span
+                aria-hidden="true"
+              >
+                ☰
+              </span>
+              <span>
+                历史
+              </span>
+            </button>
+            <button
+              aria-expanded="false"
+              aria-label="打开附加内容"
+              class="player-history-controls__additional player-menu-only"
+              type="button"
+            >
+              <span
+                aria-hidden="true"
+              >
+                ✦
+              </span>
+              <span>
+                附加内容
+              </span>
+            </button>
+          </nav>
+          <div
+            aria-label="播放控制"
+            class="player-playback-controls"
+            hidden=""
+          >
+            <h3
+              class="player-menu-only player-menu-section-title"
+            >
+              自动阅读与快进
+            </h3>
+            <label
+              class="player-menu-only"
+            >
+              自动阅读节奏
+              <select
+                aria-label="自动阅读节奏"
+              >
+                <option
+                  value="standard"
+                >
+                  标准
+                </option>
+                <option
+                  value="calm"
+                >
+                  从容
+                </option>
+                <option
+                  value="brisk"
+                >
+                  快速
+                </option>
+                <option
+                  value="policy"
+                >
+                  原速
+                </option>
+              </select>
+            </label>
+            <button
+              aria-label="自动播放"
+              aria-pressed="false"
+              disabled=""
+              type="button"
+            >
+              自动
+            </button>
+            <button
+              aria-label="快进已读"
+              aria-pressed="false"
+              disabled=""
+              type="button"
+            >
+              已读
+            </button>
+            <button
+              aria-label="快进全部"
+              aria-pressed="false"
+              class="player-menu-only"
+              disabled=""
+              type="button"
+            >
+              全部
+            </button>
+            <label
+              class="player-menu-only"
+            >
+              方式
+              <select
+                aria-label="快进激活方式"
+              >
+                <option
+                  value="toggle"
+                >
+                  切换
+                </option>
+                <option
+                  value="hold"
+                >
+                  按住
+                </option>
+              </select>
+            </label>
+            <label
+              class="player-menu-only"
+            >
+              速度
+              <select
+                aria-label="快进速度"
+              >
+                <option
+                  value="5"
+                >
+                  5×
+                </option>
+                <option
+                  value="10"
+                >
+                  10×
+                </option>
+                <option
+                  value="20"
+                >
+                  20×
+                </option>
+                <option
+                  value="40"
+                >
+                  40×
+                </option>
+                <option
+                  value="instant"
+                >
+                  瞬时
+                </option>
+              </select>
+            </label>
+            <span
+              aria-live="polite"
+            >
+              自动播放关闭
+            </span>
+          </div>
+          <aside
+            class="player-save"
+            data-open="false"
+          >
+            <h3
+              class="player-menu-only player-menu-section-title"
+              hidden=""
+            >
+              进度与备份
+            </h3>
+            <div
+              aria-label="快速存读档"
+              class="player-save__quick-controls player-menu-only"
+              hidden=""
+            >
+              <button
+                disabled=""
+                type="button"
+              >
+                快速保存
+              </button>
+              <button
+                disabled=""
+                type="button"
+              >
+                快速读取
+              </button>
+            </div>
+            <button
+              aria-controls="player-save-panel"
+              aria-expanded="false"
+              class="player-save__toggle"
+              hidden=""
+              type="button"
+            >
+              存读档
+            </button>
+          </aside>
+        </div>
+        <div
+          class="player-title-screen"
+        >
+          <p
+            class="player-eyebrow"
+          >
+            A WORLd STUDIO STORY
+          </p>
+          <h1>
+            Branching Golden
+          </h1>
+          <p>
+            同一个故事核心，面向每一块屏幕。
+          </p>
+          <button
+            class="player-primary"
+            disabled=""
+            type="button"
+          >
+            开始故事
+            <span
+              aria-hidden="true"
+            >
+              →
+            </span>
+          </button>
+          <span
+            class="player-hint"
+          >
+            按 Enter 或空格开始
+          </span>
+          <nav
+            aria-label="作品菜单"
+            class="player-title-actions"
+          >
+            <button
+              disabled=""
+              type="button"
+            >
+              读取存档
+            </button>
+            <button
+              aria-label="打开玩家设置"
+              disabled=""
+              type="button"
+            >
+              设置
+            </button>
+            <button
+              aria-label="打开附加内容"
+              disabled=""
+              type="button"
+            >
+              附加内容
+            </button>
+          </nav>
+          <div
+            aria-label="开始与恢复进度"
+            class="player-title-recovery"
+          >
+            <div
+              aria-busy="true"
+              aria-live="polite"
+              class="player-recovery"
+              role="status"
+            >
+              <div>
+                <strong>
+                  恢复保护
+                </strong>
+                <span>
+                  正在检查恢复记录…
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ apps/player-shell/src/player-shell.test.tsx:1523:28
+    1521|     const fourth = render(<PlayerShell project={branching()} saveStore…
+    1522|     fireEvent.click(screen.getByRole("button", { name: "读取存档" }));
+    1523|     fireEvent.click(screen.getByRole("button", { name: "快速" }));
+       |                            ^
+    1524|     await waitFor(() => expect(screen.getByRole("button", { name: "读取"…
+    1525|     fireEvent.click(screen.getByRole("button", { name: "读取" }));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 8 passed (9)
+      Tests  1 failed | 163 passed (164)
+   Start at  13:44:25
+   Duration  31.82s (transform 1.96s, setup 1.63s, import 4.89s, tests 17.89s, environment 5.73s)
+
+JSON report written to E:/Project/AIProject/ClaudeProject/WorLdGame/evidence/web-load-responsiveness/related-tests.json

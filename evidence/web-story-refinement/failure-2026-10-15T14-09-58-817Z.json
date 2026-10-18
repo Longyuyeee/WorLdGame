@@ -1,0 +1,98 @@
+{
+  "checks": [
+    {
+      "name": "eight-real-editor-review-notes",
+      "detail": {
+        "importMs": 1343.269,
+        "humanAcceptance": false
+      }
+    },
+    {
+      "name": "native-refresh-warning-preserves-unapplied-draft",
+      "detail": {}
+    },
+    {
+      "name": "editor-applied-five-texts-five-backgrounds-two-audio-cues-and-version",
+      "detail": {}
+    },
+    {
+      "name": "source-and-both-web-artifacts",
+      "detail": {
+        "scenes": 9,
+        "narration": 90,
+        "dialogue": 9,
+        "textCharacters": 9662,
+        "changedText": 5,
+        "changedBackgrounds": 5,
+        "addedAudioCues": 2,
+        "directions": 73,
+        "assets": 25,
+        "originalBlobsPreserved": 22,
+        "stableOriginalIdsPreserved": true
+      }
+    },
+    {
+      "name": "html-stay",
+      "detail": {
+        "seenScenes": [
+          "车站的雨",
+          "候车室的旧信",
+          "站台前的约定",
+          "留下",
+          "灯下的回信",
+          "雨后的天明"
+        ],
+        "paragraphs": 60,
+        "naturallyEndedVoices": [
+          "voice_01",
+          "voice_02",
+          "voice_03",
+          "voice_04",
+          "voice_05",
+          "voice_06"
+        ],
+        "checkedStages": {
+          "stmt_ui_158": "station_day"
+        },
+        "quickSaveReload": true,
+        "replayRestoredSameHash": true,
+        "physicalPhone": false,
+        "humanReadTiming": false
+      }
+    },
+    {
+      "name": "directory-leave",
+      "detail": {
+        "seenScenes": [
+          "车站的雨",
+          "候车室的旧信",
+          "站台前的约定",
+          "远行",
+          "车窗与海",
+          "再一次见面"
+        ],
+        "paragraphs": 60,
+        "naturallyEndedVoices": [
+          "voice_01",
+          "voice_02",
+          "voice_03",
+          "voice_07",
+          "voice_08",
+          "voice_09"
+        ],
+        "checkedStages": {
+          "stmt_ui_221": "station_day",
+          "stmt_ui_230": "station_day",
+          "stmt_ui_232": "day_cafe",
+          "stmt_ui_248": "night_studio"
+        },
+        "quickSaveReload": true,
+        "replayRestoredSameHash": true,
+        "physicalPhone": false,
+        "humanReadTiming": false
+      }
+    }
+  ],
+  "errors": [],
+  "failure": "locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: '打开阅读菜单', exact: true })\u001b[22m\n\n    at rejectOldContentSave (E:\\ProjectSave\\GeminiProject\\WorLdGame\\tools\\run-web-story-refinement.mjs:49:66)\n    at async file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-story-refinement.mjs:156:3"
+}

@@ -1,0 +1,18 @@
+{
+  "checks": [
+    {
+      "name": "all-25-real-media-matched-by-sha-and-written-via-ui-saved-reopened-source-roundtrip",
+      "detail": {
+        "imagegen": 12,
+        "systemTts": 9,
+        "proceduralAudio": 3,
+        "icon": 1,
+        "permissionConfirmed": 0,
+        "unchangedNonManifestEntries": 64
+      }
+    }
+  ],
+  "errors": [],
+  "error": "Error: UNKNOWN: unknown error, open 'E:\\ProjectSave\\GeminiProject\\WorLdGame\\.browser-diagnostic\\release-preparation\\verification.html'",
+  "stack": "Error: UNKNOWN: unknown error, open 'E:\\ProjectSave\\GeminiProject\\WorLdGame\\.browser-diagnostic\\release-preparation\\verification.html'\n    at async open (node:internal/fs/promises:638:25)\n    at async writeFile (node:internal/fs/promises:1208:14)\n    at async download (file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-release-preparation.mjs:29:199)\n    at async exportAndVerify (file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-release-preparation.mjs:81:18)\n    at async file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-release-preparation.mjs:127:48"
+}

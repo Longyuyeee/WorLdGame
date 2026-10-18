@@ -1,0 +1,20 @@
+{
+  "passed": true,
+  "browser": "155.0.8059.41",
+  "checks": [
+    "final layout only: actual Rain UI skip-all reaches other ending; portrait scene title fits, 844x390 banner stays above dialogue, exit retains parent; no repeat of full natural/manual route validation"
+  ],
+  "errors": [],
+  "exports": {
+    "rain.html": {
+      "bytes": 32830139,
+      "sha256": "c14bf29ae8fe96f8a0b1cb623ed648407b272b12755be5b4e60a76ab0d5bff47"
+    },
+    "rain-web.zip": {
+      "bytes": 24819118,
+      "sha256": "2d1fc4c18cb83d7a1ba46a5533550954bc08532fe9f183ea814c9eafefe59462"
+    }
+  },
+  "artifactsRetained": false,
+  "layoutOnly": true
+}

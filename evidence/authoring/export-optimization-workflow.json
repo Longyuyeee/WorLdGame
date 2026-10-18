@@ -1,0 +1,89 @@
+{
+  "sourceProject": "rainy-promise-media.zip",
+  "actualProductionWorker": true,
+  "authoredThroughUi": true,
+  "settingSurvivesReopen": true,
+  "oldDownloadInvalidated": true,
+  "originalBlobInPortableZip": true,
+  "originalExportRestoredByteExactly": true,
+  "pixels": {
+    "original": {
+      "width": 16,
+      "height": 9,
+      "digest": "ed4ddcb5376fe22f90f42f7198ab08ec06e91f0ee241a1ecd9bed0b64870e44d"
+    },
+    "optimized": {
+      "width": 16,
+      "height": 9,
+      "digest": "ed4ddcb5376fe22f90f42f7198ab08ec06e91f0ee241a1ecd9bed0b64870e44d"
+    }
+  },
+  "report": {
+    "schemaVersion": 1,
+    "mode": "lossless-png",
+    "sourceHash": "ccd6dffacfa0f00e5cd841616a0bd3ab180dbcf04f7eddaca2cc902ba4c8417d",
+    "rows": [
+      {
+        "assetId": "media_actor_sprite",
+        "name": "小夏（测试立绘）",
+        "originalDigest": "sha256:65e9353dfd69e07b5553ff6abcdedfc5015fa3499dbda66af4b9c09014587a3c",
+        "exportDigest": "sha256:a6915cd57c328b8250f90ece87197baaa5d424b6ca10c327c0edb9bd8513340e",
+        "originalBytes": 109,
+        "exportBytes": 106,
+        "savedBytes": 3,
+        "verified": true,
+        "reason": "IDAT 逐字节无损验证通过，采用更小文件"
+      },
+      {
+        "assetId": "media_sunset",
+        "name": "海边夕色（测试背景）",
+        "originalDigest": "sha256:823ee7685d7b47e25c6c1543240847a76a745bdf4eef762946cb28e672ed46da",
+        "exportDigest": "sha256:0718664d006275dbea4c01fe148ae0134d8c9bad912251de7fa02f06dd5d8921",
+        "originalBytes": 653,
+        "exportBytes": 261,
+        "savedBytes": 392,
+        "verified": true,
+        "reason": "IDAT 逐字节无损验证通过，采用更小文件"
+      },
+      {
+        "assetId": "media_theme",
+        "name": "雨后旋律（测试音）",
+        "originalDigest": "sha256:5f5d65d220facb3d7b93aa5d9de2e7421fe7a2de954182e5aa1052e24572c423",
+        "exportDigest": "sha256:5f5d65d220facb3d7b93aa5d9de2e7421fe7a2de954182e5aa1052e24572c423",
+        "originalBytes": 1644,
+        "exportBytes": 1644,
+        "savedBytes": 0,
+        "verified": false,
+        "reason": "此媒体类型保持原始文件"
+      }
+    ],
+    "uniqueOriginalBytes": 2406,
+    "uniqueExportBytes": 2011,
+    "limits": "仅重压缩适用 PNG 的 IDAT，逐字节验证滤波数据，保留尺寸/颜色/其他块；不裁切、不更改像素、不连接 Atlas。不同 Asset ID 可共用文件；统计去重资源字节，不等于 ZIP/HTML 总大小。解码/GPU内存、Draw Call 不减少，加载时间和设备表现未测量。源工程与原始 Blob 不修改，关闭优化重新构建即可恢复原素材导出。"
+  },
+  "artifactBytes": {
+    "originalHtml": 477632,
+    "optimizedHtml": 477220,
+    "optimizedZip": 501854
+  },
+  "baselinePlay": {
+    "ended": true,
+    "ending": "海风结局",
+    "renderedPixels": {
+      "width": 4,
+      "height": 8,
+      "digest": "7daa715e890202ca468c28808baeca92757775b9e13cb230013e9f5c44285f80"
+    }
+  },
+  "optimizedPlay": {
+    "ended": true,
+    "ending": "海风结局",
+    "renderedPixels": {
+      "width": 4,
+      "height": 8,
+      "digest": "7daa715e890202ca468c28808baeca92757775b9e13cb230013e9f5c44285f80"
+    }
+  },
+  "exceptions": [],
+  "limits": "PNG IDAT only; Atlas export, GPU memory, device performance and human inspection not validated."
+}

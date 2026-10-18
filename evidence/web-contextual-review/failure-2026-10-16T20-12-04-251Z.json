@@ -1,0 +1,193 @@
+{
+  "error": "TimeoutError: page.waitForFunction: Timeout 30000ms exceeded.",
+  "stack": "page.waitForFunction: Timeout 30000ms exceeded.\n    at reachTarget (E:\\ProjectSave\\GeminiProject\\WorLdGame\\tools\\run-web-contextual-review.mjs:58:14)\n    at async file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-contextual-review.mjs:150:7",
+  "checks": [],
+  "observations": [
+    {
+      "noteId": "18d60a21-2273-4a0f-90b0-f87e34848830",
+      "sceneId": "scene_fff36353633c42d1",
+      "statementId": "stmt_ui_45",
+      "range": "statement",
+      "targetIndex": 10,
+      "precedingDirections": [
+        {
+          "id": "stmt_ui_29",
+          "command": "background",
+          "summary": "action=set asset=waiting_room transition=fade duration=300ms"
+        },
+        {
+          "id": "stmt_ui_30",
+          "command": "show",
+          "summary": "action=show asset=xia_thoughtful slot=primary z=0 position=left"
+        },
+        {
+          "id": "stmt_ui_12",
+          "command": "show",
+          "summary": "action=show asset=xia_letter slot=primary z=0 position=left"
+        }
+      ],
+      "currentText": "林远从包里找到一支快没墨的笔，在纸袋上写了两个日期。一个是试合作结束的那天，另一个是试合作结束后的第一个周末。他们并排看着，发现第二个日期两个人都可以空出来。小夏把笔推回他手边，等他把约定记进日历。",
+      "status": "fixed",
+      "checkedSourceHash": null
+    },
+    {
+      "noteId": "c46e8825-76b1-4fc1-a2c5-af4a94a50414",
+      "sceneId": "scene_e919f09d3b7d45f7",
+      "statementId": "stmt_ui_101",
+      "range": "statement",
+      "targetIndex": 10,
+      "precedingDirections": [
+        {
+          "id": "stmt_ui_87",
+          "command": "background",
+          "summary": "action=set asset=sample_station transition=fade duration=300ms"
+        },
+        {
+          "id": "stmt_ui_89",
+          "command": "show",
+          "summary": "action=show asset=xia_letter slot=primary z=0 position=left"
+        },
+        {
+          "id": "stmt_ui_24",
+          "command": "show",
+          "summary": "action=show asset=xia_smile slot=primary z=0 position=right"
+        },
+        {
+          "id": "stmt_ui_111",
+          "command": "background",
+          "summary": "action=set asset=night_cafe transition=fade duration=300ms"
+        },
+        {
+          "id": "stmt_ui_112",
+          "command": "audio",
+          "summary": "action=play asset=soft_rain bus=ambient loop=true volume=0.12"
+        }
+      ],
+      "currentText": "等待上菜时，林远把试合作的邮件打开给她看。小夏没有替他修改决定，只帮他找出一个没看清的时间：第一天需要的是线上碰面，不是必须早晨站到办公室里。他们对着这句话笑了很久，笑过以后，他给自己写下以后要把完整邮件读完的提醒。林远又给联系人发了一条消息，确认先在线上开始试合作，并把明早的车票退掉，等驻地安排确定后再买票。",
+      "status": "fixed",
+      "checkedSourceHash": null
+    },
+    {
+      "noteId": "0b8fdbf7-94ce-4581-8740-282392f30ccd",
+      "sceneId": "scene_9f0052a9d0d84faa",
+      "statementId": "stmt_ui_148",
+      "range": "statement",
+      "targetIndex": 4,
+      "precedingDirections": [
+        {
+          "id": "stmt_ui_143",
+          "command": "background",
+          "summary": "action=set asset=morning_studio transition=fade duration=300ms"
+        },
+        {
+          "id": "stmt_ui_144",
+          "command": "audio",
+          "summary": "action=stop bus=ambient"
+        },
+        {
+          "id": "stmt_ui_145",
+          "command": "show",
+          "summary": "action=hide slot=primary"
+        }
+      ],
+      "currentText": "线上碰面比他想象中普通。新同事介绍了试合作的内容，询问他能投入多少时间，也明确说可以在第一周之后重新调整。林远第一次没有为了显得可靠，把每一个问题都回答成没问题。他认真看了日历，说出自己真正能够完成的范围。双方约好这两周先远程合作，结束后再确认到岗日期。",
+      "status": "fixed",
+      "checkedSourceHash": null
+    },
+    {
+      "noteId": "14b00b94-ad55-4897-bee0-5f8850850cee",
+      "sceneId": "scene_9f0052a9d0d84faa",
+      "statementId": "stmt_ui_154",
+      "range": "statement",
+      "targetIndex": 12,
+      "precedingDirections": [
+        {
+          "id": "stmt_ui_143",
+          "command": "background",
+          "summary": "action=set asset=morning_studio transition=fade duration=300ms"
+        },
+        {
+          "id": "stmt_ui_144",
+          "command": "audio",
+          "summary": "action=stop bus=ambient"
+        },
+        {
+          "id": "stmt_ui_145",
+          "command": "show",
+          "summary": "action=hide slot=primary"
+        },
+        {
+          "id": "stmt_ui_38",
+          "command": "show",
+          "summary": "action=show asset=xia_smile slot=primary z=0 position=right"
+        },
+        {
+          "id": "stmt_ui_46",
+          "command": "audio",
+          "summary": "action=play asset=voice_06 bus=voice loop=false volume=1"
+        },
+        {
+          "id": "stmt_ui_48",
+          "command": "audio",
+          "summary": "action=stop bus=voice"
+        },
+        {
+          "id": "rain17_montage_exit",
+          "command": "show",
+          "summary": "action=hide slot=primary transition=fade duration=300ms"
+        }
+      ],
+      "currentText": "他们没有因为那晚的谈话，从此不再错过消息。林远仍有忙得忘记回复的下午，小夏也有不想讲话的时候。不同的是，过了两天再联系时，他们学着说明实际情况，不把沉默变成一道让对方独自猜答案的题。",
+      "status": "fixed",
+      "checkedSourceHash": null
+    },
+    {
+      "noteId": "698a904a-7f6b-4597-b5eb-4b2ba881ffee",
+      "sceneId": "scene_9f0052a9d0d84faa",
+      "statementId": "stmt_ui_156",
+      "range": "statement",
+      "targetIndex": 13,
+      "precedingDirections": [
+        {
+          "id": "stmt_ui_143",
+          "command": "background",
+          "summary": "action=set asset=morning_studio transition=fade duration=300ms"
+        },
+        {
+          "id": "stmt_ui_144",
+          "command": "audio",
+          "summary": "action=stop bus=ambient"
+        },
+        {
+          "id": "stmt_ui_145",
+          "command": "show",
+          "summary": "action=hide slot=primary"
+        },
+        {
+          "id": "stmt_ui_38",
+          "command": "show",
+          "summary": "action=show asset=xia_smile slot=primary z=0 position=right"
+        },
+        {
+          "id": "stmt_ui_46",
+          "command": "audio",
+          "summary": "action=play asset=voice_06 bus=voice loop=false volume=1"
+        },
+        {
+          "id": "stmt_ui_48",
+          "command": "audio",
+          "summary": "action=stop bus=voice"
+        },
+        {
+          "id": "rain17_montage_exit",
+          "command": "show",
+          "summary": "action=hide slot=primary transition=fade duration=300ms"
+        }
+      ],
+      "currentText": "两周后，约好的周末终于到了，天气预报仍然有雨。小夏问要不要改日期。林远说，不如先去车站看看，如果列车停运，就按第二个计划在附近吃饭。他们为这个并不完美的安排笑起来，却都知道这不是放弃去海边，而是允许计划继续活在现实里。",
+      "status": "fixed",
+      "checkedSourceHash": null
+    }
+  ],
+  "errors": []
+}

@@ -40,6 +40,8 @@ describe("N43-E3 motion and state semantics", () => {
     vi.stubGlobal("matchMedia", vi.fn(() => matchMedia(false)));
     render(<App autosaveDebounceMs={60_000} />);
     await screen.findByRole("button", { name: "保存到本机" });
+    fireEvent.click(screen.getByText("编辑器设置"));
+    fireEvent.click(screen.getByText("高级编辑选项"));
 
     const shell = screen.getByTestId("workspace-shell");
     expect(shell).toHaveAttribute("data-motion-preference", "simplified");
@@ -63,6 +65,8 @@ describe("N43-E3 motion and state semantics", () => {
     vi.stubGlobal("matchMedia", vi.fn(() => matchMedia(true)));
     render(<App autosaveDebounceMs={60_000} />);
     await screen.findByRole("button", { name: "保存到本机" });
+    fireEvent.click(screen.getByText("编辑器设置"));
+    fireEvent.click(screen.getByText("高级编辑选项"));
 
     const shell = screen.getByTestId("workspace-shell");
     expect(shell).toHaveAttribute("data-motion-preference", "full");

@@ -1,0 +1,9 @@
+{
+  "checks": [
+    "The actual main story authors preferences/credits/ending viewport layouts with isolated content and return regions, real-preview drag/one undo/keyboard, matching desktop/phone geometry, safe action lists and phone-hidden art.",
+    "Save/reopen, source project, portable configuration/skin bytes and both formal exports retain all three layouts without changing story, characters, seven assets or the existing title/reading/menu/save/history layouts."
+  ],
+  "errors": [],
+  "failure": "locator.click: Timeout 20000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('dialog', { name: '阅读菜单', exact: true }).getByRole('button', { name: '玩家设置', exact: true })\u001b[22m\n\n    at play (E:\\ProjectSave\\GeminiProject\\WorLdGame\\tools\\run-web-info-ending-layout.mjs:78:146)\n    at async file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-info-ending-layout.mjs:117:19",
+  "text": "给明天的回信 · 0.8.0\n\n记住这一句\n阅读选项\n阅读菜单\n剧情暂停推进，设置后返回当前段落。\n返回故事\n回看与内容\n设置\n制作名单\n←\n后退\n4/4\n前进\n→\n☰\n历史\n✦\n附加内容\n自动阅读与快进\n自动阅读节奏\n标准\n从容\n快速\n原速\n自动\n已读\n全部\n方式\n切换\n按住\n速度\n5×\n10×\n20×\n40×\n瞬时\n自动播放关闭\n进度与备份\n快速保存\n快速读取\n存读档\n回到阅读菜单之前\n回看已经读过的文字\n旧车站将在今晚停用。屋檐下的广播重复着同一条通知：距离末班车出发，还有四十分钟。\n点击继续 →"
+}

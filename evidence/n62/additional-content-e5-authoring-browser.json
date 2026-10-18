@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "audit": "n62-e5-additional-content-authoring-browser",
+  "desktop": {
+    "heading": "附加内容展示",
+    "summary": "4 项由剧情自动生成 · 4 项缺少缩略图",
+    "rowCount": 4,
+    "titleValue": "浏览器验收标题",
+    "sectionWidth": 1349.219970703125,
+    "viewportWidth": 1440,
+    "horizontalOverflow": 0
+  },
+  "mobile": {
+    "sectionWidth": 366,
+    "viewportWidth": 390,
+    "horizontalOverflow": 0,
+    "tableScrollWidth": 920,
+    "tableClientWidth": 364
+  },
+  "failures": [],
+  "screenshots": {
+    "desktop": {
+      "path": "evidence/n62/additional-content-e5-authoring-desktop.png",
+      "byteLength": 226966,
+      "sha256": "9c1cb2f7f7f9db2f4df08ab0ab6f52f900441ecaaf36cef75fba67d58c6f23fb"
+    },
+    "mobile": {
+      "path": "evidence/n62/additional-content-e5-authoring-mobile.png",
+      "byteLength": 70906,
+      "sha256": "2a9835ea72ce55449f8dc29ffd830b9c54875ff39fc00b5f585461917b76cbad"
+    }
+  }
+}

@@ -1,0 +1,215 @@
+{
+  "passed": true,
+  "browser": "151.0.7922.34",
+  "checks": [
+    {
+      "name": "actual-editor-import-roundtrip-html-byte-identical-and-new-website-export",
+      "detail": {}
+    },
+    {
+      "name": "exact-website-only-four-file-delta-story-26-media-source-and-html-preserved",
+      "detail": {
+        "passed": true,
+        "version": "1.9.0",
+        "sourceUnchanged": {
+          "path": "evidence/web-story-branch-context/before-rain-stops-project.zip",
+          "sha256": "e4b13a27dc72fda43efe655d49a9b5ca5091c01382b9d0cd0c79932eaa86400d",
+          "entries": 66
+        },
+        "htmlByteIdentical": {
+          "path": "evidence/web-story-branch-context/before-rain-stops.html",
+          "sha256": "43866963a9f43cf156fd96c0940b9121797789e8ba7a85a7b449c43bc97a8125"
+        },
+        "unchangedMedia": 26,
+        "websiteFiles": 37,
+        "allowedChangedFiles": [
+          "index.html",
+          "offline.js",
+          "sw.js",
+          "build-info.json"
+        ],
+        "website": {
+          "byteLength": 35307939,
+          "sha256": "b973ae6177218cf9279ba11dce6ed6843c5d13c1021e0eedee90594b9b1b36aa"
+        }
+      }
+    },
+    {
+      "name": "first-download-progress-reading-save-menu-cancel-failed-file-and-retry",
+      "detail": {
+        "savedHash": "6aac2d7b80ab06ff905cd43392ceebf93ce907661e5f35d16e4adb8814c82cee",
+        "inventoryFiles": 35
+      }
+    },
+    {
+      "name": "missing-cache-repair-cancel-preserves-good-files-retry-and-offline-save-restore",
+      "detail": {
+        "missing": "media/a1e6e500aa1ca5d4b0dcdca821070f1b17f617a14227f76a83eb0257e128847b.png",
+        "savedHash": "6aac2d7b80ab06ff905cd43392ceebf93ce907661e5f35d16e4adb8814c82cee"
+      }
+    },
+    {
+      "name": "actual-previous-cache-hard-refresh-update-cancel-failure-retry-wait-close-and-offline-load",
+      "detail": {
+        "savedHash": "6aac2d7b80ab06ff905cd43392ceebf93ce907661e5f35d16e4adb8814c82cee",
+        "sameContentVersion": "1.9.0",
+        "hardRefreshViaCdp": true,
+        "loopbackOnly": true
+      }
+    },
+    {
+      "name": "website-offline-desktop-stay-full-route",
+      "detail": {
+        "ids": [
+          "stmt_ui_5",
+          "stmt_ui_7",
+          "stmt_ui_9",
+          "stmt_ui_11",
+          "stmt_ui_13",
+          "stmt_ui_15",
+          "stmt_ui_17",
+          "stmt_ui_19",
+          "stmt_ui_21",
+          "stmt_ui_25",
+          "stmt_ui_23",
+          "stmt_ui_31",
+          "stmt_ui_33",
+          "stmt_ui_35",
+          "stmt_ui_37",
+          "stmt_ui_39",
+          "stmt_ui_41",
+          "stmt_ui_43",
+          "stmt_ui_45",
+          "stmt_ui_51",
+          "stmt_ui_47",
+          "stmt_ui_49",
+          "stmt_ui_61",
+          "stmt_ui_63",
+          "stmt_ui_65",
+          "stmt_ui_67",
+          "stmt_ui_69",
+          "stmt_ui_71",
+          "stmt_ui_73",
+          "stmt_ui_75",
+          "stmt_ui_77",
+          "stmt_ui_79",
+          "stmt_ui_81",
+          "stmt_ui_91",
+          "stmt_ui_93",
+          "stmt_ui_95",
+          "stmt_ui_97",
+          "stmt_ui_99",
+          "stmt_ui_101",
+          "stmt_ui_103",
+          "stmt_ui_105",
+          "stmt_ui_107",
+          "stmt_ui_109",
+          "stmt_ui_113",
+          "stmt_ui_119",
+          "stmt_ui_121",
+          "stmt_ui_123",
+          "stmt_ui_125",
+          "stmt_ui_127",
+          "stmt_ui_129",
+          "stmt_ui_139",
+          "stmt_ui_131",
+          "stmt_ui_133",
+          "stmt_ui_135",
+          "stmt_ui_137",
+          "stmt_ui_146",
+          "stmt_ui_148",
+          "stmt_ui_150",
+          "stmt_ui_152",
+          "stmt_ui_167",
+          "stmt_ui_154",
+          "stmt_ui_156",
+          "stmt_ui_158",
+          "stmt_ui_160",
+          "stmt_ui_162",
+          "stmt_ui_164"
+        ],
+        "voices": 6,
+        "ending": "故事告一段落\n同行的约定\n\n已达成 1 / 2 个结局\n\n已读、画廊、音乐与结局记录会保留。可以查看收藏，或读取存档探索其他选择。\n\n查看收藏与结局\n读取存档探索其他路线\n回到标题",
+        "saveReloadRestored": true
+      }
+    },
+    {
+      "name": "website-online-phone-remote-full-route",
+      "detail": {
+        "ids": [
+          "stmt_ui_5",
+          "stmt_ui_7",
+          "stmt_ui_9",
+          "stmt_ui_11",
+          "stmt_ui_13",
+          "stmt_ui_15",
+          "stmt_ui_17",
+          "stmt_ui_19",
+          "stmt_ui_21",
+          "stmt_ui_25",
+          "stmt_ui_23",
+          "stmt_ui_31",
+          "stmt_ui_33",
+          "stmt_ui_35",
+          "stmt_ui_37",
+          "stmt_ui_39",
+          "stmt_ui_41",
+          "stmt_ui_43",
+          "stmt_ui_45",
+          "stmt_ui_51",
+          "stmt_ui_47",
+          "stmt_ui_49",
+          "stmt_ui_61",
+          "stmt_ui_63",
+          "stmt_ui_65",
+          "stmt_ui_67",
+          "stmt_ui_69",
+          "stmt_ui_71",
+          "stmt_ui_73",
+          "stmt_ui_75",
+          "stmt_ui_77",
+          "stmt_ui_79",
+          "stmt_ui_81",
+          "stmt_ui_174",
+          "stmt_ui_176",
+          "stmt_ui_196",
+          "stmt_ui_178",
+          "stmt_ui_180",
+          "stmt_ui_182",
+          "stmt_ui_184",
+          "stmt_ui_186",
+          "stmt_ui_188",
+          "stmt_ui_190",
+          "stmt_ui_192",
+          "stmt_ui_203",
+          "stmt_ui_205",
+          "stmt_ui_207",
+          "stmt_ui_209",
+          "stmt_ui_211",
+          "stmt_ui_223",
+          "stmt_ui_213",
+          "stmt_ui_215",
+          "stmt_ui_217",
+          "stmt_ui_219",
+          "stmt_ui_221",
+          "stmt_ui_230",
+          "stmt_ui_232",
+          "stmt_ui_234",
+          "stmt_ui_236",
+          "stmt_ui_250",
+          "stmt_ui_238",
+          "stmt_ui_240",
+          "stmt_ui_242",
+          "stmt_ui_244",
+          "stmt_ui_246",
+          "stmt_ui_248"
+        ],
+        "voices": 6,
+        "ending": "故事告一段落\n远行的约定\n\n已达成 1 / 2 个结局\n\n已读、画廊、音乐与结局记录会保留。可以查看收藏，或读取存档探索其他选择。\n\n查看收藏与结局\n读取存档探索其他路线\n回到标题",
+        "saveReloadRestored": true
+      }
+    }
+  ],
+  "errors": [],
+  "scope": "Actual same-content 1.9.0 UI export and Chromium Service Worker cache lifecycle on loopback. One full offline desktop route and one online phone-size route, native audio muted and voices naturally ended. Hard refresh used CDP to obtain new UI with real old active cache; no worker/game bytes fabricated. No public hosting, physical phone, Safari, human listening, integrity revalidation of previously cached files, or long-story acceptance."
+}

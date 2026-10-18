@@ -1,0 +1,150 @@
+{
+  "passed": true,
+  "browser": "151.0.7922.34",
+  "playOnly": true,
+  "checks": [
+    {
+      "name": "source-and-both-web-artifacts",
+      "detail": {
+        "scenes": 9,
+        "narration": 90,
+        "dialogue": 9,
+        "textCharacters": 9662,
+        "changedText": 5,
+        "changedBackgrounds": 5,
+        "addedAudioCues": 2,
+        "directions": 73,
+        "assets": 25,
+        "originalBlobsPreserved": 22,
+        "stableOriginalIdsPreserved": true
+      }
+    },
+    {
+      "name": "html-stay",
+      "detail": {
+        "seenScenes": [
+          "车站的雨",
+          "候车室的旧信",
+          "站台前的约定",
+          "留下",
+          "灯下的回信",
+          "雨后的天明"
+        ],
+        "paragraphs": 60,
+        "naturallyEndedVoices": [
+          "voice_01",
+          "voice_02",
+          "voice_03",
+          "voice_04",
+          "voice_05",
+          "voice_06"
+        ],
+        "checkedStages": {
+          "stmt_ui_158": "station_day"
+        },
+        "quickSaveReload": true,
+        "replayRestoredSameHash": true,
+        "physicalPhone": false,
+        "humanReadTiming": false
+      }
+    },
+    {
+      "name": "directory-leave",
+      "detail": {
+        "seenScenes": [
+          "车站的雨",
+          "候车室的旧信",
+          "站台前的约定",
+          "远行",
+          "车窗与海",
+          "再一次见面"
+        ],
+        "paragraphs": 60,
+        "naturallyEndedVoices": [
+          "voice_01",
+          "voice_02",
+          "voice_03",
+          "voice_07",
+          "voice_08",
+          "voice_09"
+        ],
+        "checkedStages": {
+          "stmt_ui_221": "station_day",
+          "stmt_ui_230": "station_day",
+          "stmt_ui_232": "day_cafe",
+          "stmt_ui_248": "night_studio"
+        },
+        "quickSaveReload": true,
+        "replayRestoredSameHash": true,
+        "physicalPhone": false,
+        "humanReadTiming": false
+      }
+    },
+    {
+      "name": "actual-1.5.4-backup-rejected-for-changed-1.6-story",
+      "detail": {
+        "message": "这份备份来自未核对的游戏版本，请使用对应版本，或由作者核对兼容后再导入。",
+        "stateUnchanged": true
+      }
+    }
+  ],
+  "errors": [],
+  "routes": {
+    "html-stay": {
+      "seenScenes": [
+        "车站的雨",
+        "候车室的旧信",
+        "站台前的约定",
+        "留下",
+        "灯下的回信",
+        "雨后的天明"
+      ],
+      "paragraphs": 60,
+      "naturallyEndedVoices": [
+        "voice_01",
+        "voice_02",
+        "voice_03",
+        "voice_04",
+        "voice_05",
+        "voice_06"
+      ],
+      "checkedStages": {
+        "stmt_ui_158": "station_day"
+      },
+      "quickSaveReload": true,
+      "replayRestoredSameHash": true,
+      "physicalPhone": false,
+      "humanReadTiming": false
+    },
+    "directory-leave": {
+      "seenScenes": [
+        "车站的雨",
+        "候车室的旧信",
+        "站台前的约定",
+        "远行",
+        "车窗与海",
+        "再一次见面"
+      ],
+      "paragraphs": 60,
+      "naturallyEndedVoices": [
+        "voice_01",
+        "voice_02",
+        "voice_03",
+        "voice_07",
+        "voice_08",
+        "voice_09"
+      ],
+      "checkedStages": {
+        "stmt_ui_221": "station_day",
+        "stmt_ui_230": "station_day",
+        "stmt_ui_232": "day_cafe",
+        "stmt_ui_248": "night_studio"
+      },
+      "quickSaveReload": true,
+      "replayRestoredSameHash": true,
+      "physicalPhone": false,
+      "humanReadTiming": false
+    }
+  },
+  "scope": "UI-authored candidate; exact artifact/data checks and both complete routes; fixed author issues are not human verification; no public deployment, physical device, licensing or save-content migration acceptance"
+}

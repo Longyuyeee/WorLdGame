@@ -1,0 +1,20 @@
+import { fireEvent, render, screen, within } from "@testing-library/react";
+import { expect, it, vi } from "vitest";
+import { createProjectTemplate } from "@world-studio/project-domain";
+import { SettingsWorkspace } from "./SettingsWorkspace";
+vi.mock("./player-skin-preview", () => ({ PlayerSkinPreview: () => <aside>真实预览由浏览器覆盖</aside> }));
+it("edits frame cuts, name layout and per-role avatars as one undoable appearance draft", () => {
+  const base = createProjectTemplate("模板", "018f08d8-71a1-7bc2-a627-2f4a843ee150"), change = vi.fn();
+  const project = { ...base, characters: { ...base.characters, characters: [{ id: "a", displayName: "甲" }, { id: "b", displayName: "乙" }] }, assets: { ...base.assets, assets: [{ assetId: "picture", kind: "cg", displayName: "测试图片", source: { mimeType: "image/png", byteLength: 100 }, assetIndexMetadata: { inspection: { status: "pass", width: 128, height: 64 } } }] } };
+  render(<SettingsWorkspace project={project} saveStatus="saved" onProjectChange={change} onSave={() => {}} onClose={() => {}} />);
+  const nav = screen.getByRole("navigation", { name: "游戏界面分区" }); fireEvent.click(within(nav).getByRole("button", { name: /阅读与选项/u }));
+  fireEvent.change(screen.getByLabelText("窗体九宫格图片"), { target: { value: "picture" } }); expect(screen.getByLabelText("对白框图片")).toHaveValue("picture"); fireEvent.click(screen.getByLabelText("启用对白窗体九宫格"));
+  fireEvent.change(screen.getByLabelText("对白窗体上切边"), { target: { value: "12" } }); fireEvent.change(screen.getByLabelText("姓名框样式"), { target: { value: "badge" } });
+  fireEvent.change(screen.getByLabelText("姓名框图片"), { target: { value: "picture" } }); fireEvent.click(screen.getByLabelText("显示角色头像"));
+  fireEvent.change(screen.getByLabelText("角色头像：甲"), { target: { value: "picture" } }); fireEvent.change(screen.getByLabelText("角色头像：乙"), { target: { value: "picture" } });
+  fireEvent.click(screen.getByRole("button", { name: "撤销外观调整" })); expect(screen.getByLabelText("角色头像：乙")).toHaveValue(""); fireEvent.click(screen.getByRole("button", { name: "重做外观调整" }));
+  fireEvent.click(within(nav).getByRole("button", { name: /皮肤与动效/u })); fireEvent.click(screen.getByLabelText("启用按钮九宫格"));
+  expect(change).not.toHaveBeenCalled(); fireEvent.click(screen.getByRole("button", { name: "应用玩家外观" }));
+  expect(change).toHaveBeenCalledOnce(); const next = change.mock.lastCall?.[0]; expect(next.characters).toEqual(project.characters); expect(next.scripts).toEqual(project.scripts);
+  expect(next.ui.preservedFields.webPlayerAppearance.skin.template).toMatchObject({ frames: { window: { enabled: true, top: 12 }, buttons: { enabled: true } }, name: { mode: "badge", backgroundAssetId: "picture" }, portrait: { enabled: true, bindings: [{ characterId: "a", assetId: "picture" }, { characterId: "b", assetId: "picture" }] } });
+});

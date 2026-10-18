@@ -1,0 +1,46 @@
+{
+  "version": "0.3.0",
+  "scope": "Independent downloaded directory game at 127.0.0.1:5299. Muted before starting.",
+  "silentState": {
+    "audio": [
+      {
+        "muted": true,
+        "paused": false
+      },
+      {
+        "muted": true,
+        "paused": false
+      }
+    ],
+    "preview": null,
+    "saveBackend": "indexeddb"
+  },
+  "pagesUsed": [
+    "preferences",
+    "credits",
+    "additional",
+    "menu",
+    "history",
+    "save",
+    "ending"
+  ],
+  "historySearch": {
+    "query": "伞",
+    "matches": 1
+  },
+  "saveReload": {
+    "slot": 1,
+    "sameSentenceRecovered": true
+  },
+  "ending": "有人等你回来",
+  "endingCount": "1/2",
+  "customEndingCaption": "谢谢你，读完这封回信",
+  "customReturnLabel": "合上信，回到封面",
+  "returnToTitlePassed": true,
+  "highContrast": {
+    "background": "rgb(0, 0, 0)",
+    "text": "rgb(255, 255, 255)"
+  },
+  "reduceMotionAnimation": "none",
+  "logs": []
+}

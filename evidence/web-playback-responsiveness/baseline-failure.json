@@ -1,0 +1,133 @@
+{
+  "error": "TimeoutError: locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: '打开阅读菜单', exact: true })\u001b[22m\n",
+  "stack": "locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: '打开阅读菜单', exact: true })\u001b[22m\n\n    at menu (E:\\ProjectSave\\GeminiProject\\WorLdGame\\tools\\run-web-playback-profile.mjs:28:93)\n    at E:\\ProjectSave\\GeminiProject\\WorLdGame\\tools\\run-web-playback-profile.mjs:43:83\n    at measure (E:\\ProjectSave\\GeminiProject\\WorLdGame\\tools\\run-web-playback-profile.mjs:27:112)\n    at async file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-playback-profile.mjs:43:9",
+  "tasks": [
+    {
+      "name": "0-open",
+      "wallMs": 105.20000000298023,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-start",
+      "wallMs": 165.79999999701977,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-0",
+      "wallMs": 62.80000000074506,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-1",
+      "wallMs": 60.70000000298023,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-2",
+      "wallMs": 58.80000000074506,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-3",
+      "wallMs": 61.900000002235174,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-4",
+      "wallMs": 56,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-5",
+      "wallMs": 59.399999998509884,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-6",
+      "wallMs": 59.099999997764826,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-7",
+      "wallMs": 61.899999998509884,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-8",
+      "wallMs": 57.399999998509884,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-9",
+      "wallMs": 78.59999999776483,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-10",
+      "wallMs": 59,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-11",
+      "wallMs": 65.29999999701977,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-12",
+      "wallMs": 55.29999999701977,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-13",
+      "wallMs": 63.5,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-14",
+      "wallMs": 57.5,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-15",
+      "wallMs": 60.19999999925494,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-16",
+      "wallMs": 73.30000000074506,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-17",
+      "wallMs": 62.100000001490116,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-save-10",
+      "wallMs": 147.30000000074506,
+      "longTasks": [],
+      "longFrames": []
+    }
+  ],
+  "errors": []
+}

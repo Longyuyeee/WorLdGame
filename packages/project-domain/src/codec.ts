@@ -1,5 +1,5 @@
 import { createGalSettingsDocument, GalSettingsError, parseSerializedGalSettingsDocument, serializeGalSettingsDocument, type GalSettingsDocument } from "@world-studio/gal-settings";
-import { sha256 } from "./sha256";
+import { createSha256PrefixDigest, sha256 } from "./sha256";
 import { ProjectDomainError, type CanonicalProject, type ChapterDocument, type JsonObject, type JsonValue, type LayoutDocument, type LayoutGroup, type LayoutNodePosition, type LayoutViewport, type ProjectFiles, type ProjectManifest, type ProjectProbe, type ProjectStructureIndex, type SceneDocument, type ScriptDocument } from "./types";
 
 export const PROJECT_MANIFEST_PATH = "world.project.json";
@@ -122,6 +122,19 @@ function withUnknown<T extends object>(value:T & {preservedFields?:JsonObject}):
 const canonical=(value:JsonValue):JsonValue=>Array.isArray(value)?value.map(canonical):isRecord(value)?Object.fromEntries(Object.keys(value).sort().map(key=>[key,canonical(value[key] as JsonValue)])):value;
 const encode=(value:JsonValue)=>`${JSON.stringify(canonical(value),null,2)}\n`;
 export function saveProjectScript(script:ScriptDocument):string { return encode(withUnknown(script)); }
+export function saveProjectManifest(manifest:ProjectManifest):string { return encode(withUnknown(manifest)); }
 export function saveProject(project:CanonicalProject):ProjectFiles { const files:Record<string,string>={}; files[PROJECT_MANIFEST_PATH]=encode(withUnknown(project.manifest)); project.chapters.forEach((item,index)=>files[project.manifest.chapterPaths[index]??fail("BROKEN_REFERENCE","chapter path mismatch")]=encode(withUnknown(item))); const scenePaths=project.chapters.flatMap(chapter=>chapter.scenePaths); project.scenes.forEach((item,index)=>{const file=scenePaths[index]??fail("BROKEN_REFERENCE","scene path mismatch");files[file]=encode(withUnknown(item));files[item.scriptPath]=encode(withUnknown(project.scripts[item.id]??fail("BROKEN_REFERENCE",`missing script ${item.id}`)));files[item.layoutPath]=encode(withUnknown(project.layouts[item.id]??fail("BROKEN_REFERENCE",`missing layout ${item.id}`)));}); const docs:[[string,object],...Array<[string,object]>]=[[project.manifest.charactersPath,project.characters],[project.manifest.variablesPath,project.variables],[project.manifest.assetsPath,project.assets],[project.manifest.localizationPath,project.localization],[project.manifest.uiPath,project.ui],[project.manifest.pluginsPath,project.plugins],[project.manifest.testRoutesPath,project.testRoutes]]; docs.forEach(([file,value])=>files[file]=encode(withUnknown(value)));files[project.manifest.settingsPath]=serializeGalSettingsDocument(project.settings); return Object.fromEntries(Object.entries(files).sort(([a],[b])=>a.localeCompare(b))); }
 export function semanticHashProjectFiles(files:ProjectFiles):string { return sha256(JSON.stringify(canonical(files as JsonValue))); }
 export function semanticHash(project:CanonicalProject):string { return semanticHashProjectFiles(saveProject(project)); }
+
+/** Per-operation immutable serialization snapshot. Rehash one existing file
+ * without serializing or compressing the unchanged prefix again. Suffix files
+ * are still included, even when this is not the final canonical path.
+ */
+export function createProjectFileRehasher(files:ProjectFiles,file:string):(source:string)=>string {
+  if(!Object.prototype.hasOwnProperty.call(files,file))return fail('MISSING_FILE',`Missing project file: ${file}`);
+  const serialized=JSON.stringify(canonical(files as JsonValue)),key=`${JSON.stringify(file)}:`,start=serialized.indexOf(key)+key.length;
+  const tail=serialized.slice(start+JSON.stringify(files[file]).length),encoder=new TextEncoder();
+  const digest=createSha256PrefixDigest(encoder.encode(serialized.slice(0,start)));
+  return source=>digest(encoder.encode(JSON.stringify(source)+tail));
+}

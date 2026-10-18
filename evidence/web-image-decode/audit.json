@@ -1,0 +1,85 @@
+{
+  "passed": true,
+  "scope": "exact production/candidate identity, real image pixel parity and bounded continuous use; not statistical or physical-device acceptance",
+  "priorRuntimeHash": "accc459c9eaf24d3be941cba448be2efd4531a54ff96232aa2c150fc5963b598",
+  "runtimeHash": "4bf6d14943f9311e1f31c04c968dbffeadc2a77be7c4924d659a4db64214e163",
+  "artifacts": {
+    "before-rain-stops-project.zip": {
+      "byteLength": 31683029,
+      "sha256": "38a6113a2c023bc5d7bef522e2d39eb0436ed016f6379c7b5c60076b8fa0bae4"
+    },
+    "before-rain-stops.html": {
+      "byteLength": 42861652,
+      "sha256": "0ca4c37211d385e76734a9f4e7a26f6eb16c5e893d6d03a0cb2f5e6ac889ac42"
+    },
+    "before-rain-stops-web.zip": {
+      "byteLength": 32375344,
+      "sha256": "0701fc109eead6ac438faa67348b80a60b4da4c05a68ff93f644f20c133a8fa2"
+    },
+    "before-rain-stops.worldreview": {
+      "byteLength": 9208,
+      "sha256": "7e0e2f2f809a671f09f6bf33da1e67850b42d24b766ac2f4976a3f4864bf23be"
+    }
+  },
+  "tests": {
+    "baseline": 420,
+    "baselineFiles": 45,
+    "playerHost": 445,
+    "playerHostFiles": 56,
+    "overlapTests": 134,
+    "overlapFiles": 8,
+    "nodeTests": 5,
+    "distinct": 736,
+    "distinctFiles": 95
+  },
+  "imageParityCases": 117,
+  "baseline": [
+    {
+      "run": 0,
+      "longTasks": 1,
+      "longTaskMs": 85,
+      "longestFrameMs": 130.5
+    },
+    {
+      "run": 1,
+      "longTasks": 1,
+      "longTaskMs": 72,
+      "longestFrameMs": 87.60000000149012
+    },
+    {
+      "run": 2,
+      "longTasks": 1,
+      "longTaskMs": 80,
+      "longestFrameMs": 99.10000000149012
+    }
+  ],
+  "current": [
+    {
+      "run": 0,
+      "longTasks": 1,
+      "longTaskMs": 78,
+      "longestFrameMs": 122.40000000223517
+    },
+    {
+      "run": 1,
+      "longTasks": 1,
+      "longTaskMs": 86,
+      "longestFrameMs": 127.5
+    },
+    {
+      "run": 2,
+      "longTasks": 1,
+      "longTaskMs": 73,
+      "longestFrameMs": 89.90000000223517
+    }
+  ],
+  "browserChecks": 17,
+  "continuousCycles": 8,
+  "continuousWallMilliseconds": 272261,
+  "physicalDevice": false,
+  "twoHourSoakPassed": false,
+  "physicalMemoryLeakFreeProven": false,
+  "fullOfflineAudioMatrixPassed": false,
+  "permissionsVerified": false,
+  "publicDeployment": false
+}

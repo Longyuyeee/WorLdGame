@@ -1,0 +1,29 @@
+{
+  "passed": true,
+  "browser": "155.0.8059.41",
+  "editor": "http://127.0.0.1:5194/",
+  "fixture": {
+    "derivedFrom": "branch-authoring fixture plus unchanged Rain 1.5.4 media",
+    "projectId": "direction_authoring_fixture",
+    "shortStory": true
+  },
+  "checks": [
+    "visual background search/cancel protects canonical draft; 390px gallery fits; new actor uses a distinct slot; insertion Undo/Redo",
+    "multiple actors require an explicit move/exit target; positions are human-readable; precision fields collapsed; dark and 390px inspector",
+    "music can be listened to before insertion; music/ambient loop and voice/effects one-shot defaults",
+    "source ZIP retains target IDs and all original media bytes; saved project survives home/reload/reopen",
+    "formal exported HTML opens locally at 390px; two real portraits render; correct actor exits; full short story reaches its ending"
+  ],
+  "errors": [],
+  "artifacts": {
+    "sourceZip": {
+      "byteLength": 24123520,
+      "sha256": "e0385fa01b27bf4bed8d9b3cbf45f2f144aabaadf33800def414902067de8261"
+    },
+    "singleHtml": {
+      "byteLength": 32752408,
+      "sha256": "559566fb433a5a1b46c9489e496b42de1fc517a6253084c1d90883ac5288612e"
+    }
+  },
+  "artifactPolicy": "Downloads are verified in temporary storage; large duplicate source/HTML files are not committed."
+}

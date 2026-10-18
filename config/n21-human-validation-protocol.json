@@ -3,7 +3,7 @@
   "protocolId": "N21-HV-01",
   "frozenAt": "2026-08-15T01:30:00+08:00",
   "deliveryNode": "N21",
-  "timeLimitSeconds": 1200,
+  "completionModel": "task-outcomes-and-observed-friction",
   "prerequisite": {
     "deliveryNode": "N23",
     "requireRunnableEditorFlow": true,
@@ -25,7 +25,7 @@
     "blankProject": true,
     "sampleProjectClosed": true,
     "contentEditorNotPreconfigured": true,
-    "timerStartsBeforeFirstProjectAction": true
+    "recordingStartsBeforeFirstProjectAction": true
   },
   "tasks": [
     { "id": "T01", "instruction": "创建一个新的空白故事工程并进入 Writer。" },
@@ -39,8 +39,6 @@
   ],
   "requiredCapture": [
     "pseudonymousParticipantId",
-    "startedAt",
-    "endedAt",
     "inputDevices",
     "helpRequestCount",
     "blockers",
@@ -53,7 +51,6 @@
   "passCriteria": {
     "eligibleParticipant": true,
     "allTasksPass": true,
-    "durationAtMostSeconds": 1200,
     "facilitatorOperatedEditor": false,
     "saveCloseReopenPass": true,
     "requiredArtifactsHashed": true

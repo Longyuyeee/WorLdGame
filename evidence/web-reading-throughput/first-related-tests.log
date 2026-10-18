@@ -1,0 +1,397 @@
+
+ RUN  v4.1.10 E:/Project/AIProject/ClaudeProject/WorLdGame
+
+ ✓ packages/runtime/src/canonical.test.ts (13 tests) 386ms
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+ ✓ apps/player-shell/src/player-shell.test.tsx (80 tests) 15987ms
+     ✓ does not replay held gamepad buttons across title, selection and text-ready renders  453ms
+     ✓ requires neutral after panels, host suspension and gamepad reconnection  354ms
+     ✓ 自动播放 stops on timeout across host suspension and retry requires explicit playback  504ms
+     ✓ 快进全部 stops on timeout across host suspension and retry requires explicit playback  513ms
+     ✓ keeps the archived branch after save, unmount, remount, and load  542ms
+     ✓ waits for actual voice completion plus tail, not estimated duration, and stops at the terminal boundary  385ms
+     ✓ clears its owned timer during Host suspend and only starts a fresh delay after resume  404ms
+     ✓ saves and loads a manual Host slot through the formal bridge (summary API: false)  700ms
+     ✓ saves and loads a manual Host slot through the formal bridge (summary API: true)  770ms
+     ✓ requires explicit overwrite confirmation and commits Host-composited preview metadata  375ms
+     ✓ writes one automatic save per scene identity and exposes the five-slot view  323ms
+     ✓ replaces and loads the fixed quick slot without overwrite confirmation  390ms
+     ✓ persists, lists, and loads an exact build-authored checkpoint without stopping presentation  512ms
+     ✓ writes isolated recovery boundaries and restores them only after an explicit player decision  894ms
+ ✓ packages/runtime/src/history-navigation.test.ts (6 tests) 508ms
+ ✓ packages/runtime/src/sha256.test.ts (3 tests) 278ms
+ ✓ packages/player-core/src/player-core.test.ts (25 tests) 264ms
+ ❯ apps/player-shell/src/player-history-search.test.tsx (4 tests | 2 failed) 890ms
+   ✓ finds displayed ruby text, annotations and full-width/case-equivalent text without changing Core 225ms
+   ✓ keeps archived and future matches read-only while allowing safe past navigation 82ms
+   × bounds matching rows and returns to the current page after clearing an empty result 268ms
+   × lets a reader find an earlier line, return to it and continue reading; Escape clears before closing 315ms
+ ✓ apps/player-shell/src/player-history-page.test.tsx (3 tests) 381ms
+ ✓ packages/runtime/src/history-presentation.test.ts (5 tests) 112ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  apps/player-shell/src/player-history-search.test.tsx > bounds matching rows and returns to the current page after clearing an empty result
+TestingLibraryElementError: Found multiple elements with the role "status"
+
+Here are the matching elements:
+
+Ignored nodes: comments, script, style
+<p
+  role="status"
+>
+  查找当前主线与只读归档；前方及归档记录不能回退。
+</p>
+
+Ignored nodes: comments, script, style
+<span
+  role="status"
+>
+  第 
+  81
+  –
+  85
+   条，共 
+  85
+   条
+</span>
+
+(If this is intentional, then use the `*AllBy*` variant of the query (like `queryAllByText`, `getAllByText`, or `findAllByText`)).
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="player-history-search"
+    >
+      <label
+        for="player-history-query"
+      >
+        查找已记录的剧情
+      </label>
+      <div>
+        <input
+          id="player-history-query"
+          maxlength="256"
+          placeholder="输入对白、旁白或结局中的文字"
+          type="search"
+          value=""
+        />
+      </div>
+      <p
+        role="status"
+      >
+        查找当前主线与只读归档；前方及归档记录不能回退。
+      </p>
+    </div>
+    <div
+      class="player-history-panel-body"
+    >
+      <section
+        class="player-history-panel__section"
+      >
+        <h3>
+          当前主线
+        </h3>
+        <nav
+          aria-label="当前主线分页"
+          class="player-history-pages"
+        >
+          <span
+            role="status"
+          >
+            第 
+            81
+            –
+            85
+             条，共 
+            85
+             条
+          </span>
+          <div>
+            <button
+              aria-label="当前主线：较早记录"
+              type="button"
+            >
+              ← 较早
+            </button>
+            <button
+              aria-label="定位当前记录"
+              type="button"
+            >
+              当前句
+            </button>
+            <button
+              aria-label="当前主线：较后记录"
+              disabled=""
+              type="button"
+            >
+              较后 →
+            </button>
+          </div>
+        </nav>
+        <div
+          class="player-history-page-records"
+        >
+          <ol
+            class="player-history-list"
+          >
+            <li
+              data-history-position="past"
+            >
+              <button
+                aria-label="回退到：旧信段落 81"
+                type="button"
+              >
+                <span>
+                  旁白
+                   · 
+                  已读
+                </span>
+                <strong
+                  class="player-typography-text"
+                  lang="zh-CN"
+                >
+                  旧信段落 81
+                </strong>
+              </button>
+            </li>
+            <li
+              data-history-position="past"
+            >
+              <button
+                aria-label="回退到：旧信段落 82"
+                type="button"
+              >
+                <span>
+                  旁白
+                   · 
+                  已读
+                </span>
+                <strong
+                  class="player-typography-text"
+                  lang="zh-CN"
+                >
+                  旧信段落 82
+                </strong>
+              </button>
+            </li>
+            <li
+              data-history-position="past"
+            >
+              <button
+                aria-label="回退到：旧信段落 83"
+                type="button"
+              >
+                <span>
+                  旁白
+                   · 
+                  已读
+                </span>
+                <strong
+                  class="player-typography-text"
+                  lang="zh-CN"
+                >
+                  旧信段落 83
+                </strong>
+              </button>
+            </li>
+            <li
+              data-history-position="past"
+            >
+              <button
+                aria-label="回退到：旧信段落 84"
+                type="button"
+              >
+                <span>
+                  旁白
+                   · 
+                  已读
+                </span>
+                <strong
+                  class="player-typography-text"
+                  lang="zh-CN"
+                >
+                  旧信段落 84
+                </strong>
+              </button>
+            </li>
+            <li
+              data-history-position="current"
+            >
+              <button
+                aria-label="回退到：旧信段落 85"
+                type="button"
+              >
+                <span>
+                  旁白
+                   · 
+                  当前
+                </span>
+                <strong
+                  class="player-typography-text"
+                  lang="zh-CN"
+                >
+                  旧信段落 85
+                </strong>
+              </button>
+            </li>
+          </ol>
+        </div>
+      </section>
+    </div>
+  </div>
+</body>
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ getElementError node_modules/@testing-library/dom/dist/query-helpers.js:20:35
+ ❯ getMultipleElementsFoundError node_modules/@testing-library/dom/dist/query-helpers.js:23:10
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:55:13
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ apps/player-shell/src/player-history-search.test.tsx:42:74
+     40|   search('没有这样的句子'); expect(screen.getByText(/没有找到匹配记录/)).toBeInTheDoc…
+     41|   fireEvent.click(screen.getByRole('button', { name: '清除查找' })); expec…
+     42|   expect(screen.getByText('旧信段落 85')).toBeInTheDocument(); expect(scre…
+       |                                                                          ^
+     43| });
+     44| it('lets a reader find an earlier line, return to it and continue read…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  apps/player-shell/src/player-history-search.test.tsx > lets a reader find an earlier line, return to it and continue reading; Escape clears before closing
+Error: expect(element).toHaveAttribute("data-history-cursor", "3") // element.getAttribute("data-history-cursor") === "3"
+
+Expected the element to have attribute:
+  data-history-cursor="3"
+Received:
+  data-history-cursor="2"
+ ❯ apps/player-shell/src/player-history-search.test.tsx:52:112
+     50|   search('旧信段落 2'); fireEvent.click(within(dialog).getByRole('button',…
+     51|   expect(screen.queryByRole('dialog', { name: '剧情历史' })).not.toBeInThe…
+     52|   fireEvent.click(screen.getByRole('button', { name: '继续下一句' })); expe…
+       |                                                                                                                ^
+     53| });
+     54|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed | 7 passed (8)
+      Tests  2 failed | 137 passed (139)
+   Start at  14:04:05
+   Duration  31.60s (transform 1.83s, setup 1.51s, import 4.25s, tests 18.81s, environment 5.41s)
+
+JSON report written to E:/Project/AIProject/ClaudeProject/WorLdGame/evidence/web-reading-throughput/related-tests.json

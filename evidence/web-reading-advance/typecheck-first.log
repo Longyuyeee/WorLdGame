@@ -1,0 +1,5 @@
+
+> world-studio@0.0.0-s0.41 typecheck
+> tsc -b
+
+apps/player-shell/src/foreground-session-client.test.ts(17,112): error TS2353: Object literal may only specify known properties, and 'unusedCatalog' does not exist in type 'Pick<CompilerArtifactsV1, "story">'.

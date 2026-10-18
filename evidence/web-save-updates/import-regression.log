@@ -1,0 +1,331 @@
+
+ RUN  v4.1.10 E:/Project/AIProject/ClaudeProject/WorLdGame
+
+ ❯ apps/editor/src/studio-import-source.test.tsx (1 test | 1 failed) 6897ms
+   × explicitly reimporting the same work uses new ZIP text while ordinary recent reopen resumes the saved text 6895ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  apps/editor/src/studio-import-source.test.tsx > explicitly reimporting the same work uses new ZIP text while ordinary recent reopen resumes the saved text
+TestingLibraryElementError: Unable to find role="button" and name "保存到本机"
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="app-shell"
+      data-context-restore-status="restored"
+      data-context-scene-id="branch_start"
+      data-context-statement-id="branch_prompt"
+      data-editor-view="script"
+      data-experience-level="pro"
+      data-inspector-object-id="branch_prompt"
+      data-motion-frame-max=""
+      data-motion-frame-over-budget="0"
+      data-motion-frame-p95=""
+      data-motion-frame-result="idle"
+      data-motion-frame-samples="0"
+      data-motion-frame-status="idle"
+      data-motion-level="simplified"
+      data-motion-preference="simplified"
+      data-preview-open="true"
+      data-runtime-scene-id="branch_start"
+      data-runtime-statement-id="branch_prompt"
+      data-scenes-open="false"
+      data-settings-open="false"
+      data-source-revision="0"
+      data-studio-page="story"
+      data-sync-audit-action=""
+      data-sync-audit-duration=""
+      data-sync-audit-projected-revision="0"
+      data-sync-audit-result="idle"
+      data-sync-audit-source-revision="0"
+      data-sync-audit-statement-id=""
+      data-sync-audit-status="idle"
+      data-system-reduced-motion="false"
+      data-testid="workspace-shell"
+      data-workspace-mode="writer"
+    >
+      <header
+        class="workspace-header"
+      >
+        <div
+          class="brand-lockup"
+        >
+          <span
+            aria-hidden="true"
+            class="brand-mark studio-logo"
+          >
+            W
+          </span>
+          <strong
+            class="brand-product"
+          >
+            WorLd Studio
+          </strong>
+          <details
+            class="project-switcher"
+          >
+            <summary
+              aria-label="项目菜单"
+            >
+              <h1>
+                Branching Golden
+              </h1>
+              <svg
+                aria-hidden="true"
+                class="studio-icon "
+                fill="none"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.7"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M6 9l6 6 6-6"
+                />
+              </svg>
+            </summary>
+            <div
+              class="project-switcher__panel"
+            >
+              <p
+                class="project-switcher__title"
+              >
+                Branching Golden
+                <small>
+                  当前项目
+                </small>
+              </p>
+              <button
+                type="button"
+              >
+                <span
+                  class="project-menu-icon"
+                  data-color="blue"
+                >
+                  <svg
+                    aria-hidden="true"
+                    class="studio-icon "
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="1.7"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="M3 7V5h6l2 2h10v13H3z M3 11h18"
+                    />
+                  </svg>
+                </span>
+                <span>
+                  所有项目
+                  <small>
+                    保存并返回项目列表
+                  </small>
+                </span>
+                <svg
+                  aria-hidden="true"
+                  class="studio-icon "
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="1.7"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M4 12h16 M14 6l6 6-6 6"
+                  />
+                </svg>
+              </button>
+              <button
+                type="button"
+              >
+                <span
+                  class="project-menu-icon"
+                  data-color="violet"
+                >
+                  <svg
+                    aria-hidden="true"
+                    class="studio-icon "
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="1.7"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="M3 5h6a3 3 0 0 1 3 3v12a4 4 0 0 0-4-2H3z M21 5h-6a3 3 0 0 0-3 3v12a4 4 0 0 1 4-2h5z M6 9h3 M15 9h3 M6 12h3 M15 12h3"
+                    />
+                  </svg>
+                </span>
+                ...
+
+Ignored nodes: comments, script, style
+<html
+  data-atlas-preview-scheduler="{\"maxConcurrentLoads\":1,\"maxResidentBytes\":67108864,\"activeLoads\":0,\"queuedLoads\":0,\"residentResources\":0,\"referencedResources\":0,\"residentBytes\":0,\"reservedBytes\":0,\"peakAccountedBytes\":0,\"cacheHits\":0,\"deduplicatedRequests\":0,\"evictions\":0,\"cancellations\":0}"
+>
+  <head />
+  <body>
+    <div>
+      <div
+        class="app-shell"
+        data-context-restore-status="restored"
+        data-context-scene-id="branch_start"
+        data-context-statement-id="branch_prompt"
+        data-editor-view="script"
+        data-experience-level="pro"
+        data-inspector-object-id="branch_prompt"
+        data-motion-frame-max=""
+        data-motion-frame-over-budget="0"
+        data-motion-frame-p95=""
+        data-motion-frame-result="idle"
+        data-motion-frame-samples="0"
+        data-motion-frame-status="idle"
+        data-motion-level="simplified"
+        data-motion-preference="simplified"
+        data-preview-open="true"
+        data-runtime-scene-id="branch_start"
+        data-runtime-statement-id="branch_prompt"
+        data-scenes-open="false"
+        data-settings-open="false"
+        data-source-revision="0"
+        data-studio-page="story"
+        data-sync-audit-action=""
+        data-sync-audit-duration=""
+        data-sync-audit-projected-revision="0"
+        data-sync-audit-result="idle"
+        data-sync-audit-source-revision="0"
+        data-sync-audit-statement-id=""
+        data-sync-audit-status="idle"
+        data-system-reduced-motion="false"
+        data-testid="workspace-shell"
+        data-workspace-mode="writer"
+      >
+        <header
+          class="workspace-header"
+        >
+          <div
+            class="brand-lockup"
+          >
+            <span
+              aria-hidden="true"
+              class="brand-mark studio-logo"
+            >
+              W
+            </span>
+            <strong
+              class="brand-product"
+            >
+              WorLd Studio
+            </strong>
+            <details
+              class="project-switcher"
+            >
+              <summary
+                aria-label="项目菜单"
+              >
+                <h1>
+                  Branching Golden
+                </h1>
+                <svg
+                  aria-hidden="true"
+                  class="studio-icon "
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="1.7"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M6 9l6 6 6-6"
+                  />
+                </svg>
+              </summary>
+              <div
+                class="project-switcher__panel"
+              >
+                <p
+                  class="project-switcher__title"
+                >
+                  Branching Golden
+                  <small>
+                    当前项目
+                  </small>
+                </p>
+                <button
+                  type="button"
+                >
+                  <span
+                    class="project-menu-icon"
+                    data-color="blue"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      class="studio-icon "
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="1.7"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        d="M3 7V5h6l2 2h10v13H3z M3 11h18"
+                      />
+                    </svg>
+                  </span>
+                  <span>
+                    所有项目
+                    <small>
+                      保存并返回项目列表
+                    </small>
+                  </span>
+                  <svg
+                    aria-hidden="true"
+                    class="studio-icon "
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="1.7"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="M4 12h16 M14 6l6 6-6 6"
+                    />
+                  </svg>
+                </button>
+                <button
+                  type="button"
+                >
+                  <span
+                    class="project-menu-icon"
+                    data-color="violet"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      class="studio-icon "
+                      fill...
+ ❯ waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ apps/editor/src/studio-import-source.test.tsx:33:9
+     31|   await screen.findByLabelText("导入工程 ZIP");
+     32|   fireEvent.click(screen.getAllByRole("button", { name: /Branching Gol…
+     33|   await waitFor(() => expect(screen.getByRole("button", { name: "保存到本机…
+       |         ^
+     34|   fireEvent.click(screen.getByRole("tab", { name: "Script" }));
+     35|   expect((screen.getByLabelText("权威脚本编辑器") as HTMLTextAreaElement).val…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 4 passed (5)
+   Start at  11:33:33
+   Duration  34.78s (transform 3.33s, setup 907ms, import 7.34s, tests 23.29s, environment 2.65s)
+

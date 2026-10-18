@@ -1,3 +1,4 @@
+import { packPlayerStorageRecord, unpackPlayerStorageRecord, PlayerStorageWriteQueue } from "./player-storage-packing";
 import {
   WORLD_PLAYER_RECOVERY_STORE_NAME,
   WORLD_PLAYER_SAVE_DATABASE_NAME,
@@ -104,6 +105,7 @@ export class IndexedDbWorldPlayerRecoveryStoreV1 implements WorldPlayerRecoveryS
   readonly version = WORLD_PLAYER_RECOVERY_STORE_VERSION;
   readonly backend = "indexeddb-recovery";
   private readonly database: Promise<IDBDatabase>;
+  private readonly writes = new PlayerStorageWriteQueue();
 
   constructor(factory: IDBFactory = indexedDB) {
     this.database = openDatabase(factory);
@@ -114,8 +116,9 @@ export class IndexedDbWorldPlayerRecoveryStoreV1 implements WorldPlayerRecoveryS
     const database = await this.database;
     const transaction = database.transaction(WORLD_PLAYER_RECOVERY_STORE_NAME, "readonly");
     const done = transactionDone(transaction);
-    const value = await requestResult(transaction.objectStore(WORLD_PLAYER_RECOVERY_STORE_NAME).get(projectId));
+    const stored = await requestResult(transaction.objectStore(WORLD_PLAYER_RECOVERY_STORE_NAME).get(projectId));
     await done;
+    const value = await unpackPlayerStorageRecord(stored);
     if (value === undefined) return null;
     if (!validRecovery(value) || value.projectId !== projectId) throw new TypeError("WORLD_PLAYER_RECOVERY_CORRUPT");
     return value;
@@ -123,19 +126,25 @@ export class IndexedDbWorldPlayerRecoveryStoreV1 implements WorldPlayerRecoveryS
 
   async write(value: WorldPlayerRecoveryRecordV1): Promise<void> {
     if (!validRecovery(value)) throw new TypeError("WORLD_PLAYER_RECOVERY_INVALID");
-    const database = await this.database;
-    const transaction = database.transaction(WORLD_PLAYER_RECOVERY_STORE_NAME, "readwrite", { durability: "strict" });
-    const done = transactionDone(transaction);
-    transaction.objectStore(WORLD_PLAYER_RECOVERY_STORE_NAME).put(value, value.projectId);
-    await done;
+    const checked = structuredClone(value);
+    return this.writes.run(async () => {
+      const packed = await packPlayerStorageRecord(checked);
+      const database = await this.database;
+      const transaction = database.transaction(WORLD_PLAYER_RECOVERY_STORE_NAME, "readwrite", { durability: "strict" });
+      const done = transactionDone(transaction);
+      transaction.objectStore(WORLD_PLAYER_RECOVERY_STORE_NAME).put(packed, checked.projectId);
+      await done;
+    });
   }
 
   async clear(projectId: string): Promise<void> {
     if (!validId(projectId)) throw new TypeError("WORLD_PLAYER_RECOVERY_ID_INVALID");
-    const database = await this.database;
-    const transaction = database.transaction(WORLD_PLAYER_RECOVERY_STORE_NAME, "readwrite", { durability: "strict" });
-    const done = transactionDone(transaction);
-    transaction.objectStore(WORLD_PLAYER_RECOVERY_STORE_NAME).delete(projectId);
-    await done;
+    return this.writes.run(async () => {
+      const database = await this.database;
+      const transaction = database.transaction(WORLD_PLAYER_RECOVERY_STORE_NAME, "readwrite", { durability: "strict" });
+      const done = transactionDone(transaction);
+      transaction.objectStore(WORLD_PLAYER_RECOVERY_STORE_NAME).delete(projectId);
+      await done;
+    });
   }
 }

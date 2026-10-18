@@ -1,0 +1,94 @@
+{
+  "passed": true,
+  "browser": "151.0.7922.34",
+  "checks": [
+    {
+      "name": "actual-production-editor-unchanged-source-and-23-notes-save-reopen-dual-export",
+      "detail": {
+        "sourceSha256": "331a1b404ee39b89680a6a7a2c0d22dd7279b3b87ab9b60d4b5fe1a253baf5e8"
+      }
+    },
+    {
+      "name": "unchanged-content-media-and-public-files",
+      "detail": {
+        "passed": true,
+        "unchangedPayloadAndAll26Media": true,
+        "sameContentVersion": "1.10.0",
+        "unchangedNotesPending": 23,
+        "sourceAndNotes": "evidence/web-story-arrival-and-night",
+        "websiteFiles": 37,
+        "artifacts": {
+          "html": {
+            "bytes": 46770063,
+            "sha256": "ea6e5911918b22e5d6f98f463fe1bcf17eacf9031fa6bf1f49bf79cb987a8699"
+          },
+          "website": {
+            "bytes": 35356512,
+            "sha256": "50a125f8f0d6a329f0200982d9102ac70e3bbc0c03019b8d8be326ea79c91576"
+          }
+        }
+      }
+    },
+    {
+      "name": "promise-rejection",
+      "detail": {
+        "text": "进去读吧。我想先把今天的话说完。",
+        "deadline": 1940,
+        "before": "06a2114ecdb8dd78c27df1894a8714e79c27790bb772a52cea099ffe5233e815",
+        "after": "d09ca954d2e5ffbba4cb746bc979063134da93d617f9b2875f6d15d94cd21ae4",
+        "auto": "waiting",
+        "retry": false,
+        "injectedPlayRejection": true,
+        "invalidVoiceUrlForNativeDecodeError": false,
+        "nativeErrorEventInjected": false
+      }
+    },
+    {
+      "name": "retry-owner",
+      "detail": {
+        "text": "进去读吧。我想先把今天的话说完。",
+        "deadline": 1940,
+        "before": "06a2114ecdb8dd78c27df1894a8714e79c27790bb772a52cea099ffe5233e815",
+        "after": "06a2114ecdb8dd78c27df1894a8714e79c27790bb772a52cea099ffe5233e815",
+        "auto": "waiting-voice",
+        "retry": true,
+        "injectedPlayRejection": false,
+        "invalidVoiceUrlForNativeDecodeError": true,
+        "nativeErrorEventInjected": false,
+        "nativeCompletionThenAdvanced": true
+      }
+    },
+    {
+      "name": "full-desktop-html-route-auto-history-save-reopen",
+      "detail": {
+        "texts": 66,
+        "voices": 6,
+        "ending": "故事告一段落\n同行的约定\n\n已达成 1 / 2 个结局\n\n已读、画廊、音乐与结局记录会保留。可以查看收藏，或读取存档探索其他选择。\n\n查看收藏与结局\n读取存档探索其他路线\n回到标题",
+        "naturallyEndedAudioMuted": true,
+        "historyTarget": "stmt_ui_137",
+        "autoStopsAfterLoad": true
+      }
+    },
+    {
+      "name": "full-offline-phone-website-route-auto-history-save-reopen",
+      "detail": {
+        "texts": 66,
+        "voices": 6,
+        "ending": "故事告一段落\n远行的约定\n\n已达成 1 / 2 个结局\n\n已读、画廊、音乐与结局记录会保留。可以查看收藏，或读取存档探索其他选择。\n\n查看收藏与结局\n读取存档探索其他路线\n回到标题",
+        "naturallyEndedAudioMuted": true,
+        "historyTarget": "stmt_ui_219",
+        "autoStopsAfterLoad": true
+      }
+    },
+    {
+      "name": "actual-original-1.10-backup-explicit-import-and-load",
+      "detail": {
+        "before": "06a2114ecdb8dd78c27df1894a8714e79c27790bb772a52cea099ffe5233e815",
+        "after": "06a2114ecdb8dd78c27df1894a8714e79c27790bb772a52cea099ffe5233e815",
+        "backupSha256": "dd59536433b6fb2b5e5d6864b84759e820eae5a1fe2661aa282ff7457c4d6587"
+      }
+    }
+  ],
+  "errors": [],
+  "scope": "Actual production editor and unchanged source/23 notes; desktop HTML route 0 and offline phone-sized website route 1, 66 texts and six voice lines each, Auto/history/save/reopen, original 1.10 backup import/load. Separate Chromium playback-boundary fault injection, native retry completion, no synthetic native error/ended events. Not a full format/route matrix, human listening, physical phone/Safari, public HTTPS, upgrade or long-soak acceptance."
+}

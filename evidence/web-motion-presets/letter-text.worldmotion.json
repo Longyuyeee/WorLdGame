@@ -1,0 +1,15 @@
+{
+  "format": "world-story-motion",
+  "schemaVersion": 1,
+  "preset": {
+    "name": "回信·文字强调",
+    "target": "text",
+    "motion": {
+      "kind": "text-ink",
+      "duration": 1100,
+      "strength": 1,
+      "easing": "ease-in-out",
+      "repeat": 2
+    }
+  }
+}

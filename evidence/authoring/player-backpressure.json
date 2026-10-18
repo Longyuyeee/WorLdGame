@@ -1,0 +1,281 @@
+{
+  "scope": "single-story-production-player-real-IndexedDB-injected-delay-quota",
+  "bundleSha256": "7907f300d4eae26e3d1d2b6ab93bb8f3553e761fbd14895b96343bfe81b7e0dd",
+  "browser": {
+    "protocolVersion": "1.3",
+    "product": "HeadlessChrome/151.0.7922.34",
+    "revision": "@782af9cb30a53f54487e5d2e44738645a8ec457c",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537.36",
+    "jsVersion": "15.1.206.8"
+  },
+  "rows": [
+    {
+      "width": 1440,
+      "storySteps": 150,
+      "mountsBeforeReopen": 1,
+      "writesAfterBurst": 2,
+      "initialHash": "76f54765a55b788a28ccef5130ce8a49fd5d59258fc1cc1809cb08201c932beb",
+      "latestHash": "9092a7c0197d503cbc94fd76183daaefabf30f79c1ccad8f1cf86df8cb7a93e6",
+      "boundedWrites": true,
+      "timeoutHeld": true,
+      "lateSuccessRequiresRetry": true,
+      "quotaPreservesPrior": true,
+      "quotaRetry": true,
+      "quickSlotPreserved": true,
+      "suspendedHashHeld": true,
+      "recoveryHash": "9092a7c0197d503cbc94fd76183daaefabf30f79c1ccad8f1cf86df8cb7a93e6",
+      "reopened": true,
+      "historyRoundTrip": true,
+      "before": {
+        "source": "Windows-Win32_Process-browser-tree",
+        "identityPolicy": "parent-chain-and-creation-time",
+        "browserPid": 33904,
+        "processes": [
+          {
+            "pid": 33904,
+            "parentPid": 54512,
+            "startedAtMilliseconds": 1791724866080,
+            "workingSetBytes": 145301504,
+            "privateBytes": 60555264,
+            "role": "browser"
+          },
+          {
+            "pid": 55404,
+            "parentPid": 33904,
+            "startedAtMilliseconds": 1791724866084,
+            "workingSetBytes": 10948608,
+            "privateBytes": 5566464,
+            "role": "helper"
+          },
+          {
+            "pid": 56356,
+            "parentPid": 33904,
+            "startedAtMilliseconds": 1791724866496,
+            "workingSetBytes": 105603072,
+            "privateBytes": 31768576,
+            "role": "gpu-process"
+          },
+          {
+            "pid": 50496,
+            "parentPid": 33904,
+            "startedAtMilliseconds": 1791724866500,
+            "workingSetBytes": 82026496,
+            "privateBytes": 14168064,
+            "role": "utility"
+          },
+          {
+            "pid": 46060,
+            "parentPid": 33904,
+            "startedAtMilliseconds": 1791724866511,
+            "workingSetBytes": 80715776,
+            "privateBytes": 18477056,
+            "role": "renderer"
+          },
+          {
+            "pid": 50752,
+            "parentPid": 33904,
+            "startedAtMilliseconds": 1791724866733,
+            "workingSetBytes": 143187968,
+            "privateBytes": 66867200,
+            "role": "renderer"
+          }
+        ],
+        "workingSetBytes": 567783424,
+        "privateBytes": 197402624
+      },
+      "after": {
+        "source": "Windows-Win32_Process-browser-tree",
+        "identityPolicy": "parent-chain-and-creation-time",
+        "browserPid": 33904,
+        "processes": [
+          {
+            "pid": 33904,
+            "parentPid": 54512,
+            "startedAtMilliseconds": 1791724866080,
+            "workingSetBytes": 147185664,
+            "privateBytes": 60882944,
+            "role": "browser"
+          },
+          {
+            "pid": 55404,
+            "parentPid": 33904,
+            "startedAtMilliseconds": 1791724866084,
+            "workingSetBytes": 10948608,
+            "privateBytes": 5566464,
+            "role": "helper"
+          },
+          {
+            "pid": 56356,
+            "parentPid": 33904,
+            "startedAtMilliseconds": 1791724866496,
+            "workingSetBytes": 117997568,
+            "privateBytes": 34717696,
+            "role": "gpu-process"
+          },
+          {
+            "pid": 50496,
+            "parentPid": 33904,
+            "startedAtMilliseconds": 1791724866500,
+            "workingSetBytes": 82038784,
+            "privateBytes": 14172160,
+            "role": "utility"
+          },
+          {
+            "pid": 46060,
+            "parentPid": 33904,
+            "startedAtMilliseconds": 1791724866511,
+            "workingSetBytes": 80736256,
+            "privateBytes": 18497536,
+            "role": "renderer"
+          },
+          {
+            "pid": 50752,
+            "parentPid": 33904,
+            "startedAtMilliseconds": 1791724866733,
+            "workingSetBytes": 278822912,
+            "privateBytes": 190029824,
+            "role": "renderer"
+          }
+        ],
+        "workingSetBytes": 717729792,
+        "privateBytes": 323866624
+      },
+      "unmounted": true
+    },
+    {
+      "width": 390,
+      "storySteps": 150,
+      "mountsBeforeReopen": 1,
+      "writesAfterBurst": 2,
+      "initialHash": "c059e2229702dc07fe08ef65758736ae9d0557498754425a367aaccef979c697",
+      "latestHash": "773ebf97c59a1399eae1a7ff09b7cba9d4900421807dc826ff91390421e8c3fc",
+      "boundedWrites": true,
+      "timeoutHeld": true,
+      "lateSuccessRequiresRetry": true,
+      "quotaPreservesPrior": true,
+      "quotaRetry": true,
+      "quickSlotPreserved": true,
+      "suspendedHashHeld": true,
+      "recoveryHash": "773ebf97c59a1399eae1a7ff09b7cba9d4900421807dc826ff91390421e8c3fc",
+      "reopened": true,
+      "historyRoundTrip": true,
+      "before": {
+        "source": "Windows-Win32_Process-browser-tree",
+        "identityPolicy": "parent-chain-and-creation-time",
+        "browserPid": 33904,
+        "processes": [
+          {
+            "pid": 33904,
+            "parentPid": 54512,
+            "startedAtMilliseconds": 1791724866080,
+            "workingSetBytes": 147402752,
+            "privateBytes": 61054976,
+            "role": "browser"
+          },
+          {
+            "pid": 55404,
+            "parentPid": 33904,
+            "startedAtMilliseconds": 1791724866084,
+            "workingSetBytes": 10948608,
+            "privateBytes": 5566464,
+            "role": "helper"
+          },
+          {
+            "pid": 56356,
+            "parentPid": 33904,
+            "startedAtMilliseconds": 1791724866496,
+            "workingSetBytes": 112889856,
+            "privateBytes": 31715328,
+            "role": "gpu-process"
+          },
+          {
+            "pid": 50496,
+            "parentPid": 33904,
+            "startedAtMilliseconds": 1791724866500,
+            "workingSetBytes": 82038784,
+            "privateBytes": 14172160,
+            "role": "utility"
+          },
+          {
+            "pid": 46060,
+            "parentPid": 33904,
+            "startedAtMilliseconds": 1791724866511,
+            "workingSetBytes": 80736256,
+            "privateBytes": 18497536,
+            "role": "renderer"
+          },
+          {
+            "pid": 50752,
+            "parentPid": 33904,
+            "startedAtMilliseconds": 1791724866733,
+            "workingSetBytes": 280080384,
+            "privateBytes": 200384512,
+            "role": "renderer"
+          }
+        ],
+        "workingSetBytes": 714096640,
+        "privateBytes": 331390976
+      },
+      "after": {
+        "source": "Windows-Win32_Process-browser-tree",
+        "identityPolicy": "parent-chain-and-creation-time",
+        "browserPid": 33904,
+        "processes": [
+          {
+            "pid": 33904,
+            "parentPid": 54512,
+            "startedAtMilliseconds": 1791724866080,
+            "workingSetBytes": 147603456,
+            "privateBytes": 61153280,
+            "role": "browser"
+          },
+          {
+            "pid": 55404,
+            "parentPid": 33904,
+            "startedAtMilliseconds": 1791724866084,
+            "workingSetBytes": 10928128,
+            "privateBytes": 5525504,
+            "role": "helper"
+          },
+          {
+            "pid": 56356,
+            "parentPid": 33904,
+            "startedAtMilliseconds": 1791724866496,
+            "workingSetBytes": 109232128,
+            "privateBytes": 32129024,
+            "role": "gpu-process"
+          },
+          {
+            "pid": 50496,
+            "parentPid": 33904,
+            "startedAtMilliseconds": 1791724866500,
+            "workingSetBytes": 81985536,
+            "privateBytes": 14090240,
+            "role": "utility"
+          },
+          {
+            "pid": 46060,
+            "parentPid": 33904,
+            "startedAtMilliseconds": 1791724866511,
+            "workingSetBytes": 80736256,
+            "privateBytes": 18497536,
+            "role": "renderer"
+          },
+          {
+            "pid": 50752,
+            "parentPid": 33904,
+            "startedAtMilliseconds": 1791724866733,
+            "workingSetBytes": 271187968,
+            "privateBytes": 194617344,
+            "role": "renderer"
+          }
+        ],
+        "workingSetBytes": 701673472,
+        "privateBytes": 326012928
+      },
+      "unmounted": true
+    }
+  ],
+  "exceptions": [],
+  "limits": "Synthetic text only; delayed IO and quota injected before real IndexedDB. Reopen is a remount, not OS process death. No mixed audio/video, physical phone or two-hour acceptance."
+}

@@ -3,12 +3,12 @@ import { createRoot, type Root } from "react-dom/client";
 import type { CanonicalProject } from "@world-studio/project-domain";
 import type { PlayerCoreStatus } from "@world-studio/player-core";
 import { WebPlayerHost } from "./player-host";
-import type { PlayerHostActivityV1, WorldPlayerPreviewCaptureV1 } from "./PlayerShell";
+import type { PlayerHostActivityV1, PlayerMemoryPressureStatusV1, WorldPlayerPreviewCaptureV1, PlayerEditorPreviewOptions } from "./PlayerShell";
 import type { PlayerMediaAssetSourceV1 } from "./player-presentation-adapter";
 import type { WorldPlayerSaveStoreV3 } from "./player-save-store";
 import type { WorldPlayerRecoveryStoreV1 } from "./player-recovery-store";
 
-export const WORLD_PLAYER_EMBED_API_VERSION = "1.2.0" as const;
+export const WORLD_PLAYER_EMBED_API_VERSION = "1.3.0" as const;
 
 export interface WorldPlayerMountOptionsV1 {
   readonly project: CanonicalProject;
@@ -18,6 +18,8 @@ export interface WorldPlayerMountOptionsV1 {
   readonly saveStore?: WorldPlayerSaveStoreV3;
   readonly recoveryStore?: WorldPlayerRecoveryStoreV1;
   readonly previewCapture?: WorldPlayerPreviewCaptureV1;
+  readonly onReleaseIdleResources?: () => void;
+  readonly editorPreview?: PlayerEditorPreviewOptions;
 }
 
 export interface WorldPlayerObservationV1 {
@@ -33,6 +35,7 @@ export interface WorldPlayerObservationV1 {
   readonly runtimeHostVersion: string;
   readonly saveStoreBackend: string;
   readonly saveStoreVersion: string | null;
+  readonly memoryPressure: PlayerMemoryPressureStatusV1;
   readonly playback: {
     readonly schemaVersion: 1;
     readonly mode: "normal" | "auto" | "skipRead" | "skipAll";
@@ -48,11 +51,13 @@ export interface WorldPlayerHandleV1 {
   setProject(project: CanonicalProject): void;
   setMediaAssets(mediaAssets: readonly PlayerMediaAssetSourceV1[]): void;
   setHostActivity(activity: PlayerHostActivityV1): void;
+  notifyMemoryPressure(level: "moderate" | "critical"): void;
   getObservation(): WorldPlayerObservationV1;
   unmount(): void;
 }
 
 interface ResolvedWorldPlayerMountOptionsV1 {
+  readonly editorPreview: PlayerEditorPreviewOptions | undefined;
   readonly project: CanonicalProject;
   readonly mediaAssets: readonly PlayerMediaAssetSourceV1[];
   readonly hostActivity: PlayerHostActivityV1;
@@ -60,6 +65,7 @@ interface ResolvedWorldPlayerMountOptionsV1 {
   readonly saveStore: WorldPlayerSaveStoreV3 | undefined;
   readonly recoveryStore: WorldPlayerRecoveryStoreV1 | undefined;
   readonly previewCapture: WorldPlayerPreviewCaptureV1 | undefined;
+  readonly onReleaseIdleResources: (() => void) | undefined;
 }
 
 const mountedContainers = new WeakMap<HTMLElement, WorldPlayerHandleV1>();
@@ -83,14 +89,18 @@ export function mountWorldPlayerV1(container: HTMLElement, initial: WorldPlayerM
 
   const root: Root = createRoot(container);
   let disposed = false;
+  let pressureSerial = 0;
+  let memoryPressureRequest: { serial: number; level: "moderate" | "critical" } | undefined;
   let options: ResolvedWorldPlayerMountOptionsV1 = {
       project: initial.project,
+      editorPreview: initial.editorPreview,
       mediaAssets: initial.mediaAssets ?? [],
       hostActivity: initial.hostActivity ?? "active",
       onRetryMedia: initial.onRetryMedia,
       saveStore: initial.saveStore,
       recoveryStore: initial.recoveryStore,
-      previewCapture: initial.previewCapture
+      previewCapture: initial.previewCapture,
+      onReleaseIdleResources: initial.onReleaseIdleResources
     };
 
   const assertActive = () => {
@@ -101,8 +111,11 @@ export function mountWorldPlayerV1(container: HTMLElement, initial: WorldPlayerM
     flushSync(() => root.render(
       <WebPlayerHost
         project={options.project}
+        {...(options.editorPreview === undefined ? {} : { editorPreview: options.editorPreview })}
         mediaAssets={options.mediaAssets}
         activityOverride={options.hostActivity}
+        {...(memoryPressureRequest === undefined ? {} : { memoryPressureRequest })}
+        {...(options.onReleaseIdleResources === undefined ? {} : { onReleaseIdleResources: options.onReleaseIdleResources })}
         {...(options.onRetryMedia === undefined ? {} : { onRetryMedia: options.onRetryMedia })}
         {...(options.saveStore === undefined ? {} : { saveStore: options.saveStore })}
         {...(options.recoveryStore === undefined ? {} : { recoveryStore: options.recoveryStore })}
@@ -114,6 +127,7 @@ export function mountWorldPlayerV1(container: HTMLElement, initial: WorldPlayerM
   const handle: WorldPlayerHandleV1 = {
     apiVersion: WORLD_PLAYER_EMBED_API_VERSION,
     setProject(project) {
+      memoryPressureRequest = undefined;
       options = { ...options, project };
       render();
     },
@@ -125,6 +139,14 @@ export function mountWorldPlayerV1(container: HTMLElement, initial: WorldPlayerM
       options = { ...options, hostActivity };
       render();
     },
+    notifyMemoryPressure(level) {
+      assertActive();
+      if (level !== "moderate" && level !== "critical") throw new TypeError("WORLD_PLAYER_MEMORY_PRESSURE_INVALID");
+      const shell = container.querySelector<HTMLElement>("main");
+      if (memoryPressureRequest !== undefined && (shell?.dataset.memoryPressure === "protecting" || Number(shell?.dataset.memoryPressureSerial) !== memoryPressureRequest.serial)) return;
+      memoryPressureRequest = { serial: ++pressureSerial, level };
+      render();
+    },
     getObservation() {
       assertActive();
       const shell = container.querySelector<HTMLElement>("[data-player-status]");
@@ -133,6 +155,8 @@ export function mountWorldPlayerV1(container: HTMLElement, initial: WorldPlayerM
         schemaVersion: 1,
         embedApiVersion: WORLD_PLAYER_EMBED_API_VERSION,
         mounted: true,
+        memoryPressure: memoryPressureRequest !== undefined && Number(shell.dataset.memoryPressureSerial) !== memoryPressureRequest.serial
+          ? "protecting" : requiredAttribute(shell, "memoryPressure") as PlayerMemoryPressureStatusV1,
         status: requiredAttribute(shell, "playerStatus") as PlayerCoreStatus,
         hostActivity: requiredAttribute(shell, "hostActivity") as PlayerHostActivityV1,
         settingsPlatform: "web",
@@ -147,7 +171,7 @@ export function mountWorldPlayerV1(container: HTMLElement, initial: WorldPlayerM
           mode: requiredAttribute(shell, "playbackMode") as WorldPlayerObservationV1["playback"]["mode"],
           activation: requiredAttribute(shell, "playbackActivation") === "none" ? null : requiredAttribute(shell, "playbackActivation") as "hold" | "toggle",
           speed: observationSpeed(requiredAttribute(shell, "playbackSpeed")),
-          active: requiredAttribute(shell, "skipActive") === "true" || requiredAttribute(shell, "autoPlayback") === "waiting" || requiredAttribute(shell, "autoPlayback") === "waiting-text" || requiredAttribute(shell, "autoPlayback") === "waiting-voice-metadata" || requiredAttribute(shell, "autoPlayback") === "waiting-video" || requiredAttribute(shell, "autoPlayback") === "advancing",
+          active: requiredAttribute(shell, "hostActivity") === "active" && (requiredAttribute(shell, "skipActive") === "true" || requiredAttribute(shell, "autoPlayback") === "waiting" || requiredAttribute(shell, "autoPlayback") === "waiting-text" || requiredAttribute(shell, "autoPlayback") === "waiting-voice" || requiredAttribute(shell, "autoPlayback") === "waiting-video" || requiredAttribute(shell, "autoPlayback") === "advancing"),
           stopReason: requiredAttribute(shell, "playbackStopReason") === "none" ? null : requiredAttribute(shell, "playbackStopReason")
         }
       };

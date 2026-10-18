@@ -1,0 +1,32 @@
+
+ RUN  v4.1.10 E:/Project/AIProject/ClaudeProject/WorLdGame
+
+ ❯ apps/player-shell/src/deferred-checkpoint.test.tsx (4 tests | 1 failed) 1454ms
+   ✓ lets reading continue and writes only the earlier exact checkpoint, once  692ms
+   ✓ ignores late checkpoint results after unmount 233ms
+   ✓ ignores late checkpoint results after project 298ms
+   × ignores late checkpoint results after timeout 229ms
+ ✓ packages/player-core/src/deferred-checkpoint.test.ts (3 tests) 113ms
+ ✓ packages/runtime/src/history-presentation.test.ts (5 tests) 296ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  apps/player-shell/src/deferred-checkpoint.test.tsx > ignores late checkpoint results after timeout
+AssertionError: expected "vi.fn()" to be called once, but got 0 times
+ ❯ apps/player-shell/src/deferred-checkpoint.test.tsx:50:33
+     48|   else if (reason === 'project') test.rerender(<PlayerShell project={{…
+     49|   else { vi.useFakeTimers(); await act(async () => { await vi.advanceT…
+     50|   expect(test.worker.terminate).toHaveBeenCalledOnce(); expect(test.re…
+       |                                 ^
+     51|   await act(async () => test.reply({ data: { id: test.request.id, resu…
+     52|   expect(test.slots.get('checkpoint-1')).toBeUndefined();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 2 passed (3)
+      Tests  1 failed | 11 passed (12)
+   Start at  12:54:11
+   Duration  11.22s (transform 2.07s, setup 1.01s, import 4.64s, tests 1.86s, environment 2.74s)
+
+JSON report written to E:/Project/AIProject/ClaudeProject/WorLdGame/evidence/web-checkpoint-responsiveness/checkpoint-tests.json

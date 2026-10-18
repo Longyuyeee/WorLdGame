@@ -1,0 +1,23 @@
+
+ RUN  v4.1.10 E:/Project/AIProject/ClaudeProject/WorLdGame
+
+ ✓ apps/player-shell/src/memory-pressure.test.tsx (12 tests) 5555ms
+   ✓ protects before shrinking, preserves the current line, coalesces pressure and exposes readonly history  733ms
+   ✓ keeps rollback on write failure and allows the player to retry  455ms
+   ✓ does not shrink a changed story state after a delayed save  484ms
+   ✓ times out safely, ignores late completion, and rejects pressure after unmount  412ms
+   ✓ invalidates an old request when changing projects  399ms
+   ✓ supports a suspended host without resuming it, and does not notify another mounted player  792ms
+   ✓ does not compact below the moderate window and validates notification values  366ms
+   ✓ does not remove history when the resource owner fails to release  355ms
+   ✓ ignores a saved protection result after unmount  408ms
+   ✓ does not write an old proposal when reading advances during background preparation  425ms
+   ✓ terminates background preparation on timeout and ignores late success  373ms
+   ✓ terminates background preparation on unmount and ignores late success  351ms
+
+ Test Files  1 passed (1)
+      Tests  12 passed (12)
+   Start at  14:12:53
+   Duration  9.61s (transform 1.48s, setup 192ms, import 3.08s, tests 5.55s, environment 601ms)
+
+JSON report written to E:/Project/AIProject/ClaudeProject/WorLdGame/evidence/web-reading-throughput/memory-pressure-tests.json

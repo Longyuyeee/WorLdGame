@@ -1,5 +1,11 @@
 # N52-E4b Shell Auto real clock 审计
 
+## 2026-10-11 后续纠偏（优先于下文历史时序描述）
+
+原需求 #11 §2.3/2.6 要求等待语音结束，不能将 `duration - currentTime` 的估算作为结束证明；缓冲或暂停会令墙钟先到。现由 Shell 自有 `startPlayerAutoClock` 同时等待阅读期限及实际 `ended` 后的尾部时间；`error` 放开语音等待但保留阅读期限。取消 Auto、离开当前句、打开面板、暂停或卸载均取消旧计时器及事件监听；恢复重新等待，已结束/失败的语音不会被宿主/Skip 恢复重新播放。公开观测将等待状态改为 `waiting-voice` 并计入 active，Core/Runtime 调度权威不变。
+
+当前实现、生产浏览器真实 WAV 解码/触摸矩阵与未验收范围见 #99 顶部。下文版本、提交、PR 和旧时长公式保留为历史证据，不代表新公式继续使用；配置的当前 voiceTiming 和静态审计已同步纠偏，不将旧远端工程证据冒称本轮证据。
+
 > 日期：2026-08-31  
 > 分支：`codex/n52-e4b-shell-auto-real-clock`  
 > 直接基线：E4a 最终绿色头 `7c430d35c54f064ab816967ed9d6d5ecd03f2190` / Draft PR #109  

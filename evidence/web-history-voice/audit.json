@@ -1,0 +1,125 @@
+{
+  "passed": true,
+  "contentVersion": "1.11.0",
+  "technicalVersion": "S0.41",
+  "promoted": true,
+  "artifacts": {
+    "html": {
+      "bytes": 46796876,
+      "sha256": "e36bed9690c371f7b13f31c5a160ab2594397ba0f6bde24be7544501038fee93"
+    },
+    "website": {
+      "bytes": 35383325,
+      "sha256": "ec0be847598dedd22caa12ceb2d2dbbf45bbe73283f0fa4f97448fc1fbec2ae6"
+    }
+  },
+  "sourceAndNotes": "evidence/web-story-plans-and-farewell",
+  "pendingNotes": 25,
+  "retained": [
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops-project.zip",
+      "sha256": "43ef6e1673ed3dffbf705b4f178b2122fc960971eaf47286b33742fa285f0576"
+    },
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops.worldreview",
+      "sha256": "747534249345da6ce337054b4e7f47a1516556beda7079ef7b6d093e590bce8f"
+    },
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops.html",
+      "sha256": "6e5dfb4dfb88b5e210354fbcaeb8ccc4e79d50aa935a1d449f750bde8fc822fa"
+    },
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops-website.zip",
+      "sha256": "25ef0ab90a396f01dcfb09e60f754fb31a82f59aedb8da869b4a199a59e8f19e"
+    },
+    {
+      "file": "evidence/web-progress-recovery/before-rain-stops.html",
+      "sha256": "d63fc9280774f6260ee4a85b6496e08c86666a655f28af7d1b0464015181c864"
+    },
+    {
+      "file": "evidence/web-progress-recovery/before-rain-stops-website.zip",
+      "sha256": "f4c11fc1fc754a904069008e3a88b6d988e356d49bf4edea650985ca72aeeaf1"
+    }
+  ],
+  "browsers": [
+    {
+      "engine": "chromium",
+      "fileMode": true,
+      "version": "151.0.7922.34",
+      "nativeAuditionAndExplicitRecoveryPassed": true
+    },
+    {
+      "engine": "chromium",
+      "fileMode": false,
+      "version": "151.0.7922.34",
+      "nativeAuditionAndExplicitRecoveryPassed": true
+    },
+    {
+      "engine": "firefox",
+      "fileMode": false,
+      "version": "153.0",
+      "nativeAuditionAndExplicitRecoveryPassed": true
+    },
+    {
+      "engine": "webkit",
+      "fileMode": false,
+      "version": "26.5",
+      "nativeAuditionAndExplicitRecoveryPassed": true
+    }
+  ],
+  "tests": {
+    "files": 143,
+    "distinctTests": 1311,
+    "newHistoryVoiceTests": 19,
+    "nodeTests": 66
+  },
+  "architecture": {
+    "audit-architecture": {
+      "status": "PASS",
+      "auditedPortableFiles": 118,
+      "auditedNodeAdapterFiles": 4,
+      "guarantees": [
+        "narrative-vm-spike has no UI, DOM, platform-shell, filesystem, process, crypto-provider, wall-clock, or ambient-random dependency",
+        "story-core has no UI, DOM, platform-shell, filesystem, or process dependency",
+        "story-language has no UI, DOM, platform-shell, filesystem, or process dependency",
+        "story-language depends only on story-core",
+        "project-compiler is portable and depends only on project-domain/story-language, never the VM spike or platform APIs",
+        "runtime is portable and depends only on project-compiler, never the VM spike, editor, filesystem, wall clock, randomness, or platform APIs",
+        "runtime-host is portable and depends only on formal runtime, never UI, DOM, shell, filesystem, wall clock, randomness, or platform APIs",
+        "player-core is portable and consumes only canonical project, formal Compiler IR, Runtime, and Runtime Host without a parallel StoryStatement interpreter",
+        "gal-settings is dependency-free and portable with no UI, DOM, filesystem, process, shell, wall-clock, or ambient-random dependency",
+        "route-graph is portable and projects only canonical project and compiler facts through the Project Service boundary",
+        "project-persistence has no UI, DOM, platform-shell, filesystem, process, or runtime third-party dependency",
+        "project-domain depends only on portable Gal settings and has no UI, DOM, platform-shell, filesystem, process, crypto-provider, or runtime third-party dependency",
+        "project-persistence-node is isolated from the web editor and depends only on portable project-domain/project-persistence contracts",
+        "editor declares the Gal settings dependency explicitly",
+        "editor declares the story-core dependency explicitly",
+        "editor declares the story-language dependency explicitly",
+        "editor declares the project-persistence dependency explicitly",
+        "web editor does not bundle the Node filesystem adapter",
+        "VM Web Worker conformance Harness depends only on the portable Spike, formal Runtime, and portable Runtime Host and imports no shell or Node adapter",
+        "VM conformance CLI is an isolated Node reference host and depends only on the portable narrative VM",
+        "Windows Electron host keeps isolation and sandboxing enabled with the frozen WindowsHostV1 storage bridge",
+        "Windows Tauri host exposes only the frozen WindowsHostV1 storage commands and no generic privileged plugin",
+        "Windows project grant roots stay native-only and both hosts reject reparse roots and existing reparse path segments",
+        "story-core has no runtime third-party dependency"
+      ]
+    },
+    "audit-n52-e5b-runtime-history-v2": {
+      "status": "PASS",
+      "node": "N52-E5b-runtime-history-v2",
+      "engineeringStatus": "complete",
+      "productAcceptance": "blocked",
+      "continuation": {
+        "node": "N52-E5c-gal-history-policy-and-player-core-projection",
+        "gate": "only-after-e5b-exact-head-windows-ci-is-green"
+      },
+      "violations": []
+    }
+  },
+  "preservedInitialWebKitEventObservationFailure": true,
+  "historyScope": "current mainline past/current with actual retained effect receipts or text voice mapping; no future/archive audition or reconstructed lost-prefix associations",
+  "pendingMediaPermissions": 26,
+  "approvedMediaPermissions": 0,
+  "scope": "Actual author save/reopen/dual export, two complete routes and original same-content backup. Native temporary history voice in Chromium file HTML and Chromium/Firefox/Windows WebKit HTTP websites; current voice ownership, native ended/error/retry, unchanged real slot payload digests, four viewport layouts and validated reload. Current story voice slowed for ownership test, output muted. Not natural listening/timing, full new format/route matrix, all WebKit embedded/Blob audio, physical phone/Safari/background/lock, rights/public HTTPS or long soak approval."
+}

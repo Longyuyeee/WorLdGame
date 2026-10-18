@@ -1,0 +1,43 @@
+
+ RUN  v4.1.10 E:/Project/AIProject/ClaudeProject/WorLdGame
+
+·········x····x···
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  apps/editor/src/asset-import-app.test.tsx > S0.30 typed resource manifest compiler integration > imports real File bytes, persists stable metadata and reports exact deduplication
+Error: expect(element).toBeVisible()
+
+Received element is not visible:
+  <h3 />
+ ❯ apps/editor/src/asset-import-app.test.tsx:29:64
+     27|     const vault = screen.getByRole("dialog", { name: "素材管理" });
+     28|     fireEvent.click(screen.getByText("文件信息与维护 · 0 项素材"));
+     29|     expect(screen.getByRole("heading", { name: "资源血缘与安全回收" })).toBeVis…
+       |                                                                ^
+     30|     expect(within(vault).getByText("Lifecycle r1")).toBeVisible();
+     31|     expect(screen.getByRole("button", { name: "安全扫描" })).toBeEnabled();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  apps/editor/src/n43-production-workspace-app.test.tsx > N43-E5 Production resource task > imports a real file through Production, saves, closes and reopens the same Index and context
+Error: expect(element).toBeVisible()
+
+Received element is not visible:
+  <code />
+ ❯ apps/editor/src/n43-production-workspace-app.test.tsx:33:54
+     31|     fireEvent.click(screen.getByText("素材处理进度与检查"));
+     32|     const table = screen.getByRole("table", { name: "资源映射批量表" });
+     33|     expect(within(table).getByText("production_cg")).toBeVisible();
+       |                                                      ^
+     34|     expect(within(table).getByText("✓ 已通过")).toBeVisible();
+     35|     fireEvent.click(screen.getByRole("button", { name: "保存到本机" }));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed | 6 passed (8)
+      Tests  2 failed | 16 passed (18)
+   Start at  17:30:10
+   Duration  45.62s (transform 3.47s, setup 1.50s, import 8.40s, tests 28.44s, environment 5.61s)
+

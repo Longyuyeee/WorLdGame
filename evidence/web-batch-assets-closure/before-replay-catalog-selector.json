@@ -1,0 +1,88 @@
+{
+  "checks": [
+    {
+      "name": "layout-390-long-list-light",
+      "detail": {
+        "left": 14,
+        "right": 376,
+        "top": 16,
+        "bottom": 828,
+        "w": 390,
+        "h": 844,
+        "scroll": 360,
+        "client": 360,
+        "footer": {
+          "left": 15,
+          "right": 375,
+          "bottom": 827
+        },
+        "bodyScroll": 17773,
+        "bodyClient": 567
+      }
+    },
+    {
+      "name": "layout-320-long-list-light",
+      "detail": {
+        "left": 14,
+        "right": 306,
+        "top": 16,
+        "bottom": 828,
+        "w": 320,
+        "h": 844,
+        "scroll": 290,
+        "client": 290,
+        "footer": {
+          "left": 15,
+          "right": 305,
+          "bottom": 827
+        },
+        "bodyScroll": 19746,
+        "bodyClient": 526
+      }
+    },
+    {
+      "name": "modal-escape-focus-and-dark-theme",
+      "detail": {}
+    },
+    {
+      "name": "mixed-import-metadata-duplicates-failure-and-retry",
+      "detail": {}
+    },
+    {
+      "name": "second-batch-does-not-overwrite-and-opens-actual-detail",
+      "detail": {}
+    },
+    {
+      "name": "real-direction-save-reopen-and-production-manifest",
+      "detail": {
+        "sourceAssets": 5,
+        "sourceBlobs": 3
+      }
+    },
+    {
+      "name": "downloaded-directory-player-displays-assets-plays-audio-and-ends",
+      "detail": {}
+    },
+    {
+      "name": "real-large-file-escape-cancel-and-retry",
+      "detail": {
+        "bytes": 62914560,
+        "phaseAtStop": "正在逐项导入…\n\n正在读取文件…\n\n停止导入",
+        "retained": 1,
+        "finalSuccess": 2,
+        "mocks": false
+      }
+    },
+    {
+      "name": "rain-full-project-new-ids-no-original-media-or-story-loss",
+      "detail": {
+        "assets": 25,
+        "originalBlobs": 22,
+        "sourceCandidateDigest": "sha256:b4f28f77b1ee2cd0bf35793c6b33ade5197a6469d352c4e386bca4930ec9ea4e",
+        "formalCandidateReplaced": false
+      }
+    }
+  ],
+  "errors": [],
+  "failure": "locator.click: Timeout 20000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: '开始回想 车站的雨', exact: true })\u001b[22m\n\n    at rainRoute (E:\\ProjectSave\\GeminiProject\\WorLdGame\\tools\\run-web-batch-assets.mjs:93:157)\n    at async file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-batch-assets.mjs:214:3"
+}

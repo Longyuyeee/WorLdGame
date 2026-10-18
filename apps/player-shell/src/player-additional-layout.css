@@ -1,0 +1,23 @@
+.player-shell .player-additional-content[data-panel-layout] { display: block; z-index: 45; backdrop-filter: none; }
+.player-shell .player-additional-content[data-panel-layout] [data-panel-region="secondary"] header > div { flex-basis: 100%; order: 1; }
+.player-shell .player-additional-content[data-panel-layout] [data-panel-region="secondary"] header > div > span { font-size: 11px; }
+.player-shell .player-additional-content[data-panel-layout] .player-additional-content__grid,
+.player-shell .player-additional-content[data-panel-layout] .player-additional-content__items { grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); }
+.player-shell .player-additional-content[data-panel-layout] :is(.player-additional-content__grid section,.player-additional-content__detail,li,article) { min-width: 0; }
+.player-shell .player-additional-content[data-panel-layout] :is(strong,small,h3) { overflow-wrap: anywhere; }
+.player-shell .player-additional-content[data-panel-layout] .player-additional-content__music audio { width: 100%; min-width: 0; }
+.player-shell .player-additional-content__music li:not(:has(> .player-additional-content__catalog-cover)) { grid-template-columns: 32px minmax(0, 1fr); }
+@container player-panel-content (max-width: 560px) {
+  .player-shell .player-additional-content[data-panel-layout] :is(.player-additional-content__music,.player-additional-content__replay,.player-additional-content__endings) li { grid-template-columns: 28px minmax(0, 1fr); gap: 8px; padding: 12px; }
+  .player-shell .player-additional-content[data-panel-layout] li > :is(div,.player-additional-content__catalog-cover) { grid-column: 2; }
+  .player-shell .player-additional-content[data-panel-layout] .player-additional-content__replay li > button { grid-column: 1 / -1; justify-self: stretch; }
+}
+/* Full artwork is a child modal, outside the scrolling, size-contained list. */
+.player-shell .player-additional-content[data-gallery-preview="true"], .player-shell[data-player-skin="1"] .player-additional-content[data-gallery-preview="true"] { overflow: visible; backdrop-filter: none; animation: none; transform: none; }
+.player-additional-content[data-gallery-preview="true"] > :not(.player-additional-content__preview) { visibility: hidden; pointer-events: none; }
+.player-shell .player-additional-content > .player-additional-content__preview { inset: calc(max(12px, env(safe-area-inset-top)) + var(--player-viewport-offset, 0px)) max(12px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left)); grid-template-rows: minmax(0, 1fr) auto; gap: 8px; padding: 8px; box-sizing: border-box; }
+.player-shell .player-additional-content > .player-additional-content__preview > :not(figcaption) { min-width: 0; min-height: 0; width: 100%; height: 100%; object-fit: contain; }
+.player-shell .player-additional-content > .player-additional-content__preview > figcaption { position: static; box-sizing: border-box; width: 100%; min-width: 0; max-height: min(160px, 40dvh); overflow: auto; padding: 8px; }
+.player-shell .player-additional-content > .player-additional-content__preview > figcaption strong { min-width: 0; overflow-wrap: anywhere; }
+.player-shell .player-additional-content > .player-additional-content__preview > figcaption button { order: -1; flex-shrink: 0; min-height: 44px; padding: 8px 12px; border: 1px solid var(--skin-border, #77758b); border-radius: 10px; color: inherit; background: var(--player-panel, #111425); cursor: pointer; }
+.player-shell .player-additional-content > .player-additional-content__preview > p { display: grid; place-content: center; margin: 0; text-align: center; }

@@ -1,0 +1,181 @@
+{
+  "passed": true,
+  "engine": "webkit",
+  "version": "26.5",
+  "bundleHash": "cd96cbba64bdfbeac62d660138d49fe099245f13648bce5ee01951d82d1fe3e5",
+  "cssHash": "dbfd4efa3ae4de193bdad5ffecabb7910fa3ffa87300b17b2c3bcf99dec70343",
+  "checks": [
+    {
+      "name": "complete-native-worker-load-cancel-late-reply-retains-current-story-and-slot",
+      "detail": {
+        "history": 480,
+        "target": {
+          "hash": "4a021baf224c0d9f9c0e33fed05b8a4e935a8920fe9958469df298126aa40825",
+          "length": "480",
+          "cursor": "480",
+          "text": "长篇第 479 句：保存与恢复不能丢失历史。",
+          "status": "presenting"
+        },
+        "before": {
+          "hash": "b1a1d80ccf0f63d5447dbd15b34687a54123baafb0c386d28c83bea18e74482c",
+          "length": "481",
+          "cursor": "481",
+          "text": "长篇第 480 句：保存与恢复不能丢失历史。",
+          "status": "presenting"
+        },
+        "slot": {
+          "bytes": 1949763,
+          "sha256": "146dab1068426d5cd4c5effa58f695390f5786f23334b8909bd361f65ee49396",
+          "hash": "4a021baf224c0d9f9c0e33fed05b8a4e935a8920fe9958469df298126aa40825",
+          "artifact": "21638aaf26e3f6c2704cec1f8b8d250f7146fb8ef8cbbd34b84dc94feeb4eb48"
+        }
+      }
+    },
+    {
+      "name": "four-mobile-viewports-44px-cancel-and-keyboard-exit",
+      "detail": {
+        "layouts": [
+          {
+            "viewport": {
+              "width": 320,
+              "height": 740
+            },
+            "cancel": {
+              "x": 49,
+              "y": 261.5625,
+              "width": 94,
+              "height": 45.1875
+            }
+          },
+          {
+            "viewport": {
+              "width": 844,
+              "height": 390
+            },
+            "cancel": {
+              "x": 692,
+              "y": 104,
+              "width": 94,
+              "height": 45.1875
+            }
+          },
+          {
+            "viewport": {
+              "width": 568,
+              "height": 320
+            },
+            "cancel": {
+              "x": 429,
+              "y": 108.59375,
+              "width": 94,
+              "height": 45.1875
+            }
+          },
+          {
+            "viewport": {
+              "width": 390,
+              "height": 844
+            },
+            "cancel": {
+              "x": 49,
+              "y": 261.5625,
+              "width": 94,
+              "height": 45.1875
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "host-suspension-cancels-without-corruption-and-explicit-retry-restores-full-history",
+      "detail": {
+        "loaded": {
+          "hash": "f5df6f6cc2dc62b1b0aba3bc7d2e8787910fe6ae789d7fc7c8eba6132ce6560e",
+          "length": "480",
+          "cursor": "480",
+          "text": "长篇第 479 句：保存与恢复不能丢失历史。",
+          "status": "presenting"
+        }
+      }
+    },
+    {
+      "name": "cold-recovery-cancel-retains-durable-record-and-explicit-retry",
+      "detail": {
+        "originalRecovery": {
+          "bytes": 1956458,
+          "sha256": "13c543233264230b5c3feaa6d8ad5f47e95480ad9888e5feffacef9d94655d36",
+          "hash": "b1a1d80ccf0f63d5447dbd15b34687a54123baafb0c386d28c83bea18e74482c",
+          "artifact": "8c0a96c492f60b5cb293fa574167c1b6ade4987cbdc4fca9f1cebc010ea18875"
+        },
+        "restored": {
+          "hash": "b1a1d80ccf0f63d5447dbd15b34687a54123baafb0c386d28c83bea18e74482c",
+          "length": "481",
+          "cursor": "481",
+          "text": "长篇第 480 句：保存与恢复不能丢失历史。",
+          "status": "presenting"
+        }
+      }
+    },
+    {
+      "name": "title-recent-save-cancel-and-retry-the-same-pinned-slot",
+      "detail": {}
+    },
+    {
+      "name": "unmount-releases-all-native-workers-and-blob-urls",
+      "detail": {
+        "live": 0,
+        "terminated": 3,
+        "urls": 0,
+        "completed": [
+          {
+            "id": 4,
+            "encoding": "world-player.history-lists.1",
+            "success": true
+          },
+          {
+            "id": 5,
+            "encoding": "world-player.history-lists.1",
+            "success": true
+          },
+          {
+            "id": 6,
+            "encoding": "world-player.history-lists.1",
+            "success": true
+          },
+          {
+            "id": 7,
+            "encoding": "world-player.history-lists.1",
+            "success": true
+          },
+          {
+            "id": 1,
+            "encoding": "world-player.history-lists.1",
+            "success": true
+          },
+          {
+            "id": 2,
+            "encoding": "world-player.history-lists.1",
+            "success": true
+          },
+          {
+            "id": 1,
+            "encoding": "world-player.history-lists.1",
+            "success": true
+          },
+          {
+            "id": 2,
+            "encoding": "world-player.history-lists.1",
+            "success": true
+          },
+          {
+            "id": 3,
+            "encoding": "world-player.history-lists.1",
+            "success": true
+          }
+        ]
+      }
+    }
+  ],
+  "errors": [],
+  "scope": "HTTP local production-mode synthetic long story; real UI progression, IndexedDB and native Workers. Held actual validated load replies and explicit Host suspension are fault injections, not OS background/BFCache, physical phone or media acceptance. No history is injected and no formal validation is replaced."
+}

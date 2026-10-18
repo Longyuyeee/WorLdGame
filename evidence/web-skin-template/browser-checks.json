@@ -1,0 +1,50 @@
+{
+  "passed": true,
+  "checkedAt": "2026-10-16T18:21:50.498Z",
+  "checks": [
+    "Actual author configures button/window/name nine-slices, two per-role portraits and a badge; invalid source-image cuts block application; the real muted Player previews the authored dialogue.",
+    "A newly authored project must explicitly map source roles; changing a role invalidates confirmation, skipping a portrait prunes its unique bytes, and cancelling leaves the real source export with zero assets and only its own characters.",
+    "Missing avatar bytes block the import until an actual replacement file is selected; nineteen assets and remapped role bindings survive save/reload/reopen with an actual muted preview.",
+    "Downloaded file:// HTML keeps 8px frame widths on narrow and wide buttons, renders normal/hover/focus/pressed/disabled sources, switches actual role portraits, hides identity for narration, honors high contrast and reaches the ending, muted.",
+    "Directory game under /gal/ at a 390×844 touch-enabled viewport keeps the authored frame corners, switches the pressed frame on real touch-down, wraps the long name within its dialogue and completes the same ending.",
+    "An explicitly injected missing-avatar network response falls back to the current speaker initial, does not borrow the next role image and does not block narration or the ending."
+  ],
+  "errors": [],
+  "screenshots": [
+    "author-reading-template.png",
+    "desktop-identity.png",
+    "desktop-framed-save.png",
+    "phone-identity.png",
+    "phone-framed-save.png",
+    "phone-avatar-fallback.png"
+  ],
+  "assets": 19,
+  "validatedSiteFiles": 30,
+  "formalEndingCoverage": "1/1 each normal format; extra 1/1 injected-avatar-failure directory run",
+  "editorFullRouteCoverage": "not run",
+  "realDevice": false,
+  "publicDeployment": false,
+  "fixturesNotFinalArtwork": true,
+  "artifacts": [
+    {
+      "name": "identity.worldskin.zip",
+      "bytes": 2798503,
+      "sha256": "b1bdfd47fd5cc46a072e5fbb1677d2798d336b89847700a80fdd2e3f00ff3a1e"
+    },
+    {
+      "name": "identity-project.zip",
+      "bytes": 2819938,
+      "sha256": "20bbf6fd1b4a4bb2a4e716aa184ba4308d3b0d715538f9dfb6490bbe582f32cc"
+    },
+    {
+      "name": "identity.html",
+      "bytes": 4500955,
+      "sha256": "e2b0720008c8cce8779df0871a0dd8699be2c67f1aaba851483d4d854f0c8755"
+    },
+    {
+      "name": "identity-web.zip",
+      "bytes": 3639718,
+      "sha256": "495ee9cd4e5823e8312c26f3086bc193008ac704d99d2a8df4fd5bb29d84c20d"
+    }
+  ]
+}

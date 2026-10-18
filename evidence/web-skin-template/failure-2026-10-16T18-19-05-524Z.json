@@ -1,0 +1,12 @@
+{
+  "passed": false,
+  "checks": [],
+  "errors": [],
+  "failure": "locator.click: Error: strict mode violation: getByRole('button', { name: '添加角色', exact: true }) resolved to 2 elements:\n    1) <button type=\"button\" aria-label=\"添加角色\">…</button> aka getByLabel('添加角色')\n    2) <button type=\"button\" data-command=\"show\">…</button> aka getByLabel('Start').getByRole('button', { name: '添加角色' })\n\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: '添加角色', exact: true })\u001b[22m\n\n    at createRole (E:\\ProjectSave\\GeminiProject\\WorLdGame\\tools\\run-web-skin-template.mjs:26:183)\n    at async file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-skin-template.mjs:68:35",
+  "pages": [
+    {
+      "url": "http://127.0.0.1:5195/",
+      "text": "W\nWorLd Studio\n页面素材复用验证\n编辑器设置\n↶\n↷\n修改已同步\n备份 0/5\n保存到本机\n故事\n素材\n游戏外观\n检查\n发布\n查找替换\n添加内容\n给故事添加什么？\n\n创建后继续写作，其他设置随时可以修改。\n\n添加角色\n为对白添加说话的人\n添加场景\n创建下一段剧情并开始写作\n添加变量\n记录好感度、线索和选择\n取消\n写作\n演出\n路线\n脚本\n收起预览\n章节与场景\n1\n⌕\n01\nStart\n4 个步骤\n\n场景写作\n\nStart\n\n3 段文字 · 0 处选择 · 每一段，都是故事的一部分\n\n4 个步骤添加成段文字\n场景演出\n添加背景\n添加角色\n添加声音\n添加镜头\n添加对白框\n动效预设 · 试看并应用\n插入与整理内容\n复制、移动与多选\n\n还没有角色。先创建一位角色，就可以写对白。创建角色\n\n演出时间线与工具\n背景、角色、音频和镜头\n旁白\n01\n旁白文本\n上一段文字\n本场景 1 / 3 段\n下一段文字\n应用修改\n文字已应用到工程；本地保存状态见顶部。 上下段仅定位本场景文字（Alt+PageUp / PageDown），不改变剧情路线。\n旁白\n02\n字体和图片随模板来到新的故事。\n旁白\n03\n旧故事没有被复制，新的篇章现在开始。\n结局\n04\n结局 · 页面复用完成\n＋ 添加内容\n即时预览\nLIVE\n预览尺寸\n16:9 · 标准横屏\n16:10 · 桌面宽屏\n4:3 · 经典画幅\n21:9 · 超宽银幕\n9:16 · 手机竖屏\n自定义 · 精确尺寸\n安全区\n预览静音\nStart\n旁白\n\n每一页都有自己的底图，按钮也会回应操作。\n\n←\n1 / 4\n→\n▶\n运行\n测试倍率\n0.5×\n1×\n2×\n4×\n∞\n准备运行\n完整故事试玩\n从故事开头出发，体验选择与结局。\n试玩完整流程\n选择试玩起点\n调试详情\n变量、调用记录与问题定位\nr— · h—/—\n本地优先\n无账户"
+    }
+  ]
+}

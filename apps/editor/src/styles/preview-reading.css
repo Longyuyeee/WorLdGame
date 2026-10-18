@@ -1,0 +1,36 @@
+.preview-transcript { min-width: 0; display: grid; gap: 8px; }
+.app-shell .preview-transcript .stage-content { position: static; inset: auto; min-width: 0; max-height: min(38dvh, 340px); overflow: auto; overscroll-behavior: contain; scrollbar-gutter: stable; overflow-wrap: anywhere; animation: none; border: 1px solid var(--wg-color-border-subtle); border-radius: 10px; background: var(--wg-color-bg-surface-2); color: var(--wg-color-text-primary); }
+.preview-transcript .stage-content:focus-visible { outline: 2px solid var(--studio-accent); outline-offset: 2px; }
+.preview-transcript > small { color: var(--wg-color-text-muted); font-size: 11px; line-height: 1.6; }
+.app-shell .preview-transcript :is(.dialogue-presentation, .stage-note, .choice-preview, .ending-preview) { max-height: none; overflow: visible; width: auto; margin: 0; padding: 14px; border: 0; border-radius: 0; box-shadow: none; backdrop-filter: none; background: transparent; color: inherit; }
+.app-shell .preview-transcript .dialogue-presentation__line { display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; }
+.app-shell .preview-transcript .dialogue-presentation__line p { font-size: calc(14px * var(--gal-font-scale, 1)); white-space: pre-wrap; }
+.app-shell .preview-transcript .speaker-name { position: static; justify-self: start; padding: 0; border-radius: 0; box-shadow: none; background: transparent; color: var(--wg-color-text-secondary); font-size: 12px; }
+.app-shell .preview-transcript .dialogue-presentation--bubble::after { display: none; }
+.app-shell .preview-transcript :is(.stage-note, .ending-preview) span { color: var(--wg-color-text-secondary); }
+.app-shell .preview-transcript .choice-preview :is(button, span:not([data-choice-number])) { min-height: 44px; color: var(--wg-color-text-primary); background: var(--wg-color-bg-surface-1); border-color: var(--wg-color-border-strong); }
+.app-shell .preview-transcript[data-high-contrast="true"] .stage-content { color: #fff; background: #000; border: 2px solid #fff; }
+.app-shell .preview-transcript[data-high-contrast="true"] :is(.speaker-name, .stage-note span, .ending-preview span) { color: #00ffff; }
+.app-shell .preview-transcript[data-high-contrast="true"] .choice-preview button { color: #fff; background: #000; border: 2px solid #fff; }
+.app-shell .preview-transcript[data-reduce-motion="true"] * { animation: none; transition: none; }
+.preview-focus-toggle { min-height: 44px; padding: 7px 10px; border-radius: 8px; font-size: 12px; }
+.app-shell[data-preview-focus="true"] :is(.review-task, .studio-context-nav) { display: none; }
+.app-shell[data-studio-page="story"][data-preview-open="true"][data-preview-focus="true"] .workspace-grid { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); overflow: hidden; }
+.app-shell[data-preview-focus="true"] .workspace-grid > :not(.preview-panel) { display: none; }
+.app-shell[data-preview-focus="true"] .workspace-grid > .preview-panel { grid-column: 1; grid-row: 1; display: grid; grid-template-columns: minmax(0, 1fr) 260px; grid-auto-rows: max-content; align-content: start; align-items: start; overflow: auto; padding: 20px 24px; gap: 24px; border: 0; }
+.app-shell[data-preview-focus="true"] .preview-stage-area { min-height: 0; gap: 12px; }
+.app-shell[data-preview-focus="true"] .preview-session-area { overflow: visible; border: 0; padding: 0; }
+.app-shell[data-preview-focus="true"] .stage-viewport { display: block; flex: none; min-height: 0; text-align: center; background: var(--wg-color-bg-surface-2); }
+.app-shell[data-preview-focus="true"] .stage-preview { display: inline-block; width: min(100%, calc(46dvh * var(--preview-design-ratio, 1.77778))); height: auto; max-width: 100%; max-height: none; margin: 0; vertical-align: top; }
+/* The director's existing two-row layout must not squeeze the stage to zero when
+   a review task occupies the top of the workspace. Keep both areas scrollable. */
+@media (min-width: 960px) {
+  .app-shell[data-studio-page="story"][data-preview-open="true"][data-workspace-mode="director"]:not([data-preview-focus="true"]) .workspace-grid { grid-template-rows: minmax(320px, 1fr) minmax(300px, 47%); overflow-y: auto; }
+  .app-shell[data-workspace-mode="director"]:not([data-preview-focus="true"]) .preview-panel .preview-stage-area { overflow-y: auto; }
+  .app-shell[data-workspace-mode="director"]:not([data-preview-focus="true"]) .preview-panel .stage-viewport { display: block; flex: none; }
+  .app-shell[data-workspace-mode="director"]:not([data-preview-focus="true"]) .preview-panel .stage-preview { width: 100%; height: auto; }
+}
+@media (max-width: 959px) {
+  .app-shell[data-preview-focus="true"] .workspace-grid > .preview-panel { grid-template-columns: minmax(0, 1fr); padding: 16px; gap: 20px; }
+  .app-shell[data-preview-focus="true"] .preview-panel .stage-preview { width: min(100%, calc(54dvh * var(--preview-design-ratio, 1.77778))); }
+}

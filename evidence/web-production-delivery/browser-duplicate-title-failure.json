@@ -1,0 +1,8 @@
+{
+  "checks": [
+    "optional HTML production ZIP uses one saved source; different internal/published names kept correctly; manifest bytes/digests and optional notes verified; packaged local game reaches short ending at 390px"
+  ],
+  "errors": [],
+  "error": "Error: locator.click: Error: strict mode violation: getByRole('button', { name: /^打开项目：分支创作流程/ }) resolved to 2 elements:\n    1) <button aria-label=\"打开项目：分支创作流程\" class=\"home-project-card\">…</button> aka getByRole('button', { name: '打开项目：分支创作流程' }).first()\n    2) <button aria-label=\"打开项目：分支创作流程\" class=\"home-project-card\">…</button> aka getByRole('button', { name: '打开项目：分支创作流程' }).nth(1)\n\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: /^打开项目：分支创作流程/ })\u001b[22m\n",
+  "stack": "locator.click: Error: strict mode violation: getByRole('button', { name: /^打开项目：分支创作流程/ }) resolved to 2 elements:\n    1) <button aria-label=\"打开项目：分支创作流程\" class=\"home-project-card\">…</button> aka getByRole('button', { name: '打开项目：分支创作流程' }).first()\n    2) <button aria-label=\"打开项目：分支创作流程\" class=\"home-project-card\">…</button> aka getByRole('button', { name: '打开项目：分支创作流程' }).nth(1)\n\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: /^打开项目：分支创作流程/ })\u001b[22m\n\n    at E:\\Project\\AIProject\\ClaudeProject\\WorLdGame\\tools\\run-web-production-delivery.mjs:40:174"
+}

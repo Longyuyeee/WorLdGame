@@ -1,0 +1,5 @@
+
+> world-studio@0.0.0-s0.41 typecheck
+> tsc -b
+
+packages/player-core/src/web-save-compatibility.test.ts(30,54): error TS2353: Object literal may only specify known properties, and 'preservedFields' does not exist in type 'GalSettingsDocument'.

@@ -1,0 +1,160 @@
+TAP version 13
+# Subtest: checks every exact local file without counting author extras or declaring product acceptance
+ok 1 - checks every exact local file without counting author extras or declaring product acceptance
+  ---
+  duration_ms: 32.4962
+  ...
+# Subtest: detects missing, same-size corrupt and longer files with an actionable file path
+ok 2 - detects missing, same-size corrupt and longer files with an actionable file path
+  ---
+  duration_ms: 32.0522
+  ...
+# Subtest: rejects malformed, duplicate, private, traversal, absolute and incomplete manifest inventories
+ok 3 - rejects malformed, duplicate, private, traversal, absolute and incomplete manifest inventories
+  ---
+  duration_ms: 15.253
+  ...
+# Subtest: generates a new exact public-only directory without merging existing output or touching the source
+ok 4 - generates a new exact public-only directory without merging existing output or touching the source
+  ---
+  duration_ms: 61.7719
+  ...
+# Subtest: does not create a ready folder from a corrupt source
+ok 5 - does not create a ready folder from a corrupt source
+  ---
+  duration_ms: 11.8993
+  ...
+# Subtest: rejects a website manifest that omits a media file still required by the offline worker
+ok 6 - rejects a website manifest that omits a media file still required by the offline worker
+  ---
+  duration_ms: 17.0274
+  ...
+# Subtest: rejects a directory junction instead of copying a linked source
+ok 7 - rejects a directory junction instead of copying a linked source
+  ---
+  duration_ms: 22.3939
+  ...
+# Subtest: normalizes directory/index addresses and rejects credentials, tokens, remote HTTP and non-directory artifacts
+ok 8 - normalizes directory/index addresses and rejects credentials, tokens, remote HTTP and non-directory artifacts
+  ---
+  duration_ms: 0.4959
+  ...
+# Subtest: performs read-only exact checks against the requested directory only
+ok 9 - performs read-only exact checks against the requested directory only
+  ---
+  duration_ms: 89.8796
+  ...
+# Subtest: identifies missing, stale, changed manifest, wrong MIME and SPA fallback responses
+ok 10 - identifies missing, stale, changed manifest, wrong MIME and SPA fallback responses
+  ---
+  duration_ms: 77.9512
+  ...
+# Subtest: does not follow redirects and bounds a stalled response, keeping version headers advisory
+ok 11 - does not follow redirects and bounds a stalled response, keeping version headers advisory
+  ---
+  duration_ms: 95.9153
+  ...
+# Subtest: the shipped helper executes offline using only Node built-ins and returns a machine-readable report
+ok 12 - the shipped helper executes offline using only Node built-ins and returns a machine-readable report
+  ---
+  duration_ms: 109.9276
+  ...
+# Subtest: rejects empty target and ambiguous command flags instead of silently reporting a local success
+ok 13 - rejects empty target and ambiguous command flags instead of silently reporting a local success
+  ---
+  duration_ms: 269.9454
+  ...
+# Subtest: listens only on a browser-safe high loopback port and removes temporary listeners
+ok 14 - listens only on a browser-safe high loopback port and removes temporary listeners
+  ---
+  duration_ms: 31.5988
+  ...
+# Subtest: retries an occupied port without changing the existing server
+ok 15 - retries an occupied port without changing the existing server
+  ---
+  duration_ms: 5.0896
+  ...
+# Subtest: rejects unsafe or invalid candidates without binding a broad interface
+ok 16 - rejects unsafe or invalid candidates without binding a broad interface
+  ---
+  duration_ms: 0.7366
+  ...
+# Subtest: retries a Windows excluded port and removes the failed attempt listeners
+ok 17 - retries a Windows excluded port and removes the failed attempt listeners
+  ---
+  duration_ms: 0.4519
+  ...
+# Subtest: bounds excluded-port retries and preserves the final error instead of hiding other failures
+ok 18 - bounds excluded-port retries and preserves the final error instead of hiding other failures
+  ---
+  duration_ms: 1.0178
+  ...
+# Subtest: bundles existing Player Shell fixtures with the recovery worker source
+ok 19 - bundles existing Player Shell fixtures with the recovery worker source
+  ---
+  duration_ms: 273.9416
+  ...
+# Subtest: forwards frozen baseline source overrides into the child worker build
+ok 20 - forwards frozen baseline source overrides into the child worker build
+  ---
+  duration_ms: 199.2696
+  ...
+# Subtest: awaits resolved false and returns only the later positive snapshot
+ok 21 - awaits resolved false and returns only the later positive snapshot
+  ---
+  duration_ms: 11.1011
+  ...
+# Subtest: a never-ready asynchronous result times out instead of passing
+ok 22 - a never-ready asynchronous result times out instead of passing
+  ---
+  duration_ms: 15.5246
+  ...
+# Subtest: propagates browser read failures rather than accepting them
+ok 23 - propagates browser read failures rather than accepting them
+  ---
+  duration_ms: 0.3516
+  ...
+# Subtest: promotes exact HTML and website bytes and removes only the verified working pair
+ok 24 - promotes exact HTML and website bytes and removes only the verified working pair
+  ---
+  duration_ms: 18.7988
+  ...
+# Subtest: accepts identical previously promoted bytes without rewriting them
+ok 25 - accepts identical previously promoted bytes without rewriting them
+  ---
+  duration_ms: 6.6306
+  ...
+# Subtest: rejects changed html bytes before publishing either file
+ok 26 - rejects changed html bytes before publishing either file
+  ---
+  duration_ms: 7.7813
+  ...
+# Subtest: rejects changed website bytes before publishing either file
+ok 27 - rejects changed website bytes before publishing either file
+  ---
+  duration_ms: 6.2486
+  ...
+# Subtest: rejects a mismatched reported size before publishing
+ok 28 - rejects a mismatched reported size before publishing
+  ---
+  duration_ms: 7.0437
+  ...
+# Subtest: a different existing website candidate blocks HTML promotion and preserves both working files
+ok 29 - a different existing website candidate blocks HTML promotion and preserves both working files
+  ---
+  duration_ms: 7.397
+  ...
+# Subtest: a missing website leaves the HTML unpublished and retained for diagnosis
+ok 30 - a missing website leaves the HTML unpublished and retained for diagnosis
+  ---
+  duration_ms: 5.8025
+  ...
+1..30
+# tests 30
+# suites 0
+# pass 30
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 930.09

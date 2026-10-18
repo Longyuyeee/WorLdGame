@@ -1,4 +1,4 @@
-import type { WorldPlayerSaveSlotV3, WorldPlayerSaveStoreV3 } from "./player-save-store";
+import { listWorldPlayerSaveSummariesV3, type WorldPlayerSaveSummaryV3, type WorldPlayerSaveStoreV3 } from "./player-save-store";
 import type { WorldPlayerRecoveryRecordV1, WorldPlayerRecoveryStoreV1 } from "./player-recovery-store";
 
 export const WORLD_PLAYER_AUTO_SAVE_SLOT_COUNT = 5;
@@ -39,10 +39,13 @@ export class WorldPlayerSaveWriteCoordinatorV1 {
 
   writeAuto(projectId: string, sceneIdentity: string, createAndWrite: (slotId: string) => Promise<void>): Promise<WorldPlayerAutoSaveResultV1> {
     return this.enqueue(async () => {
-      const autoSlots = (await this.store.list(projectId)).filter((slot) => slot.kind === "auto");
+      const autoSlots = (await listWorldPlayerSaveSummariesV3(this.store, projectId)).filter((slot) => slot.kind === "auto");
       const newest = [...autoSlots].sort(newestFirst)[0];
       if (newest !== undefined && worldPlayerSaveSceneIdentityV1(newest.buildId, newest.sceneId) === sceneIdentity) {
-        return { status: "coalesced" as const, slotId: newest.slotId };
+        // A display header alone must not suppress a durable save. Only verify
+        // the candidate being reused, not every unrelated slot in the catalog.
+        const verified = this.store.listSummaries === undefined ? newest : await this.store.read(projectId, newest.slotId);
+        if (verified !== null && worldPlayerSaveSceneIdentityV1(verified.buildId, verified.sceneId) === sceneIdentity) return { status: "coalesced" as const, slotId: newest.slotId };
       }
       const empty = Array.from({ length: WORLD_PLAYER_AUTO_SAVE_SLOT_COUNT }, (_, index) => `auto-${index + 1}`).find((slotId) => !autoSlots.some((slot) => slot.slotId === slotId));
       const slotId = empty ?? [...autoSlots].sort(oldestFirst)[0]?.slotId ?? "auto-1";
@@ -53,7 +56,7 @@ export class WorldPlayerSaveWriteCoordinatorV1 {
 
   writeCheckpoint(projectId: string, buildId: string, stepId: string, createAndWrite: (slotId: string) => Promise<void>): Promise<WorldPlayerCheckpointSaveResultV1> {
     return this.enqueue(async () => {
-      const checkpointSlots = (await this.store.list(projectId)).filter((slot) => slot.kind === "checkpoint");
+      const checkpointSlots = (await listWorldPlayerSaveSummariesV3(this.store, projectId)).filter((slot) => slot.kind === "checkpoint");
       const existing = [...checkpointSlots].sort(newestFirst).find((slot) => slot.buildId === buildId && slot.checkpointStepId === stepId);
       if (existing !== undefined) {
         await createAndWrite(existing.slotId);
@@ -93,10 +96,10 @@ export class WorldPlayerRecoveryWriteCoordinatorV1 {
   }
 }
 
-function oldestFirst(left: WorldPlayerSaveSlotV3, right: WorldPlayerSaveSlotV3): number {
+function oldestFirst(left: WorldPlayerSaveSummaryV3, right: WorldPlayerSaveSummaryV3): number {
   return left.savedAtEpochMilliseconds - right.savedAtEpochMilliseconds || left.slotId.localeCompare(right.slotId);
 }
 
-function newestFirst(left: WorldPlayerSaveSlotV3, right: WorldPlayerSaveSlotV3): number {
+function newestFirst(left: WorldPlayerSaveSummaryV3, right: WorldPlayerSaveSummaryV3): number {
   return right.savedAtEpochMilliseconds - left.savedAtEpochMilliseconds || right.slotId.localeCompare(left.slotId);
 }

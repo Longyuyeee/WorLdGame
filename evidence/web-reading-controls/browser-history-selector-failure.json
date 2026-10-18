@@ -1,0 +1,8 @@
+{
+  "checks": [
+    "actual production UI exports HTML and directory with the new reading controls; source remains Rain 1.5.4"
+  ],
+  "errors": [],
+  "error": "Error: locator.click: Error: strict mode violation: getByRole('button', { name: '关闭剧情历史', exact: true }) resolved to 2 elements:\n    1) <button type=\"button\" aria-label=\"关闭剧情历史\" aria-expanded=\"true\" class=\"player-history-controls__open\">…</button> aka getByText('☰历史')\n    2) <button type=\"button\" aria-label=\"关闭剧情历史\">关闭</button> aka getByText('关闭', { exact: true })\n\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: '关闭剧情历史', exact: true })\u001b[22m\n",
+  "stack": "locator.click: Error: strict mode violation: getByRole('button', { name: '关闭剧情历史', exact: true }) resolved to 2 elements:\n    1) <button type=\"button\" aria-label=\"关闭剧情历史\" aria-expanded=\"true\" class=\"player-history-controls__open\">…</button> aka getByText('☰历史')\n    2) <button type=\"button\" aria-label=\"关闭剧情历史\">关闭</button> aka getByText('关闭', { exact: true })\n\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: '关闭剧情历史', exact: true })\u001b[22m\n\n    at route (E:\\Project\\AIProject\\ClaudeProject\\WorLdGame\\tools\\run-web-reading-controls.mjs:59:254)\n    at async file:///E:/Project/AIProject/ClaudeProject/WorLdGame/tools/run-web-reading-controls.mjs:83:3"
+}

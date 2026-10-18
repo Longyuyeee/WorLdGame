@@ -1,0 +1,86 @@
+{
+  "passed": true,
+  "browser": "155.0.8059.41",
+  "checks": [
+    "actual production UI exports HTML and directory with the new reading controls; source remains Rain 1.5.4",
+    "desktop-stay: compact stage controls; artwork/restore preserves paragraph; desktop/mobile menu focus, resize and high contrast; advanced controls visible only in menu",
+    {
+      "route": "desktop-stay",
+      "paragraphs": 60,
+      "voices": 6,
+      "visited": [
+        "车站的雨",
+        "候车室的旧信",
+        "站台前的约定",
+        "留下",
+        "灯下的回信",
+        "雨后的天明"
+      ],
+      "quickSaveReload": true,
+      "physicalPhone": false,
+      "humanReadTiming": false
+    },
+    "mobile-go: compact stage controls; artwork/restore preserves paragraph; desktop/mobile menu focus, resize and high contrast; advanced controls visible only in menu",
+    {
+      "route": "mobile-go",
+      "paragraphs": 60,
+      "voices": 6,
+      "visited": [
+        "车站的雨",
+        "候车室的旧信",
+        "站台前的约定",
+        "远行",
+        "车窗与海",
+        "再一次见面"
+      ],
+      "quickSaveReload": true,
+      "physicalPhone": false,
+      "humanReadTiming": false
+    }
+  ],
+  "errors": [],
+  "routes": {
+    "desktop-stay": {
+      "paragraphs": 60,
+      "voices": 6,
+      "visited": [
+        "车站的雨",
+        "候车室的旧信",
+        "站台前的约定",
+        "留下",
+        "灯下的回信",
+        "雨后的天明"
+      ],
+      "quickSaveReload": true,
+      "physicalPhone": false,
+      "humanReadTiming": false
+    },
+    "mobile-go": {
+      "paragraphs": 60,
+      "voices": 6,
+      "visited": [
+        "车站的雨",
+        "候车室的旧信",
+        "站台前的约定",
+        "远行",
+        "车窗与海",
+        "再一次见面"
+      ],
+      "quickSaveReload": true,
+      "physicalPhone": false,
+      "humanReadTiming": false
+    }
+  },
+  "exports": {
+    "rain.html": {
+      "bytes": 32806418,
+      "sha256": "56c929338a55748df58764edec49af48618300b27d2aa10ad79582fb03d8d0e8"
+    },
+    "rain-web.zip": {
+      "bytes": 24795397,
+      "sha256": "889943175896bc12ec968104d7715a6611ead496764161f697e37422f7871632"
+    }
+  },
+  "artifactsRetained": false,
+  "scope": "same Rain 1.5.4 author source; fresh HTML/directory kept only in temporary storage; no public deployment, human reading/listening acceptance, physical device or service-worker lifecycle rerun"
+}

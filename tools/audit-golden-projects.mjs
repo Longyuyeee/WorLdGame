@@ -1,6 +1,25 @@
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { join, relative } from "node:path";
+import { auditDicingSequence } from "./audit-dicing-sequence.mjs";
+import { auditPlayerContinuity } from "./audit-player-continuity.mjs";
+import { auditPlayerPressure } from "./audit-player-pressure.mjs";
+import { auditPlayerRetention } from "./audit-player-retention.mjs";
+import { auditPlayerInput } from "./audit-player-input.mjs";
+import { auditPlayerVoice } from "./audit-player-voice.mjs";
+import { auditPlayerCold } from "./audit-player-cold.mjs";
+import { auditPlayerSoak } from "./audit-player-soak.mjs";
+import { auditPlayerMemory } from "./audit-player-memory.mjs";
+import { auditPlayerWorkingSet } from "./audit-player-working-set.mjs";
+import { auditMappingProbe } from "./audit-player-mapping-probe.mjs";
+import { auditPlayerOwnedDecode } from "./audit-player-owned-decode.mjs";
+import { validateBackpressure } from "./audit-player-backpressure.mjs";
+import { auditPlayerMixed } from "./audit-player-mixed.mjs";
+import { auditPlayerBudget } from "./audit-player-budget.mjs";
+import { auditPlayerSession } from "./audit-player-session.mjs";
+import { auditPlayerPacked } from "./audit-player-packed.mjs";
+import { auditPlayerScheduler } from "./audit-player-scheduler.mjs";
+import { auditPlayerCatalog } from "./audit-player-catalog.mjs";
 
 const root = process.cwd();
 const registry = JSON.parse(await readFile(join(root, "config", "golden-projects.json"), "utf8"));
@@ -442,6 +461,44 @@ for (const entry of registry.projects ?? []) {
   }
 }
 
+try { console.log(JSON.stringify(await auditDicingSequence(root),null,2)); }
+catch(error) { violations.push(`Dicing sequence sub-gate: ${error.message}`); }
+try { console.log(JSON.stringify(await auditPlayerContinuity(root),null,2)); }
+catch(error) { violations.push(`Player continuity sub-gate: ${error.message}`); }
+try { console.log(JSON.stringify(await auditPlayerPressure(root),null,2)); }
+catch(error) { violations.push(`Player pressure sub-gate: ${error.message}`); }
+try { console.log(JSON.stringify(await auditPlayerRetention(root),null,2)); }
+catch(error) { violations.push(`Player retention sub-gate: ${error.message}`); }
+try { console.log(JSON.stringify(await auditPlayerInput(root),null,2)); }
+catch(error) { violations.push(`Player input sub-gate: ${error.message}`); }
+try { console.log(JSON.stringify(await auditPlayerVoice(root),null,2)); }
+catch(error) { violations.push(`Player voice sub-gate: ${error.message}`); }
+try { console.log(JSON.stringify(await auditPlayerCold(root),null,2)); }
+catch(error) { violations.push(`Player cold-start sub-gate: ${error.message}`); }
+try { console.log(JSON.stringify(await auditPlayerSoak(root),null,2)); }
+catch(error) { violations.push(`Player natural-GC soak sub-gate: ${error.message}`); }
+try { console.log(JSON.stringify(await auditPlayerMemory(root),null,2)); }
+catch(error) { violations.push(`Player memory protection sub-gate: ${error.message}`); }
+try { console.log(JSON.stringify(await auditPlayerWorkingSet(root),null,2)); }
+catch(error) { violations.push(`Player working-set composition sub-gate: ${error.message}`); }
+try { console.log(JSON.stringify(await auditMappingProbe(root),null,2)); }
+catch(error) { violations.push(`Player mapping attribution sub-gate: ${error.message}`); }
+try { console.log(JSON.stringify(await auditPlayerOwnedDecode(root),null,2)); }
+catch(error) { violations.push(`Player owned decode sub-gate: ${error.message}`); }
+try { validateBackpressure(JSON.parse(await readFile(join(root, "evidence/authoring/player-backpressure.json"), "utf8"))); }
+catch(error) { violations.push(`Player recovery backpressure sub-gate: ${error.message}`); }
+try { console.log(JSON.stringify(await auditPlayerBudget(root),null,2)); }
+catch(error) { violations.push(`Player budget: ${error.message}`); }
+try { console.log(JSON.stringify(await auditPlayerMixed(root),null,2)); }
+catch(error) { violations.push(`Player mixed-media recovery sub-gate: ${error.message}`); }
+try { console.log(JSON.stringify(await auditPlayerSession(root), null, 2)); }
+catch(error) { violations.push(`Player session and mixed publication: ${error.message}`); }
+try { console.log(JSON.stringify(await auditPlayerPacked(root), null, 2)); }
+catch(error) { violations.push(`Player packed storage: ${error.message}`); }
+try { console.log(JSON.stringify(await auditPlayerScheduler(root), null, 2)); }
+catch(error) { violations.push(`Player scheduler: ${error.message}`); }
+try { console.log(JSON.stringify(await auditPlayerCatalog(root), null, 2)); }
+catch(error) { violations.push(`Player catalog: ${error.message}`); }
 if (violations.length > 0) {
   console.error(JSON.stringify({ status: "FAIL", violations }, null, 2));
   process.exitCode = 1;
