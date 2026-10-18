@@ -109,3 +109,5 @@ evidence/web-history-voice/*.html -text
 evidence/web-history-voice/**/*.worldsave -text
 evidence/web-audio-readiness/*.html -text
 evidence/web-audio-readiness/**/*.worldsave -text
+evidence/web-backup-continuation/*.html -text
+evidence/web-backup-continuation/**/*.worldsave -text

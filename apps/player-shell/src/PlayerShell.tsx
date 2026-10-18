@@ -54,7 +54,8 @@ import {
 import { derivePlayerStagePresentationV1, type PlayerMediaAssetSourceV1 } from "./player-presentation-adapter";
 import { playerSaveLabel } from './player-save-label';
 import { PlayerSaveCard, PlayerSaveDetails } from './PlayerSaveCard';
-import { PlayerSaveBackupPanel } from "./PlayerSaveBackupPanel";
+import { PlayerSaveBackupPanel, type PlayerBackupPreparationControl } from "./PlayerSaveBackupPanel";
+import { awaitPlayerBackupValue } from './backup-operation';
 import { resolvePlayerLocalizedMediaV1 } from "./player-localized-media";
 import { parsePlayerRichTextV1, resolvePlayerTypographyV1 } from "./player-typography";
 import { usePlayerSkinFonts } from "./use-player-skin-fonts";
@@ -295,6 +296,8 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
   const [selectedGalleryAssetId, setSelectedGalleryAssetId] = useState<string | null>(null);
   const [additionalContentMediaErrors, setAdditionalContentMediaErrors] = useState<readonly string[]>([]);
   const [savePanelOpen, setSavePanelOpen] = useState(editorPreview?.initialPanel === 'save');
+  const backupPreparation = useRef<PlayerBackupPreparationControl>(null);
+  const [backupCancellable, setBackupCancellable] = useState(false);
   const [saveSlots, setSaveSlots] = useState<readonly WorldPlayerSaveSummaryV3[]>([]);
   const [savePage, setSavePage] = useState(0);
   const [saveView, setSaveView] = useState<"manual" | "auto" | "quick" | "checkpoint" | "backup">("manual");
@@ -560,6 +563,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
     setReadingMenuOpen(false); setHistoryPanelOpen(false); setPendingOverwriteSlotId(null); setSavePanelOpen(true);
   }, [content.kind]);
   const closeSavePanel = useCallback(() => {
+    backupPreparation.current?.cancel();
     setPendingRead(null); setSavePanelOpen(false);
     queueMicrotask(() => {
       const trigger = saveDialogTrigger.current;
@@ -717,11 +721,13 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
   const previewPending = useRef(0);
   const previewControllers = useRef(new Set<AbortController>());
   useEffect(() => () => { for (const controller of previewControllers.current) controller.abort(); }, [sessionRunner]);
-  const captureSavePreview = useCallback(async (projectId: string, sceneId: string, runtimeStateHash: string | null): Promise<{ readonly metadata: WorldPlayerSavePreviewV2; readonly blob?: Blob }> => {
+  const captureSavePreview = useCallback(async (projectId: string, sceneId: string, runtimeStateHash: string | null, signal?: AbortSignal): Promise<{ readonly metadata: WorldPlayerSavePreviewV2; readonly blob?: Blob }> => {
+    if (signal?.aborted) return { metadata: { status: 'unavailable', reason: 'capture-unavailable' } };
     if (saveStore?.previewStorage === 'unavailable') return { metadata: { status: 'unavailable', reason: 'capture-unavailable' } };
     if (previewCapture === undefined && platform !== "web" || runtimeStateHash === null || fullscreen.element.current?.dataset.runtimeStateHash !== runtimeStateHash || previewPending.current >= 2) return { metadata: { status: "unavailable", reason: "capture-unavailable" } };
     previewPending.current++;
     const controller = new AbortController();
+    const abort = () => controller.abort(); signal?.addEventListener('abort', abort, { once: true });
     previewControllers.current.add(controller);
     let timer: ReturnType<typeof setTimeout> | undefined;
     try {
@@ -735,25 +741,28 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
         mimeTypes: ["image/webp", "image/png"]
       };
       const pending = previewCapture ? previewCapture.capture(request) : captureBrowserSavePreview(fullscreen.element.current, request, skinFonts.captureFonts, controller.signal);
-      const captured = await Promise.race([pending, new Promise<null>(resolve => { timer = setTimeout(() => { controller.abort(); resolve(null); }, 3000); })]);
+      const captured = await awaitPlayerBackupValue(Promise.race([pending, new Promise<null>(resolve => { timer = setTimeout(() => { controller.abort(); resolve(null); }, 3000); })]), signal);
       if (captured === null) return { metadata: { status: "unavailable", reason: "capture-unavailable" } };
       const valid = (captured.blob.type === "image/webp" || captured.blob.type === "image/png") && captured.blob.size > 0 && captured.blob.size <= WORLD_PLAYER_SAVE_PREVIEW_MAXIMUM_BYTES &&
         Number.isSafeInteger(captured.width) && captured.width > 0 && captured.width <= WORLD_PLAYER_SAVE_PREVIEW_MAXIMUM_WIDTH &&
         Number.isSafeInteger(captured.height) && captured.height > 0 && captured.height <= WORLD_PLAYER_SAVE_PREVIEW_MAXIMUM_HEIGHT;
       if (!valid) return { metadata: { status: "unavailable", reason: "capture-invalid" } };
       return {
-        metadata: { status: "available", mimeType: captured.blob.type, width: captured.width, height: captured.height, byteLength: captured.blob.size, sha256: await worldPlayerSavePreviewSha256V1(captured.blob) },
+        metadata: { status: "available", mimeType: captured.blob.type, width: captured.width, height: captured.height, byteLength: captured.blob.size, sha256: await awaitPlayerBackupValue(worldPlayerSavePreviewSha256V1(captured.blob), signal) },
         blob: captured.blob
       };
     } catch {
       return { metadata: { status: "unavailable", reason: "capture-failed" } };
-    } finally { clearTimeout(timer); controller.abort(); previewControllers.current.delete(controller); previewPending.current--; }
+    } finally { clearTimeout(timer); signal?.removeEventListener('abort', abort); controller.abort(); previewControllers.current.delete(controller); previewPending.current--; }
   }, [previewCapture, platform, fullscreen.element, skinFonts.captureFonts, saveStore]);
 
-  const captureCurrentSlot = useCallback(async (kind: "manual" | "auto" | "quick", slotId: string, capturedState = state, capturedSnapshot = snapshot, prepared = { preview: captureSavePreview(project.manifest.projectId, capturedState.runtimeState?.cursor.sceneId ?? "", capturedSnapshot.runtimeStateHash), savedAt: now() }) => {
+  const captureCurrentSlot = useCallback(async (kind: "manual" | "auto" | "quick", slotId: string, capturedState = state, capturedSnapshot = snapshot, prepared?: { preview: ReturnType<typeof captureSavePreview>; savedAt: number }, signal?: AbortSignal) => {
+    signal?.throwIfAborted();
     if (capturedSnapshot.identities.buildId === null || capturedSnapshot.runtimeStateHash === null || capturedState.runtimeState === null) throw new Error("WORLD_PLAYER_SAVE_NOT_READY");
     if(capturedState.projectId!==project.manifest.projectId)throw new Error("WORLD_PLAYER_SAVE_NOT_READY");
-    const {result:created}=await sessionRunner.run({kind:"save",source:{replaySession:capturedState.replaySession,artifacts:capturedState.artifacts,historySession:capturedState.historySession,runtimeState:capturedState.runtimeState}});
+    const preparation = prepared ?? { preview: captureSavePreview(project.manifest.projectId, capturedState.runtimeState?.cursor.sceneId ?? '', capturedSnapshot.runtimeStateHash, signal), savedAt: now() };
+    const {result:created}=await sessionRunner.run({kind:"save",source:{replaySession:capturedState.replaySession,artifacts:capturedState.artifacts,historySession:capturedState.historySession,runtimeState:capturedState.runtimeState}}, signal);
+    signal?.throwIfAborted();
     const projectId = project.manifest.projectId;
       const sceneId = capturedState.runtimeState.cursor.sceneId;
       const sceneIndex = project.scenes.findIndex((scene) => scene.id === sceneId);
@@ -761,13 +770,13 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
       if (scene === undefined) throw new Error("WORLD_PLAYER_SAVE_SCENE_MISSING");
       const scenePath = project.chapters.flatMap((chapter) => chapter.scenePaths)[sceneIndex];
       const chapter = scenePath === undefined ? undefined : project.chapters.find((candidate) => candidate.scenePaths.includes(scenePath));
-      const captured = await prepared.preview;
+      const captured = await awaitPlayerBackupValue(preparation.preview, signal); signal?.throwIfAborted();
       const slot = createWorldPlayerSaveSlotV3({
         kind,
         slotId,
         projectId,
         buildId: capturedState.runtimeState.buildId,
-        savedAtEpochMilliseconds: prepared.savedAt,
+        savedAtEpochMilliseconds: preparation.savedAt,
         title: capturedSnapshot.title,
         chapterId: chapter?.id ?? null,
         chapterTitle: chapter?.title ?? null,
@@ -1564,7 +1573,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
         return;
       }
       if (historyPanelOpen || savePanelOpen) {
-        if (event.key === "Escape") { event.preventDefault(); if (saveOperation === "busy") return; if (pendingRead) cancelRead(); else if (historyPanelOpen) closeHistoryPanel(); else closeSavePanel(); }
+        if (event.key === "Escape") { event.preventDefault(); if (saveOperation === "busy") { backupPreparation.current?.cancel(); return; } if (pendingRead) cancelRead(); else if (historyPanelOpen) closeHistoryPanel(); else closeSavePanel(); }
         return;
       }
       if (event.key === 'Escape' && snapshot.sceneReplay.active) { event.preventDefault(); exitSceneReplay(); return; }
@@ -2487,9 +2496,9 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
               }}
             >存读档</button>
             {savePanelOpen && (
-              <dialog {...panelProps('save')} ref={saveDialog} id="player-save-panel" className="player-save__panel" aria-label="存读档槽位" aria-modal="true" onCancel={event => { event.preventDefault(); if (sessionRead.isPending() || pendingRead && saveOperation !== 'busy') cancelRead(); else if (saveOperation !== 'busy') closeSavePanel(); }}>
+              <dialog {...panelProps('save')} ref={saveDialog} id="player-save-panel" className="player-save__panel" aria-label="存读档槽位" aria-modal="true" onCancel={event => { event.preventDefault(); if (sessionRead.isPending() || pendingRead && saveOperation !== 'busy') cancelRead(); else if (saveOperation === 'busy') backupPreparation.current?.cancel(); else closeSavePanel(); }}>
                 <PlayerPanelRegion enabled={saveLayout.enabled} rect={saveLayout.layout?.secondary} kind="secondary">
-                <header><strong>{saveView === "backup" ? "存档备份与恢复" : saveIntent === "save" ? "保存进度" : "读取进度"}</strong><button type="button" aria-label="关闭存读档" autoFocus disabled={saveOperation === "busy"} onClick={closeSavePanel}>返回故事 ×</button><span data-save-message role={saveOperation === "error" ? "alert" : "status"}>{saveMessage}{saveOperation === "error" && saveMessage === "存档损坏或与当前构建不兼容" && <small>读取失败不会修改当前剧情或原存档，可返回故事或尝试其他存档。</small>}</span></header>
+                <header><strong>{saveView === "backup" ? "存档备份与恢复" : saveIntent === "save" ? "保存进度" : "读取进度"}</strong><button type="button" aria-label="关闭存读档" autoFocus disabled={saveOperation === "busy" && !backupCancellable} onClick={closeSavePanel}>返回故事 ×</button><span data-save-message role={saveOperation === "error" ? "alert" : "status"}>{saveMessage}{saveOperation === "error" && saveMessage === "存档损坏或与当前构建不兼容" && <small>读取失败不会修改当前剧情或原存档，可返回故事或尝试其他存档。</small>}</span></header>
                 </PlayerPanelRegion>
                 <PlayerPanelRegion enabled={saveLayout.enabled} rect={saveLayout.layout?.primary} kind="primary">
                 {panelComponents("save", true)}
@@ -2510,9 +2519,10 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
                   <button type="button" disabled={saveOperation === "busy"} aria-pressed={saveView === "backup"} onClick={() => setSaveView("backup")}>备份</button>
                 </nav>
                 {saveView === "backup" && saveCoordinator !== undefined && <PlayerSaveBackupPanel key={`${project.manifest.projectId}:${snapshot.identities.buildId}`} state={state} store={saveStore} coordinator={saveCoordinator} slots={saveSlots}
-                  currentAllowed={saveBoundaryAllowed && !snapshot.sceneReplay.active} captureCurrent={() => captureCurrentSlot("manual", "manual-1")}
+                  currentAllowed={saveBoundaryAllowed && !snapshot.sceneReplay.active} captureCurrent={signal => captureCurrentSlot("manual", "manual-1", state, snapshot, undefined, signal)}
                   onImported={async () => { await refreshSaveSlots(); }} onRead={requestLoadFromSlot} externalBusy={saveOperation === "busy"}
-                  onBusyChange={busy => { setSaveOperation(busy ? "busy" : "idle"); setSaveMessage(busy ? "正在处理备份…" : "备份与恢复"); }}
+                  active={hostActivity === 'active'} preparationControl={backupPreparation} validateBackup={async (captured, serialized, signal) => (await sessionRunner.run({ kind: 'load', state: captured, serialized }, signal)).result}
+                  onBusyChange={(busy, cancellable) => { setBackupCancellable(!!cancellable); setSaveOperation(busy ? "busy" : "idle"); setSaveMessage(busy ? "正在处理备份…" : "备份与恢复"); }}
                   isCurrent={() => saveContext.current.projectId === project.manifest.projectId && saveContext.current.store === saveStore && liveState.current.artifacts?.manifest.buildId === snapshot.identities.buildId} />}
                 {saveView !== 'backup' && <div className="player-save-grid">{(saveView === 'manual' ? Array.from({ length: 6 }, (_, index) => `manual-${savePage * 6 + index + 1}`) : saveView === 'auto' ? Array.from({ length: 5 }, (_, index) => `auto-${index + 1}`) : saveView === 'checkpoint' ? Array.from({ length: 3 }, (_, index) => `checkpoint-${index + 1}`) : ['quick-1']).map(slotId => {
                   const slot = saveSlots.find(candidate => candidate.slotId === slotId);

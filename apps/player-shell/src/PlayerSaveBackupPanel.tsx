@@ -1,79 +1,119 @@
-import { useEffect, useRef, useState } from "react";
-import type { PlayerCoreState } from "@world-studio/player-core";
+import { useCallback, useEffect, useImperativeHandle, useRef, useState, type Ref } from "react";
+import type { PlayerCoreState, loadPlayerCoreSessionSaveV1 } from "@world-studio/player-core";
 import { createPlayerSaveBackup, readPlayerSaveBackup, playerBackupToManualSlot, PLAYER_SAVE_BACKUP_MAX_BYTES, type PlayerSaveBackup } from "./player-save-backup";
 import type { WorldPlayerSaveSlotV3, WorldPlayerSaveStoreV3, WorldPlayerSaveSummaryV3 } from "./player-save-store";
 import type { WorldPlayerSaveWriteCoordinatorV1 } from "./player-save-policy";
 import { playerSaveLabel } from "./player-save-label";
+import { readPlayerBackupFile } from './backup-file-reader';
+import { awaitPlayerBackupValue } from './backup-operation';
 
 type SaveCapture = { readonly slot: WorldPlayerSaveSlotV3; readonly preview?: Blob };
 const time = (epoch: number) => new Date(epoch).toLocaleString("zh-CN", { hour12: false });
-export function PlayerSaveBackupPanel({ state, store, coordinator, slots, currentAllowed, captureCurrent, onImported, onRead, onBusyChange, isCurrent, externalBusy }: {
+type BackupTask = { readonly kind: 'export' | 'inspect' | 'import'; readonly controller: AbortController; timer?: ReturnType<typeof setTimeout>; writeStarted: boolean; writeCommitted: boolean };
+export interface PlayerBackupPreparationControl { cancel(): boolean }
+export function PlayerSaveBackupPanel({ state, store, coordinator, slots, currentAllowed, captureCurrent, onImported, onRead, onBusyChange, isCurrent, externalBusy, active: allowed = true, preparationControl, validateBackup }: {
   state: PlayerCoreState; store: WorldPlayerSaveStoreV3; coordinator: WorldPlayerSaveWriteCoordinatorV1;
-  slots: readonly WorldPlayerSaveSummaryV3[]; currentAllowed: boolean; captureCurrent: () => Promise<SaveCapture>;
+  slots: readonly WorldPlayerSaveSummaryV3[]; currentAllowed: boolean; captureCurrent: (signal?: AbortSignal) => Promise<SaveCapture>;
   onImported: (slotId: string) => Promise<void>; onRead: (slotId: string, artifactHash: string) => void;
-  onBusyChange: (busy: boolean) => void; isCurrent: () => boolean;
+  onBusyChange: (busy: boolean, cancellable?: boolean) => void; isCurrent: () => boolean;
   externalBusy: boolean;
+  active?: boolean;
+  preparationControl?: Ref<PlayerBackupPreparationControl>;
+  validateBackup?: (state: PlayerCoreState, serialized: string, signal: AbortSignal) => Promise<ReturnType<typeof loadPlayerCoreSessionSaveV1>>;
 }) {
   const [source, setSource] = useState(currentAllowed ? "current" : slots[0]?.slotId ?? "current");
   const [incoming, setIncoming] = useState<PlayerSaveBackup | null>(null), [target, setTarget] = useState("manual-1");
   const [confirmation, setConfirmation] = useState<WorldPlayerSaveSummaryV3 | null>(null);
   const [busy, setBusy] = useState(false), [message, setMessage] = useState(""), [error, setError] = useState(false);
+  const [waiting, setWaiting] = useState(false), [taskKind, setTaskKind] = useState<BackupTask['kind'] | null>(null);
   const [download, setDownload] = useState<{ href: string; filename: string } | null>(null), [importedSlot, setImportedSlot] = useState<{ id: string; artifactHash: string } | null>(null);
-  const mounted = useRef(true), operation = useRef(false);
-  const context = useRef({ state, store, isCurrent }); context.current = { state, store, isCurrent };
-  useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
+  const mounted = useRef(true), operation = useRef<BackupTask | null>(null), fileInput = useRef<HTMLInputElement>(null), exportButton = useRef<HTMLButtonElement>(null);
+  const context = useRef({ state, store, isCurrent, onBusyChange }); context.current = { state, store, isCurrent, onBusyChange };
+  const scope = useRef({ store, projectId: state.projectId, buildId: state.artifacts?.manifest.buildId });
+  const cancel = useCallback(() => {
+    const request = operation.current; if (!request || request.kind === 'import') return false;
+    operation.current = null; clearTimeout(request.timer); request.controller.abort();
+    setBusy(false); setWaiting(false); setTaskKind(null); setError(false); setMessage('已取消备份准备或检查，当前故事和原存档未改变。可以重新尝试。'); context.current.onBusyChange(false, false);
+    queueMicrotask(() => (request.kind === 'inspect' ? fileInput.current : exportButton.current)?.focus()); return true;
+  }, []);
+  useImperativeHandle(preparationControl, () => ({ cancel }), [cancel]);
+  useEffect(() => { mounted.current = true; return () => { mounted.current = false; const request = operation.current; operation.current = null; clearTimeout(request?.timer); request?.controller.abort(); }; }, []);
+  useEffect(() => {
+    const previous = scope.current; scope.current = { store, projectId: state.projectId, buildId: state.artifacts?.manifest.buildId };
+    if (previous.store === store && previous.projectId === state.projectId && previous.buildId === scope.current.buildId) return;
+    const request = operation.current; operation.current = null; clearTimeout(request?.timer); request?.controller.abort();
+    setBusy(false); setWaiting(false); setTaskKind(null); setIncoming(null); setConfirmation(null); setImportedSlot(null); context.current.onBusyChange(false, false); setMessage('作品或存储环境已变化，请重新准备备份。先前已提交的写入不在此撤销。');
+  }, [store, state.projectId, state.artifacts?.manifest.buildId]);
+  useEffect(() => { if (!allowed || !isCurrent()) cancel(); }, [allowed, cancel, isCurrent]);
+  useEffect(() => {
+    if (busy || source === 'current' && currentAllowed || slots.some(slot => slot.slotId === source)) return;
+    setSource(currentAllowed ? 'current' : slots[0]?.slotId ?? 'current');
+  }, [busy, source, currentAllowed, slots]);
   useEffect(() => () => { if (download) URL.revokeObjectURL(download.href); }, [download]);
-  const active = (captured: PlayerCoreState) => mounted.current && context.current.store === store && context.current.isCurrent() &&
+  const active = (captured: PlayerCoreState, request: BackupTask) => operation.current === request && !request.controller.signal.aborted && mounted.current && context.current.store === store && context.current.isCurrent() &&
     captured.projectId === context.current.state.projectId && captured.artifacts?.manifest.buildId === context.current.state.artifacts?.manifest.buildId;
-  const run = async (task: (captured: PlayerCoreState) => Promise<void>) => {
-    if (operation.current) return;
-    operation.current = true; setBusy(true); setError(false); onBusyChange(true);
+  const run = async (kind: BackupTask['kind'], task: (captured: PlayerCoreState, request: BackupTask) => Promise<void>) => {
+    if (operation.current || externalBusy || !allowed || !isCurrent()) return;
+    const request: BackupTask = { kind, controller: new AbortController(), writeStarted: false, writeCommitted: false }; operation.current = request;
+    setBusy(true); setWaiting(false); setTaskKind(kind); setError(false); onBusyChange(true, kind !== 'import');
+    request.timer = setTimeout(() => { if (operation.current === request && mounted.current) setWaiting(true); }, 8000);
     const captured = state;
-    try { await task(captured); }
-    catch (reason) { if (active(captured)) {
-      setMessage(reason instanceof Error && reason.name === "QuotaExceededError" ? "设备存储空间不足，原进度和原存档保持不变。释放空间后重试。"
+    try { await task(captured, request); }
+    catch (reason) { if (active(captured, request)) {
+      setMessage(request.writeCommitted ? '备份已经写入目标槽位，但列表尚未刷新。请重新打开存档核对，勿重复导入；当前故事未改变。'
+        : request.writeStarted ? '导入尚未确认成功。当前故事未改变，请核对目标槽位后再操作，不要把关闭提示当作撤销写入。'
+        : reason instanceof Error && reason.name === 'ForegroundSessionError' ? '备份后台检查或准备未完成。当前故事和原存档未改变，可以重新尝试。'
+        : reason instanceof Error && reason.name === "QuotaExceededError" ? "设备存储空间不足，原进度和原存档保持不变。释放空间后重试。"
         : reason instanceof Error && !reason.message.startsWith("WORLD_") ? reason.message : "操作失败，原进度和原存档保持不变。可以重试。"); setError(true);
     } }
-    finally { operation.current = false; if (mounted.current) { setBusy(false); onBusyChange(false); } }
+    finally { clearTimeout(request.timer); if (operation.current === request) { operation.current = null; if (mounted.current) { setBusy(false); setWaiting(false); setTaskKind(null); onBusyChange(false, false); } } }
   };
-  const exportBackup = () => run(async captured => {
+  const exportBackup = () => run('export', async (captured, request) => {
     setMessage("正在生成备份文件…");
     let capture: SaveCapture;
-    if (source === "current") { if (!currentAllowed) throw Error("请先读取或开始故事，再备份当前进度。"); capture = await captureCurrent(); }
+    if (source === "current") { if (!currentAllowed) throw Error("请先读取或开始故事，再备份当前进度。"); setMessage('正在准备当前完整进度和截图…'); capture = await awaitPlayerBackupValue(captureCurrent(request.controller.signal), request.controller.signal); }
     else {
-      const slot = await store.read(captured.projectId, source); if (!slot) throw Error("这个槽位已不存在，请重新选择。");
-      const preview = slot.preview.status === "available" ? await store.readPreview(captured.projectId, source) : null;
+      const slot = await awaitPlayerBackupValue(store.read(captured.projectId, source), request.controller.signal); if (!slot) throw Error("这个槽位已不存在，请重新选择。");
+      if (!active(captured, request)) return;
+      setMessage('正在读取所选存档的截图…');
+      const preview = slot.preview.status === "available" ? await awaitPlayerBackupValue(store.readPreview(captured.projectId, source), request.controller.signal) : null;
       capture = { slot, ...(preview === null ? {} : { preview }) };
     }
-    const bytes = await createPlayerSaveBackup(capture.slot, capture.preview, source === "current" ? "current" : "slot");
-    if (!active(captured)) return;
+    if (!active(captured, request)) return; setMessage('正在校验并生成备份文件…');
+    const bytes = await createPlayerSaveBackup(capture.slot, capture.preview, source === "current" ? "current" : "slot", crypto.subtle, request.controller.signal);
+    if (!active(captured, request)) return;
     const filename = `${capture.slot.title.normalize("NFKC").replace(/[^\p{Letter}\p{Number}_-]+/gu, "-").slice(0, 60) || "game"}-${source === "current" ? "progress" : source}-${capture.slot.savedAtEpochMilliseconds}.worldsave`;
     const href = URL.createObjectURL(new Blob([bytes], { type: "application/json" }));
     setDownload({ href, filename });
     const link = document.createElement("a"); link.href = href; link.download = filename; document.body.append(link); link.click(); link.remove();
     setMessage("备份文件已生成，请保留下载的文件。可用下方链接重新下载。");
   });
-  const inspect = (file: File) => run(async captured => {
+  const inspect = (file: File) => run('inspect', async (captured, request) => {
     setIncoming(null); setConfirmation(null); setImportedSlot(null); setMessage("正在检查备份…");
     if (file.size > PLAYER_SAVE_BACKUP_MAX_BYTES) throw Error("备份文件超过 96 MiB 上限。");
-    const backup = await readPlayerSaveBackup(new Uint8Array(await file.arrayBuffer()), captured);
-    if (!active(captured)) return;
+    const bytes = await readPlayerBackupFile(file, request.controller.signal); if (!active(captured, request)) return;
+    setMessage('正在完整检查备份进度、版本和截图…');
+    const backup = await readPlayerSaveBackup(bytes, captured, crypto.subtle, { signal: request.controller.signal, ...(validateBackup ? { load: (serialized: string) => validateBackup(captured, serialized, request.controller.signal) } : {}) });
+    if (!active(captured, request)) return;
     const empty = Array.from({ length: 12 }, (_, index) => `manual-${index + 1}`).find(id => !slots.some(slot => slot.slotId === id));
     setIncoming(backup); setTarget(empty ?? "manual-1"); setMessage("备份校验通过，请选择手动槽位后导入。");
   });
-  const commit = (expected: WorldPlayerSaveSummaryV3 | null) => run(async captured => {
+  const commit = (expected: WorldPlayerSaveSummaryV3 | null) => run('import', async (captured, request) => {
     if (!incoming || store.writeIfUnchanged === undefined) throw Error("当前宿主不支持安全导入，请使用本游戏 Web 播放器。");
     const destination = playerBackupToManualSlot(incoming, target);
     setMessage("正在导入到手动槽位…");
     const written = await coordinator.writeFixed(async () => {
-      if (!active(captured)) throw Error("游戏已变化，请重新检查备份。");
+      if (!active(captured, request)) throw Error("游戏已变化，请重新检查备份。");
+      request.writeStarted = true;
       return store.writeIfUnchanged!(destination, expected, incoming.preview);
     });
-    if (!active(captured)) return;
+    if (!active(captured, request)) return;
+    request.writeCommitted = written; if (!written) request.writeStarted = false;
     setConfirmation(null);
     if (!written) { await onImported(target); throw Error("目标槽位已经变化，未导入。请重新核对目标后再次确认。"); }
     setIncoming(null); setImportedSlot({ id: target, artifactHash: destination.sessionArtifactHash });
     await onImported(target);
+    if (!active(captured, request)) return;
     setMessage(`备份已导入${playerSaveLabel(target)}，当前故事未改变。点击读取继续。${store.previewStorage === 'unavailable' ? '此浏览器未保存截图，剧情进度和历史已保留。' : ''}`);
   });
   const requestImport = () => {
@@ -85,17 +125,21 @@ export function PlayerSaveBackupPanel({ state, store, coordinator, slots, curren
   const selected = slots.find(slot => slot.slotId === source);
   return <section className="player-save-backup" aria-label="存档备份与恢复" aria-busy={busy}>
     <p>把一份完整进度和历史存成文件，换浏览器或设备后可导入同一作品。个人设置和游戏素材需另行保留。</p>
-    <details className="player-backup-export" open={incoming === null}><summary>导出备份</summary><fieldset disabled={busy || externalBusy} aria-label="导出备份">
+    {busy && <div className="player-load-wait player-backup-wait" role="status" aria-live="polite">
+      <span>{taskKind === 'import' ? '导入提交中，不提供取消写入。请等待结果后核对目标槽位，不要重复导入。' : '正在准备或检查备份，可以取消等待；不会更改当前故事或原存档。'}{waiting ? taskKind === 'import' ? ' 写入等待时间较长，尚未确认结果。' : ' 等待时间较长，可取消后重新选择文件或槽位。' : ''}</span>
+      {taskKind !== 'import' && <button type="button" onClick={cancel}>取消备份准备</button>}
+    </div>}
+    <details className="player-backup-export" open={incoming === null}><summary>导出备份</summary><fieldset disabled={busy || externalBusy || !allowed} aria-label="导出备份">
       <label>备份进度<select aria-label="备份进度" value={source} onChange={event => setSource(event.target.value)}>
         <option value="current" disabled={!currentAllowed}>当前游玩进度{currentAllowed ? "" : "（开始或读档后可用）"}</option>
         {slots.map(slot => <option key={slot.slotId} value={slot.slotId}>{playerSaveLabel(slot.slotId)} · {slot.sceneTitle}</option>)}
       </select></label>
       {selected && <p>{selected.sceneTitle} · {time(selected.savedAtEpochMilliseconds)} · 本地时间</p>}
-      <button type="button" disabled={source === "current" ? !currentAllowed : !selected} onClick={() => void exportBackup()}>导出备份文件</button>
-      {download && <a href={download.href} download={download.filename}>重新下载备份</a>}
+      <button ref={exportButton} type="button" disabled={source === "current" ? !currentAllowed : !selected} onClick={() => void exportBackup()}>导出备份文件</button>
+      {download && <><a href={download.href} download={download.filename}>重新下载备份</a><small style={{ overflowWrap: 'anywhere' }}>上次生成：{download.filename}</small></>}
     </fieldset></details>
-    <fieldset disabled={busy || externalBusy}><legend>导入备份</legend>
-      <label>选择存档备份文件<input type="file" accept=".worldsave,application/json" aria-label="选择存档备份文件" disabled={store.writeIfUnchanged === undefined} onChange={event => { const file = event.target.files?.[0]; event.target.value = ""; if (file) void inspect(file); }} /></label>
+    <fieldset disabled={busy || externalBusy || !allowed}><legend>导入备份</legend>
+      <label>选择存档备份文件<input ref={fileInput} type="file" accept=".worldsave,application/json" aria-label="选择存档备份文件" disabled={store.writeIfUnchanged === undefined} onChange={event => { const file = event.target.files?.[0]; event.target.value = ""; if (file) void inspect(file); }} /></label>
       {store.writeIfUnchanged === undefined && <p>当前宿主没有安全导入能力，请使用本游戏 Web 播放器导入。</p>}
       {incoming && <>
         <dl><dt>作品</dt><dd>{incoming.slot.title}</dd><dt>进度</dt><dd>{incoming.slot.chapterTitle ? `${incoming.slot.chapterTitle} / ` : ""}{incoming.slot.sceneTitle}</dd>
