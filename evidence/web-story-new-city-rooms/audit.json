@@ -1,0 +1,103 @@
+{
+  "passed": true,
+  "contentVersion": "1.12.0",
+  "technicalVersion": "S0.41",
+  "artifacts": {
+    "source": {
+      "bytes": 38560984,
+      "sha256": "75453d918fa5ef47d5038b397b3aeeb4c5ad67e5dbab0594e696f29020e25f4c"
+    },
+    "html": {
+      "bytes": 52288411,
+      "sha256": "f5527aaa073f11982aa10bcacd4c8e85b6212920e4d6ab07c528d5698746da2b"
+    },
+    "website": {
+      "bytes": 39516021,
+      "sha256": "e2ce402c7a0ce4558d627d0379c3c8c0f19fb4913026aea0cc145ca84715cf6b"
+    },
+    "notes": {
+      "bytes": 25590,
+      "sha256": "1ad95d42c7960ee4db48f50a10108069c35d61e08a1470ec45f582c5a8ad9624"
+    }
+  },
+  "retained": [
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops-project.zip",
+      "sha256": "43ef6e1673ed3dffbf705b4f178b2122fc960971eaf47286b33742fa285f0576"
+    },
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops.worldreview",
+      "sha256": "747534249345da6ce337054b4e7f47a1516556beda7079ef7b6d093e590bce8f"
+    },
+    {
+      "file": "evidence/web-reading-motion/before-rain-stops.html",
+      "sha256": "f21eb61a3a8a1a4aca73d935caccd46ca8bf30d4add24ec2c420f98a9d2d67d0"
+    },
+    {
+      "file": "evidence/web-reading-motion/before-rain-stops-website.zip",
+      "sha256": "a5510ba131555d065dc24566e5fa4ac093a0979e2d8fb5aa10982f4a1690651c"
+    }
+  ],
+  "changedBackgroundCues": 5,
+  "unchangedProseCharacters": 9772,
+  "originalMediaRetained": 26,
+  "totalMedia": 28,
+  "pendingNotes": 28,
+  "humanApprovedNotes": 0,
+  "pendingMediaPermissions": 28,
+  "approvedMediaPermissions": 0,
+  "previousSaveCompatibility": "not-approved-content-changed",
+  "browsers": [
+    {
+      "engine": "chromium",
+      "completeWebsiteRoutes": 2,
+      "textsPerRoute": 66,
+      "nativeMutedVoicesPerRoute": 6,
+      "stageSamples": 11,
+      "explicitSaveReloadLoads": 3,
+      "oldSaveRefusedBeforeWrite": true
+    },
+    {
+      "engine": "firefox",
+      "completeWebsiteRoutes": 2,
+      "textsPerRoute": 66,
+      "nativeMutedVoicesPerRoute": 6,
+      "stageSamples": 11,
+      "explicitSaveReloadLoads": 3,
+      "oldSaveRefusedBeforeWrite": true
+    },
+    {
+      "engine": "webkit",
+      "completeWebsiteRoutes": 2,
+      "textsPerRoute": 66,
+      "nativeMutedVoicesPerRoute": 6,
+      "stageSamples": 11,
+      "explicitSaveReloadLoads": 3,
+      "oldSaveRefusedBeforeWrite": true
+    }
+  ],
+  "fullFormatRouteCells": 4,
+  "physicalPhoneAcceptance": "not-accepted",
+  "tests": {
+    "functionalFiles": 164,
+    "distinctFunctionalTests": 1553,
+    "addedFunctionalTests": 0,
+    "nodeTests": 152,
+    "addedNodeTests": 19
+  },
+  "engineering": {
+    "typecheck": {
+      "passed": true,
+      "output": ""
+    },
+    "architecture": {
+      "passed": true,
+      "output": "{\n  \"status\": \"PASS\",\n  \"auditedPortableFiles\": 118,\n  \"auditedNodeAdapterFiles\": 4,\n  \"guarantees\": [\n    \"narrative-vm-spike has no UI, DOM, platform-shell, filesystem, process, crypto-provider, wall-clock, or ambient-random dependency\",\n    \"story-core has no UI, DOM, platform-shell, filesystem, or process dependency\",\n    \"story-language has no UI, DOM, platform-shell, filesystem, or process dependency\",\n    \"story-language depends only on story-core\",\n    \"project-compiler is portable and depends only on project-domain/story-language, never the VM spike or platform APIs\",\n    \"runtime is portable and depends only on project-compiler, never the VM spike, editor, filesystem, wall clock, randomness, or platform APIs\",\n    \"runtime-host is portable and depends only on formal runtime, never UI, DOM, shell, filesystem, wall clock, randomness, or platform APIs\",\n    \"player-core is portable and consumes only canonical project, formal Compiler IR, Runtime, and Runtime Host without a parallel StoryStatement interpreter\",\n    \"gal-settings is dependency-free and portable with no UI, DOM, filesystem, process, shell, wall-clock, or ambient-random dependency\",\n    \"route-graph is portable and projects only canonical project and compiler facts through the Project Service boundary\",\n    \"project-persistence has no UI, DOM, platform-shell, filesystem, process, or runtime third-party dependency\",\n    \"project-domain depends only on portable Gal settings and has no UI, DOM, platform-shell, filesystem, process, crypto-provider, or runtime third-party dependency\",\n    \"project-persistence-node is isolated from the web editor and depends only on portable project-domain/project-persistence contracts\",\n    \"editor declares the Gal settings dependency explicitly\",\n    \"editor declares the story-core dependency explicitly\",\n    \"editor declares the story-language dependency explicitly\",\n    \"editor declares the project-persistence dependency explicitly\",\n    \"web editor does not bundle the Node filesystem adapter\",\n    \"VM Web Worker conformance Harness depends only on the portable Spike, formal Runtime, and portable Runtime Host and imports no shell or Node adapter\",\n    \"VM conformance CLI is an isolated Node reference host and depends only on the portable narrative VM\",\n    \"Windows Electron host keeps isolation and sandboxing enabled with the frozen WindowsHostV1 storage bridge\",\n    \"Windows Tauri host exposes only the frozen WindowsHostV1 storage commands and no generic privileged plugin\",\n    \"Windows project grant roots stay native-only and both hosts reject reparse roots and existing reparse path segments\",\n    \"story-core has no runtime third-party dependency\"\n  ]\n}\n"
+    },
+    "history-engineering": {
+      "passed": true,
+      "output": "{\n  \"status\": \"PASS\",\n  \"node\": \"N52-E5b-runtime-history-v2\",\n  \"engineeringStatus\": \"complete\",\n  \"productAcceptance\": \"blocked\",\n  \"continuation\": {\n    \"node\": \"N52-E5c-gal-history-policy-and-player-core-projection\",\n    \"gate\": \"only-after-e5b-exact-head-windows-ci-is-green\"\n  },\n  \"violations\": []\n}\n"
+    }
+  },
+  "scope": "Original two-image generation with lighting-only night derivative, actual Editor source/ledger/three notes/five existing cue edits and continued source reopen after correcting bundle inventory expectations; source ZIP never fabricated. All prose, choices, IDs, nine TTS clips and original26 sources retained. Actual two editor routes, dual exports/private restore, desktop three-engine full website routes and explicit new-room save/reload/load, original1.11 backup rejection, and separate Chromium four-cell full matrix with native muted voices, Auto and offline website reload. 1.12 content intentionally not compatible with old1.11 saves; original games remain usable. Not human natural complete reading/listening/timing, art or permission approval, physical phone/Safari, OS background/lock/BFCache, WebKit embedded/offline audio, native stream/decode stalls, long soak, public HTTPS or native productization acceptance. Previous cold-setting intermittency, timeouts and long-history/storage costs remain open."
+}

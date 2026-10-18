@@ -14,6 +14,8 @@ const root = path.resolve(import.meta.dirname, '..');
 const source = path.resolve(root, process.env.STUDIO_WORK_CONTINUITY_SOURCE_DIRECTORY ?? 'evidence/web-progress-recovery');
 const output = path.resolve(root, process.env.STUDIO_WORK_CONTINUITY_OUTPUT_DIRECTORY ?? 'evidence/web-work-continuity-matrix');
 const engine = process.argv.find(arg => arg.startsWith('--engine='))?.slice(9) ?? 'chromium', matrix = process.argv.includes('--matrix');
+const expectedVersion = process.argv.find(arg => arg.startsWith('--version='))?.slice(10) ?? '1.11.0';
+assert.ok(['1.11.0', '1.12.0'].includes(expectedVersion), 'Unsupported frozen story version');
 assert.ok(['chromium', 'firefox', 'webkit'].includes(engine)); assert.ok(!matrix || engine === 'chromium', 'Full native voice matrix is currently Chromium only');
 await mkdir(output, { recursive: true }); const reportPath = path.join(output, matrix ? 'matrix.json' : `${engine}-navigation.json`);
 try { await access(reportPath); throw Error('Refusing to replace an existing continuity report; choose a new output directory'); } catch (error) { if (error.code !== 'ENOENT') throw error; }
@@ -22,8 +24,10 @@ const delivery = json(await readFile(path.join(source, 'delivery.json')));
 for (const [bytes, kind] of [[htmlBytes, 'html'], [zipBytes, 'website']]) { assert.equal(bytes.length, delivery.artifacts[kind].bytes); assert.equal(sha(bytes), delivery.artifacts[kind].sha256); }
 const website = unzipSync(zipBytes), payload = readGamePayload(htmlBytes.toString()), project = payload.project;
 assert.deepEqual(readGamePayload(Buffer.from(website['index.html']).toString()).project, project);
-const version = project.manifest.preservedFields.webPublication.version; assert.equal(version, '1.11.0');
-const build = json(website['build-info.json']); assert.equal(Object.keys(website).length, 37);
+const version = project.manifest.preservedFields.webPublication.version; assert.equal(version, expectedVersion);
+const expectedMediaCount = version === '1.12.0' ? 28 : 26;
+assert.equal(payload.mediaAssets.length, expectedMediaCount);
+const build = json(website['build-info.json']); assert.equal(Object.keys(website).length, expectedMediaCount + 11);
 for (const file of build.files) { assert.equal(website[file.path].length, file.byteLength); assert.equal('sha256:' + sha(website[file.path]), file.digest); }
 const contracts = [rainRouteContract(project, 0), rainRouteContract(project, 1)];
 for (const contract of contracts) { assert.equal(contract.texts.length, 66); assert.equal(contract.voices.length, 6); }
@@ -147,6 +151,6 @@ try {
   if (matrix) { for (const format of ['html', 'website']) for (const branch of [0, 1]) await route(format, branch); assertMatrixCoverage(checks); }
   else for (const format of ['html', 'website']) await navigation(format);
   for (const [bytes, kind] of [[await readFile(path.join(source, 'before-rain-stops.html')), 'html'], [await readFile(path.join(source, 'before-rain-stops-website.zip')), 'website']]) assert.equal(sha(bytes), delivery.artifacts[kind].sha256);
-  assert.deepEqual(errors, []); await writeFile(reportPath, JSON.stringify({ passed: true, engine, browser: browser.version(), version, artifacts: delivery.artifacts, source: path.relative(root, source).replaceAll('\\', '/'), checks, errors, scope: matrix ? 'Four distinct format/route cells in desktop Chromium using actual frozen 1.11.0 game, both website routes reloaded offline from native service worker, each 66 exact prose IDs and six native voice completions (output muted), Auto and explicit load. HTML routes also actual leave/back. No author re-export, physical phone/Safari, natural listening/timing, rights, public deployment or long soak.' : 'Actual native leave/back and pageshow, explicit recovery when a new document loads, local text anchor and unchanged formal slots across phone-sized reflow and real taps, actual HTML and website. No synthetic lifecycle, native media or narrative events. Not physical phone/background/lock/Safari, audio acceptance or long soak.' }, null, 2)); console.log(`PASS ${engine} ${matrix ? 'full matrix' : 'native navigation'}`);
+  assert.deepEqual(errors, []); await writeFile(reportPath, JSON.stringify({ passed: true, engine, browser: browser.version(), version, artifacts: delivery.artifacts, source: path.relative(root, source).replaceAll('\\', '/'), checks, errors, scope: matrix ? `Four distinct format/route cells in desktop Chromium using actual frozen ${version} game, both website routes reloaded offline from native service worker, each 66 exact prose IDs and six native voice completions (output muted), Auto and explicit load. HTML routes also actual leave/back. No author re-export, physical phone/Safari, natural listening/timing, rights, public deployment or long soak.` : 'Actual native leave/back and pageshow, explicit recovery when a new document loads, local text anchor and unchanged formal slots across phone-sized reflow and real taps, actual HTML and website. No synthetic lifecycle, native media or narrative events. Not physical phone/background/lock/Safari, audio acceptance or long soak.' }, null, 2)); console.log(`PASS ${engine} ${matrix ? 'full matrix' : 'native navigation'}`);
 } catch (error) { if (current && !current.isClosed()) await current.screenshot({ path: path.join(output, `${engine}-${matrix ? 'matrix' : 'navigation'}-failure.png`), animations: 'disabled' }).catch(() => {}); await writeFile(reportPath, JSON.stringify({ passed: false, engine, artifacts: delivery.artifacts, checks, errors, error: String(error), stack: error.stack }, null, 2)); throw error; }
 finally { await browser?.close(); if (server.listening) { server.closeAllConnections(); await new Promise(resolve => server.close(resolve)); } }

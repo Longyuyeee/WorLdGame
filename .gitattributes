@@ -140,3 +140,7 @@ evidence/web-reading-motion/*.html -text
 evidence/web-reading-motion/**/*.worldsave -text
 # Preserve frozen author downloads and test reports byte-for-byte.
 evidence/web-release-review/** -text
+evidence/web-story-new-city-rooms/** -text
+# Keep the original Node test-label spacing in these two frozen TAP reports.
+evidence/web-story-new-city-rooms/targeted-tool-tests.tap -whitespace
+evidence/web-story-new-city-rooms/tool-tests.tap -whitespace

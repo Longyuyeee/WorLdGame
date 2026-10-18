@@ -1,0 +1,367 @@
+{
+  "passed": true,
+  "baseline": true,
+  "author": false,
+  "engine": "chromium",
+  "checks": [
+    {
+      "name": "complete-route-0-six-native-voices-authored-room-stages-original",
+      "detail": {}
+    },
+    {
+      "name": "complete-route-1-six-native-voices-authored-room-stages-original",
+      "detail": {}
+    }
+  ],
+  "routes": [
+    {
+      "entry": "website",
+      "branch": 0,
+      "texts": [
+        "stmt_ui_5",
+        "stmt_ui_7",
+        "stmt_ui_9",
+        "stmt_ui_11",
+        "stmt_ui_13",
+        "stmt_ui_15",
+        "stmt_ui_17",
+        "stmt_ui_19",
+        "stmt_ui_21",
+        "stmt_ui_25",
+        "stmt_ui_23",
+        "stmt_ui_31",
+        "stmt_ui_33",
+        "stmt_ui_35",
+        "stmt_ui_37",
+        "stmt_ui_39",
+        "stmt_ui_41",
+        "stmt_ui_43",
+        "stmt_ui_45",
+        "stmt_ui_51",
+        "stmt_ui_47",
+        "stmt_ui_49",
+        "stmt_ui_61",
+        "stmt_ui_63",
+        "stmt_ui_65",
+        "stmt_ui_67",
+        "stmt_ui_69",
+        "stmt_ui_71",
+        "stmt_ui_73",
+        "stmt_ui_75",
+        "stmt_ui_77",
+        "stmt_ui_79",
+        "stmt_ui_81",
+        "stmt_ui_91",
+        "stmt_ui_93",
+        "stmt_ui_95",
+        "stmt_ui_97",
+        "stmt_ui_99",
+        "stmt_ui_101",
+        "stmt_ui_103",
+        "stmt_ui_105",
+        "stmt_ui_107",
+        "stmt_ui_109",
+        "stmt_ui_113",
+        "stmt_ui_119",
+        "stmt_ui_121",
+        "stmt_ui_123",
+        "stmt_ui_125",
+        "stmt_ui_127",
+        "stmt_ui_129",
+        "stmt_ui_139",
+        "stmt_ui_131",
+        "stmt_ui_133",
+        "stmt_ui_135",
+        "stmt_ui_137",
+        "stmt_ui_146",
+        "stmt_ui_148",
+        "stmt_ui_150",
+        "stmt_ui_152",
+        "stmt_ui_167",
+        "stmt_ui_154",
+        "stmt_ui_156",
+        "stmt_ui_158",
+        "stmt_ui_160",
+        "stmt_ui_162",
+        "stmt_ui_164"
+      ],
+      "voices": [
+        {
+          "id": "stmt_ui_25",
+          "ended": true,
+          "duration": 5.038005,
+          "currentTime": 5.038005,
+          "error": null
+        },
+        {
+          "id": "stmt_ui_51",
+          "ended": true,
+          "duration": 5.303764,
+          "currentTime": 5.303764,
+          "error": null
+        },
+        {
+          "id": "stmt_ui_81",
+          "ended": true,
+          "duration": 3.60839,
+          "currentTime": 3.60839,
+          "error": null
+        },
+        {
+          "id": "stmt_ui_113",
+          "ended": true,
+          "duration": 5.032608,
+          "currentTime": 5.032608,
+          "error": null
+        },
+        {
+          "id": "stmt_ui_139",
+          "ended": true,
+          "duration": 4.906259,
+          "currentTime": 4.906259,
+          "error": null
+        },
+        {
+          "id": "stmt_ui_167",
+          "ended": true,
+          "duration": 5.827982,
+          "currentTime": 5.827982,
+          "error": null
+        }
+      ],
+      "observations": [
+        {
+          "id": "stmt_ui_146",
+          "background": "morning_studio",
+          "portraits": [],
+          "ambient": null
+        },
+        {
+          "id": "stmt_ui_152",
+          "background": "morning_studio",
+          "portraits": [
+            "xia_smile"
+          ],
+          "ambient": null
+        },
+        {
+          "id": "stmt_ui_160",
+          "background": "coastal_morning",
+          "portraits": [
+            "xia_smile"
+          ],
+          "ambient": null
+        },
+        {
+          "id": "stmt_ui_164",
+          "background": "morning_studio",
+          "portraits": [],
+          "ambient": null
+        }
+      ],
+      "saves": [],
+      "ending": "故事告一段落\n同行的约定\n\n已达成 1 / 2 个结局\n\n已读、画廊、音乐与结局记录会保留。可以查看收藏，或读取存档探索其他选择。\n\n查看收藏与结局\n读取存档探索其他路线\n回到标题"
+    },
+    {
+      "entry": "website",
+      "branch": 1,
+      "texts": [
+        "stmt_ui_5",
+        "stmt_ui_7",
+        "stmt_ui_9",
+        "stmt_ui_11",
+        "stmt_ui_13",
+        "stmt_ui_15",
+        "stmt_ui_17",
+        "stmt_ui_19",
+        "stmt_ui_21",
+        "stmt_ui_25",
+        "stmt_ui_23",
+        "stmt_ui_31",
+        "stmt_ui_33",
+        "stmt_ui_35",
+        "stmt_ui_37",
+        "stmt_ui_39",
+        "stmt_ui_41",
+        "stmt_ui_43",
+        "stmt_ui_45",
+        "stmt_ui_51",
+        "stmt_ui_47",
+        "stmt_ui_49",
+        "stmt_ui_61",
+        "stmt_ui_63",
+        "stmt_ui_65",
+        "stmt_ui_67",
+        "stmt_ui_69",
+        "stmt_ui_71",
+        "stmt_ui_73",
+        "stmt_ui_75",
+        "stmt_ui_77",
+        "stmt_ui_79",
+        "stmt_ui_81",
+        "stmt_ui_174",
+        "stmt_ui_176",
+        "stmt_ui_196",
+        "stmt_ui_178",
+        "stmt_ui_180",
+        "stmt_ui_182",
+        "stmt_ui_184",
+        "stmt_ui_186",
+        "stmt_ui_188",
+        "stmt_ui_190",
+        "stmt_ui_192",
+        "stmt_ui_203",
+        "stmt_ui_205",
+        "stmt_ui_207",
+        "stmt_ui_209",
+        "stmt_ui_211",
+        "stmt_ui_223",
+        "stmt_ui_213",
+        "stmt_ui_215",
+        "stmt_ui_217",
+        "stmt_ui_219",
+        "stmt_ui_221",
+        "stmt_ui_230",
+        "stmt_ui_232",
+        "stmt_ui_234",
+        "stmt_ui_236",
+        "stmt_ui_250",
+        "stmt_ui_238",
+        "stmt_ui_240",
+        "stmt_ui_242",
+        "stmt_ui_244",
+        "stmt_ui_246",
+        "stmt_ui_248"
+      ],
+      "voices": [
+        {
+          "id": "stmt_ui_25",
+          "ended": true,
+          "duration": 5.038005,
+          "currentTime": 5.038005,
+          "error": null
+        },
+        {
+          "id": "stmt_ui_51",
+          "ended": true,
+          "duration": 5.303764,
+          "currentTime": 5.303764,
+          "error": null
+        },
+        {
+          "id": "stmt_ui_81",
+          "ended": true,
+          "duration": 3.60839,
+          "currentTime": 3.60839,
+          "error": null
+        },
+        {
+          "id": "stmt_ui_196",
+          "ended": true,
+          "duration": 4.79093,
+          "currentTime": 4.79093,
+          "error": null
+        },
+        {
+          "id": "stmt_ui_223",
+          "ended": true,
+          "duration": 4.673107,
+          "currentTime": 4.673107,
+          "error": null
+        },
+        {
+          "id": "stmt_ui_250",
+          "ended": true,
+          "duration": 5.090295,
+          "currentTime": 5.090295,
+          "error": null
+        }
+      ],
+      "observations": [
+        {
+          "id": "stmt_ui_203",
+          "background": "morning_studio",
+          "portraits": [],
+          "ambient": null
+        },
+        {
+          "id": "stmt_ui_211",
+          "background": "coastal_morning",
+          "portraits": [],
+          "ambient": null
+        },
+        {
+          "id": "stmt_ui_213",
+          "background": "morning_studio",
+          "portraits": [],
+          "ambient": null
+        },
+        {
+          "id": "stmt_ui_219",
+          "background": "night_studio",
+          "portraits": [],
+          "ambient": null
+        },
+        {
+          "id": "stmt_ui_221",
+          "background": "station_day",
+          "portraits": [],
+          "ambient": null
+        },
+        {
+          "id": "stmt_ui_246",
+          "background": "sample_station",
+          "portraits": [],
+          "ambient": 0.06
+        },
+        {
+          "id": "stmt_ui_248",
+          "background": "night_studio",
+          "portraits": [],
+          "ambient": null
+        }
+      ],
+      "saves": [],
+      "ending": "故事告一段落\n远行的约定\n\n已达成 1 / 2 个结局\n\n已读、画廊、音乐与结局记录会保留。可以查看收藏，或读取存档探索其他选择。\n\n查看收藏与结局\n读取存档探索其他路线\n回到标题"
+    }
+  ],
+  "productions": [],
+  "retained": [
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops-project.zip",
+      "sha256": "43ef6e1673ed3dffbf705b4f178b2122fc960971eaf47286b33742fa285f0576"
+    },
+    {
+      "file": "evidence/web-story-plans-and-farewell/before-rain-stops.worldreview",
+      "sha256": "747534249345da6ce337054b4e7f47a1516556beda7079ef7b6d093e590bce8f"
+    },
+    {
+      "file": "evidence/web-reading-motion/before-rain-stops.html",
+      "sha256": "f21eb61a3a8a1a4aca73d935caccd46ca8bf30d4add24ec2c420f98a9d2d67d0"
+    },
+    {
+      "file": "evidence/web-reading-motion/before-rain-stops-website.zip",
+      "sha256": "a5510ba131555d065dc24566e5fa4ac093a0979e2d8fb5aa10982f4a1690651c"
+    }
+  ],
+  "code": [
+    {
+      "file": "tools/run-web-story-new-city-rooms.mjs",
+      "sha256": "254638a025c25d224064ba4f90730f54d8c11087a2f17c85630ed8847c3cac6e"
+    },
+    {
+      "file": "tools/audit-rain-story-new-city-rooms.mjs",
+      "sha256": "f1b6d007ca9e5a8c4ca1f77cc5a5b247e21bac6af68a2188cd60585072b8ec56"
+    },
+    {
+      "file": "assets/rain-story/editorial-v1.12.mjs",
+      "sha256": "2547c3fc5c5a7832b97d35eea56054e5eceaa57f622866602405538ff98fd170"
+    },
+    {
+      "file": "assets/rain-story/source-manifest-v1.12.json",
+      "sha256": "1c98f45c871bfe19400f58c04927dc72998449dc5c1f57b6f2bb621d50aadb06"
+    }
+  ],
+  "errors": [],
+  "scope": "Actual complete website routes and native muted voice endings, authored room/character/rain states and responsive stage screenshots; candidate includes explicit save/reload/load and old-content rejection. No natural human reading/listening/timing, physical phone/Safari, public hosting, permission approval or long soak. Full format/route matrix is separate."
+}

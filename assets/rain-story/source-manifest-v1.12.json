@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "version": "1.12.0",
+  "createdOn": "2026-10-18",
+  "tool": "built-in imagegen",
+  "assets": [
+    {
+      "assetId": "new_city_room_day",
+      "path": "assets/rain-story/new-city-room-day-v1.12.png",
+      "sha256": "d405cc2ca63f4a468e172d4d4ab6d02440e5d1f9b8e41157692ed843d7319d6a",
+      "byteLength": 2116854,
+      "width": 1672,
+      "height": 941,
+      "inputImages": [],
+      "prompt": "Use case: stylized-concept. Asset type: finished 16:9 visual novel environment background PNG, ideally 1672x941 or 1792x1008. Create an original empty modest temporary room in a NEW CITY, for a quiet contemporary romance about a young illustrator beginning a two-week work trial away from home. This must feel newly occupied and distinctly unlike an established artist's home studio: NO easel, NO wall of drawings, NO old church or sea panorama. Scene: a small clean guesthouse room, single bed against the right wall, simple writing desk and chair beside a broad rectangular window on the left, compact open suitcase beside the desk, a few loose sketches and an envelope on the desk with no readable words. Outside are ordinary closely spaced low-rise city rooftops and a distant rail viaduct, not ocean or countryside. Viewpoint: wide eye-level establishing view from the room entrance, natural architecture and proportions, enough open central floor, important room/window/desk cues in the upper two thirds, quieter lower foreground for game dialogue overlay. Style: polished visual-novel background painting, delicate realistic interior details, soft hand-painted finish and restrained natural colors; intimate everyday scale, not luxury hotel or fantasy. Lighting: overcast daytime, soft cool window light balanced with pale wood and off-white walls, gently hopeful but not bright sun; the desk lamp is present but unlit. Dry indoor floor, no people, no character silhouette, no readable text, logos, labels, UI, borders or watermark. Single full image, not a contact sheet or before/after pair. This daytime composition will later receive a night-lighting variant, so keep the room geometry simple and coherent.",
+      "permission": "pending",
+      "evidence": "",
+      "reviewedBy": "",
+      "reviewedOn": "",
+      "credit": ""
+    },
+    {
+      "assetId": "new_city_room_night",
+      "path": "assets/rain-story/new-city-room-night-v1.12.png",
+      "sha256": "a19a43001ba36db7043dfab215b239b8f70c9c81c1c103df257ee85dc488b6cc",
+      "byteLength": 1964061,
+      "width": 1672,
+      "height": 941,
+      "inputImages": [
+        {
+          "path": "assets/rain-story/new-city-room-day-v1.12.png",
+          "sha256": "d405cc2ca63f4a468e172d4d4ab6d02440e5d1f9b8e41157692ed843d7319d6a",
+          "role": "edit target: lighting-only night variant"
+        }
+      ],
+      "prompt": "Use case: lighting-weather. Asset type: finished 16:9 visual novel background NIGHT variant. Input image 1 is the edit target: the new-city guesthouse room daytime illustration. Change ONLY the time of day and lighting to the same room at night. Preserve EXACT camera, architecture, perspective, room layout, bed, bedcover folds, desk, chair, open suitcase, floor, window frame, curtains, sketches, envelope, lamp positions, plants and all object identities. Outside the very same window keep the same city buildings and rail viaduct, now dark blue evening sky with restrained ordinary lit windows; no seaside, church or old home studio. Turn on the desk lamp on the left, creating a warm amber pool of light on the sketches and envelope; keep gentle warm room fill and cool blue window ambience, readable shadows rather than almost-black darkness. Quiet lived-in mood after returning from a rainy farewell. Dry indoor floor; no rain inside. No people, character silhouettes, readable text, logos, UI, frames, borders or watermark. Maintain the original image dimensions, 16:9 framing and painterly visual-novel detail. Single image, not a split comparison.",
+      "permission": "pending",
+      "evidence": "",
+      "reviewedBy": "",
+      "reviewedOn": "",
+      "credit": ""
+    }
+  ],
+  "limits": "仅记录生成事实、输入依赖及本次视觉检查；不代表发行许可、人工完整美术／听读／真机验收。原26项素材和来源记录保留，不改九句系统TTS。"
+}

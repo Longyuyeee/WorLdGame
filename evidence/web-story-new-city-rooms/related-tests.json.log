@@ -1,0 +1,621 @@
+
+ RUN  v4.1.10 E:/ProjectSave/GeminiProject/WorLdGame
+
+ ✓ apps/player-shell/src/playback-advance-task.test.ts (9 tests) 16719ms
+   ✓ matches public Core, all candidates and canonical saves across repeated auto batches  2514ms
+   ✓ matches public Core, all candidates and canonical saves across repeated skipRead batches  2122ms
+   ✓ matches public Core, all candidates and canonical saves across repeated skipAll batches  1798ms
+   ✓ keeps separate non-shared scheduler history separate, letting Core rebuild rather than silently reuse it  605ms
+   ✓ checks source, playback policy and shared history ownership in replies  617ms
+   ✓ uses both packed directions in the actual foreground client and validates after expansion  1506ms
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+ ✓ apps/player-shell/src/player-shell.test.tsx (82 tests) 15012ms
+     ✓ does not replay held gamepad buttons across title, selection and text-ready renders  374ms
+     ✓ 自动播放 stops on timeout across host suspension and retry requires explicit playback  331ms
+     ✓ 快进全部 stops on timeout across host suspension and retry requires explicit playback  323ms
+     ✓ keeps the archived branch after save, unmount, remount, and load  502ms
+     ✓ waits for actual voice completion plus tail, not estimated duration, and stops at the terminal boundary  356ms
+     ✓ clears its owned timer during Host suspend and only starts a fresh delay after resume  348ms
+     ✓ saves and loads a manual Host slot through the formal bridge (summary API: false)  631ms
+     ✓ saves and loads a manual Host slot through the formal bridge (summary API: true)  616ms
+     ✓ does not let a host capture that never settles block a valid save  3181ms
+     ✓ persists, lists, and loads an exact build-authored checkpoint without stopping presentation  368ms
+     ✓ writes isolated recovery boundaries and restores them only after an explicit player decision  623ms
+ ✓ apps/player-shell/src/session-input-transport.test.ts (31 tests) 10716ms
+   ✓ preserves every source field, complete history, candidate sharing and exact canonical save  331ms
+   ✓ executes the same fully validating advance and both deferred checkpoint saves after decoding  553ms
+   ✓ preserves recorded future and current runtime identity when saving after rollback  383ms
+   ✓ retains auto scheduler, stop boundary and save state without dispatching playback  430ms
+   ✓ retains skipAll scheduler, stop boundary and save state without dispatching playback  377ms
+   ✓ retains skipRead scheduler, stop boundary and save state without dispatching playback  440ms
+ ✓ apps/player-shell/src/lazy-atlas-media.test.ts (12 tests) 10069ms
+   ✓ survives 100 shared gallery/cancel/revisit cycles and drains each closed scene  8425ms
+   ✓ evicts oldest idle groups over 8 MiB without evicting an active gallery consumer  994ms
+ ✓ apps/editor/src/preview-structure-continuity.test.tsx (4 tests) 7746ms
+     ✓ retains a choice, future, diagnostics and route across repeated structure visits, but not project reopen  4716ms
+     ✓ applies a scene title correction, but requests an explicit restart after adding a variable  1693ms
+     ✓ does not mix removed active source into an old build, and offers an entry restart for a deleted start target  708ms
+     ✓ keeps the active preview when saving the handoff fails, and captures it on a successful retry  628ms
+ ✓ apps/player-shell/src/history-result-transport.test.ts (27 tests) 7999ms
+   ✓ round-trips every long-history field and exact public save bytes without borrowing the source  669ms
+   ✓ round-trips loaded history including recorded future without changing the owner or saved bytes  406ms
+ ✓ apps/editor/src/web-website-export.test.tsx (14 tests) 5478ms
+   ✓ builds an explicitly labelled website download and private package from the real App, then invalidates both when format changes  1080ms
+   ✓ persists the website selection across reopening but never restores expired download links  824ms
+   ✓ hides old website links for an unapplied publication draft, then rebuilds the changed version with a new filename  1078ms
+   ✓ does not generate public or private downloads after a failed source save and allows an explicit retry  740ms
+   ✓ cancels a website build waiting for source save and never offers a partial website or production ZIP  567ms
+   ✓ ignores a late website build after changing purpose and keeps the new HTML artifact  931ms
+ ✓ apps/player-shell/src/replay-reading-return.test.tsx (17 tests) 4941ms
+   ✓ restores the parent paragraph and reading position after escape  423ms
+   ✓ restores the parent paragraph and reading position after completed-button  327ms
+   ✓ restores the parent paragraph and reading position after completed-space  327ms
+   ✓ captures the newly chosen reading position on each replay, not the first one forever  462ms
+   ✓ restores parent Auto controls as well as focus when a completed replay returns via Enter  325ms
+   ✓ restores parent Auto controls as well as focus when a completed replay returns via    328ms
+   ✓ does not reveal unfinished parent text or carry a completed reveal into ordinary history navigation  347ms
+ ✓ apps/editor/src/playtest-review-task-app.test.tsx (7 tests) 4258ms
+   ✓ takes a creator from publishing through edit/retest/confirm/next and back to the chosen export format  1193ms
+   ✓ restores an unfinished task after reload but requires a new local run before confirming  398ms
+   ✓ starts a stage task with scene context, waits for the target, and requires a new run after range changes  1032ms
+   ✓ restores the chosen story range without live proof and cannot verify a note by finishing the other route  997ms
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's load() method
+ ✓ apps/player-shell/src/memory-pressure.test.tsx (12 tests) 3885ms
+   ✓ protects before shrinking, preserves the current line, coalesces pressure and exposes readonly history  540ms
+   ✓ keeps rollback on write failure and allows the player to retry  331ms
+   ✓ does not shrink a changed story state after a delayed save  344ms
+   ✓ times out safely, ignores late completion, and rejects pressure after unmount  303ms
+   ✓ supports a suspended host without resuming it, and does not notify another mounted player  505ms
+   ✓ does not write an old proposal when reading advances during background preparation  307ms
+ ✓ apps/player-shell/src/recovery-backpressure.test.tsx (3 tests) 3628ms
+   ✓ keeps one physical recovery write during 150 story steps and persists only the latest boundary next  3196ms
+ ✓ apps/editor/src/studio-project-navigation.test.tsx (4 tests) 3141ms
+     ✓ keeps undo and redo after visiting structure and uses fresh command IDs  803ms
+     ✓ creates two scenes over an existing snapshot and preserves all three scenes when reopening  1089ms
+     ✓ saves structure changes and edited content before returning and reopening  970ms
+ ✓ apps/player-shell/src/player-manual-save-safety.test.tsx (13 tests) 2932ms
+   ✓ does not submit an occupied save until confirmation  346ms
+ ✓ apps/player-shell/src/recovery-background.test.tsx (6 tests) 2924ms
+   ✓ keeps one background validation during 100 steps, then captures only the newest state  2019ms
+   ✓ an explicit quick load supersedes a background result without replacing the loaded progress  313ms
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's load() method
+ ✓ apps/player-shell/src/player-panel-layout-shell.test.tsx (9 tests) 2763ms
+   ✓ opens authored menu/history, focuses the real close action and returns to the same paragraph  331ms
+   ✓ keeps native overwrite/read confirmations through measurement and never lets custom returns read or write a slot  473ms
+   ✓ routes menu settings, extras and load through existing flows without advancing the story  664ms
+   ✓ keeps native ending actions, delegates custom return to restart, and retains personal preferences  383ms
+ ✓ apps/player-shell/src/session-read-shell.test.tsx (11 tests) 2596ms
+   ✓ cancels validation through button, ignores a late valid reply and retries the same untouched slot  399ms
+ ✓ apps/player-shell/src/player-backup-wait.test.tsx (14 tests) 2558ms
+   ✓ can cancel a backup export stuck reading a stored slot and return to the unchanged story  319ms
+ ✓ apps/editor/src/page-leave-guard-app.test.tsx (4 tests) 2480ms
+   ✓ warns for unsaved text and clears only after the canonical save finishes  836ms
+   ✓ keeps the warning after a failed save and clears it after a successful retry  768ms
+   ✓ does not clear newer edits when an older in-flight save succeeds  865ms
+ ✓ apps/editor/src/web-delivery-app.test.tsx (4 tests) 2376ms
+   ✓ generates the optional author package after save, and invalidates it when the option changes  1087ms
+   ✓ waits for an active save and cancellation leaves no download links  847ms
+ ✓ apps/player-shell/src/audio-failure-continuity.test.tsx (13 tests) 2285ms
+   ✓ keeps voice decoding failure and explicit retry across suspension and return  368ms
+ ✓ apps/editor/src/preview-reading-app.test.tsx (4 tests) 2354ms
+   ✓ separates the readable copy from the canvas and retains exact live history, future and project through layout changes  1556ms
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+ ✓ apps/player-shell/src/playback-advance-shell.test.tsx (21 tests) 1733ms
+ ✓ apps/player-shell/src/player-save-flow.test.tsx (6 tests) 2203ms
+   ✓ shows one action per card and keeps empty load cards disabled  485ms
+   ✓ cancels a requested read without changing progress, then reads the pinned slot and stops Auto  375ms
+   ✓ refuses a changed slot after confirmation and refreshes the displayed selection  458ms
+   ✓ cancels a busy store read with Escape and ignores its late completion  302ms
+ ✓ apps/editor/src/asset-import-app.test.tsx (3 tests) 2176ms
+     ✓ keeps the asset dialog open for IME Escape and closes it for a normal Escape  381ms
+     ✓ imports real File bytes, persists stable metadata and reports exact deduplication  1419ms
+     ✓ rejects MIME-confused bytes before creating a Blob or Index revision  375ms
+ ✓ apps/editor/src/web-release-workflow.test.tsx (5 tests) 2081ms
+   ✓ takes a creator from a real release blocker to its stable source and back to directory  918ms
+   ✓ takes a creator from a real release blocker to its stable source and back to website  847ms
+ ✓ apps/player-shell/src/player-history-voice.test.tsx (13 tests) 2164ms
+   ✓ relistens a past line without rewinding the story, rewriting a slot or changing read knowledge/preferences  787ms
+ ✓ apps/editor/src/web-release-review-app.test.tsx (3 tests) 2194ms
+   ✓ connects publishing to actual reviews and entry playtest, retaining the chosen export format  987ms
+   ✓ keeps corrupt notes visible as incomplete, refuses opted-in export, and permits an explicit exclusion  1161ms
+ ✓ apps/editor/src/web-asset-sources.test.tsx (7 tests) 2057ms
+   ✓ protects surrounding publication drafts, locks navigation and reopens only applied metadata in the real App  852ms
+   ✓ does not reopen save/navigation controls when metadata is applied during an older save  730ms
+ ✓ apps/editor/src/web-source-review-workflow.test.tsx (14 tests) 1438ms
+   ✓ keeps real App navigation locked through apply-and-continue and saves the applied metadata after closing  511ms
+ ✓ apps/player-shell/src/reading-resume-shell.test.tsx (10 tests) 1833ms
+   ✓ keeps the restored-position notice and restart action when another window adds read knowledge  376ms
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+ ✓ apps/player-shell/src/player-progress-recovery.test.tsx (11 tests) 1631ms
+Not implemented: HTMLMediaElement's load() method
+ ✓ apps/player-shell/src/player-reading-shell.test.tsx (24 tests) 1912ms
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+ ✓ apps/player-shell/src/voice-reading-continuity.test.tsx (12 tests) 1838ms
+   ✓ restarts the current voice after a validated same-paragraph load, not healthy music or the formal slot  409ms
+ ✓ apps/player-shell/src/foreground-session-shell.test.tsx (7 tests) 1816ms
+   ✓ captures the requested save boundary without blocking later reading or moving the live story backwards  384ms
+   ✓ preserves the durable old slot when background saving fails  313ms
+   ✓ does not apply a late loaded state after switching projects  322ms
+   ✓ distinguishes background load failure from a damaged slot and keeps current progress  307ms
+ ✓ apps/player-shell/src/player-save-backup-shell.test.tsx (4 tests) 1329ms
+   ✓ previews before writing, cancels without changes, confirms occupied import and reads only on explicit request  579ms
+   ✓ does not read a different session if another window replaces the slot after the import succeeded  351ms
+ ✓ apps/player-shell/src/player-audio-readiness.test.tsx (12 tests) 1432ms
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+ ✓ apps/player-shell/src/n62-additional-content-player-shell.test.tsx (6 tests) 1805ms
+     ✓ offers local gallery retry without a host reload hook and preserves story and collection  455ms
+     ✓ opens Compiler-backed summaries and returns without changing the active story  300ms
+     ✓ does not reveal locked names and explains an unlocked resource that is unavailable  345ms
+     ✓ replays an unlocked scene in isolation and restores the exact user checkpoint on exit or completion  411ms
+ ✓ apps/player-shell/src/player-choice-input.test.tsx (21 tests) 1469ms
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+ ✓ apps/player-shell/src/player-additional-layout-shell.test.tsx (6 tests) 1649ms
+   ✓ keeps locked items secret, places native group returns in their own region, and never treats return as unlock  525ms
+   ✓ uses the native replay authority and restores the exact parent ending after replay completion  323ms
+ ✓ apps/player-shell/src/player-save-list-shell.test.tsx (6 tests) 1706ms
+   ✓ does not swallow the real shell list refresh failure after a committed backup import  531ms
+   ✓ keeps a checked file while its target list is unavailable and requires the list before explicit import  379ms
+ ✓ apps/editor/src/batch-asset-import-app.test.tsx (4 tests) 1514ms
+   ✓ imports actual files sequentially, keeps duplicate names distinct, leaves a bad file retryable and provides the created detail  831ms
+   ✓ does not overwrite an existing asset when the same filename is selected in a later batch  525ms
+ ✓ apps/editor/src/asset-repair-app.test.tsx (1 test) 1383ms
+   ✓ edits a resource without hand-copying its ID, preserves metadata on file selection, and supports asset undo/redo  1382ms
+ ✓ apps/editor/src/web-credits.test.tsx (3 tests) 1181ms
+   ✓ keeps unfinished publication fields safe, applies the separate credits dialog and reopens its content  876ms
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's load() method
+ ✓ apps/player-shell/src/history-input-boundary.test.tsx (9 tests) 1530ms
+   ✓ treats the history interaction as modal and makes the background reading controls inert  306ms
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+ ✓ apps/player-shell/src/player-reading-media-recovery.test.tsx (11 tests) 1313ms
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+ ✓ apps/player-shell/src/player-audio-recovery.test.tsx (14 tests) 1412ms
+ ✓ apps/player-shell/src/player-auto-continuity.test.tsx (8 tests) 1183ms
+ ✓ apps/player-shell/src/story-advance-shell.test.tsx (12 tests) 1189ms
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+ ✓ apps/player-shell/src/player-preferences-shell.test.tsx (9 tests) 1040ms
+ ✓ packages/player-core/src/memory-pressure.test.ts (4 tests) 1017ms
+     ✓ does not compact a pending Barrier or allow Back across a committed Barrier  330ms
+ ✓ apps/player-shell/src/native-atlas.test.ts (13 tests) 927ms
+ ✓ apps/player-shell/src/player-auto-reading-pages.test.tsx (8 tests) 987ms
+ ✓ apps/player-shell/src/player-reading-controls.test.tsx (7 tests) 1061ms
+   ✓ returns focus to the visible menu trigger after leaving additional content  338ms
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's load() method
+ ✓ apps/player-shell/src/player-collection-navigation.test.tsx (4 tests) 877ms
+ ✓ apps/player-shell/src/player-compatible-save.test.tsx (2 tests) 820ms
+   ✓ loads verified old slots, writes checkpoints/manual/recovery with the original identity and resumes after refresh  632ms
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's load() method
+ ✓ apps/editor/src/source-asset-preview.test.tsx (14 tests) 829ms
+ ✓ apps/player-shell/src/background-save-notice.test.tsx (3 tests) 803ms
+   ✓ shows a persistent nonmodal failure and lets the player save current progress manually  451ms
+ ✓ packages/runtime/src/scheduler-validation.test.ts (8 tests) 787ms
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's load() method
+ ✓ apps/player-shell/src/player-history-search.test.tsx (4 tests) 740ms
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+ ✓ apps/player-shell/src/mount-player.test.tsx (9 tests) 742ms
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's load() method
+ ✓ apps/player-shell/src/player-layout-shell.test.tsx (3 tests) 636ms
+   ✓ binds custom actions to protected Player flows, disables unavailable saves and restores focus  496ms
+ ✓ apps/player-shell/src/backup-inspection.test.tsx (18 tests) 736ms
+ ✓ apps/player-shell/src/deferred-checkpoint.test.tsx (4 tests) 607ms
+ ✓ apps/player-shell/src/player-credits.test.tsx (3 tests) 582ms
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's load() method
+ ✓ apps/player-shell/src/history-reading-context.test.tsx (15 tests) 534ms
+ ✓ apps/player-shell/src/title-load-continuity.test.tsx (2 tests) 874ms
+   ✓ keeps the title and keyboard stable while a recent save is pending: success  644ms
+ ✓ apps/player-shell/src/player-collection-flow.test.tsx (2 tests) 509ms
+   ✓ keeps unlocked endings after return to title and a fresh mount without reading a save  416ms
+ ✓ apps/player-shell/src/NativeAtlasImage.test.tsx (19 tests) 556ms
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's load() method
+ ✓ apps/player-shell/src/player-screen-skin.test.tsx (7 tests) 538ms
+ ✓ apps/player-shell/src/player-entry-save.test.tsx (3 tests) 527ms
+ ✓ apps/player-shell/src/history-voice-readiness.test.tsx (13 tests) 290ms
+ ✓ apps/player-shell/src/n61-localization-player-shell.test.tsx (1 test) 482ms
+     ✓ switches the formal Player projection, explains fallback, and keeps the locale after reopen  481ms
+ ✓ apps/editor/src/direction-authoring.test.tsx (10 tests) 469ms
+ ✓ packages/runtime/src/session-load-validation.test.ts (22 tests) 477ms
+ ✓ apps/player-shell/src/export-startup.test.ts (6 tests) 431ms
+ ✓ packages/runtime/src/history-navigation.test.ts (6 tests) 388ms
+ ✓ apps/player-shell/src/player-reading-motion.test.tsx (3 tests) 373ms
+ ✓ apps/player-shell/src/player-bootstrap.test.tsx (3 tests) 322ms
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's load() method
+ ✓ apps/editor/src/asset-audio-recovery.test.tsx (17 tests) 325ms
+ ✓ apps/player-shell/src/player-skin.test.tsx (2 tests) 275ms
+ ✓ apps/player-shell/src/player-history-page.test.tsx (3 tests) 315ms
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+ ✓ apps/player-shell/src/n61-localized-media-player-shell.test.tsx (1 test) 279ms
+ ✓ packages/runtime/src/sha256.test.ts (2 tests) 212ms
+ ✓ apps/player-shell/src/n61-cjk-typography-player-shell.test.tsx (1 test) 218ms
+ ✓ apps/player-shell/src/player-skin-images.test.tsx (2 tests) 226ms
+ ✓ packages/runtime/src/canonical.test.ts (16 tests) 219ms
+ ✓ apps/player-shell/src/story-motion.test.tsx (5 tests) 236ms
+ ✓ packages/runtime/src/runtime.test.ts (66 tests) 197ms
+ ✓ apps/player-shell/src/backup-preparation.test.ts (13 tests) 193ms
+ ✓ apps/player-shell/src/reading-meta-rain.test.ts (1 test) 208ms
+ ✓ apps/player-shell/src/history-protection-task.test.ts (2 tests) 209ms
+ ✓ apps/player-shell/src/player-appearance.test.tsx (1 test) 191ms
+ ✓ apps/player-shell/src/foreground-session-client.test.ts (48 tests) 168ms
+ ✓ apps/player-shell/src/browser-save-preview.test.ts (4 tests) 164ms
+ ✓ packages/player-core/src/player-core.test.ts (25 tests) 193ms
+ ✓ apps/editor/src/asset-preview-digest.test.tsx (2 tests) 169ms
+ ✓ apps/player-shell/src/ordinary-image-ownership.test.ts (18 tests) 163ms
+ ✓ apps/editor/src/asset-image-preview.test.tsx (4 tests) 138ms
+ ✓ apps/editor/src/web-delivery-bundle.test.ts (11 tests) 157ms
+ ✓ packages/player-core/src/web-save-compatibility.test.ts (5 tests) 146ms
+ ✓ apps/player-shell/src/player-save-preview-state.test.tsx (4 tests) 122ms
+ ✓ apps/player-shell/src/DeferredAtlasImage.test.tsx (3 tests) 134ms
+ ✓ apps/player-shell/src/use-skin-button-feedback.test.tsx (2 tests) 138ms
+ ✓ apps/editor/src/playable-web-export.test.ts (5 tests) 125ms
+ ✓ apps/player-shell/src/history-panel-focus.test.ts (5 tests) 118ms
+ ✓ apps/player-shell/src/backup-envelope-client.test.ts (22 tests) 117ms
+ ✓ packages/player-core/src/history-navigation.test.ts (4 tests) 101ms
+ ✓ apps/editor/src/asset-audio-preview.test.tsx (2 tests) 124ms
+ ✓ apps/editor/src/formal-web-export.test.ts (4 tests) 106ms
+ ✓ apps/player-shell/src/player-save-backup.test.ts (7 tests) 100ms
+ ✓ apps/editor/src/formal-preview-runtime.test.ts (17 tests) 105ms
+ ✓ packages/runtime/src/history-presentation.test.ts (5 tests) 87ms
+ ✓ apps/player-shell/src/pooled-session-client.test.ts (16 tests) 82ms
+ ✓ apps/player-shell/src/player-save-catalog.test.ts (8 tests) 80ms
+ ✓ apps/player-shell/src/player-storage-packing.test.ts (8 tests) 66ms
+ ✓ packages/player-core/src/player-collection-progress.test.ts (5 tests) 64ms
+ ✓ apps/player-shell/src/recovery-session-client.test.ts (15 tests) 64ms
+ ✓ apps/editor/src/formal-preview-hot-update.test.ts (3 tests) 60ms
+ ✓ apps/player-shell/src/story-advance-task.test.ts (11 tests) 58ms
+ ✓ packages/player-core/src/variable-lifecycle.test.ts (4 tests) 56ms
+ ✓ packages/player-core/src/player-replay-entry.test.ts (5 tests) 54ms
+ ✓ packages/player-core/src/n62-additional-content-player-core.test.ts (4 tests) 52ms
+ ✓ apps/player-shell/src/history-voice.test.ts (6 tests) 51ms
+ ✓ apps/player-shell/src/player-replay-store.test.ts (3 tests) 44ms
+ ✓ packages/player-core/src/deferred-checkpoint.test.ts (3 tests) 52ms
+ ✓ apps/player-shell/src/ordinary-png-source.test.ts (29 tests) 38ms
+ ✓ packages/player-core/src/n61-localization-player-core.test.ts (1 test) 39ms
+ ✓ apps/player-shell/src/player-presentation-adapter.test.ts (1 test) 33ms
+ ✓ packages/runtime/src/session-save-encoding.test.ts (13 tests) 31ms
+ ✓ apps/player-shell/src/reading-position.test.ts (12 tests) 33ms
+ ✓ apps/editor/src/web-release-readiness.test.ts (9 tests) 32ms
+ ✓ apps/player-shell/src/use-player-save-list.test.tsx (12 tests) 28ms
+ ✓ apps/player-shell/src/player-skin-template.test.tsx (2 tests) 28ms
+ ✓ apps/player-shell/src/player-save-store.test.ts (19 tests) 29ms
+ ✓ packages/project-domain/src/web-save-source-hashes.test.ts (17 tests) 29ms
+Not implemented: HTMLMediaElement's pause() method
+ ✓ apps/player-shell/src/player-music-preview.test.tsx (2 tests) 26ms
+ ✓ apps/player-shell/src/player-input.test.ts (7 tests) 17ms
+ ✓ packages/project-domain/src/web-asset-sources.test.ts (4 tests) 17ms
+ ✓ apps/player-shell/src/audio-readiness.test.ts (15 tests) 15ms
+ ✓ apps/player-shell/src/use-session-read.test.ts (3 tests) 17ms
+ ✓ apps/editor/src/web-release-review.test.ts (10 tests) 15ms
+ ✓ apps/player-shell/src/owned-animations.test.tsx (4 tests) 17ms
+ ✓ packages/runtime-host/src/host.test.ts (9 tests) 13ms
+ ✓ packages/project-domain/src/web-credits.test.ts (2 tests) 13ms
+ ✓ apps/player-shell/src/player-recovery-store.test.ts (4 tests) 10ms
+ ✓ apps/player-shell/src/player-save-migration-museum.test.ts (2 tests) 11ms
+ ✓ apps/player-shell/src/auto-playback-clock.test.ts (10 tests) 9ms
+ ✓ apps/player-shell/src/recovery-paint-yield.test.ts (9 tests) 10ms
+ ✓ apps/player-shell/src/player-save-policy.test.ts (10 tests) 9ms
+ ✓ apps/player-shell/src/player-panel-layout.test.ts (11 tests) 9ms
+ ✓ apps/player-shell/src/reading-resume-store.test.ts (27 tests) 7ms
+ ✓ apps/player-shell/src/player-layout.test.ts (6 tests) 5ms
+ ✓ apps/player-shell/src/audio-playback-request.test.ts (7 tests) 7ms
+ ✓ apps/player-shell/src/reading-resume-scope.test.ts (17 tests) 8ms
+ ✓ apps/player-shell/src/player-collection-store.test.ts (3 tests) 6ms
+ ✓ apps/player-shell/src/player-preferences.test.ts (5 tests) 6ms
+ ✓ apps/player-shell/src/appearance-preview-store.test.ts (5 tests) 5ms
+ ✓ apps/editor/src/asset-repair.test.ts (2 tests) 5ms
+ ✓ packages/runtime/src/scene-entry-trace.test.ts (2 tests) 5ms
+ ✓ apps/player-shell/src/player-playback-policy.test.ts (12 tests) 5ms
+ ✓ apps/player-shell/src/player-reading.test.ts (3 tests) 2ms
+ ✓ packages/player-core/src/player-data-contracts.test.ts (2 tests) 3ms
+
+ Test Files  162 passed (162)
+      Tests  1506 passed (1506)
+   Start at  18:17:37
+   Duration  319.11s (transform 3.97s, setup 17.59s, import 20.34s, tests 189.35s, environment 73.89s)
+
+JSON report written to E:/ProjectSave/GeminiProject/WorLdGame/evidence/web-story-new-city-rooms/related-tests.json
