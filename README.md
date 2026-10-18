@@ -1,5 +1,7 @@
 # WorLd Studio（工作名）产品与开发设计文档
 
+> 当前接续（2026-10-18）：[#414 回想快退的画面恢复与已读正文保持](docs/414-web-replay-image-and-reveal-recovery.md)。实际复现旋转快退时旧图片尚未释放，新画面误入预算故障；展示只对退役解码做一次限时等待，真实超限仍拒绝并可明确重试。已读正文返回后不再重新渐显。新 [HTML](evidence/web-replay-recovery/before-rain-stops.html)／[网站 ZIP](evidence/web-replay-recovery/before-rain-stops-website.zip)的三引擎快退、默认显示、受控恢复、完整路线及最终审计见 #414。1.11.0 候选／S0.41、#394 源／25 条未人工批准记录／26 媒体保持，#413 原游戏保留；实际永久解码停滞、部分渐显精确时刻、真机／自然听读／许可／公网仍未验收。以下为历史。
+
 > 当前接续（2026-10-18）：[#413 双路线存档接续与回想返回阅读](docs/413-web-route-replay-reading-return.md)。修复回想后正文回段首，以及结局键盘返回未恢复 Auto／焦点；真实分歧存档接续两路线，正常回想三引擎／本地 HTML、四视口及两格式×两路线范围见 #413。新 [HTML](evidence/web-route-replay-continuity/before-rain-stops.html)／[网站 ZIP](evidence/web-route-replay-continuity/before-rain-stops-website.zip)仍为 1.11.0 候选／S0.41，#394 源／25 条未人工批准记录／26 媒体保持，#412 原游戏保留。快速未呈现即退出的图片故障、默认渐显复核及人工／真机／许可／公网继续开放，不将正常流程通过扩大为边界验收。以下为历史。
 
 > 当前接续（2026-10-18）：[#412 备份导入前的内容核对与旧档保留](docs/412-web-backup-inspection-and-retention.md)。换浏览器续读前显示完整校验后的正文摘要、可选截图及目标旧档摘要，覆盖前可直接选中并备份旧槽位，之后仍需明确覆盖和读取；不改存档／备份协议。新 [HTML](evidence/web-backup-inspection/before-rain-stops.html)／[网站 ZIP](evidence/web-backup-inspection/before-rain-stops-website.zip)的作者、三引擎／本地文件、四格路线及最终审计见 #412。仍为 1.11.0 候选／S0.41，#394 源／25 条未人工批准记录／26 媒体保持，#411 原游戏保留；整机迁移、自然听读、真机／许可／公网等范围不扩大。以下为历史。

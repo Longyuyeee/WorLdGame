@@ -1,0 +1,311 @@
+{
+  "passed": true,
+  "version": "1.11.0",
+  "exactRepositoryAndArchiveFiles": 26,
+  "pendingPermissions": 26,
+  "approvedPermissions": 0,
+  "records": [
+    {
+      "assetId": "bus_stop_night",
+      "sourceFile": "assets/rain-story/bus-stop-night.png",
+      "digest": "sha256:a1e6e500aa1ca5d4b0dcdca821070f1b17f617a14227f76a83eb0257e128847b",
+      "bytes": 2788367,
+      "sourceKind": "generated",
+      "permission": "pending"
+    },
+    {
+      "assetId": "coastal_morning",
+      "sourceFile": "assets/rain-story/coastal-morning.png",
+      "digest": "sha256:558c25c6e369f18b98ff550165c38a06fc96f1ba0fba89ab69c3dc45f08bf94e",
+      "bytes": 3019235,
+      "sourceKind": "generated",
+      "permission": "pending"
+    },
+    {
+      "assetId": "day_cafe",
+      "sourceFile": "assets/rain-story/day-cafe.png",
+      "digest": "sha256:cd749f04403e3b4c8483350b77e79fb01bf9166de3f65e9d701583d43afead75",
+      "bytes": 2435623,
+      "sourceKind": "generated",
+      "permission": "pending"
+    },
+    {
+      "assetId": "letter_icon",
+      "sourceFile": "assets/rain-story/letter-icon.png",
+      "digest": "sha256:1ed954eeb7d22cd6176cb702dbc78977684c6a47261a8b36e152654d2700968a",
+      "bytes": 18633,
+      "sourceKind": "original",
+      "permission": "pending"
+    },
+    {
+      "assetId": "morning_studio",
+      "sourceFile": "assets/rain-story/morning-studio.png",
+      "digest": "sha256:598b41535295814f1e98a4388d8df83012897402090b83d988e5e2c6b583b57f",
+      "bytes": 2417066,
+      "sourceKind": "generated",
+      "permission": "pending"
+    },
+    {
+      "assetId": "night_cafe",
+      "sourceFile": "assets/rain-story/night-cafe.png",
+      "digest": "sha256:9ded1d5e951474c53f36f92fa7dc5ab6fcf575ebc3d6fb648a2759c5f9015698",
+      "bytes": 2435510,
+      "sourceKind": "generated",
+      "permission": "pending"
+    },
+    {
+      "assetId": "night_studio",
+      "sourceFile": "assets/rain-story/night-studio.png",
+      "digest": "sha256:d8721a9d412e6589161ceffc2ada4f65e9c20ff7402319569b4a86623ab00c96",
+      "bytes": 2034448,
+      "sourceKind": "generated",
+      "permission": "pending"
+    },
+    {
+      "assetId": "night_train",
+      "sourceFile": "assets/rain-story/night-train.png",
+      "digest": "sha256:6ef4b958c86328d5515b034a7060e5081430fcdc279536ceeaac43f15ce7f83b",
+      "bytes": 1968450,
+      "sourceKind": "generated",
+      "permission": "pending"
+    },
+    {
+      "assetId": "night_travel_theme",
+      "sourceFile": "assets/rain-story/night-travel-theme.wav",
+      "digest": "sha256:d69d2e28ca0d7d547c27f32cbd49703ebc40ddf36b0224f56001f7d2a73bd16a",
+      "bytes": 1411244,
+      "sourceKind": "original",
+      "permission": "pending"
+    },
+    {
+      "assetId": "sample_station",
+      "sourceFile": "assets/rain-story/station-night-v2.png",
+      "digest": "sha256:7b0aeee0aef6219584fef7833b6960ecb316bffa3b565ab13f847151068ba0bd",
+      "bytes": 2534090,
+      "sourceKind": "generated",
+      "permission": "pending"
+    },
+    {
+      "assetId": "soft_rain",
+      "sourceFile": "assets/rain-story/soft-rain.wav",
+      "digest": "sha256:fbbc665d5ebb4e5dad123383d1077f3d968a620b7e36cce46795c08669605c98",
+      "bytes": 529244,
+      "sourceKind": "original",
+      "permission": "pending"
+    },
+    {
+      "assetId": "station_chime",
+      "sourceFile": "assets/rain-story/station-chime.wav",
+      "digest": "sha256:78c4a9d21f19861265c4ce8c8e3b56f4a8bdb0777515ec93a9e53facbb17b863",
+      "bytes": 66194,
+      "sourceKind": "original",
+      "permission": "pending"
+    },
+    {
+      "assetId": "station_day",
+      "sourceFile": "assets/rain-story/station-day.png",
+      "digest": "sha256:49e0d7f4aedf5242a8c5001d3875ec3cae7836d5c73e57415db7f5fdaf627807",
+      "bytes": 3004142,
+      "sourceKind": "generated",
+      "permission": "pending"
+    },
+    {
+      "assetId": "voice_01",
+      "sourceFile": "assets/rain-story/voice-01.wav",
+      "digest": "sha256:26be1da92d18729069c0fda981697a09631fbe7525d4517af5f3633824bf13c0",
+      "bytes": 222222,
+      "sourceKind": "generated",
+      "permission": "pending"
+    },
+    {
+      "assetId": "voice_02",
+      "sourceFile": "assets/rain-story/voice-02.wav",
+      "digest": "sha256:342b2b082636ff9d0e8fff71a0ad7f53dfc5bb3fb6125927371b0828cf417197",
+      "bytes": 233942,
+      "sourceKind": "generated",
+      "permission": "pending"
+    },
+    {
+      "assetId": "voice_03",
+      "sourceFile": "assets/rain-story/voice-03.wav",
+      "digest": "sha256:9851880463e1d27bb758947fd998c834d942817f5c589fdd1b3ef31f870add27",
+      "bytes": 159176,
+      "sourceKind": "generated",
+      "permission": "pending"
+    },
+    {
+      "assetId": "voice_04",
+      "sourceFile": "assets/rain-story/voice-04-v1.7.wav",
+      "digest": "sha256:d2cd20b0b73ee05ee5ae19a1d6f0af29956e492144a3f708747cdc84bb6cd1d8",
+      "bytes": 221984,
+      "sourceKind": "generated",
+      "permission": "pending"
+    },
+    {
+      "assetId": "voice_05",
+      "sourceFile": "assets/rain-story/voice-05.wav",
+      "digest": "sha256:eeff44bae98f46d3fefaf1b8d9e3f27ee08ac635043e8d660e759f57946d8057",
+      "bytes": 216412,
+      "sourceKind": "generated",
+      "permission": "pending"
+    },
+    {
+      "assetId": "voice_06",
+      "sourceFile": "assets/rain-story/voice-06.wav",
+      "digest": "sha256:0e68ac781943cf48422d833c6eb6550f66ee4fb31901f12f492e3ca8c079695a",
+      "bytes": 257060,
+      "sourceKind": "generated",
+      "permission": "pending"
+    },
+    {
+      "assetId": "voice_07",
+      "sourceFile": "assets/rain-story/voice-07.wav",
+      "digest": "sha256:cc0bd25e03762753601ed2464aff8cb0fadd99db43610a7eaebb752a7acef028",
+      "bytes": 211326,
+      "sourceKind": "generated",
+      "permission": "pending"
+    },
+    {
+      "assetId": "voice_08",
+      "sourceFile": "assets/rain-story/voice-08.wav",
+      "digest": "sha256:b7b78ec4e28133260db750e20de3e4c56bda60e6e65f73b58b09412e75e76d4c",
+      "bytes": 206130,
+      "sourceKind": "generated",
+      "permission": "pending"
+    },
+    {
+      "assetId": "voice_09",
+      "sourceFile": "assets/rain-story/voice-09.wav",
+      "digest": "sha256:f90e09e4c2dadc8c6d255c137cd4ce3bc5b40d8a7331e9467c813075a809786a",
+      "bytes": 224528,
+      "sourceKind": "generated",
+      "permission": "pending"
+    },
+    {
+      "assetId": "waiting_room",
+      "sourceFile": "assets/rain-story/waiting-room.png",
+      "digest": "sha256:9a2a3bce8a89205a0ae6ac1cd22620dedae77bd519db5ec5c90b2302b55db47b",
+      "bytes": 2308345,
+      "sourceKind": "generated",
+      "permission": "pending"
+    },
+    {
+      "assetId": "xia_letter",
+      "sourceFile": "assets/rain-story/xia-letter.png",
+      "digest": "sha256:db56676dcd83122d0f0442173693870abb9f6df05d732d510f9915ccea963fc6",
+      "bytes": 1837533,
+      "sourceKind": "generated",
+      "permission": "pending"
+    },
+    {
+      "assetId": "xia_smile",
+      "sourceFile": "assets/rain-story/xia-smile.png",
+      "digest": "sha256:5ab4b3cf1b83bf897d386238f1fad4e87f36b6eea3d940e0c3d4101204404e37",
+      "bytes": 1783270,
+      "sourceKind": "generated",
+      "permission": "pending"
+    },
+    {
+      "assetId": "xia_thoughtful",
+      "sourceFile": "assets/rain-story/xia-thoughtful.png",
+      "digest": "sha256:02ab310670cd897e865ebb590e66094b188c305ee61959e8b4160e6f30ba2e9a",
+      "bytes": 1809416,
+      "sourceKind": "generated",
+      "permission": "pending"
+    }
+  ],
+  "bindings": [
+    {
+      "assetId": "voice_01",
+      "scene": "车站的雨",
+      "statementId": "stmt_ui_25",
+      "text": "进去读吧。我想先把今天的话说完。",
+      "speaker": "林远",
+      "file": "voice-01.wav",
+      "transcriptionVerified": false,
+      "naturalListeningApproved": false
+    },
+    {
+      "assetId": "voice_02",
+      "scene": "候车室的旧信",
+      "statementId": "stmt_ui_51",
+      "text": "把那个日期圈起来，变化了我们提前说。",
+      "speaker": "小夏",
+      "file": "voice-02.wav",
+      "transcriptionVerified": false,
+      "naturalListeningApproved": false
+    },
+    {
+      "assetId": "voice_03",
+      "scene": "站台前的约定",
+      "statementId": "stmt_ui_81",
+      "text": "这次我不会只回答一句以后。",
+      "speaker": "林远",
+      "file": "voice-03.wav",
+      "transcriptionVerified": false,
+      "naturalListeningApproved": false
+    },
+    {
+      "assetId": "voice_04",
+      "scene": "留下",
+      "statementId": "stmt_ui_113",
+      "text": "出发的事明早确认，今晚的回信不用再等。",
+      "speaker": "林远",
+      "file": "voice-04-v1.7.wav",
+      "transcriptionVerified": false,
+      "naturalListeningApproved": false
+    },
+    {
+      "assetId": "voice_05",
+      "scene": "灯下的回信",
+      "statementId": "stmt_ui_139",
+      "text": "信可以有下一封，闹钟也记得设好。",
+      "speaker": "小夏",
+      "file": "voice-05.wav",
+      "transcriptionVerified": false,
+      "naturalListeningApproved": false
+    },
+    {
+      "assetId": "voice_06",
+      "scene": "雨后的天明",
+      "statementId": "stmt_ui_167",
+      "text": "到了就告诉我实际的样子，不用只讲顺利的事。",
+      "speaker": "小夏",
+      "file": "voice-06.wav",
+      "transcriptionVerified": false,
+      "naturalListeningApproved": false
+    },
+    {
+      "assetId": "voice_07",
+      "scene": "远行",
+      "statementId": "stmt_ui_196",
+      "text": "先吃一顿热饭，信里的故事慢慢回。",
+      "speaker": "小夏",
+      "file": "voice-07.wav",
+      "transcriptionVerified": false,
+      "naturalListeningApproved": false
+    },
+    {
+      "assetId": "voice_08",
+      "scene": "车窗与海",
+      "statementId": "stmt_ui_223",
+      "text": "下次一起走这条路，我们穿舒服的鞋。",
+      "speaker": "林远",
+      "file": "voice-08.wav",
+      "transcriptionVerified": false,
+      "naturalListeningApproved": false
+    },
+    {
+      "assetId": "voice_09",
+      "scene": "再一次见面",
+      "statementId": "stmt_ui_250",
+      "text": "我们有时间，把上次的故事继续讲完。",
+      "speaker": "小夏",
+      "file": "voice-09.wav",
+      "transcriptionVerified": false,
+      "naturalListeningApproved": false
+    }
+  ],
+  "legalReviewPassed": false,
+  "naturalListeningApproved": false
+}

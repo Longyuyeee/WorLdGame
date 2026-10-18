@@ -4,25 +4,25 @@ import { loadProject, migrateS0Project } from '@world-studio/project-domain';
 import { withProjectSettings } from '@world-studio/gal-settings';
 import { PlayerShell } from './PlayerShell';
 
-afterEach(() => { cleanup(); vi.restoreAllMocks(); localStorage.clear(); });
-function project(id = 'replay_reading_return') {
+afterEach(() => { cleanup(); vi.useRealTimers(); vi.restoreAllMocks(); localStorage.clear(); });
+function project(id = 'replay_reading_return', revealMode: 'instant' | 'typewriter' = 'instant') {
   const p = loadProject(migrateS0Project({ schemaVersion: 0, id, title: 'Reading return', entrySceneId: 'main', characters: [], scenes: [{ id: 'main', title: 'Main', statements: [
     { id: 'one', kind: 'narration', textId: 'one_text', text: '第一段长文。'.repeat(60) },
     { id: 'two', kind: 'narration', textId: 'two_text', text: '第二段长文。'.repeat(60) },
     { id: 'end', kind: 'end', endingName: '结束' }
   ] }] }).files);
-  return { ...p, settings: withProjectSettings(p.settings, { text: { revealMode: 'instant' } }) };
+  return { ...p, settings: withProjectSettings(p.settings, { text: { revealMode } }) };
 }
 function geometry() {
   vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockReturnValue(300);
   vi.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(200);
   vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockReturnValue(1600);
 }
-async function setup() {
-  geometry(); const p = project(), view = render(<PlayerShell project={p} />);
+async function setup(revealMode: 'instant' | 'typewriter' = 'instant') {
+  geometry(); const p = project('replay_reading_return', revealMode), view = render(<PlayerShell project={p} />);
   fireEvent.click(view.getByRole('button', { name: '开始故事' })); await act(async () => {});
   const scroll = (top: number) => { const el = view.getByRole('button', { name: '继续下一句' }); el.scrollTop = top; fireEvent.scroll(el); return el; };
-  const advance = () => { scroll(1400); fireEvent.click(view.getByRole('button', { name: '继续下一句' })); };
+  const advance = () => { const el = view.getByRole('button', { name: '继续下一句' }); if (el.dataset.textReady === 'false') fireEvent.click(el); scroll(1400); fireEvent.click(el); };
   advance(); advance(); fireEvent.click(view.getByRole('button', { name: '后退一步' }));
   const paragraph = scroll(420), main = view.container.querySelector('main')!;
   const before = { hash: main.dataset.runtimeStateHash, host: main.dataset.runtimeHostSnapshotHash, cursor: main.dataset.historyCursor, text: paragraph.textContent };
@@ -66,4 +66,20 @@ it.each(['Enter', ' '])('restores parent Auto controls as well as focus when a c
   expect(f.getByRole('button', { name: '自动播放' })).toHaveAttribute('aria-pressed', 'false'); f.advance(); f.advance();
   fireEvent.keyDown(window, { key }); expect(f.getByRole('button', { name: '自动播放' })).toHaveAttribute('aria-pressed', 'true');
   const paragraph = f.getByRole('button', { name: '继续下一句' }); expect(paragraph.scrollTop).toBe(420); await waitFor(() => expect(paragraph).toHaveFocus());
+});
+it.each(['natural', 'explicit'])('does not cover a paragraph already revealed by %s completion after replay', async completion => {
+  vi.useFakeTimers(); const f = await setup('typewriter');
+  expect(f.paragraph).toHaveAttribute('data-text-ready', 'false');
+  if (completion === 'natural') await act(async () => { await vi.advanceTimersByTimeAsync(Number(f.paragraph.dataset.textRevealDuration)); });
+  else fireEvent.click(f.paragraph);
+  expect(f.paragraph).toHaveAttribute('data-text-ready', 'true'); f.enter(); fireEvent.keyDown(window, { key: 'Escape' });
+  expect(f.getByRole('button', { name: '继续下一句' })).toHaveAttribute('data-text-ready', 'true');
+  expect(f.main).toHaveAttribute('data-runtime-state-hash', f.before.hash);
+});
+it('does not reveal unfinished parent text or carry a completed reveal into ordinary history navigation', async () => {
+  const f = await setup('typewriter'); f.enter(); fireEvent.keyDown(window, { key: 'Escape' });
+  expect(f.getByRole('button', { name: '继续下一句' })).toHaveAttribute('data-text-ready', 'false');
+  fireEvent.click(f.getByRole('button', { name: '继续下一句' })); f.enter(); fireEvent.keyDown(window, { key: 'Escape' });
+  expect(f.getByRole('button', { name: '继续下一句' })).toHaveAttribute('data-text-ready', 'true'); f.advance();
+  fireEvent.click(f.getByRole('button', { name: '后退一步' })); expect(f.getByRole('button', { name: '继续下一句' })).toHaveAttribute('data-text-ready', 'false');
 });

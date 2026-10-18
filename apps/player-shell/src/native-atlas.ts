@@ -1,5 +1,5 @@
 import { unzlib, unzlibSync } from "fflate";
-import { ImageResourceBudgetError, preflightPngPixels } from "./image-resource-policy";
+import { ImageResourceBudgetError, OrdinaryImageRetiringError, preflightPngPixels } from "./image-resource-policy";
 import { readOrdinaryPngSource } from "./ordinary-png-source";
 import { createBlobDigest, createLosslessDicingRgbaDigest, parseLosslessDicingPngDeliveryManifest, type LosslessDicingPngDeliveryManifest } from "@world-studio/project-persistence";
 
@@ -109,7 +109,8 @@ const RENDER_BUDGET = 64 * 1024 * 1024;
 export const NATIVE_DECODE_TIMEOUT_MS = 5_000;
 let quarantinedGroups = 0;
 let ordinaryBitmapDecodes=0, ordinaryQuarantinedDecodes=0;
-export const nativeAtlasDiagnostics = () => ({ groups: cache.size, accountedBytes, peakBytes, budgetBytes: RENDER_BUDGET, activeDecodes, queuedDecodes: decodeQueue.length, peakDecodes, decodedGroups, cacheHits, quarantinedGroups, ordinaryBitmapDecodes, ordinaryQuarantinedDecodes });
+const ordinaryReleaseWaiters = new Set<() => void>();
+export const nativeAtlasDiagnostics = () => ({ groups: cache.size, accountedBytes, peakBytes, budgetBytes: RENDER_BUDGET, activeDecodes, queuedDecodes: decodeQueue.length, peakDecodes, decodedGroups, cacheHits, quarantinedGroups, ordinaryBitmapDecodes, ordinaryQuarantinedDecodes, ordinaryReleaseWaiters: ordinaryReleaseWaiters.size });
 function publishDiagnostics() {
   if (typeof document !== "undefined") {
     document.documentElement.dataset.nativeAtlasBytes = String(accountedBytes);
@@ -120,10 +121,30 @@ function publishDiagnostics() {
 }
 function reserve(bytes: number) { if (!Number.isSafeInteger(bytes) || bytes < 0 || accountedBytes + bytes > RENDER_BUDGET) throw new ImageResourceBudgetError("Atlas renderer memory budget exceeded"); accountedBytes += bytes; peakBytes = Math.max(peakBytes, accountedBytes); publishDiagnostics(); }
 
+/** No allocation or decode retry while an abandoned physical decode owns its
+ * reservation. One bounded, cancellable presentation wait; never force-free. */
+export async function waitForOrdinaryImageRelease(signal: AbortSignal): Promise<void> {
+  signal.throwIfAborted();
+  if (ordinaryQuarantinedDecodes === 0) return;
+  await new Promise<void>((resolve, reject) => {
+    let done = false;
+    const finish = (error?: unknown) => {
+      if (done) return; done = true;
+      clearTimeout(timer); signal.removeEventListener('abort', cancel); ordinaryReleaseWaiters.delete(receive); publishDiagnostics();
+      error === undefined ? resolve() : reject(error);
+    };
+    const receive = () => { if (ordinaryQuarantinedDecodes === 0) finish(); };
+    const cancel = () => finish(signal.reason);
+    const timer = setTimeout(() => finish(new DOMException('Prior image decode has not released', 'TimeoutError')), NATIVE_DECODE_TIMEOUT_MS);
+    ordinaryReleaseWaiters.add(receive); signal.addEventListener('abort', cancel, { once: true }); publishDiagnostics();
+    if (signal.aborted) cancel(); else receive();
+  });
+}
+
 /** Use the same 1:1 Canvas source for ordinary PNG and Atlas fallback sampling. */
 export async function acquireOrdinaryCanvasImage(url: string, canvas: HTMLCanvasElement, signal?: AbortSignal) {
   signal?.throwIfAborted();
-  if(ordinaryQuarantinedDecodes>0)throw new ImageResourceBudgetError("Ordinary decode quarantined; wait for physical completion");
+  if(ordinaryQuarantinedDecodes>0)throw new OrdinaryImageRetiringError("Ordinary decode quarantined; wait for physical completion");
   let image: HTMLImageElement | undefined;
   let bytes=0, encodedBytes=0, released=false, physicalPending=false;
   const clearBudget=()=>{if(!physicalPending){accountedBytes-=bytes;bytes=0;publishDiagnostics();}};
@@ -131,13 +152,13 @@ export async function acquireOrdinaryCanvasImage(url: string, canvas: HTMLCanvas
   try {
     const owned=typeof createImageBitmap==="function";
     const source=owned?await readOrdinaryPngSource(url,signal,(width,height)=>{
-      if(ordinaryQuarantinedDecodes>0)throw new ImageResourceBudgetError("Ordinary decode quarantined");
+      if(ordinaryQuarantinedDecodes>0)throw new OrdinaryImageRetiringError("Ordinary decode quarantined");
       reserve(width*height*12);bytes+=width*height*12;
     },count=>{reserve(count);encodedBytes+=count;bytes+=count;}):undefined;
     if(!source&&encodedBytes>0){accountedBytes-=encodedBytes;bytes-=encodedBytes;encodedBytes=0;publishDiagnostics();}
     const preflight=source?source.width*source.height:await preflightPngPixels(url,signal);
     signal?.throwIfAborted();
-    if(ordinaryQuarantinedDecodes>0)throw new ImageResourceBudgetError("Ordinary decode quarantined");
+    if(ordinaryQuarantinedDecodes>0)throw new OrdinaryImageRetiringError("Ordinary decode quarantined");
     if(bytes===0&&preflight!==undefined){reserve(preflight*(owned?12:8));bytes=preflight*(owned?12:8);}
     const loadImage=async()=>{
       const checkedImage=new Image();image=checkedImage;
@@ -163,7 +184,7 @@ export async function acquireOrdinaryCanvasImage(url: string, canvas: HTMLCanvas
       physicalPending=true;ordinaryBitmapDecodes++;publishDiagnostics();
       let quarantined=false,timer:ReturnType<typeof setTimeout>|undefined,cancel:(()=>void)|undefined;
       const physical=Promise.resolve().then(()=>{if(released)throw new DOMException("Image cancelled","AbortError");return createImageBitmap(source?.blob??image!);});
-      const settled=()=>{physicalPending=false;ordinaryBitmapDecodes--;if(quarantined)ordinaryQuarantinedDecodes--;clearTimeout(timer);if(cancel)signal?.removeEventListener("abort",cancel);if(released)clearBudget();publishDiagnostics();};
+      const settled=()=>{physicalPending=false;ordinaryBitmapDecodes--;if(quarantined)ordinaryQuarantinedDecodes--;clearTimeout(timer);if(cancel)signal?.removeEventListener("abort",cancel);if(released)clearBudget();publishDiagnostics();for(const receive of [...ordinaryReleaseWaiters])receive();};
       try {
         const bitmap=await new Promise<ImageBitmap>((resolve,reject)=>{
           const abandon=(error:unknown)=>{if(!physicalPending)return;if(!quarantined){quarantined=true;ordinaryQuarantinedDecodes++;}release();publishDiagnostics();reject(error);};

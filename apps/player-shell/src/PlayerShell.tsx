@@ -548,13 +548,14 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
   );
   const reading = useReadingSurface(`${project.manifest.projectId}:${presentedTextId}:${snapshot.history?.cursor}:${snapshot.localization.selectedLocale}:${presentedText}`, `${compactReading}:${readingMenuOpen}:${fontStatus}:${textReady}:${settingsApplication.text.fontScale}:${fullscreen.active}`,
     hostActivity === 'active' && !sessionRead.pending && !storyAdvance.busy && !artworkView && !preferencesOpen && !readingMenuOpen && !historyPanelOpen && !savePanelOpen && !additionalContentOpen);
-  const replayReadingReturn = useReplayReadingReturn(reading, state, project);
+  const replayReadingReturn = useReplayReadingReturn(reading, state, project, textReady);
   const readingTextHash = useMemo(() => sha256(presentedText), [presentedText]);
   const readingResume = useReadingResume(reading, state, !editorPreview && !snapshot.sceneReplay.active && presentedText !== '' && state.runtimeState && snapshot.runtimeStateHash ? {
     projectId: project.manifest.projectId, buildId: state.runtimeState.buildId, runtimeStateHash: snapshot.runtimeStateHash,
     locale: snapshot.localization.selectedLocale, textHash: readingTextHash
   } : null);
   const lastReadingReveal = useRef(0);
+  const lastReplayReadingReveal = useRef(0);
   const readingRef = useCallback((element: HTMLButtonElement | null) => { reading.element.current = element; return releaseAnimationsOnDetach(element); }, [reading.element]);
   const closeHistoryPanel = useCallback(() => { setHistoryPanelOpen(false); queueMicrotask(() => {
     const trigger = historyDialogTrigger.current;
@@ -1347,8 +1348,8 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
   }, [memoryPressureRequest, memoryPressureRetry, project, recoveryCoordinator, recoveryStore]);
 
   useEffect(() => {
-    if (lastReadingReveal.current !== readingResume.revealSerial) {
-      lastReadingReveal.current = readingResume.revealSerial; setTextReady(true); return;
+    if (lastReadingReveal.current !== readingResume.revealSerial || lastReplayReadingReveal.current !== replayReadingReturn.revealSerial) {
+      lastReadingReveal.current = readingResume.revealSerial; lastReplayReadingReveal.current = replayReadingReturn.revealSerial; setTextReady(true); return;
     }
     if (presentedText === "" || textRevealDuration === 0) {
       setTextReady(true);
@@ -1357,7 +1358,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
     setTextReady(false);
     const timer = window.setTimeout(() => setTextReady(true), textRevealDuration);
     return () => window.clearTimeout(timer);
-  }, [presentedText, textRevealDuration, readingResume.revealSerial]);
+  }, [presentedText, textRevealDuration, readingResume.revealSerial, replayReadingReturn.revealSerial]);
 
   useEffect(() => {
     if (!autoEnabled) return;

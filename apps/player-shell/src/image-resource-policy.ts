@@ -2,6 +2,9 @@
 export class ImageResourceBudgetError extends Error {
   override readonly name = "ImageResourceBudgetError";
 }
+/** An abandoned native decode still owns memory; unlike a full live budget,
+ * this can become available only when that physical operation settles. */
+export class OrdinaryImageRetiringError extends ImageResourceBudgetError {}
 const MAX_ENCODED_BYTES=32*1024*1024;
 /** Cleanup must not replace a policy/abort rejection with a generic IO error. */
 export async function discardImageBody(cancel: () => Promise<unknown>): Promise<void> {

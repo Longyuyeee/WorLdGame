@@ -2,9 +2,9 @@ import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-libra
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { NativeAtlasImage } from "./NativeAtlasImage";
 import { IMAGE_LOAD_TIMEOUT_MS } from "./image-load-policy";
-import { ImageResourceBudgetError } from "./image-resource-policy";
-import { acquireNativeAtlasImage, acquireOrdinaryCanvasImage, type NativeAtlasDelivery } from "./native-atlas";
-vi.mock("./native-atlas", () => ({ acquireNativeAtlasImage: vi.fn(), acquireOrdinaryCanvasImage:vi.fn(), nativeAtlasDiagnostics: () => ({ accountedBytes: 1 }) }));
+import { ImageResourceBudgetError, OrdinaryImageRetiringError } from "./image-resource-policy";
+import { acquireNativeAtlasImage, acquireOrdinaryCanvasImage, waitForOrdinaryImageRelease, type NativeAtlasDelivery } from "./native-atlas";
+vi.mock("./native-atlas", () => ({ acquireNativeAtlasImage: vi.fn(), acquireOrdinaryCanvasImage:vi.fn(), waitForOrdinaryImageRelease:vi.fn(), nativeAtlasDiagnostics: () => ({ accountedBytes: 1 }) }));
 afterEach(() => { cleanup(); vi.useRealTimers(); vi.resetAllMocks(); });
 const group = () => ({ schemaVersion: 1, groupId: "test", manifest: "{}", pages: [], fallback: { url: "", digest: "", rawBytes: 1, entries: [] } }) as NativeAtlasDelivery;
 describe("native player image ownership", () => {
@@ -12,12 +12,46 @@ describe("native player image ownership", () => {
     vi.mocked(acquireOrdinaryCanvasImage).mockRejectedValue(reason==="budget"?new ImageResourceBudgetError("budget"):new DOMException("decode timed out","TimeoutError"));
     const failure=vi.fn();render(<NativeAtlasImage canvasSampling src="blob:source" alt="画面" onResourceFailure={failure} />);
     await screen.findByRole("alert");expect(document.querySelector("img")).toBeNull();expect(failure).toHaveBeenCalledOnce();
+    expect(waitForOrdinaryImageRelease).not.toHaveBeenCalled();
     if(reason==="budget"){expect(screen.getByRole("alert")).toHaveTextContent("安全预算");expect(screen.getByRole("alert")).not.toHaveTextContent("重新下载");}
     expect(screen.getByRole("button",{name:"重试画面资源"})).toBeEnabled();
     vi.mocked(acquireOrdinaryCanvasImage).mockImplementationOnce(async(_url,canvas)=>({source:canvas,width:8,height:8,release:vi.fn()}));
     fireEvent.click(screen.getByRole("button",{name:"重试画面资源"}));
     await waitFor(()=>expect(screen.getByRole("img")).toHaveAttribute("data-canvas-sampling","ready"));
     expect(screen.queryByRole("alert")).toBeNull();expect(failure).toHaveBeenCalledOnce();
+  });
+  it('waits for a retiring physical image once without decoding or reporting failure early', async () => {
+    const failure = vi.fn(), release = vi.fn(); let finish!: () => void;
+    vi.mocked(acquireOrdinaryCanvasImage).mockRejectedValueOnce(new OrdinaryImageRetiringError('retiring')).mockImplementationOnce(async (_url, canvas) => ({ source: canvas, width: 8, height: 8, release }));
+    vi.mocked(waitForOrdinaryImageRelease).mockImplementation(() => new Promise(resolve => { finish = resolve; }));
+    const view = render(<NativeAtlasImage canvasSampling src="blob:parent" alt="原画面" onResourceFailure={failure} />);
+    await waitFor(() => expect(waitForOrdinaryImageRelease).toHaveBeenCalledOnce());
+    expect(acquireOrdinaryCanvasImage).toHaveBeenCalledOnce(); expect(screen.queryByRole('alert')).toBeNull(); expect(document.querySelector('img')).toBeNull();
+    await act(async () => { finish(); }); expect(acquireOrdinaryCanvasImage).toHaveBeenCalledTimes(2); expect(screen.getByRole('img')).toHaveAttribute('data-canvas-sampling', 'ready'); expect(failure).not.toHaveBeenCalled();
+    view.unmount(); expect(release).toHaveBeenCalledOnce();
+  });
+  it('does not allocate a late parent image after its retiring wait was cancelled by exit', async () => {
+    let finish!: () => void;
+    vi.mocked(acquireOrdinaryCanvasImage).mockRejectedValueOnce(new OrdinaryImageRetiringError('retiring'));
+    vi.mocked(waitForOrdinaryImageRelease).mockImplementation(() => new Promise(resolve => { finish = resolve; }));
+    const view = render(<NativeAtlasImage canvasSampling src="blob:parent" alt="原画面" />);
+    await waitFor(() => expect(waitForOrdinaryImageRelease).toHaveBeenCalledOnce()); view.unmount();
+    expect(vi.mocked(waitForOrdinaryImageRelease).mock.calls[0]![0].aborted).toBe(true);
+    await act(async () => { finish(); }); expect(acquireOrdinaryCanvasImage).toHaveBeenCalledOnce();
+  });
+  it('keeps a real budget failure after the one retiring wait retry, without a decode loop or emergency image', async () => {
+    vi.mocked(acquireOrdinaryCanvasImage).mockRejectedValueOnce(new OrdinaryImageRetiringError('retiring')).mockRejectedValueOnce(new ImageResourceBudgetError('live budget'));
+    vi.mocked(waitForOrdinaryImageRelease).mockResolvedValue();
+    render(<NativeAtlasImage canvasSampling src="blob:parent" alt="原画面" />);
+    expect(await screen.findByRole('alert')).toHaveTextContent('安全预算'); expect(acquireOrdinaryCanvasImage).toHaveBeenCalledTimes(2); expect(waitForOrdinaryImageRelease).toHaveBeenCalledOnce(); expect(document.querySelector('img')).toBeNull();
+  });
+  it('shows a retryable timeout if the prior physical decode does not release in time', async () => {
+    vi.mocked(acquireOrdinaryCanvasImage).mockRejectedValueOnce(new OrdinaryImageRetiringError('retiring'));
+    vi.mocked(waitForOrdinaryImageRelease).mockRejectedValue(new DOMException('not released', 'TimeoutError'));
+    render(<NativeAtlasImage canvasSampling src="blob:parent" alt="原画面" />);
+    expect(await screen.findByRole('alert')).toHaveTextContent('加载超时'); expect(acquireOrdinaryCanvasImage).toHaveBeenCalledOnce(); expect(document.querySelector('img')).toBeNull();
+    vi.mocked(acquireOrdinaryCanvasImage).mockImplementationOnce(async (_url, canvas) => ({ source: canvas, width: 8, height: 8, release: vi.fn() }));
+    fireEvent.click(screen.getByRole('button', { name: '重试画面资源' })); await waitFor(() => expect(screen.getByRole('img')).toHaveAttribute('data-canvas-sampling', 'ready'));
   });
   it("falls back after native timeout without showing a retry error or discarding the verified source", async () => {
     vi.useFakeTimers();

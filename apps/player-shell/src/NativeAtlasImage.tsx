@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef, useState, type ImgHTMLAttributes, type CanvasHTMLAttributes } from "react";
 import { releaseAnimationsOnDetach } from "./owned-animations";
-import { acquireNativeAtlasImage, acquireOrdinaryCanvasImage, nativeAtlasDiagnostics, type NativeAtlasSource } from "./native-atlas";
+import { acquireNativeAtlasImage, acquireOrdinaryCanvasImage, nativeAtlasDiagnostics, waitForOrdinaryImageRelease, type NativeAtlasSource } from "./native-atlas";
 import { IMAGE_LOAD_TIMEOUT_MS } from "./image-load-policy";
-import { ImageResourceBudgetError } from "./image-resource-policy";
+import { ImageResourceBudgetError, OrdinaryImageRetiringError } from "./image-resource-policy";
 
 const identities = new WeakMap<NativeAtlasSource["group"], number>();
 let nextIdentity = 0;
@@ -48,7 +48,14 @@ function AtlasCanvas({ atlas, imageProps, onResourceFailure, onResourceState, hi
         } catch(error){fail(error instanceof DOMException && error.name === "TimeoutError" ? "timeout" : "failed");throw error;}
       }
       if(atlas){try{return {image:await acquireNativeAtlasImage(atlas,canvas,controller.signal),mode:"ready"};}catch{controller.signal.throwIfAborted();}}
-      return {image:await acquireOrdinaryCanvasImage(url,canvas,controller.signal),mode:atlas?"fallback":"ordinary"};
+      let image;
+      try { image = await acquireOrdinaryCanvasImage(url,canvas,controller.signal); }
+      catch (error) {
+        if (!(error instanceof OrdinaryImageRetiringError)) throw error;
+        await waitForOrdinaryImageRelease(controller.signal); controller.signal.throwIfAborted();
+        image = await acquireOrdinaryCanvasImage(url,canvas,controller.signal);
+      }
+      return {image,mode:atlas?"fallback":"ordinary"};
     };
     void load().then(({image,mode}) => {
       if (!active) { image.release(); return; }

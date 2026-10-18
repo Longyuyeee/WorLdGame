@@ -1,6 +1,6 @@
 import {afterEach,describe,it,expect,vi} from "vitest";
-import {acquireOrdinaryCanvasImage,nativeAtlasDiagnostics,NATIVE_DECODE_TIMEOUT_MS} from "./native-atlas";
-import {ImageResourceBudgetError,pngPixels,preflightPngPixels} from "./image-resource-policy";
+import {acquireOrdinaryCanvasImage,nativeAtlasDiagnostics,NATIVE_DECODE_TIMEOUT_MS,waitForOrdinaryImageRelease} from "./native-atlas";
+import {ImageResourceBudgetError,OrdinaryImageRetiringError,pngPixels,preflightPngPixels} from "./image-resource-policy";
 afterEach(()=>{vi.useRealTimers();vi.restoreAllMocks();vi.unstubAllGlobals();});
 function png(width=8,height=8){const bytes=new Uint8Array(33);bytes.set([137,80,78,71,13,10,26,10]);const view=new DataView(bytes.buffer);view.setUint32(8,13);view.setUint32(12,0x49484452);view.setUint32(16,width);view.setUint32(20,height);return bytes;}
 const url=(width=8,height=8)=>`data:image/png;base64,${btoa(String.fromCharCode(...png(width,height)))}`;
@@ -14,6 +14,33 @@ function setup(width=8,height=8){
   return {assigned,draw};
 }
 describe("ordinary PNG ownership and policy",()=>{
+  it('does not wait or allocate when no physical image is retiring, and honors an already cancelled caller', async () => {
+    vi.useFakeTimers(); await waitForOrdinaryImageRelease(new AbortController().signal);
+    const controller = new AbortController(); controller.abort(); await expect(waitForOrdinaryImageRelease(controller.signal)).rejects.toMatchObject({ name: 'AbortError' });
+    expect(nativeAtlasDiagnostics()).toMatchObject({ ordinaryReleaseWaiters: 0, accountedBytes: 0 }); expect(vi.getTimerCount()).toBe(0);
+  });
+  it.each(['resolve', 'reject'])('releases a presentation waiter only after the abandoned native image physically settles (%s)', async outcome => {
+    vi.useFakeTimers(); setup(); const close = vi.fn(); let finish!: (value: unknown) => void, fail!: (error: Error) => void;
+    vi.stubGlobal('createImageBitmap', vi.fn(() => new Promise((resolve, reject) => { finish = resolve; fail = reject; })));
+    const controller = new AbortController(), original = acquireOrdinaryCanvasImage(url(), document.createElement('canvas'), controller.signal).catch(error => error);
+    await vi.advanceTimersByTimeAsync(0); controller.abort(); await original;
+    await expect(acquireOrdinaryCanvasImage(url(), document.createElement('canvas'))).rejects.toBeInstanceOf(OrdinaryImageRetiringError);
+    let resumed = false; const waiting = waitForOrdinaryImageRelease(new AbortController().signal).then(() => { resumed = true; });
+    expect(nativeAtlasDiagnostics()).toMatchObject({ ordinaryReleaseWaiters: 1, ordinaryQuarantinedDecodes: 1, accountedBytes: 768 }); expect(resumed).toBe(false); expect(createImageBitmap).toHaveBeenCalledOnce();
+    if (outcome === 'resolve') finish({ width: 8, height: 8, close }); else fail(Error('late rejection'));
+    await waiting; expect(nativeAtlasDiagnostics()).toMatchObject({ ordinaryReleaseWaiters: 0, ordinaryQuarantinedDecodes: 0, accountedBytes: 0 }); expect(close).toHaveBeenCalledTimes(outcome === 'resolve' ? 1 : 0); expect(vi.getTimerCount()).toBe(0);
+  });
+  it.each(['abort', 'timeout'])('does not force-free a native image when the presentation wait ends by %s', async reason => {
+    vi.useFakeTimers(); setup(); const close = vi.fn(); let finish!: (value: unknown) => void;
+    vi.stubGlobal('createImageBitmap', vi.fn(() => new Promise(resolve => { finish = resolve; })));
+    const old = new AbortController(), original = acquireOrdinaryCanvasImage(url(), document.createElement('canvas'), old.signal).catch(error => error);
+    await vi.advanceTimersByTimeAsync(0); old.abort(); await original;
+    const next = new AbortController(), waiting = waitForOrdinaryImageRelease(next.signal).catch(error => error);
+    if (reason === 'abort') next.abort(); else await vi.advanceTimersByTimeAsync(NATIVE_DECODE_TIMEOUT_MS);
+    expect((await waiting).name).toBe(reason === 'abort' ? 'AbortError' : 'TimeoutError');
+    expect(nativeAtlasDiagnostics()).toMatchObject({ ordinaryReleaseWaiters: 0, ordinaryQuarantinedDecodes: 1, accountedBytes: 768 });
+    finish({ width: 8, height: 8, close }); await vi.advanceTimersByTimeAsync(0); expect(close).toHaveBeenCalledOnce(); expect(nativeAtlasDiagnostics().accountedBytes).toBe(0); expect(vi.getTimerCount()).toBe(0);
+  });
   it("preflights dimensions and peak reservation before starting image load, closes bitmap after drawing",async()=>{
     const {draw}=setup(),close=vi.fn();let reserved=0;
     vi.stubGlobal("createImageBitmap",vi.fn(async()=>{reserved=nativeAtlasDiagnostics().accountedBytes;return {width:8,height:8,close};}));
