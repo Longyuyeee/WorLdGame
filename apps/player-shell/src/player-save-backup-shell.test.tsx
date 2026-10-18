@@ -66,7 +66,7 @@ it("exports the current progress without writing a fake manual slot and releases
 it("does not read a different session if another window replaces the slot after the import succeeded",async()=>{
   const data=fixture(),store=new IndexedDbWorldPlayerSaveStoreV3(new IDBFactory(),webcrypto.subtle as SubtleCrypto),incoming=slot(data.state);
   const view=render(<PlayerShell project={data.project} saveStore={store}/>);await backupPage();chooseFile(file(await createPlayerSaveBackup(incoming)));
-  await screen.findByText("备份校验通过，请选择手动槽位后导入。");fireEvent.click(screen.getByRole("button",{name:"导入到所选槽位"}));
+  await screen.findByText("备份校验通过，请选择手动槽位后导入。");await waitFor(()=>expect(screen.getByRole('button',{name:'导入到所选槽位'})).toBeEnabled());fireEvent.click(screen.getByRole("button",{name:"导入到所选槽位"}));
   await waitFor(()=>expect(screen.getByRole("button",{name:"读取导入的存档"})).toBeEnabled());
   const replacement=slot(selectPlayerCoreChoice(data.state,"branch_left_option"),"manual-1",3000);await store.write(replacement);
   fireEvent.click(screen.getByRole("button",{name:"读取导入的存档"}));expect(await screen.findByRole("alert")).toHaveTextContent("槽位已经更新");

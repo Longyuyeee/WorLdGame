@@ -1,5 +1,7 @@
 # WorLd Studio（工作名）产品与开发设计文档
 
+> 当前接续（2026-10-18）：[#405 存档列表读取恢复与已写入结果核对](docs/405-web-save-list-recovery-and-verified-slots.md)。未读取／失败的列表不再显示成空槽，支持明确重试与旧结果隔离；保存／导入已写入但列表未刷新分别提示，短横屏保留重要结果，重试成功更新对应旧提示。新 [HTML](evidence/web-save-list-recovery/before-rain-stops.html)／[网站 ZIP](evidence/web-save-list-recovery/before-rain-stops-website.zip)的实际作者、路线、三引擎及最终测试范围见 #405。1.11.0 候选／S0.41、#394 源／25 条未人工批准记录和 26 媒体保持，#404 旧游戏保留；人工／真机／许可／公网及长篇成本等门槛不关闭。以下为历史。
+
 > 当前接续（2026-10-18）：[#404 换设备备份准备与取消接续](docs/404-web-backup-preparation-and-continuation.md)。导出准备／导入前检查可取消、重试并隔离迟到结果，完整检查复用正式 Worker；实际导入写入仍受保护，明确区分未知结果和已写入未刷新。新 [HTML](evidence/web-backup-continuation/before-rain-stops.html)／[网站 ZIP](evidence/web-backup-continuation/before-rain-stops-website.zip)的作者流程、两完整路线、三引擎实际文件接续与测试范围见 #404。1.11.0 候选／S0.41、#394 源／25 条未人工批准记录与 26 媒体保持，#403 旧游戏保留；长篇同步计算、底层写入等待、人工／真机／声音／许可／公网等门槛不关闭。以下为历史。
 
 > 当前接续（2026-10-18）：[#403 声音长时间未就绪时的阅读接续](docs/403-web-audio-readiness-and-continuation.md)。真实配音请求挂起时提供不遮正文的等待反馈，配音等待停止 Auto；支持局部重试、迟到恢复与明确无声继续，健康 BGM、存档与个人音量保持。新 [HTML](evidence/web-audio-readiness/before-rain-stops.html)／[网站 ZIP](evidence/web-audio-readiness/before-rain-stops-website.zip)的制作、路线和原生网络／历史复验范围见 #403。1.11.0 候选／S0.41、#394 源／25 条未人工批准记录与 26 媒体不变；没有关闭 WebKit 内嵌声音、人工／真机／许可／公网等门槛。以下为历史。

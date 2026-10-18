@@ -27,6 +27,7 @@ it('shows a persistent nonmodal failure and lets the player save current progres
   fireEvent.click(within(notice).getByRole('button', { name: '保存当前进度' }));
   const panel = screen.getByRole('dialog', { name: '存读档槽位' });
   expect(within(panel).getByRole('button', { name: '保存进度' })).toHaveAttribute('aria-pressed', 'true');
+  await waitFor(() => expect(within(panel).getAllByRole('button', { name: /^保存$/u })[0]).toBeEnabled());
   fireEvent.click(within(panel).getAllByRole('button', { name: /^保存$/u })[0]!);
   await waitFor(() => expect(test.slots.get('manual-1')).toBeDefined());
   await waitFor(() => expect(test.container.querySelector('main')).toHaveAttribute('data-save-operation', 'saved'));
@@ -42,6 +43,7 @@ it('does not replace an active manual write status when an earlier background wr
   await waitFor(() => expect(failAuto).toBeTypeOf('function'));
   fireEvent.click(screen.getByRole('button', { name: '存读档' }));
   const panel = screen.getByRole('dialog', { name: '存读档槽位' });
+  await waitFor(() => expect(within(panel).getAllByRole('button', { name: /^保存$/u })[0]).toBeEnabled());
   fireEvent.click(within(panel).getAllByRole('button', { name: /^保存$/u })[0]!);
   expect(test.container.querySelector('main')).toHaveAttribute('data-save-operation', 'busy');
   await act(async () => { failAuto(Error('disk')); });

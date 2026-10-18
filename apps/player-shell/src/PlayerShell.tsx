@@ -54,6 +54,8 @@ import {
 import { derivePlayerStagePresentationV1, type PlayerMediaAssetSourceV1 } from "./player-presentation-adapter";
 import { playerSaveLabel } from './player-save-label';
 import { PlayerSaveCard, PlayerSaveDetails } from './PlayerSaveCard';
+import { usePlayerSaveList } from './use-player-save-list';
+import { PlayerSaveListNotice } from './PlayerSaveListNotice';
 import { PlayerSaveBackupPanel, type PlayerBackupPreparationControl } from "./PlayerSaveBackupPanel";
 import { awaitPlayerBackupValue } from './backup-operation';
 import { resolvePlayerLocalizedMediaV1 } from "./player-localized-media";
@@ -71,7 +73,6 @@ import {
   worldPlayerSavePreviewSha256V1,
   type WorldPlayerSavePreviewV2,
   type WorldPlayerSaveSummaryV3,
-  listWorldPlayerSaveSummariesV3,
   type WorldPlayerSaveStoreV3
 } from "./player-save-store";
 import {
@@ -298,7 +299,8 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
   const [savePanelOpen, setSavePanelOpen] = useState(editorPreview?.initialPanel === 'save');
   const backupPreparation = useRef<PlayerBackupPreparationControl>(null);
   const [backupCancellable, setBackupCancellable] = useState(false);
-  const [saveSlots, setSaveSlots] = useState<readonly WorldPlayerSaveSummaryV3[]>([]);
+  const saveList = usePlayerSaveList(saveStore, project.manifest.projectId);
+  const saveSlots = saveList.slots, refreshSaveSlots = saveList.refresh, saveListReady = saveList.phase === 'ready';
   const [savePage, setSavePage] = useState(0);
   const [saveView, setSaveView] = useState<"manual" | "auto" | "quick" | "checkpoint" | "backup">("manual");
   const [saveIntent, setSaveIntent] = useState<'save' | 'load'>('save');
@@ -399,7 +401,6 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
   } | null>(null);
   const additionalContentPlaybackReturn = useRef<typeof replayPlaybackReturn.current>(null);
   const saveContext = useRef({ projectId: project.manifest.projectId, store: saveStore, previewCapture });
-  const saveListGeneration = useRef(0);
   const recoveryContext = useRef({ projectId: project.manifest.projectId, store: recoveryStore });
   const autoSavedSceneIdentities = useRef(new Set<string>());
   const consumedCheckpointCandidates = useRef(new WeakSet<object>());
@@ -702,21 +703,11 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
     setTimeout(() => (titleAdditionalContentTrigger.current ?? readingMenuTrigger.current ?? additionalContentTrigger.current)?.focus(), 0);
   }, [project, restorePlaybackControls, state.replaySession, restartVoice]);
 
-  const refreshSaveSlots = useCallback(async (reportFailure = true) => {
-    if (saveStore === undefined) return;
-    const projectId = project.manifest.projectId;
-    const generation = ++saveListGeneration.current;
-    try {
-      const slots = await listWorldPlayerSaveSummariesV3(saveStore, projectId);
-      if (generation !== saveListGeneration.current || saveContext.current.projectId !== projectId || saveContext.current.store !== saveStore) return;
-      setSaveSlots(slots);
-    } catch {
-      if (generation !== saveListGeneration.current || saveContext.current.projectId !== projectId || saveContext.current.store !== saveStore) return;
-      if (reportFailure) { setSaveOperation("error"); setSaveMessage("存档存储不可用"); }
-    }
-  }, [project.manifest.projectId, saveStore]);
-
   useEffect(() => { if (savePanelOpen) void refreshSaveSlots(); }, [savePanelOpen, refreshSaveSlots]);
+  useEffect(() => { if (!saveListReady) setPendingOverwriteSlotId(null); }, [saveListReady]);
+  useEffect(() => {
+    if (saveListReady && saveMessage.includes('；列表尚未刷新')) setSaveMessage(current => current.replace('；列表尚未刷新，请重试列表核对，勿重复保存。', '；列表已刷新，请核对槽位。'));
+  }, [saveListReady, saveMessage]);
 
   const previewPending = useRef(0);
   const previewControllers = useRef(new Set<AbortController>());
@@ -814,11 +805,11 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
     try {
       const previewStatus = await saveCoordinator.writeFixed(() => persistCurrentSlot(kind, slotId, state, snapshot, prepared));
       if (!sessionRunner.active || saveContext.current.projectId !== projectId || saveContext.current.store !== saveStore || saveContext.current.previewCapture !== previewCapture) return;
-      await refreshSaveSlots();
+      const listed = await refreshSaveSlots(true);
       if(!sessionRunner.active||saveContext.current.projectId!==projectId||saveContext.current.store!==saveStore)return;
       setPendingOverwriteSlotId(null);
       setSaveOperation("saved");
-      setSaveMessage(`${playerSaveLabel(slotId)}已保存${previewStatus === "available" ? "（含截图）" : "（预览不可用）"}`);
+      setSaveMessage(`${playerSaveLabel(slotId)}已保存${previewStatus === "available" ? "（含截图）" : "（预览不可用）"}${listed ? '' : '；列表尚未刷新，请重试列表核对，勿重复保存。'}`);
       setSaveFeedback((kind === 'quick' ? '快速存档已保存' : '手动存档已保存') + (saveStore?.previewStorage === 'unavailable' ? '（截图不可用）' : ''));
       setBackgroundSaveFailure(null);
     } catch {
@@ -831,6 +822,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
   }, [persistCurrentSlot, previewCapture, project.manifest.projectId, refreshSaveSlots, saveCoordinator, saveStore, openSavePanel,sessionRunner, captureSavePreview, now, state, snapshot]);
 
   const requestSaveToSlot = useCallback((slotId: string, occupied: boolean) => {
+    if (!saveListReady) return;
     if (occupied && pendingOverwriteSlotId !== slotId) {
       setPendingOverwriteSlotId(slotId);
       setSaveOperation("idle");
@@ -838,7 +830,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
       return;
     }
     void saveToSlot("manual", slotId);
-  }, [pendingOverwriteSlotId, saveToSlot]);
+  }, [pendingOverwriteSlotId, saveToSlot, saveListReady]);
 
   const loadFromSlot = useCallback(async (slotId: string, expectedArtifactHash?: string) => {
     storyAdvance.cancel();
@@ -1112,14 +1104,13 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
   }, [project.manifest.projectId, recoveryStore, recoveryScanAttempt]);
 
   useEffect(() => {
-    setSaveSlots([]); setPendingRead(null);
+    setPendingRead(null);
     setSavePage(0);
     setSaveView("manual");
     setPendingOverwriteSlotId(null);
     setSaveOperation("idle");
     setSaveMessage("请选择槽位");
     setSaveFeedback(null);
-    void refreshSaveSlots();
   }, [refreshSaveSlots]);
 
   useEffect(() => {
@@ -1133,7 +1124,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
     const prepared = { preview: captureSavePreview(project.manifest.projectId, state.runtimeState.cursor.sceneId, snapshot.runtimeStateHash), savedAt: now() };
     void saveCoordinator.writeAuto(project.manifest.projectId, sceneIdentity, async (slotId) => { await persistCurrentSlot("auto", slotId, capturedState, capturedSnapshot, prepared); }).then(async (result) => {
       if (!sessionRunner.active || saveContext.current.projectId !== project.manifest.projectId || saveContext.current.store !== saveStore) return;
-      await refreshSaveSlots(false);
+      await refreshSaveSlots(true);
       if(!sessionRunner.active)return;
       if (result.status === "written") {
         setSaveFeedback("进度已自动保存");
@@ -1176,7 +1167,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
         }), captured.blob);
       }).then(async () => {
         if (!sessionRunner.active || saveContext.current.projectId !== project.manifest.projectId || saveContext.current.store !== saveStore) return;
-        await refreshSaveSlots(false);
+        await refreshSaveSlots(true);
         if (!sessionRunner.active) return;
         setSaveFeedback("剧情检查点已保存");
         setBackgroundSaveFailure(current => current?.kind === "checkpoint" ? null : current);
@@ -1836,6 +1827,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
       data-reading-pace={readingPace}
       data-reading-position-restored={readingResume.restored}
       data-preferences-open={preferencesOpen}
+      data-save-list={saveList.phase}
       data-player-muted={effectiveMuted}
       data-player-fullscreen={fullscreen.active}
       data-player-locale={snapshot.localization.selectedLocale}
@@ -2498,10 +2490,11 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
             {savePanelOpen && (
               <dialog {...panelProps('save')} ref={saveDialog} id="player-save-panel" className="player-save__panel" aria-label="存读档槽位" aria-modal="true" onCancel={event => { event.preventDefault(); if (sessionRead.isPending() || pendingRead && saveOperation !== 'busy') cancelRead(); else if (saveOperation === 'busy') backupPreparation.current?.cancel(); else closeSavePanel(); }}>
                 <PlayerPanelRegion enabled={saveLayout.enabled} rect={saveLayout.layout?.secondary} kind="secondary">
-                <header><strong>{saveView === "backup" ? "存档备份与恢复" : saveIntent === "save" ? "保存进度" : "读取进度"}</strong><button type="button" aria-label="关闭存读档" autoFocus disabled={saveOperation === "busy" && !backupCancellable} onClick={closeSavePanel}>返回故事 ×</button><span data-save-message role={saveOperation === "error" ? "alert" : "status"}>{saveMessage}{saveOperation === "error" && saveMessage === "存档损坏或与当前构建不兼容" && <small>读取失败不会修改当前剧情或原存档，可返回故事或尝试其他存档。</small>}</span></header>
+                <header><strong>{saveView === "backup" ? "存档备份与恢复" : saveIntent === "save" ? "保存进度" : "读取进度"}</strong><button type="button" aria-label="关闭存读档" autoFocus disabled={saveOperation === "busy" && !backupCancellable} onClick={closeSavePanel}>返回故事 ×</button><span data-save-message role={saveOperation === "error" || saveOperation === 'saved' && saveList.phase === 'error' ? "alert" : "status"}>{saveMessage}{saveOperation === "error" && saveMessage === "存档损坏或与当前构建不兼容" && <small>读取失败不会修改当前剧情或原存档，可返回故事或尝试其他存档。</small>}</span></header>
                 </PlayerPanelRegion>
                 <PlayerPanelRegion enabled={saveLayout.enabled} rect={saveLayout.layout?.primary} kind="primary">
                 {panelComponents("save", true)}
+                <PlayerSaveListNotice phase={saveList.phase} timedOut={saveList.timedOut} disabled={hostActivity !== 'active' || saveOperation === 'busy'} retry={() => void refreshSaveSlots(true)} />
                 {sessionRead.pending && <div className="player-load-wait" role="status" aria-live="polite"><span>{sessionRead.pending.phase === 'reading' ? '正在读取本机存档…' : '正在完整校验并准备故事…'} 长篇记录可能需要更久，取消不会改变当前进度或原记录。</span><button type="button" onClick={cancelRead}>取消读取</button></div>}
                 {pendingRead ? <section className="player-load-confirm" role="region" aria-label="确认读取存档" aria-busy={sessionRead.pending !== null}>
                   <h3>读取{playerSaveLabel(pendingRead.slotId)}？</h3><p>当前未保存的进度会被所选存档替换。取消可回到槽位列表。</p>
@@ -2520,13 +2513,13 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
                 </nav>
                 {saveView === "backup" && saveCoordinator !== undefined && <PlayerSaveBackupPanel key={`${project.manifest.projectId}:${snapshot.identities.buildId}`} state={state} store={saveStore} coordinator={saveCoordinator} slots={saveSlots}
                   currentAllowed={saveBoundaryAllowed && !snapshot.sceneReplay.active} captureCurrent={signal => captureCurrentSlot("manual", "manual-1", state, snapshot, undefined, signal)}
-                  onImported={async () => { await refreshSaveSlots(); }} onRead={requestLoadFromSlot} externalBusy={saveOperation === "busy"}
+                  onImported={async () => { if (!await refreshSaveSlots(true)) throw Error('存档列表尚未刷新'); }} onRead={requestLoadFromSlot} externalBusy={saveOperation === "busy"} listReady={saveListReady}
                   active={hostActivity === 'active'} preparationControl={backupPreparation} validateBackup={async (captured, serialized, signal) => (await sessionRunner.run({ kind: 'load', state: captured, serialized }, signal)).result}
                   onBusyChange={(busy, cancellable) => { setBackupCancellable(!!cancellable); setSaveOperation(busy ? "busy" : "idle"); setSaveMessage(busy ? "正在处理备份…" : "备份与恢复"); }}
                   isCurrent={() => saveContext.current.projectId === project.manifest.projectId && saveContext.current.store === saveStore && liveState.current.artifacts?.manifest.buildId === snapshot.identities.buildId} />}
                 {saveView !== 'backup' && <div className="player-save-grid">{(saveView === 'manual' ? Array.from({ length: 6 }, (_, index) => `manual-${savePage * 6 + index + 1}`) : saveView === 'auto' ? Array.from({ length: 5 }, (_, index) => `auto-${index + 1}`) : saveView === 'checkpoint' ? Array.from({ length: 3 }, (_, index) => `checkpoint-${index + 1}`) : ['quick-1']).map(slotId => {
                   const slot = saveSlots.find(candidate => candidate.slotId === slotId);
-                  return <PlayerSaveCard key={slotId} slotId={slotId} slot={slot} intent={saveIntent} disabled={hostActivity !== 'active' || saveOperation === 'busy'} canSave={saveBoundaryAllowed && !snapshot.sceneReplay.active} overwrite={pendingOverwriteSlotId === slotId}
+                  return <PlayerSaveCard key={slotId} slotId={slotId} slot={slot} intent={saveIntent} verified={saveListReady} disabled={hostActivity !== 'active' || saveOperation === 'busy' || !saveListReady} canSave={saveBoundaryAllowed && !snapshot.sceneReplay.active} overwrite={pendingOverwriteSlotId === slotId}
                     preview={<PlayerSavePreview projectId={project.manifest.projectId} slot={slot} store={saveStore} />}
                     onSave={() => slotId.startsWith('quick-') ? void saveToSlot('quick', slotId) : requestSaveToSlot(slotId, slot !== undefined)} onRead={() => requestLoadFromSlot(slotId)} />;
                 })}</div>}
@@ -2561,7 +2554,8 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
             </PlayerLayoutBox>
             <PlayerLayoutBox rect={componentLayout?.secondary} kind="actions">
             {layoutSurface === "title" && inlineLayoutComponents}
-            {latestSlot && saveStore && recoveryOperation !== 'scanning' && (recoveryCandidate === null || !recoveryBuildCompatible) && <section className="player-recent-save" aria-label="最近存档"><button className="player-primary" type="button" disabled={hostActivity !== 'active' || saveOperation === 'busy'} onClick={() => requestLoadFromSlot(latestSlot.slotId, latestSlot.sessionArtifactHash)}>继续最近存档 <span aria-hidden="true">→</span></button><p>{playerSaveLabel(latestSlot.slotId)} · {latestSlot.sceneTitle} · {new Date(latestSlot.savedAtEpochMilliseconds).toLocaleString('zh-CN', { hour12: false })} · 本地时间</p></section>}
+            {saveStore && !savePanelOpen && <PlayerSaveListNotice phase={saveList.phase} timedOut={saveList.timedOut} disabled={hostActivity !== 'active' || saveOperation === 'busy'} retry={() => void refreshSaveSlots(true)} />}
+            {latestSlot && saveStore && recoveryOperation !== 'scanning' && (recoveryCandidate === null || !recoveryBuildCompatible) && <section className="player-recent-save" aria-label="最近存档"><button className="player-primary" type="button" disabled={hostActivity !== 'active' || saveOperation === 'busy' || !saveListReady} onClick={() => requestLoadFromSlot(latestSlot.slotId, latestSlot.sessionArtifactHash)}>继续最近存档 <span aria-hidden="true">→</span></button><p>{playerSaveLabel(latestSlot.slotId)} · {latestSlot.sceneTitle} · {new Date(latestSlot.savedAtEpochMilliseconds).toLocaleString('zh-CN', { hour12: false })} · 本地时间</p></section>}
             {sessionRead.pending && !savePanelOpen && <div className="player-load-wait" role="status" aria-live="polite"><span>{sessionRead.pending.phase === 'reading' ? '正在读取本机存档…' : '正在完整校验并准备故事…'} 长篇记录可能需要更久，取消不会改变原记录。</span><button type="button" onClick={() => cancelActiveRead()}>取消读取</button></div>}
             <button className={latestSlot || recoveryCandidate !== null && recoveryBuildCompatible ? 'player-secondary' : 'player-primary'} type="button" disabled={hostActivity !== "active" || saveOperation === 'busy' || recoveryOperation === "scanning"} onPointerDown={(event) => { pointerInput.current = event.pointerType === "touch" ? "touch" : "pointer"; }} onClick={() => applyIntent({ kind: "primary" }, pointerInput.current)}>
               {skin?.title.startLabel ?? "开始故事"}

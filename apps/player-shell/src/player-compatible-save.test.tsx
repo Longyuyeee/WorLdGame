@@ -37,6 +37,7 @@ it("loads verified old slots, writes checkpoints/manual/recovery with the origin
   fireEvent.click(screen.getByRole("button", { name: "读取存档" }));
   let dialog = screen.getByRole("dialog", { name: "存读档槽位" });
   fireEvent.click(within(dialog).getByRole("button", { name: "快速" }));
+  await waitFor(() => expect(within(dialog).getByRole('button', { name: '读取' })).toBeEnabled());
   fireEvent.click(within(dialog).getByRole("button", { name: "读取" }));
   await screen.findByText("已读取核对过的旧版存档，可以继续故事");
   expect(data.rows.get("quick-1")).toEqual(data.original);
@@ -45,6 +46,7 @@ it("loads verified old slots, writes checkpoints/manual/recovery with the origin
   fireEvent.click(screen.getByRole("button", { name: "存读档" }));
   dialog = screen.getByRole("dialog", { name: "存读档槽位" });
   fireEvent.click(within(dialog).getByRole("button", { name: "手动" }));
+  await waitFor(() => expect(within(dialog).getAllByRole('button', { name: '保存' })[0]).toBeEnabled());
   fireEvent.click(within(dialog).getAllByRole("button", { name: "保存" })[0]!);
   await waitFor(() => expect(data.rows.has("manual-1")).toBe(true));
   expect(data.rows.get("manual-1")!.buildId).toBe(data.original.buildId);
@@ -65,6 +67,7 @@ it("keeps an unverified old recovery disabled and a failed explicit read leaves 
   fireEvent.click(screen.getByRole("button", { name: "读取存档" }));
   const dialog = screen.getByRole("dialog", { name: "存读档槽位" });
   fireEvent.click(within(dialog).getByRole("button", { name: "快速" }));
+  await waitFor(() => expect(within(dialog).getByRole('button', { name: '读取' })).toBeEnabled());
   fireEvent.click(within(dialog).getByRole("button", { name: "读取" }));
   expect(await screen.findByRole("alert")).toHaveTextContent("尚未核对的游戏版本");
   expect(view.container.querySelector("main")).toHaveAttribute("data-player-status", "title");

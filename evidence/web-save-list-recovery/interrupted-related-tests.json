@@ -1,0 +1,1 @@
+{"success":false,"status":"interrupted-for-feedback-audit","countedAsFinal":false,"reason":"Short-landscape committed-result visibility and stale warnings after successful list retry require another product correction. The interrupted run is not a passed regression gate."}

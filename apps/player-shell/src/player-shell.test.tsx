@@ -668,6 +668,7 @@ describe("N52-E5d Shell History user journey", () => {
     fireEvent.click(screen.getByRole("button", { name: "后退一步" }));
     fireEvent.click(screen.getByRole("button", { name: /Right/u }));
     fireEvent.click(screen.getByRole("button", { name: "存读档" }));
+    await waitFor(() => expect(screen.getAllByRole("button", { name: "保存" })[0]).toBeEnabled());
     fireEvent.click(screen.getAllByRole("button", { name: "保存" })[0]!);
     await waitFor(() => expect(records.has("golden_branching\0manual-1")).toBe(true));
     first.unmount();
@@ -1254,6 +1255,7 @@ describe("N51-E5 Player settings application", () => {
     fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
     expect(container.querySelector("main")).toHaveAttribute("data-player-status", "waiting-choice");
     fireEvent.click(screen.getByRole("button", { name: "存读档" }));
+    await waitFor(() => expect(screen.getAllByRole("button", { name: "保存" })[0]).toBeEnabled());
     fireEvent.click(screen.getAllByRole("button", { name: "保存" })[0]!);
     await waitFor(() => expect(container.querySelector("main")).toHaveAttribute("data-save-operation", "saved"));
     expect(screen.getByText("Fork")).toBeInTheDocument(); expect(screen.getByText("Main")).toBeInTheDocument();
@@ -1265,6 +1267,7 @@ describe("N51-E5 Player settings application", () => {
     expect(container.querySelector("main")).toHaveAttribute("data-player-status", "presenting");
     fireEvent.click(screen.getByRole("button", { name: "存读档" }));
     fireEvent.click(screen.getByRole("button", { name: "读取进度" }));
+    await waitFor(() => expect(screen.getAllByRole("button", { name: "读取" })[0]).toBeEnabled());
     fireEvent.click(screen.getAllByRole("button", { name: "读取" })[0]!);
     fireEvent.click(screen.getByRole("button", { name: "确认读取" }));
     await waitFor(() => expect(container.querySelector("main")).toHaveAttribute("data-player-status", "waiting-choice"));
@@ -1275,6 +1278,7 @@ describe("N51-E5 Player settings application", () => {
     fireEvent.click(screen.getByRole("button", { name: /Left/u }));
     fireEvent.click(screen.getByRole("button", { name: "存读档" }));
     fireEvent.click(screen.getByRole("button", { name: "读取进度" }));
+    await waitFor(() => expect(screen.getAllByRole("button", { name: "读取" })[0]).toBeEnabled());
     fireEvent.click(screen.getAllByRole("button", { name: "读取" })[0]!);
     fireEvent.click(screen.getByRole("button", { name: "确认读取" }));
     await waitFor(() => expect(container.querySelector("main")).toHaveAttribute("data-save-operation", "error"));
@@ -1324,6 +1328,7 @@ describe("N51-E5 Player settings application", () => {
     const { container } = render(<PlayerShell project={branching()} saveStore={store} previewCapture={previewCapture} now={() => 1_788_000_000_000} />);
     fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
     fireEvent.click(screen.getByRole("button", { name: "存读档" }));
+    await waitFor(() => expect(screen.getAllByRole("button", { name: "保存" })[0]).toBeEnabled());
     fireEvent.click(screen.getAllByRole("button", { name: "保存" })[0]!);
     await waitFor(() => expect(container.querySelector("main")).toHaveAttribute("data-save-operation", "saved"));
     expect(writes.filter((write) => write.slot.kind === "manual")).toHaveLength(1);
@@ -1357,6 +1362,7 @@ describe("N51-E5 Player settings application", () => {
     const { container } = render(<PlayerShell project={branching()} saveStore={store} previewCapture={previewCapture} />);
     fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
     fireEvent.click(screen.getByRole("button", { name: "存读档" }));
+    await waitFor(() => expect(screen.getAllByRole("button", { name: "保存" })[0]).toBeEnabled());
     fireEvent.click(screen.getAllByRole("button", { name: "保存" })[0]!);
     await waitFor(() => expect(container.querySelector("main")).toHaveAttribute("data-save-operation", "saved"));
     expect(writes[0]?.preview).toEqual({ status: "unavailable", reason: "capture-failed" });
@@ -1373,9 +1379,10 @@ describe("N51-E5 Player settings application", () => {
     const firstHash = container.querySelector("main")!.dataset.runtimeStateHash;
     expect(capture).toHaveBeenCalledTimes(1);
     fireEvent.click(screen.getByRole("button", { name: "存读档" }));
+    await waitFor(() => expect(screen.getAllByRole("button", { name: "保存" })[0]).toBeEnabled());
     fireEvent.click(screen.getAllByRole("button", { name: "保存" })[0]!);
-    // Neither the auto slot catalog nor serializer has completed, but both
-    // captures already own the same trigger-time frame.
+    // The catalog is verified before a manual save is available. Neither save
+    // has completed, and both captures still own the same trigger-time frame.
     expect(capture).toHaveBeenCalledTimes(2);
     expect(writes).toHaveLength(0);
     expect(capture.mock.calls.every(args => (args[0] as unknown as { runtimeStateHash: string })?.runtimeStateHash === firstHash)).toBe(true);
@@ -1392,6 +1399,7 @@ describe("N51-E5 Player settings application", () => {
     const { container } = render(<PlayerShell project={branching()} saveStore={store} previewCapture={{ version: "1.0.0", owner: "player-host-compositor", capture: () => new Promise(() => {}) }} />);
     fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
     fireEvent.click(screen.getByRole("button", { name: "存读档" }));
+    await waitFor(() => expect(screen.getAllByRole("button", { name: "保存" })[0]).toBeEnabled());
     fireEvent.click(screen.getAllByRole("button", { name: "保存" })[0]!);
     await waitFor(() => expect(container.querySelector("main")).toHaveAttribute("data-save-operation", "saved"), { timeout: 4500 });
     expect(writes.find(slot => slot.kind === "manual")?.preview).toEqual({ status: "unavailable", reason: "capture-unavailable" });
@@ -1488,6 +1496,7 @@ describe("N51-E5 Player settings application", () => {
     fireEvent.click(screen.getByRole("button", { name: "存读档" }));
     fireEvent.click(screen.getByRole("button", { name: "读取进度" }));
     fireEvent.click(screen.getByRole("button", { name: "检查点" }));
+    await waitFor(() => expect(screen.getAllByRole("button", { name: "读取" })[0]).toBeEnabled());
     fireEvent.click(screen.getAllByRole("button", { name: "读取" })[0]!);
     fireEvent.click(screen.getByRole("button", { name: "确认读取" }));
     await waitFor(() => expect(container.querySelector("main")).toHaveAttribute("data-player-status", "waiting-choice"));

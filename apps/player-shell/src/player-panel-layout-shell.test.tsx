@@ -28,14 +28,17 @@ it("keeps native overwrite/read confirmations through measurement and never lets
   const { project, store, rows } = fixture(); const { container } = render(<PlayerShell project={project} saveStore={store} />); click("开始故事"); click("打开阅读菜单"); click("Custom save");
   const dialog = () => screen.getByRole("dialog", { name: "存读档槽位" }); expect(dialog()).toHaveAttribute("data-panel-layout", "save");
   const card = () => container.querySelector<HTMLElement>('[data-save-slot="manual-1"]')!;
+  await waitFor(() => expect(within(card()).getByRole('button', { name: '保存' })).toBeEnabled());
   fireEvent.click(within(card()).getByRole("button", { name: "保存" })); await waitFor(() => expect(container.querySelector("main")).toHaveAttribute("data-save-operation", "saved")); const original = rows.get("manual-1"); click("Save return"); click("继续下一句"); await act(async () => {});
   click("打开阅读菜单"); click("Custom save"); const before = container.querySelector("main")!.dataset.runtimeStateHash;
+  await waitFor(() => expect(within(card()).getByRole('button', { name: '保存' })).toBeEnabled());
   fireEvent.click(within(card()).getByRole("button", { name: "保存" })); expect(within(card()).getByRole("button", { name: /确认/u })).toBeInTheDocument(); fireEvent(window, new Event("resize")); expect(within(card()).getByRole("button", { name: /确认/u })).toBeInTheDocument();
   click("读取进度"); fireEvent.click(within(card()).getByRole("button", { name: "读取" })); expect(screen.getByRole("region", { name: "确认读取存档" })).toBeInTheDocument(); fireEvent(window, new Event("resize")); expect(screen.getByRole("region", { name: "确认读取存档" })).toBeInTheDocument();
   click("Save return"); expect(container.querySelector("main")!.dataset.runtimeStateHash).toBe(before); expect(rows.get("manual-1")).toBe(original); expect([...rows.keys()].filter(id => id.startsWith("manual"))).toHaveLength(1); expect(container.querySelector(".player-dialogue__text")).toHaveTextContent("The second paragraph.");
 });
 it("disables authored return actions during the existing foreground save transaction", async () => {
   const { project, store } = fixture(); const { container } = render(<PlayerShell project={project} saveStore={store} />); click("开始故事"); click("打开阅读菜单"); click("Custom save");
+  await waitFor(() => expect(container.querySelector('main')).toHaveAttribute('data-save-list', 'ready'));
   let release!: () => void; const blocked = new Promise<void>(resolve => { release = resolve; }); const write = store.write.bind(store);
   vi.spyOn(store, "write").mockImplementation(async slot => { await blocked; await write(slot); });
   fireEvent.click(within(container.querySelector<HTMLElement>('[data-save-slot="manual-1"]')!).getByRole("button", { name: "保存" }));

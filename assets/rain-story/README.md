@@ -1,5 +1,7 @@
 # 《雨停之前》演出素材
 
+2026-10-18 当前运行候选接续 [#405 存档列表读取恢复与已写入结果核对](../../docs/405-web-save-list-recovery-and-verified-slots.md)，[HTML／网站](../../evidence/web-save-list-recovery)补列表未知／失败、重试和已写入结果反馈，不改剧情或素材。1.11.0、#394 源／25 条未人工批准记录、26 份媒体及九句配音保持，发行条件全部 pending；自然听感、物理设备、WebKit 内嵌声音和许可等仍待验，#404 旧游戏保留。以下为历史。
+
 2026-10-18 当前运行候选更新至 [#404 换设备备份准备与取消接续](../../docs/404-web-backup-preparation-and-continuation.md)，[HTML／网站](../../evidence/web-backup-continuation)补准备取消、重试、迟到隔离与真实文件携带续读，不修改剧情或媒体。1.11.0、#394 源／25 条未人工批准记录、26 份媒体及九句配音保持，发行条件全部 pending；自然听感、物理设备、WebKit 内嵌声音和许可等仍待验，#403 旧游戏保留。以下为历史。
 
 2026-10-18 当前运行候选更新至 [#403 声音等待与阅读接续](../../docs/403-web-audio-readiness-and-continuation.md)，[HTML／网站](../../evidence/web-audio-readiness)补真实声音请求未就绪时的等待、局部重试、迟到恢复与无声继续，不改剧情或媒体。1.11.0、#394 源／25 条未人工批准记录、26 份媒体及九句配音保持，发行条件全部 pending；自然听感、物理设备与 WebKit 内嵌声音等仍待验，#402 旧游戏保留。以下为历史。

@@ -1,0 +1,236 @@
+{
+  "passed": true,
+  "engine": "firefox",
+  "browser": "153.0",
+  "artifacts": {
+    "html": {
+      "bytes": 46808171,
+      "sha256": "9dabe35ec398313913f0e584485ecfd103fde287d3077834f9885e393ef6b981"
+    },
+    "website": {
+      "bytes": 35394620,
+      "sha256": "3d22df92aae0bb1e81e5f1c119856be895172c558143fbe42f8fb3ee42f8c1cd"
+    }
+  },
+  "sourceBackupSha256": "2c0b50617f69ed5f6a1af29ae30aa41588ef1d0b88d87a7828519c66ca7f782b",
+  "checks": [
+    {
+      "name": "unknown-list-is-not-empty-and-wait-retry-return-remain-readable-at-four-sizes",
+      "before": {
+        "status": "title",
+        "hash": "none",
+        "list": "loading",
+        "save": "idle",
+        "auto": "off"
+      },
+      "saved": [
+        {
+          "slotId": "manual-1",
+          "hash": "92734b15d85213f16dff5be1b0d4d3b76b4346e94133891f5168b790534a78d8",
+          "savedAt": 1792282872912,
+          "storedSha256": "34b039da9f92a3cae08a85de14c2a1e1f50a39c5cc2d608a72b13b74bbc06799"
+        }
+      ],
+      "layouts": [
+        {
+          "viewport": {
+            "width": 320,
+            "height": 740
+          },
+          "controls": [
+            {
+              "name": "重试读取存档列表",
+              "height": 45.19999694824219,
+              "inViewport": true
+            },
+            {
+              "name": "关闭存读档",
+              "height": 44,
+              "inViewport": true
+            }
+          ],
+          "readable": true
+        },
+        {
+          "viewport": {
+            "width": 568,
+            "height": 320
+          },
+          "controls": [
+            {
+              "name": "重试读取存档列表",
+              "height": 45.19999694824219,
+              "inViewport": true
+            },
+            {
+              "name": "关闭存读档",
+              "height": 44,
+              "inViewport": true
+            }
+          ],
+          "readable": true
+        },
+        {
+          "viewport": {
+            "width": 844,
+            "height": 390
+          },
+          "controls": [
+            {
+              "name": "重试读取存档列表",
+              "height": 45.19999694824219,
+              "inViewport": true
+            },
+            {
+              "name": "关闭存读档",
+              "height": 44,
+              "inViewport": true
+            }
+          ],
+          "readable": true
+        },
+        {
+          "viewport": {
+            "width": 1280,
+            "height": 900
+          },
+          "controls": [
+            {
+              "name": "重试读取存档列表",
+              "height": 45.19999694824219,
+              "inViewport": true
+            },
+            {
+              "name": "关闭存读档",
+              "height": 44,
+              "inViewport": true
+            }
+          ],
+          "readable": true
+        }
+      ]
+    },
+    {
+      "name": "title-retry-restores-real-slots-and-ignores-retired-trusted-transaction-completions",
+      "events": [
+        {
+          "trusted": true,
+          "type": "complete",
+          "held": false
+        },
+        {
+          "trusted": true,
+          "type": "complete",
+          "held": true
+        }
+      ],
+      "saved": [
+        {
+          "slotId": "manual-1",
+          "hash": "92734b15d85213f16dff5be1b0d4d3b76b4346e94133891f5168b790534a78d8",
+          "savedAt": 1792282872912,
+          "storedSha256": "34b039da9f92a3cae08a85de14c2a1e1f50a39c5cc2d608a72b13b74bbc06799"
+        }
+      ]
+    },
+    {
+      "name": "checked-backup-is-retained-but-import-is-blocked-until-target-list-is-known",
+      "saved": [
+        {
+          "slotId": "manual-1",
+          "hash": "92734b15d85213f16dff5be1b0d4d3b76b4346e94133891f5168b790534a78d8",
+          "savedAt": 1792282872912,
+          "storedSha256": "34b039da9f92a3cae08a85de14c2a1e1f50a39c5cc2d608a72b13b74bbc06799"
+        }
+      ]
+    },
+    {
+      "name": "committed-import-reports-list-failure-without-claiming-write-rollback-or-reading-automatically",
+      "saved": [
+        {
+          "slotId": "manual-1",
+          "hash": "92734b15d85213f16dff5be1b0d4d3b76b4346e94133891f5168b790534a78d8",
+          "savedAt": 1792282872912,
+          "storedSha256": "34b039da9f92a3cae08a85de14c2a1e1f50a39c5cc2d608a72b13b74bbc06799"
+        },
+        {
+          "slotId": "manual-2",
+          "hash": "92734b15d85213f16dff5be1b0d4d3b76b4346e94133891f5168b790534a78d8",
+          "savedAt": 1792282872912,
+          "storedSha256": "34b039da9f92a3cae08a85de14c2a1e1f50a39c5cc2d608a72b13b74bbc06799"
+        }
+      ]
+    },
+    {
+      "name": "list-only-retry-does-not-repeat-import-and-explicit-load-restores-the-exact-story",
+      "restored": {
+        "status": "presenting",
+        "hash": "92734b15d85213f16dff5be1b0d4d3b76b4346e94133891f5168b790534a78d8",
+        "list": "ready",
+        "save": "loaded",
+        "auto": "off"
+      }
+    },
+    {
+      "name": "manual-save-reports-a-committed-slot-separately-from-the-timed-out-refresh",
+      "saved": [
+        {
+          "slotId": "manual-1",
+          "hash": "92734b15d85213f16dff5be1b0d4d3b76b4346e94133891f5168b790534a78d8",
+          "savedAt": 1792282872912,
+          "storedSha256": "34b039da9f92a3cae08a85de14c2a1e1f50a39c5cc2d608a72b13b74bbc06799"
+        },
+        {
+          "slotId": "manual-2",
+          "hash": "92734b15d85213f16dff5be1b0d4d3b76b4346e94133891f5168b790534a78d8",
+          "savedAt": 1792282872912,
+          "storedSha256": "34b039da9f92a3cae08a85de14c2a1e1f50a39c5cc2d608a72b13b74bbc06799"
+        },
+        {
+          "slotId": "manual-3",
+          "hash": "92734b15d85213f16dff5be1b0d4d3b76b4346e94133891f5168b790534a78d8",
+          "savedAt": 1792285093952,
+          "storedSha256": "34b039da9f92a3cae08a85de14c2a1e1f50a39c5cc2d608a72b13b74bbc06799"
+        }
+      ],
+      "warningLayout": {
+        "width": 568,
+        "height": 320,
+        "inViewport": true,
+        "visible": true
+      }
+    },
+    {
+      "name": "reopen-and-explicit-manual-read-retain-all-three-slots-and-current-progress",
+      "restored": {
+        "status": "presenting",
+        "hash": "92734b15d85213f16dff5be1b0d4d3b76b4346e94133891f5168b790534a78d8",
+        "list": "ready",
+        "save": "loaded",
+        "auto": "off"
+      },
+      "saved": [
+        {
+          "slotId": "manual-1",
+          "hash": "92734b15d85213f16dff5be1b0d4d3b76b4346e94133891f5168b790534a78d8",
+          "savedAt": 1792282872912,
+          "storedSha256": "34b039da9f92a3cae08a85de14c2a1e1f50a39c5cc2d608a72b13b74bbc06799"
+        },
+        {
+          "slotId": "manual-2",
+          "hash": "92734b15d85213f16dff5be1b0d4d3b76b4346e94133891f5168b790534a78d8",
+          "savedAt": 1792282872912,
+          "storedSha256": "34b039da9f92a3cae08a85de14c2a1e1f50a39c5cc2d608a72b13b74bbc06799"
+        },
+        {
+          "slotId": "manual-3",
+          "hash": "92734b15d85213f16dff5be1b0d4d3b76b4346e94133891f5168b790534a78d8",
+          "savedAt": 1792285093952,
+          "storedSha256": "34b039da9f92a3cae08a85de14c2a1e1f50a39c5cc2d608a72b13b74bbc06799"
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "scope": "Actual exported game and real UI-imported backup. Controlled delivery of trusted readonly IDB transaction completion and injected getAllKeys failure; no fake database writes, save payloads or narrative events. HTTP desktop engines and phone-sized windows, not OS failure, natural listening, physical phone/Safari/background/lock, public deployment or rights acceptance."
+}

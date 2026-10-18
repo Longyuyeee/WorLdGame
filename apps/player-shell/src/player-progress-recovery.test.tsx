@@ -66,6 +66,7 @@ it('saves the current paragraph independently while recovery IO is pending, reta
   const f = await setup(); await f.timeout(); fireEvent.click(screen.getByRole('button', { name: '继续下一句' })); const latest = f.hash();
   const menu = open(); fireEvent.click(within(menu).getByRole('button', { name: '保存当前进度' })); const dialog = screen.getByRole('dialog', { name: '存读档槽位' });
   expect(within(dialog).getByRole('button', { name: '保存进度' })).toHaveAttribute('aria-pressed', 'true');
+  await act(async () => {}); expect(within(dialog).getAllByRole('button', { name: '保存' })[0]).toBeEnabled();
   await act(async () => { fireEvent.click(within(dialog).getAllByRole('button', { name: '保存' })[0]!); });
   expect(f.slots.get('manual-1')!.runtimeStateHash).toBe(latest); expect(f.saved()).toBeNull(); expect(f.jobs).toHaveLength(1);
   fireEvent.click(within(dialog).getByRole('button', { name: '关闭存读档' })); open(); expect(screen.getByRole('alert', { name: '恢复保护提醒' })).toHaveTextContent('存储操作仍未结束'); expect(f.hash()).toBe(latest);

@@ -111,3 +111,5 @@ evidence/web-audio-readiness/*.html -text
 evidence/web-audio-readiness/**/*.worldsave -text
 evidence/web-backup-continuation/*.html -text
 evidence/web-backup-continuation/**/*.worldsave -text
+evidence/web-save-list-recovery/*.html -text
+evidence/web-save-list-recovery/**/*.worldsave -text
