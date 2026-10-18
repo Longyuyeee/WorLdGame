@@ -1,5 +1,7 @@
 # WorLd Studio（工作名）产品与开发设计文档
 
+> 当前接续（2026-10-18）：[#407 跨窗口已读合并与段内续读](docs/407-web-reading-meta-continuity.md)。精确解释 #406 的特定状态摘要变化来自正常已读 Meta 合并；修复恢复提示消失和旧存档来源的位置落后，保留段首重读、最新行恢复及只显示不改档的边界。新 [HTML](evidence/web-reading-meta-continuity/before-rain-stops.html)／[网站 ZIP](evidence/web-reading-meta-continuity/before-rain-stops-website.zip)的作者、两完整路线、三引擎真实跨窗口事件及最终回归见 #407。1.11.0 候选／S0.41、#394 源／25 条未人工批准记录及 26 媒体保持，#406 原游戏保留；真机／自然听读／许可／公网及长篇成本等继续开放。以下为历史。
+
 > 当前接续（2026-10-18）：[#406 多窗口手动保存与进度保护](docs/406-web-manual-save-safety.md)。手动保存接入既有原子比较能力，拒绝旧确认和空槽竞争覆盖，冲突后明确核对、另存或重新确认；区分未提交与写入结果不确定，保留隔离外观预览试存档。新 [HTML](evidence/web-manual-save-safety/before-rain-stops.html)／[网站 ZIP](evidence/web-manual-save-safety/before-rain-stops-website.zip)的实际作者、路线、三引擎双窗口竞争及最终回归范围见 #406。1.11.0 候选／S0.41、#394 源／25 条未人工批准记录及 26 媒体保持，#405 旧游戏保留；人工／真机／许可／公网、底层等待和长篇成本继续开放。以下为历史。
 
 > 当前接续（2026-10-18）：[#405 存档列表读取恢复与已写入结果核对](docs/405-web-save-list-recovery-and-verified-slots.md)。未读取／失败的列表不再显示成空槽，支持明确重试与旧结果隔离；保存／导入已写入但列表未刷新分别提示，短横屏保留重要结果，重试成功更新对应旧提示。新 [HTML](evidence/web-save-list-recovery/before-rain-stops.html)／[网站 ZIP](evidence/web-save-list-recovery/before-rain-stops-website.zip)的实际作者、路线、三引擎及最终测试范围见 #405。1.11.0 候选／S0.41、#394 源／25 条未人工批准记录和 26 媒体保持，#404 旧游戏保留；人工／真机／许可／公网及长篇成本等门槛不关闭。以下为历史。

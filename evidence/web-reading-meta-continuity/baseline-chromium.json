@@ -1,0 +1,165 @@
+{
+  "passed": true,
+  "engine": "chromium",
+  "browser": "151.0.7922.34",
+  "artifacts": {
+    "html": {
+      "bytes": 46810141,
+      "sha256": "6f05b517be7b5cb03bb21b7116977d55ff2879b90fdaac8aff651587419affae"
+    },
+    "website": {
+      "bytes": 35396590,
+      "sha256": "2869f4f492c354e663f33e66fb65b4decb7bcd05b8212a5dedb8403ca16cf8c1"
+    }
+  },
+  "checks": [
+    {
+      "name": "frozen-game-loses-restored-notice-after-native-cross-window-read-merge",
+      "before": {
+        "hash": "82e2acf507042ca294db18181ea77af0e7eed1889ee86690bac318ce59634412",
+        "cursor": "4",
+        "length": "4",
+        "restored": "true",
+        "auto": "off",
+        "status": "presenting"
+      },
+      "after": {
+        "hash": "311c5f813d23d16456c6942ea102a62e42a48e7598c898bd82cc59fd0e5b0224",
+        "cursor": "4",
+        "length": "4",
+        "restored": "false",
+        "auto": "off",
+        "status": "presenting"
+      },
+      "original": {
+        "projectId": "project_a983033c0f7180355c93",
+        "buildId": "e1de8f8e2a345cbc8157a90ec454c0699538bb807fbd90c984a5927110e2995a",
+        "hash": "82e2acf507042ca294db18181ea77af0e7eed1889ee86690bac318ce59634412",
+        "savedAt": 1792299131813,
+        "storedSha256": "74d56960893156335a3949b26664751931030aa2572b80bf8170a15b37a0f52a"
+      },
+      "beforeGeometry": {
+        "top": 100,
+        "height": 238,
+        "total": 998,
+        "text": "售票员把窗口里的灯关掉时，雨正沿着站台的屋檐连成一条线。站台上的钟比手机慢了三分钟。林远核对了两次，没有走去询问值班员。他看见玻璃上自己的倒影，才发现他已经穿着这件外套站了很久。行李箱旁挂着新公司的地址，手机里存着一份还没签字的合同；这些东西都能说明他要去哪里，却没有一样能替他解释为什么迟迟不肯往前走。"
+      },
+      "afterGeometry": {
+        "top": 100,
+        "height": 238,
+        "total": 998,
+        "text": "售票员把窗口里的灯关掉时，雨正沿着站台的屋檐连成一条线。站台上的钟比手机慢了三分钟。林远核对了两次，没有走去询问值班员。他看见玻璃上自己的倒影，才发现他已经穿着这件外套站了很久。行李箱旁挂着新公司的地址，手机里存着一份还没签字的合同；这些东西都能说明他要去哪里，却没有一样能替他解释为什么迟迟不肯往前走。"
+      },
+      "events": [
+        {
+          "trusted": true,
+          "local": true,
+          "readTexts": 2
+        }
+      ]
+    },
+    {
+      "name": "frozen-game-leaves-the-pre-merge-save-mark-behind-the-current-reading-position",
+      "before": {
+        "hash": "82e2acf507042ca294db18181ea77af0e7eed1889ee86690bac318ce59634412",
+        "cursor": "4",
+        "length": "4",
+        "restored": "false",
+        "auto": "off",
+        "status": "presenting"
+      },
+      "after": {
+        "hash": "311c5f813d23d16456c6942ea102a62e42a48e7598c898bd82cc59fd0e5b0224",
+        "cursor": "4",
+        "length": "4",
+        "restored": "false",
+        "auto": "off",
+        "status": "presenting"
+      },
+      "original": {
+        "projectId": "project_a983033c0f7180355c93",
+        "buildId": "e1de8f8e2a345cbc8157a90ec454c0699538bb807fbd90c984a5927110e2995a",
+        "hash": "82e2acf507042ca294db18181ea77af0e7eed1889ee86690bac318ce59634412",
+        "savedAt": 1792299133879,
+        "storedSha256": "74d56960893156335a3949b26664751931030aa2572b80bf8170a15b37a0f52a"
+      },
+      "beforeMark": {
+        "projectId": "project_a983033c0f7180355c93",
+        "buildId": "e1de8f8e2a345cbc8157a90ec454c0699538bb807fbd90c984a5927110e2995a",
+        "runtimeStateHash": "82e2acf507042ca294db18181ea77af0e7eed1889ee86690bac318ce59634412",
+        "locale": "und",
+        "textHash": "18ee08932a0c7c7bb28afbc5260866edb8107dd653bd6bd1f3c5f487e315e964",
+        "anchor": {
+          "kind": "text",
+          "offset": 16,
+          "inset": 21.8125
+        }
+      },
+      "currentMark": {
+        "projectId": "project_a983033c0f7180355c93",
+        "buildId": "e1de8f8e2a345cbc8157a90ec454c0699538bb807fbd90c984a5927110e2995a",
+        "runtimeStateHash": "311c5f813d23d16456c6942ea102a62e42a48e7598c898bd82cc59fd0e5b0224",
+        "locale": "und",
+        "textHash": "18ee08932a0c7c7bb28afbc5260866edb8107dd653bd6bd1f3c5f487e315e964",
+        "anchor": {
+          "kind": "text",
+          "offset": 40,
+          "inset": 5.53125
+        }
+      },
+      "savedMark": {
+        "projectId": "project_a983033c0f7180355c93",
+        "buildId": "e1de8f8e2a345cbc8157a90ec454c0699538bb807fbd90c984a5927110e2995a",
+        "runtimeStateHash": "82e2acf507042ca294db18181ea77af0e7eed1889ee86690bac318ce59634412",
+        "locale": "und",
+        "textHash": "18ee08932a0c7c7bb28afbc5260866edb8107dd653bd6bd1f3c5f487e315e964",
+        "anchor": {
+          "kind": "end"
+        }
+      },
+      "marks": [
+        {
+          "projectId": "project_a983033c0f7180355c93",
+          "buildId": "e1de8f8e2a345cbc8157a90ec454c0699538bb807fbd90c984a5927110e2995a",
+          "runtimeStateHash": "311c5f813d23d16456c6942ea102a62e42a48e7598c898bd82cc59fd0e5b0224",
+          "locale": "und",
+          "textHash": "18ee08932a0c7c7bb28afbc5260866edb8107dd653bd6bd1f3c5f487e315e964",
+          "anchor": {
+            "kind": "text",
+            "offset": 40,
+            "inset": 5.53125
+          }
+        },
+        {
+          "projectId": "project_a983033c0f7180355c93",
+          "buildId": "e1de8f8e2a345cbc8157a90ec454c0699538bb807fbd90c984a5927110e2995a",
+          "runtimeStateHash": "4871c5b2de7ef8c67976d40c9a7269b1601bfc5383c06a2e329b8bce25d011d9",
+          "locale": "und",
+          "textHash": "b2cda520b795c45b40db05680ce18b0e55a689d04284c1b25badd832b6bb0c6b",
+          "anchor": {
+            "kind": "start"
+          }
+        },
+        {
+          "projectId": "project_a983033c0f7180355c93",
+          "buildId": "e1de8f8e2a345cbc8157a90ec454c0699538bb807fbd90c984a5927110e2995a",
+          "runtimeStateHash": "82e2acf507042ca294db18181ea77af0e7eed1889ee86690bac318ce59634412",
+          "locale": "und",
+          "textHash": "18ee08932a0c7c7bb28afbc5260866edb8107dd653bd6bd1f3c5f487e315e964",
+          "anchor": {
+            "kind": "end"
+          }
+        }
+      ],
+      "events": [
+        {
+          "trusted": true,
+          "local": true,
+          "readTexts": 2
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "scope": "Actual exported website and two real pages: UI-generated save, real long prose at user font settings, browser scrolling, native localStorage storage events from normal reading. Test only observes storage and readonly IndexedDB payload digests; no database/cache writes or event injection. Phone-sized windows and desktop engines, not physical phones/Safari, natural listening, system interruption, rights/public HTTPS or long-soak acceptance."
+}

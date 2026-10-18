@@ -1,7 +1,28 @@
 import { expect, it } from 'vitest';
-import { readReadingResume, storeReadingResume, validReadingAnchor, type ReadingResumeMark } from './reading-resume-store';
+import { readReadingResume, storeReadingResume, storeReadingResumeMarks, validReadingAnchor, type ReadingResumeMark } from './reading-resume-store';
 const mark: ReadingResumeMark = { projectId: 'story', buildId: 'build', runtimeStateHash: 'a'.repeat(64), locale: 'zh-CN', textHash: 'b'.repeat(64), anchor: { kind: 'text', offset: 70, inset: -.5 } };
 function storage() { const values = new Map<string, string>(); return { values, getItem: (key: string) => values.get(key) ?? null, setItem: (key: string, value: string) => { values.set(key, value); } }; }
+it('writes a Meta alias batch with one read and one write while retaining unrelated recent marks', () => {
+  const source = storage(); storeReadingResume(source, mark); let reads = 0, writes = 0;
+  const counted = { getItem(key: string) { reads++; return source.getItem(key); }, setItem(key: string, value: string) { writes++; source.setItem(key, value); } };
+  const incoming = ['c', 'd', 'e'].map(value => ({ ...mark, runtimeStateHash: value.repeat(64), anchor: { kind: 'pixel' as const, top: 900 } })); expect(storeReadingResumeMarks(counted, incoming)).toBe(true);
+  expect({ reads, writes }).toEqual({ reads: 1, writes: 1 }); for (const row of incoming) expect(readReadingResume(source, row)).toEqual(row.anchor); expect(readReadingResume(source, mark)).toEqual(mark.anchor);
+});
+it('rejects an invalid mixed or oversized batch before modifying any cache', () => {
+  const source = storage(); storeReadingResume(source, mark); const before = [...source.values.entries()];
+  for (const incoming of [[], Array(9).fill(mark), [mark, { ...mark, projectId: 'other' }], [mark, { ...mark, anchor: { kind: 'pixel', top: -1 } }]]) {
+    expect(storeReadingResumeMarks(source, incoming as ReadingResumeMark[])).toBe(false); expect([...source.values.entries()]).toEqual(before);
+  }
+});
+it('deduplicates a batch using first-source priority without mutating input', () => {
+  const source = storage(), first = { ...mark, anchor: { kind: 'start' as const } }, duplicate = { ...mark, anchor: { kind: 'end' as const } }, incoming = Object.freeze([first, duplicate]);
+  expect(storeReadingResumeMarks(source, incoming)).toBe(true); expect(readReadingResume(source, mark)).toEqual({ kind: 'start' }); expect(duplicate.anchor).toEqual({ kind: 'end' }); expect(JSON.parse([...source.values.values()][0]!).marks).toHaveLength(1);
+});
+it('keeps the existing eight-mark schema and treats a rejected batch write as optional failure', () => {
+  const source = storage(); for (let i = 0; i < 8; i++) storeReadingResume(source, { ...mark, runtimeStateHash: i.toString(16).padStart(64, '0') });
+  expect(storeReadingResumeMarks(source, [mark])).toBe(true); expect(JSON.parse([...source.values.values()][0]!).marks).toHaveLength(8);
+  const before = [...source.values.entries()]; expect(storeReadingResumeMarks({ getItem: source.getItem, setItem() { throw Error('quota'); } }, [mark])).toBe(false); expect([...source.values.entries()]).toEqual(before);
+});
 it('stores only bounded presentation data and restores a copy for the exact validated source', () => {
   const s = storage(); expect(storeReadingResume(s, mark)).toBe(true); const anchor = readReadingResume(s, mark); expect(anchor).toEqual(mark.anchor); expect(anchor).not.toBe(mark.anchor);
   const text = [...s.values.values()][0]!; expect(text.length).toBeLessThan(1000); expect(text).not.toContain('serializedSessionSave');

@@ -115,3 +115,5 @@ evidence/web-save-list-recovery/*.html -text
 evidence/web-save-list-recovery/**/*.worldsave -text
 evidence/web-manual-save-safety/*.html -text
 evidence/web-manual-save-safety/**/*.worldsave -text
+evidence/web-reading-meta-continuity/*.html -text
+evidence/web-reading-meta-continuity/**/*.worldsave -text

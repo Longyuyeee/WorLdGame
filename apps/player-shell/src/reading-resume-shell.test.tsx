@@ -8,6 +8,7 @@ import { PlayerShell } from './PlayerShell';
 import { IndexedDbWorldPlayerSaveStoreV3 } from './player-save-store';
 import { IndexedDbWorldPlayerRecoveryStoreV1, createWorldPlayerRecoveryRecordV1 } from './player-recovery-store';
 import { storeReadingResume, readReadingResume } from './reading-resume-store';
+import { storePlayerCollection, collectionKey } from './player-collection-store';
 afterEach(() => { cleanup(); vi.restoreAllMocks(); localStorage.clear(); });
 const text = '雨声里，她继续读那封还没有写完的信。'.repeat(60);
 function project() {
@@ -38,6 +39,26 @@ async function load(f: Awaited<ReturnType<typeof setup>>) {
   fireEvent.click(f.getByRole('button', { name: '快速读取' })); fireEvent.click(f.getByRole('button', { name: '确认读取' }));
   await waitFor(() => expect(f.main()).toHaveAttribute('data-save-operation', 'loaded'));
 }
+async function externalRead(f: Awaited<ReturnType<typeof setup>>) {
+  const ctx = context(f.p), progress = { ...ctx.core.runtimeState!.metaProgress, readTextIds: ['one_text', 'two_text'] };
+  storePlayerCollection(localStorage, f.p.manifest.projectId, ctx.mark.buildId, progress);
+  await act(async () => { fireEvent(window, new StorageEvent('storage', { key: collectionKey(f.p.manifest.projectId, ctx.mark.buildId), storageArea: localStorage })); });
+  return ctx.mark;
+}
+it('keeps the restored-position notice and restart action when another window adds read knowledge', async () => {
+  const f = await setup(); await save(f); f.layout.scroll(420); await load(f); expect(f.main()).toHaveAttribute('data-reading-position-restored', 'true');
+  const before = f.main().getAttribute('data-runtime-state-hash'), slot = await f.store.read(f.p.manifest.projectId, 'quick-1'); await externalRead(f);
+  expect(f.main().getAttribute('data-runtime-state-hash')).not.toBe(before); expect(f.layout.top).toBe(420); expect(f.getByRole('button', { name: '从段首重读' })).toBeVisible();
+  fireEvent.click(f.getByRole('button', { name: '从段首重读' })); expect(f.layout.top).toBe(0); expect(readReadingResume(localStorage, context(f.p).mark)).toEqual({ kind: 'start' }); expect(await f.store.read(f.p.manifest.projectId, 'quick-1')).toEqual(slot);
+});
+it('keeps the latest paragraph position for a pre-merge saved hash before any explicit load', async () => {
+  const f = await setup(); await save(f); f.layout.scroll(420); const original = context(f.p).mark; await externalRead(f); f.layout.scroll(900); fireEvent(window, new Event('pagehide'));
+  expect(readReadingResume(localStorage, original)).toEqual({ kind: 'pixel', top: 900 }); await load(f); expect(f.layout.top).toBe(900);
+});
+it('does not bring back a dismissed restored-position notice when read knowledge changes', async () => {
+  const f = await setup(); await save(f); f.layout.scroll(420); await load(f); fireEvent.click(f.getByRole('button', { name: '知道了' })); await externalRead(f);
+  expect(f.queryByRole('button', { name: '从段首重读' })).toBeNull(); expect(f.layout.top).toBe(420); expect(f.main()).toHaveAttribute('data-reading-position-restored', 'false');
+});
 it('flushes a just-scrolled position before an explicit same-paragraph load, then allows restarting at the top', async () => {
   const f = await setup(); await save(f); const slot = await f.store.read(f.p.manifest.projectId, 'quick-1');
   f.layout.scroll(420); await load(f); expect(f.layout.top).toBe(420); expect(f.getByText('已回到本机记录的阅读位置')).toBeInTheDocument();

@@ -34,9 +34,14 @@ export function readReadingResume(storage: Storage, context: ReadingResumeContex
   try { const found = read(storage, context.projectId).find(mark => same(mark, context)); return found ? { ...found.anchor } : null; } catch { return null; }
 }
 export function storeReadingResume(storage: Storage, mark: ReadingResumeMark): boolean {
+  return storeReadingResumeMarks(storage, [mark]);
+}
+/** Commit one bounded batch so a Meta-only alias update does not multiply IO. */
+export function storeReadingResumeMarks(storage: Storage, incoming: readonly ReadingResumeMark[]): boolean {
   try {
-    if (!valid(mark)) return false;
-    const marks = [mark, ...read(storage, mark.projectId).filter(old => !same(old, mark))].slice(0, 8);
-    storage.setItem(key(mark.projectId), JSON.stringify({ schemaVersion: 1, marks })); return true;
+    if (incoming.length === 0 || incoming.length > 8 || !incoming.every(mark => valid(mark) && mark.projectId === incoming[0]!.projectId)) return false;
+    const projectId = incoming[0]!.projectId, unique = incoming.filter((mark, index) => incoming.findIndex(other => same(mark, other)) === index);
+    const marks = [...unique, ...read(storage, projectId).filter(old => !unique.some(mark => same(old, mark)))].slice(0, 8);
+    storage.setItem(key(projectId), JSON.stringify({ schemaVersion: 1, marks })); return true;
   } catch { return false; }
 }
