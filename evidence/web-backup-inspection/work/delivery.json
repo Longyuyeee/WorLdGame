@@ -1,0 +1,7 @@
+{
+  "scope": "Frozen export inventory for matrix validation only; not final batch or product acceptance.",
+  "artifacts": {
+    "html": { "bytes": 46841743, "sha256": "bd453092147827d1d37b5642794441afabbc69b6ea56f10fb6dc28aaadba6bf7" },
+    "website": { "bytes": 35428192, "sha256": "09427c7a0b7e3c148bae5933874f39ba1ab639bfbfd8cd9834e0ed189060d790" }
+  }
+}

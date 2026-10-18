@@ -7,6 +7,8 @@ import type { WorldPlayerSaveWriteCoordinatorV1 } from "./player-save-policy";
 import { playerSaveLabel } from "./player-save-label";
 import { readPlayerBackupFile } from './backup-file-reader';
 import { awaitPlayerBackupValue } from './backup-operation';
+import { PlayerBackupInspection } from './PlayerBackupInspection';
+import { PlayerSaveDetails } from './PlayerSaveCard';
 
 type SaveCapture = { readonly slot: WorldPlayerSaveSlotV3; readonly preview?: Blob };
 const time = (epoch: number) => new Date(epoch).toLocaleString("zh-CN", { hour12: false });
@@ -26,6 +28,7 @@ export function PlayerSaveBackupPanel({ state, store, coordinator, slots, curren
   const [source, setSource] = useState(currentAllowed ? "current" : slots[0]?.slotId ?? "current");
   const [incoming, setIncoming] = useState<PlayerSaveBackup | null>(null), [target, setTarget] = useState("manual-1");
   const [confirmation, setConfirmation] = useState<WorldPlayerSaveSummaryV3 | null>(null);
+  const [exportExpanded, setExportExpanded] = useState(true);
   const [busy, setBusy] = useState(false), [message, setMessage] = useState(""), [error, setError] = useState(false);
   const [waiting, setWaiting] = useState(false), [taskKind, setTaskKind] = useState<BackupTask['kind'] | null>(null);
   const [download, setDownload] = useState<{ href: string; filename: string } | null>(null), [importedSlot, setImportedSlot] = useState<{ id: string; artifactHash: string } | null>(null);
@@ -59,6 +62,7 @@ export function PlayerSaveBackupPanel({ state, store, coordinator, slots, curren
     setSource(currentAllowed ? 'current' : slots[0]?.slotId ?? 'current');
   }, [busy, source, currentAllowed, slots]);
   useEffect(() => () => { if (download) URL.revokeObjectURL(download.href); }, [download]);
+  useEffect(() => setExportExpanded(incoming === null), [incoming]);
   const active = (captured: PlayerCoreState, request: BackupTask) => operation.current === request && !request.controller.signal.aborted && mounted.current && context.current.store === store && context.current.isCurrent() &&
     captured.projectId === context.current.state.projectId && captured.artifacts?.manifest.buildId === context.current.state.artifacts?.manifest.buildId;
   const run = async (kind: BackupTask['kind'], task: (captured: PlayerCoreState, request: BackupTask) => Promise<void>) => {
@@ -136,18 +140,25 @@ export function PlayerSaveBackupPanel({ state, store, coordinator, slots, curren
   };
   const reset = () => { setIncoming(null); setConfirmation(null); setImportedSlot(null); setMessage("已取消导入，当前故事和原存档保持不变。"); setError(false); };
   const selected = slots.find(slot => slot.slotId === source);
+  const destination = confirmation ?? slots.find(slot => slot.slotId === target);
+  const retainOldTarget = () => {
+    if (!confirmation || busy || externalBusy || !allowed) return;
+    setSource(confirmation.slotId); setExportExpanded(true);
+    setMessage('已选中目标旧槽位，请先导出并保留文件；待导入的备份仍在，之后还需明确确认覆盖。'); setError(false);
+    queueMicrotask(() => exportButton.current?.focus());
+  };
   return <section className="player-save-backup" aria-label="存档备份与恢复" aria-busy={busy}>
-    <p>把一份完整进度和历史存成文件，换浏览器或设备后可导入同一作品。个人设置和游戏素材需另行保留。</p>
+    <p>每个文件只保存一份会话、其中记录的已读／解锁和历史，以及可用截图；换浏览器或设备后可导入同一作品。不批量备份其他槽位或独立的收藏／回想档案，个人设置和游戏素材需另行保留。</p>
     {busy && <div className="player-load-wait player-backup-wait" role="status" aria-live="polite">
       <span>{taskKind === 'import' ? '导入提交中，不提供取消写入。请等待结果后核对目标槽位，不要重复导入。' : '正在准备或检查备份，可以取消等待；不会更改当前故事或原存档。'}{waiting ? taskKind === 'import' ? ' 写入等待时间较长，尚未确认结果。' : ' 等待时间较长，可取消后重新选择文件或槽位。' : ''}</span>
       {taskKind !== 'import' && <button type="button" onClick={cancel}>取消备份准备</button>}
     </div>}
-    <details className="player-backup-export" open={incoming === null}><summary>导出备份</summary><fieldset disabled={busy || externalBusy || !allowed} aria-label="导出备份">
+    <details className="player-backup-export" open={exportExpanded} onToggle={event => setExportExpanded(event.currentTarget.open)}><summary>导出备份</summary><fieldset disabled={busy || externalBusy || !allowed} aria-label="导出备份">
       <label>备份进度<select aria-label="备份进度" value={source} onChange={event => setSource(event.target.value)}>
         <option value="current" disabled={!currentAllowed}>当前游玩进度{currentAllowed ? "" : "（开始或读档后可用）"}</option>
         {slots.map(slot => <option key={slot.slotId} value={slot.slotId}>{playerSaveLabel(slot.slotId)} · {slot.sceneTitle}</option>)}
       </select></label>
-      {selected && <p>{selected.sceneTitle} · {time(selected.savedAtEpochMilliseconds)} · 本地时间</p>}
+      {selected && <div className="player-backup-slot-details"><PlayerSaveDetails slot={selected} /></div>}
       <button ref={exportButton} type="button" disabled={source === "current" ? !currentAllowed : !selected} onClick={() => void exportBackup()}>导出备份文件</button>
       {download && <><a href={download.href} download={download.filename}>重新下载备份</a><small style={{ overflowWrap: 'anywhere' }}>上次生成：{download.filename}</small></>}
     </fieldset></details>
@@ -155,16 +166,19 @@ export function PlayerSaveBackupPanel({ state, store, coordinator, slots, curren
       <label>选择存档备份文件<input ref={fileInput} type="file" accept=".worldsave,application/json" aria-label="选择存档备份文件" disabled={store.writeIfUnchanged === undefined} onChange={event => { const file = event.target.files?.[0]; event.target.value = ""; if (file) void inspect(file); }} /></label>
       {store.writeIfUnchanged === undefined && <p>当前宿主没有安全导入能力，请使用本游戏 Web 播放器导入。</p>}
       {incoming && <>
-        <dl><dt>作品</dt><dd>{incoming.slot.title}</dd><dt>进度</dt><dd>{incoming.slot.chapterTitle ? `${incoming.slot.chapterTitle} / ` : ""}{incoming.slot.sceneTitle}</dd>
-          <dt>保存时间</dt><dd>{time(incoming.slot.savedAtEpochMilliseconds)} · 本地时间</dd><dt>备份来源</dt><dd>{incoming.origin === "current" ? "当时的游玩进度（直接备份）" : playerSaveLabel(incoming.slot.slotId)}</dd>
-          <dt>版本</dt><dd>{incoming.compatibility === "current" ? "当前版本兼容" : "已核对的旧版本，可继续"}</dd></dl>
+        <PlayerBackupInspection backup={incoming} />
         {!listReady && <p>目标槽位尚未核对，请先重试读取存档列表；备份检查结果仍保留。</p>}
         <label>导入到手动槽位<select aria-label="导入到手动槽位" disabled={!listReady} value={target} onChange={event => { setTarget(event.target.value); setConfirmation(null); }}>
           {Array.from({ length: 12 }, (_, index) => { const id = `manual-${index + 1}`, slot = slots.find(slot => slot.slotId === id); return <option key={id} value={id}>{playerSaveLabel(id)} · {!listReady ? '尚未核对' : slot ? `${slot.sceneTitle}（已有进度）` : "空槽位"}</option>; })}
         </select></label>
+        <section className="player-backup-destination" aria-label="目标槽位内容"><h3>{playerSaveLabel(target)} · {confirmation ? '本次确认的旧进度' : '目标槽位记录'}</h3>
+          {listReady ? <div className="player-backup-slot-details"><PlayerSaveDetails slot={destination} emptyText="导入后会写入这里，当前故事仍保持不变" />{destination && !destination.readingExcerpt && <small>这个旧档未记录正文摘要，请结合场景和保存时间核对。</small>}</div> : <p>尚未核对目标槽位，请先重试读取存档列表。</p>}
+        </section>
         {!confirmation && <button type="button" disabled={!listReady} onClick={requestImport}>导入到所选槽位</button>}
         {confirmation && <section className="player-backup-confirm" aria-label="确认覆盖目标存档"><strong>将替换{playerSaveLabel(confirmation.slotId)}</strong>
           <p>{confirmation.sceneTitle} · {time(confirmation.savedAtEpochMilliseconds)} · 本地时间。需要保留时请先导出这个旧槽位。</p>
+          {confirmation.readingExcerpt && <p className="player-backup-inspection__excerpt">{confirmation.readingExcerpt}</p>}
+          <button type="button" onClick={retainOldTarget}>先备份这个旧槽位</button>
           <button type="button" disabled={!listReady} onClick={() => void commit(confirmation)}>确认覆盖并导入</button></section>}
         <button type="button" onClick={reset}>取消导入</button>
       </>}

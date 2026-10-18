@@ -3,6 +3,13 @@
 .player-save-intent button[aria-pressed="true"] { border-color: var(--player-accent, #b9a1ff); background: var(--player-panel, #111425); font-weight: 700; }
 .player-save-intent button:disabled { opacity: .4; cursor: not-allowed; }
 .player-save-intro { margin: 0; font-size: 13px; line-height: 1.7; color: var(--player-muted, #c1bed2); }
+.player-backup-inspection, .player-backup-destination { display: grid; gap: 8px; min-width: 0; padding: 12px; border: 1px solid var(--player-muted, #77758b); border-radius: 12px; background: #8881; }
+.player-backup-inspection h3, .player-backup-destination h3, .player-backup-inspection p { margin: 0; }
+.player-backup-inspection dl { margin: 0; }
+.player-backup-inspection img { max-width: 100%; width: min(100%, 320px); height: auto; justify-self: start; border-radius: 8px; }
+.player-backup-inspection :is(p,small,dd), .player-backup-destination :is(span,small) { overflow-wrap: anywhere; line-height: 1.6; }
+.player-backup-inspection__excerpt { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.7; }
+.player-backup-slot-details { display: grid; gap: 6px; min-width: 0; }
 .player-save-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
 .player-save__panel .player-save-card { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; margin: 0; padding: 12px; border-radius: 14px; color: var(--player-ink, #f8f7ff); border: 1px solid var(--player-muted, #77758b); background: #8881; }
 .player-save-card__preview { grid-column: 1 / -1; aspect-ratio: 16 / 9; display: grid; overflow: hidden; border-radius: 8px; background: #8881; }

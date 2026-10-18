@@ -2,9 +2,15 @@ import { createPlayerCoreSnapshotV1, loadPlayerCoreSessionSaveV1, type PlayerCor
 import { createWorldPlayerSaveSlotV3, type WorldPlayerSaveSlotV3 } from './player-save-store';
 import { awaitPlayerBackupValue } from './backup-operation';
 import { readPlayerBackupEnvelope, type PlayerBackupEnvelope } from './backup-envelope';
+import { saveReadingExcerpt } from './save-reading-excerpt';
 export { createPlayerBackupEnvelope as createPlayerSaveBackup, PLAYER_SAVE_BACKUP_MAX_BYTES } from './backup-envelope';
 
-export interface PlayerSaveBackup extends PlayerBackupEnvelope { readonly compatibility: 'current' | 'verified-previous' }
+export interface PlayerSaveBackup extends PlayerBackupEnvelope {
+  readonly compatibility: 'current' | 'verified-previous';
+  /** Display-only, projected after formal full-session validation. Never added
+   * to the envelope or used as a substitute for validating/loading the save. */
+  readonly inspectedReading: { readonly kind: ReturnType<typeof createPlayerCoreSnapshotV1>['presentation']['kind']; readonly excerpt: string | null };
+}
 export interface PlayerSaveBackupReadOptions {
   readonly signal?: AbortSignal;
   /** Envelope checks never replace the formal full-session validator below. */
@@ -23,7 +29,8 @@ export async function readPlayerSaveBackup(bytes: Uint8Array<ArrayBuffer>, state
   const snapshot = createPlayerCoreSnapshotV1(loaded.state);
   if (loaded.artifactHash !== slot.sessionArtifactHash || loaded.savedBuildId !== slot.buildId || loaded.savedRuntimeStateHash !== slot.runtimeStateHash ||
       loaded.savedSceneId !== slot.sceneId || snapshot.presentation.kind !== slot.presentationKind || snapshot.title !== slot.title) throw Error('备份信息与完整进度不一致，原存档保持不变。');
-  return { ...envelope, compatibility: loaded.compatibility };
+  const excerpt = saveReadingExcerpt(snapshot.presentation) ?? (snapshot.presentation.kind === 'ending' ? Array.from(snapshot.presentation.name).slice(0, 160).join('') : null);
+  return { ...envelope, compatibility: loaded.compatibility, inspectedReading: { kind: snapshot.presentation.kind, excerpt } };
 }
 export function playerBackupToManualSlot(backup: PlayerSaveBackup, slotId: string): WorldPlayerSaveSlotV3 {
   if (!/^manual-(?:[1-9]|1[0-2])$/u.test(slotId)) throw Error('请选择有效的手动槽位。');
