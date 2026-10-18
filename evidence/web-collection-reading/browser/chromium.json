@@ -1,0 +1,881 @@
+{
+  "source": "evidence\\web-collection-reading\\work",
+  "artifacts": {
+    "html": {
+      "bytes": 46844460,
+      "sha256": "105dc3dfb186df992fa1df887460a76380f5825ed1653fffb47137a9f80bb0bd"
+    },
+    "website": {
+      "bytes": 35430909,
+      "sha256": "c3661566d08c887b160601ed1535b0caee41d5f7c6a4295bf2511ee041f10518"
+    }
+  },
+  "engine": "chromium",
+  "fileMode": false,
+  "baseline": false,
+  "checks": [
+    {
+      "name": "title-collection-return-does-not-start-story",
+      "titleReturn": "返回标题",
+      "title": {
+        "hash": "none",
+        "host": "f54b5eb474f9ef52719d2d36e70e76699864f341c4d3a1b75eee8b3328706258",
+        "cursor": "0",
+        "status": "title",
+        "replay": "inactive"
+      }
+    },
+    {
+      "name": "actual-collection-lists-across-five-viewports",
+      "samples": [
+        {
+          "viewport": {
+            "width": 320,
+            "height": 568
+          },
+          "replay": {
+            "scrollWidth": 254,
+            "clientWidth": 254,
+            "rows": [
+              {
+                "title": "未解锁的场景",
+                "titleBox": {
+                  "x": 100,
+                  "y": 267.375,
+                  "width": 170,
+                  "height": 21
+                },
+                "bodyBox": {
+                  "x": 100,
+                  "y": 267.375,
+                  "width": 170,
+                  "height": 42
+                },
+                "rowBox": {
+                  "x": 33,
+                  "y": 254.375,
+                  "width": 254,
+                  "height": 126
+                },
+                "coverBox": null,
+                "actionBox": {
+                  "x": 100,
+                  "y": 323.375,
+                  "width": 78,
+                  "height": 44
+                },
+                "unlocked": "false",
+                "text": "01未解锁的场景达成相关结局后解锁未解锁"
+              },
+              {
+                "title": "雨后的天明",
+                "titleBox": {
+                  "x": 100,
+                  "y": 403.375,
+                  "width": 170,
+                  "height": 21
+                },
+                "bodyBox": {
+                  "x": 100,
+                  "y": 403.375,
+                  "width": 170,
+                  "height": 59
+                },
+                "rowBox": {
+                  "x": 33,
+                  "y": 390.375,
+                  "width": 254,
+                  "height": 143
+                },
+                "coverBox": null,
+                "actionBox": {
+                  "x": 100,
+                  "y": 476.375,
+                  "width": 94,
+                  "height": 44
+                },
+                "unlocked": "true",
+                "text": "02雨后的天明按当时的路线重温 · 原进度保持开始回想"
+              }
+            ]
+          },
+          "endings": {
+            "scrollWidth": 254,
+            "clientWidth": 254,
+            "rows": [
+              {
+                "title": "未发现的结局",
+                "titleBox": {
+                  "x": 100,
+                  "y": 203,
+                  "width": 170,
+                  "height": 21
+                },
+                "bodyBox": {
+                  "x": 100,
+                  "y": 203,
+                  "width": 170,
+                  "height": 42
+                },
+                "rowBox": {
+                  "x": 33,
+                  "y": 186,
+                  "width": 254,
+                  "height": 76
+                },
+                "coverBox": null,
+                "actionBox": null,
+                "unlocked": "false",
+                "text": "01未发现的结局继续探索不同选择"
+              },
+              {
+                "title": "同行的约定",
+                "titleBox": {
+                  "x": 100,
+                  "y": 289,
+                  "width": 170,
+                  "height": 21
+                },
+                "bodyBox": {
+                  "x": 100,
+                  "y": 289,
+                  "width": 170,
+                  "height": 42
+                },
+                "rowBox": {
+                  "x": 33,
+                  "y": 272,
+                  "width": 254,
+                  "height": 76
+                },
+                "coverBox": null,
+                "actionBox": null,
+                "unlocked": "true",
+                "text": "02同行的约定已达成"
+              }
+            ]
+          },
+          "music": {
+            "scrollWidth": 254,
+            "clientWidth": 254,
+            "rows": [
+              {
+                "title": "夜行与回信（原创合成音乐）",
+                "titleBox": {
+                  "x": 96,
+                  "y": 199,
+                  "width": 174,
+                  "height": 42
+                },
+                "bodyBox": {
+                  "x": 96,
+                  "y": 199,
+                  "width": 174,
+                  "height": 104
+                },
+                "rowBox": {
+                  "x": 33,
+                  "y": 186,
+                  "width": 254,
+                  "height": 130
+                },
+                "coverBox": null,
+                "actionBox": null,
+                "text": "01夜行与回信（原创合成音乐）"
+              }
+            ]
+          }
+        },
+        {
+          "viewport": {
+            "width": 568,
+            "height": 320
+          },
+          "replay": {
+            "scrollWidth": 502,
+            "clientWidth": 502,
+            "rows": [
+              {
+                "title": "未解锁的场景",
+                "titleBox": {
+                  "x": 100,
+                  "y": 292.1875,
+                  "width": 418,
+                  "height": 21
+                },
+                "bodyBox": {
+                  "x": 100,
+                  "y": 292.1875,
+                  "width": 418,
+                  "height": 42
+                },
+                "rowBox": {
+                  "x": 33,
+                  "y": 279.1875,
+                  "width": 502,
+                  "height": 126
+                },
+                "coverBox": null,
+                "actionBox": {
+                  "x": 100,
+                  "y": 348.1875,
+                  "width": 78,
+                  "height": 44
+                },
+                "unlocked": "false",
+                "text": "01未解锁的场景达成相关结局后解锁未解锁"
+              },
+              {
+                "title": "雨后的天明",
+                "titleBox": {
+                  "x": 100,
+                  "y": 428.1875,
+                  "width": 418,
+                  "height": 21
+                },
+                "bodyBox": {
+                  "x": 100,
+                  "y": 428.1875,
+                  "width": 418,
+                  "height": 42
+                },
+                "rowBox": {
+                  "x": 33,
+                  "y": 415.1875,
+                  "width": 502,
+                  "height": 126
+                },
+                "coverBox": null,
+                "actionBox": {
+                  "x": 100,
+                  "y": 484.1875,
+                  "width": 94,
+                  "height": 44
+                },
+                "unlocked": "true",
+                "text": "02雨后的天明按当时的路线重温 · 原进度保持开始回想"
+              }
+            ]
+          },
+          "endings": {
+            "scrollWidth": 502,
+            "clientWidth": 502,
+            "rows": [
+              {
+                "title": "未发现的结局",
+                "titleBox": {
+                  "x": 100,
+                  "y": 140,
+                  "width": 418,
+                  "height": 21
+                },
+                "bodyBox": {
+                  "x": 100,
+                  "y": 140,
+                  "width": 418,
+                  "height": 42
+                },
+                "rowBox": {
+                  "x": 33,
+                  "y": 123,
+                  "width": 502,
+                  "height": 76
+                },
+                "coverBox": null,
+                "actionBox": null,
+                "unlocked": "false",
+                "text": "01未发现的结局继续探索不同选择"
+              },
+              {
+                "title": "同行的约定",
+                "titleBox": {
+                  "x": 100,
+                  "y": 226,
+                  "width": 418,
+                  "height": 21
+                },
+                "bodyBox": {
+                  "x": 100,
+                  "y": 226,
+                  "width": 418,
+                  "height": 42
+                },
+                "rowBox": {
+                  "x": 33,
+                  "y": 209,
+                  "width": 502,
+                  "height": 76
+                },
+                "coverBox": null,
+                "actionBox": null,
+                "unlocked": "true",
+                "text": "02同行的约定已达成"
+              }
+            ]
+          },
+          "music": {
+            "scrollWidth": 502,
+            "clientWidth": 502,
+            "rows": [
+              {
+                "title": "夜行与回信（原创合成音乐）",
+                "titleBox": {
+                  "x": 96,
+                  "y": 189,
+                  "width": 422,
+                  "height": 21
+                },
+                "bodyBox": {
+                  "x": 96,
+                  "y": 189,
+                  "width": 422,
+                  "height": 83
+                },
+                "rowBox": {
+                  "x": 33,
+                  "y": 176,
+                  "width": 502,
+                  "height": 109
+                },
+                "coverBox": null,
+                "actionBox": null,
+                "text": "01夜行与回信（原创合成音乐）"
+              }
+            ]
+          }
+        },
+        {
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "replay": {
+            "scrollWidth": 324,
+            "clientWidth": 324,
+            "rows": [
+              {
+                "title": "未解锁的场景",
+                "titleBox": {
+                  "x": 100,
+                  "y": 317.78125,
+                  "width": 240,
+                  "height": 21
+                },
+                "bodyBox": {
+                  "x": 100,
+                  "y": 317.78125,
+                  "width": 240,
+                  "height": 42
+                },
+                "rowBox": {
+                  "x": 33,
+                  "y": 304.78125,
+                  "width": 324,
+                  "height": 126
+                },
+                "coverBox": null,
+                "actionBox": {
+                  "x": 100,
+                  "y": 373.78125,
+                  "width": 78,
+                  "height": 44
+                },
+                "unlocked": "false",
+                "text": "01未解锁的场景达成相关结局后解锁未解锁"
+              },
+              {
+                "title": "雨后的天明",
+                "titleBox": {
+                  "x": 100,
+                  "y": 453.78125,
+                  "width": 240,
+                  "height": 21
+                },
+                "bodyBox": {
+                  "x": 100,
+                  "y": 453.78125,
+                  "width": 240,
+                  "height": 42
+                },
+                "rowBox": {
+                  "x": 33,
+                  "y": 440.78125,
+                  "width": 324,
+                  "height": 126
+                },
+                "coverBox": null,
+                "actionBox": {
+                  "x": 100,
+                  "y": 509.78125,
+                  "width": 94,
+                  "height": 44
+                },
+                "unlocked": "true",
+                "text": "02雨后的天明按当时的路线重温 · 原进度保持开始回想"
+              }
+            ]
+          },
+          "endings": {
+            "scrollWidth": 324,
+            "clientWidth": 324,
+            "rows": [
+              {
+                "title": "未发现的结局",
+                "titleBox": {
+                  "x": 100,
+                  "y": 203,
+                  "width": 240,
+                  "height": 21
+                },
+                "bodyBox": {
+                  "x": 100,
+                  "y": 203,
+                  "width": 240,
+                  "height": 42
+                },
+                "rowBox": {
+                  "x": 33,
+                  "y": 186,
+                  "width": 324,
+                  "height": 76
+                },
+                "coverBox": null,
+                "actionBox": null,
+                "unlocked": "false",
+                "text": "01未发现的结局继续探索不同选择"
+              },
+              {
+                "title": "同行的约定",
+                "titleBox": {
+                  "x": 100,
+                  "y": 289,
+                  "width": 240,
+                  "height": 21
+                },
+                "bodyBox": {
+                  "x": 100,
+                  "y": 289,
+                  "width": 240,
+                  "height": 42
+                },
+                "rowBox": {
+                  "x": 33,
+                  "y": 272,
+                  "width": 324,
+                  "height": 76
+                },
+                "coverBox": null,
+                "actionBox": null,
+                "unlocked": "true",
+                "text": "02同行的约定已达成"
+              }
+            ]
+          },
+          "music": {
+            "scrollWidth": 324,
+            "clientWidth": 324,
+            "rows": [
+              {
+                "title": "夜行与回信（原创合成音乐）",
+                "titleBox": {
+                  "x": 96,
+                  "y": 199,
+                  "width": 244,
+                  "height": 21
+                },
+                "bodyBox": {
+                  "x": 96,
+                  "y": 199,
+                  "width": 244,
+                  "height": 83
+                },
+                "rowBox": {
+                  "x": 33,
+                  "y": 186,
+                  "width": 324,
+                  "height": 109
+                },
+                "coverBox": null,
+                "actionBox": null,
+                "text": "01夜行与回信（原创合成音乐）"
+              }
+            ]
+          }
+        },
+        {
+          "viewport": {
+            "width": 844,
+            "height": 390
+          },
+          "replay": {
+            "scrollWidth": 747,
+            "clientWidth": 747,
+            "rows": [
+              {
+                "title": "未解锁的场景",
+                "titleBox": {
+                  "x": 151.75,
+                  "y": 182.34375,
+                  "width": 534.5,
+                  "height": 21
+                },
+                "bodyBox": {
+                  "x": 151.75,
+                  "y": 182.34375,
+                  "width": 534.5,
+                  "height": 42
+                },
+                "rowBox": {
+                  "x": 48.75,
+                  "y": 161.34375,
+                  "width": 746.5,
+                  "height": 84
+                },
+                "coverBox": null,
+                "actionBox": {
+                  "x": 700.25,
+                  "y": 181.34375,
+                  "width": 78,
+                  "height": 44
+                },
+                "unlocked": "false",
+                "text": "01未解锁的场景达成相关结局后解锁未解锁"
+              },
+              {
+                "title": "雨后的天明",
+                "titleBox": {
+                  "x": 151.75,
+                  "y": 276.34375,
+                  "width": 518.5,
+                  "height": 21
+                },
+                "bodyBox": {
+                  "x": 151.75,
+                  "y": 276.34375,
+                  "width": 518.5,
+                  "height": 42
+                },
+                "rowBox": {
+                  "x": 48.75,
+                  "y": 255.34375,
+                  "width": 746.5,
+                  "height": 84
+                },
+                "coverBox": null,
+                "actionBox": {
+                  "x": 684.25,
+                  "y": 275.34375,
+                  "width": 94,
+                  "height": 44
+                },
+                "unlocked": "true",
+                "text": "02雨后的天明按当时的路线重温 · 原进度保持开始回想"
+              }
+            ]
+          },
+          "endings": {
+            "scrollWidth": 747,
+            "clientWidth": 747,
+            "rows": [
+              {
+                "title": "未发现的结局",
+                "titleBox": {
+                  "x": 151.75,
+                  "y": 193.75,
+                  "width": 626.5,
+                  "height": 21
+                },
+                "bodyBox": {
+                  "x": 151.75,
+                  "y": 193.75,
+                  "width": 626.5,
+                  "height": 42
+                },
+                "rowBox": {
+                  "x": 48.75,
+                  "y": 176.75,
+                  "width": 746.5,
+                  "height": 76
+                },
+                "coverBox": null,
+                "actionBox": null,
+                "unlocked": "false",
+                "text": "01未发现的结局继续探索不同选择"
+              },
+              {
+                "title": "同行的约定",
+                "titleBox": {
+                  "x": 151.75,
+                  "y": 279.75,
+                  "width": 626.5,
+                  "height": 21
+                },
+                "bodyBox": {
+                  "x": 151.75,
+                  "y": 279.75,
+                  "width": 626.5,
+                  "height": 42
+                },
+                "rowBox": {
+                  "x": 48.75,
+                  "y": 262.75,
+                  "width": 746.5,
+                  "height": 76
+                },
+                "coverBox": null,
+                "actionBox": null,
+                "unlocked": "true",
+                "text": "02同行的约定已达成"
+              }
+            ]
+          },
+          "music": {
+            "scrollWidth": 747,
+            "clientWidth": 747,
+            "rows": [
+              {
+                "title": "夜行与回信（原创合成音乐）",
+                "titleBox": {
+                  "x": 111.75,
+                  "y": 227.75,
+                  "width": 666.5,
+                  "height": 21
+                },
+                "bodyBox": {
+                  "x": 111.75,
+                  "y": 227.75,
+                  "width": 666.5,
+                  "height": 83
+                },
+                "rowBox": {
+                  "x": 48.75,
+                  "y": 214.75,
+                  "width": 746.5,
+                  "height": 109
+                },
+                "coverBox": null,
+                "actionBox": null,
+                "text": "01夜行与回信（原创合成音乐）"
+              }
+            ]
+          }
+        },
+        {
+          "viewport": {
+            "width": 1280,
+            "height": 800
+          },
+          "replay": {
+            "scrollWidth": 1174,
+            "clientWidth": 1174,
+            "rows": [
+              {
+                "title": "未解锁的场景",
+                "titleBox": {
+                  "x": 156,
+                  "y": 313.59375,
+                  "width": 962,
+                  "height": 21
+                },
+                "bodyBox": {
+                  "x": 156,
+                  "y": 313.59375,
+                  "width": 962,
+                  "height": 42
+                },
+                "rowBox": {
+                  "x": 53,
+                  "y": 292.59375,
+                  "width": 1174,
+                  "height": 84
+                },
+                "coverBox": null,
+                "actionBox": {
+                  "x": 1132,
+                  "y": 312.59375,
+                  "width": 78,
+                  "height": 44
+                },
+                "unlocked": "false",
+                "text": "01未解锁的场景达成相关结局后解锁未解锁"
+              },
+              {
+                "title": "雨后的天明",
+                "titleBox": {
+                  "x": 156,
+                  "y": 407.59375,
+                  "width": 946,
+                  "height": 21
+                },
+                "bodyBox": {
+                  "x": 156,
+                  "y": 407.59375,
+                  "width": 946,
+                  "height": 42
+                },
+                "rowBox": {
+                  "x": 53,
+                  "y": 386.59375,
+                  "width": 1174,
+                  "height": 84
+                },
+                "coverBox": null,
+                "actionBox": {
+                  "x": 1116,
+                  "y": 406.59375,
+                  "width": 94,
+                  "height": 44
+                },
+                "unlocked": "true",
+                "text": "02雨后的天明按当时的路线重温 · 原进度保持开始回想"
+              }
+            ]
+          },
+          "endings": {
+            "scrollWidth": 1174,
+            "clientWidth": 1174,
+            "rows": [
+              {
+                "title": "未发现的结局",
+                "titleBox": {
+                  "x": 156,
+                  "y": 242,
+                  "width": 1054,
+                  "height": 21
+                },
+                "bodyBox": {
+                  "x": 156,
+                  "y": 242,
+                  "width": 1054,
+                  "height": 42
+                },
+                "rowBox": {
+                  "x": 53,
+                  "y": 225,
+                  "width": 1174,
+                  "height": 76
+                },
+                "coverBox": null,
+                "actionBox": null,
+                "unlocked": "false",
+                "text": "01未发现的结局继续探索不同选择"
+              },
+              {
+                "title": "同行的约定",
+                "titleBox": {
+                  "x": 156,
+                  "y": 328,
+                  "width": 1054,
+                  "height": 21
+                },
+                "bodyBox": {
+                  "x": 156,
+                  "y": 328,
+                  "width": 1054,
+                  "height": 42
+                },
+                "rowBox": {
+                  "x": 53,
+                  "y": 311,
+                  "width": 1174,
+                  "height": 76
+                },
+                "coverBox": null,
+                "actionBox": null,
+                "unlocked": "true",
+                "text": "02同行的约定已达成"
+              }
+            ]
+          },
+          "music": {
+            "scrollWidth": 1174,
+            "clientWidth": 1174,
+            "rows": [
+              {
+                "title": "夜行与回信（原创合成音乐）",
+                "titleBox": {
+                  "x": 116,
+                  "y": 238,
+                  "width": 1094,
+                  "height": 21
+                },
+                "bodyBox": {
+                  "x": 116,
+                  "y": 238,
+                  "width": 1094,
+                  "height": 83
+                },
+                "rowBox": {
+                  "x": 53,
+                  "y": 225,
+                  "width": 1174,
+                  "height": 109
+                },
+                "coverBox": null,
+                "actionBox": null,
+                "text": "01夜行与回信（原创合成音乐）"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "collections-return-to-original-ending",
+      "returnLabel": "返回结局",
+      "ending": {
+        "hash": "0a151b03b713ff72991a8ef0112626769b0f1ea846e27a729bf955cc0e1bc28e",
+        "host": "068952e39fd392cb006d5d0e758f51e74ed95a6b93da1d450c16bf5b7aaaedd0",
+        "cursor": "118",
+        "status": "ended",
+        "replay": "inactive"
+      }
+    },
+    {
+      "name": "real-saved-body-replay-and-original-body-return",
+      "initial": {
+        "hash": "82e2acf507042ca294db18181ea77af0e7eed1889ee86690bac318ce59634412",
+        "host": "bc63db962fba844af82a97006342eba24ecbc40ef5c214e56ccbee729f734cd3",
+        "cursor": "4",
+        "status": "presenting",
+        "replay": "inactive",
+        "text": "售票员把窗口里的灯关掉时，雨正沿着站台的屋檐连成一条线。站台上的钟比手机慢了三分钟。林远核对了两次，没有走去询问值班员。他看见玻璃上自己的倒影，才发现他已经穿着这件外套站了很久。行李箱旁挂着新公司的地址，手机里存着一份还没签字的合同；这些东西都能说明他要去哪里，却没有一样能替他解释为什么迟迟不肯往前走。"
+      },
+      "loaded": {
+        "hash": "81e659e529ecdc1bdfa5886b07c3c03d27140b109245014aa35f6a7d60fd8f74",
+        "host": "419a0ee1cc852d26d1358da80b97ca2787f919b25e290c07c28a823f881e8356",
+        "cursor": "4",
+        "status": "presenting",
+        "replay": "inactive",
+        "text": "售票员把窗口里的灯关掉时，雨正沿着站台的屋檐连成一条线。站台上的钟比手机慢了三分钟。林远核对了两次，没有走去询问值班员。他看见玻璃上自己的倒影，才发现他已经穿着这件外套站了很久。行李箱旁挂着新公司的地址，手机里存着一份还没签字的合同；这些东西都能说明他要去哪里，却没有一样能替他解释为什么迟迟不肯往前走。"
+      },
+      "exactLoadedCheckpointRestored": true
+    },
+    {
+      "name": "reopen-keeps-independent-unlocks-and-original-manual-save-for-explicit-continuation",
+      "reopened": {
+        "hash": "81e659e529ecdc1bdfa5886b07c3c03d27140b109245014aa35f6a7d60fd8f74",
+        "host": "419a0ee1cc852d26d1358da80b97ca2787f919b25e290c07c28a823f881e8356",
+        "cursor": "4",
+        "status": "presenting",
+        "replay": "inactive",
+        "text": "售票员把窗口里的灯关掉时，雨正沿着站台的屋檐连成一条线。站台上的钟比手机慢了三分钟。林远核对了两次，没有走去询问值班员。他看见玻璃上自己的倒影，才发现他已经穿着这件外套站了很久。行李箱旁挂着新公司的地址，手机里存着一份还没签字的合同；这些东西都能说明他要去哪里，却没有一样能替他解释为什么迟迟不肯往前走。"
+      },
+      "manualSlotsPreserved": true,
+      "independentArchivesPreserved": true,
+      "saved": [
+        {
+          "slot": "manual-1",
+          "hash": "82e2acf507042ca294db18181ea77af0e7eed1889ee86690bac318ce59634412",
+          "digest": "74d56960893156335a3949b26664751931030aa2572b80bf8170a15b37a0f52a"
+        }
+      ],
+      "independent": {
+        "world-player.collection.v1:project_a983033c0f7180355c93:e1de8f8e2a345cbc8157a90ec454c0699538bb807fbd90c984a5927110e2995a": "f92ee7da53f8434da7eedd1a851adaef479acb13b62f2e6bd803cf0e3fddeaae",
+        "world-player.replay.v1:project_a983033c0f7180355c93:e1de8f8e2a345cbc8157a90ec454c0699538bb807fbd90c984a5927110e2995a": "79c1652129bdfadcd88bd014e46de82753f8a9c8cf0138e1103c50b70272f94f"
+      }
+    }
+  ],
+  "errors": [],
+  "scope": "Actual UI save, skip-all stay ending, collection lists and return. Desktop viewport emulation, not full natural reading, voice or physical phone acceptance."
+}

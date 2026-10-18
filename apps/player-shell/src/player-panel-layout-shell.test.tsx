@@ -79,7 +79,7 @@ it("keeps native ending actions, delegates custom return to restart, and retains
   const ending = container.querySelector<HTMLElement>('.player-ending')!; expect(ending).toHaveAttribute("data-panel-layout", "ending"); expect(within(ending).getByRole("button", { name: "回到标题" }).closest('[data-panel-region]')).toHaveAttribute("data-panel-region", "secondary");
   fireEvent(window, new Event("resize")); const hash = container.querySelector("main")!.dataset.runtimeStateHash;
   const trigger = within(ending).getByRole("button", { name: "制作名单" }); trigger.focus(); fireEvent.click(trigger); click("credits return"); await waitFor(() => expect(trigger).toHaveFocus()); expect(container.querySelector("main")!.dataset.runtimeStateHash).toBe(hash);
-  click("查看收藏与结局"); expect(ending).toHaveAttribute("inert"); click("返回剧情"); expect(ending).not.toHaveAttribute("inert"); expect(container.querySelector("main")!.dataset.runtimeStateHash).toBe(hash);
+  click("查看收藏与结局"); expect(ending).toHaveAttribute("inert"); click("返回结局"); expect(ending).not.toHaveAttribute("inert"); expect(container.querySelector("main")!.dataset.runtimeStateHash).toBe(hash);
   click("读取存档探索其他路线"); expect(ending).toHaveAttribute("inert"); expect(screen.getByRole("button", { name: "ending return" })).toBeDisabled(); click("Save return"); expect(container.querySelector("main")!.dataset.runtimeStateHash).toBe(hash);
   click("ending return"); expect(container.querySelector("main")).toHaveAttribute("data-player-status", "title"); click("打开玩家设置"); expect(screen.getByLabelText("个人字号")).toHaveValue("125");
 });

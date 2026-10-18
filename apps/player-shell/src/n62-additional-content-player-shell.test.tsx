@@ -78,7 +78,7 @@ describe("N62-E1-E4 additional-content Player path", () => {
     const demo = createPlayerMediaDemoV1();
     render(<PlayerShell project={demo.project} mediaAssets={demo.mediaAssets} />);
     fireEvent.click(screen.getByRole("button", { name: "打开附加内容" }));
-    const close = screen.getByRole("button", { name: "返回剧情" });
+    const close = screen.getByRole("button", { name: "返回标题" });
     expect(close).toHaveFocus();
 
     fireEvent.keyDown(window, { key: "Tab" });
@@ -109,7 +109,7 @@ describe("N62-E1-E4 additional-content Player path", () => {
     expect(lockedReplay).not.toHaveTextContent("Stage");
     expect(within(lockedReplay).getByRole("button", { name: "场景 1 尚未解锁" })).toBeDisabled();
     fireEvent.click(within(lockedReplay).getByRole("button", { name: "返回附加内容总览" }));
-    fireEvent.click(screen.getByRole("button", { name: "返回剧情" }));
+    fireEvent.click(screen.getByRole("button", { name: "返回标题" }));
 
     fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
     fireEvent.click(screen.getByRole("button", { name: "完成动效" }));
@@ -145,7 +145,7 @@ describe("N62-E1-E4 additional-content Player path", () => {
     expect(within(endings).getByRole("button", { name: "返回附加内容总览" })).toHaveFocus();
     expect(within(endings).getByText("Curtain")).toBeVisible();
     expect(within(endings).getByText("已达成")).toBeVisible();
-    fireEvent.click(screen.getByRole("button", { name: "返回剧情" }));
+    fireEvent.click(screen.getByRole("button", { name: "返回结局" }));
 
     expect(screen.getByRole("heading", { name: "Curtain" })).toBeVisible();
     expect(shell).toHaveAttribute("data-runtime-state-hash", beforeHash);

@@ -1,0 +1,553 @@
+{
+  "baseline": false,
+  "engine": "firefox",
+  "identity": {
+    "baselineCommit": null,
+    "sourceHashes": {
+      "apps/player-shell/src/PlayerShell.tsx": "114f63804d0bde70c3f8343c8f69cc33d1bb35ccf3a7cd1cc43bd3ad2720b68c",
+      "apps/player-shell/src/player-shell.css": "633d00ed24ee5105a890c88718d749eb67e4b4dcad92056223e0c9ec7f5d039a"
+    },
+    "codeSha256": "edabc896ba33453ca089b0e6ce1a83f89d53a23d952678f1103b0e5529455381",
+    "cssSha256": "52bf2e567137644d53b3718e75971f2b4d3deb0100386940fc6d7c2a1a1dc8bc",
+    "fixtureSha256": "aaa376e93fbe61df1b9a08c228264acb080438b13d662e52264f663c28fdb422"
+  },
+  "samples": [
+    {
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "view": "场景回想",
+      "result": {
+        "overflow": 0,
+        "rows": [
+          {
+            "title": "雨后的约定与下一次旅程 BeforeTheRainStopsAndWeMeetAgain",
+            "titleBox": {
+              "x": 100,
+              "y": 340.3999938964844,
+              "width": 170,
+              "height": 84
+            },
+            "rowBox": {
+              "x": 33,
+              "y": 327.3999938964844,
+              "width": 254,
+              "height": 206
+            },
+            "coverBox": {
+              "x": 50,
+              "y": 393.3999938964844,
+              "width": 36,
+              "height": 36
+            },
+            "actionBox": {
+              "x": 100,
+              "y": 476.3999938964844,
+              "width": 94,
+              "height": 44
+            }
+          }
+        ]
+      }
+    },
+    {
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "view": "音乐室",
+      "result": {
+        "overflow": 0,
+        "rows": [
+          {
+            "title": "雨后的约定与下一次旅程 BeforeTheRainStopsAndWeMeetAgain",
+            "titleBox": {
+              "x": 96,
+              "y": 201,
+              "width": 174,
+              "height": 84
+            },
+            "rowBox": {
+              "x": 33,
+              "y": 188,
+              "width": 254,
+              "height": 268
+            },
+            "coverBox": {
+              "x": 50,
+              "y": 316,
+              "width": 36,
+              "height": 36
+            },
+            "actionBox": null
+          }
+        ]
+      }
+    },
+    {
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "view": "结局",
+      "result": {
+        "overflow": 0,
+        "rows": [
+          {
+            "title": "雨后的约定与下一次旅程 BeforeTheRainStopsAndWeMeetAgain",
+            "titleBox": {
+              "x": 100,
+              "y": 201,
+              "width": 170,
+              "height": 84
+            },
+            "rowBox": {
+              "x": 33,
+              "y": 188,
+              "width": 254,
+              "height": 131
+            },
+            "coverBox": {
+              "x": 50,
+              "y": 245.5,
+              "width": 36,
+              "height": 36
+            },
+            "actionBox": null
+          }
+        ]
+      }
+    },
+    {
+      "viewport": {
+        "width": 568,
+        "height": 320
+      },
+      "view": "场景回想",
+      "result": {
+        "overflow": 0,
+        "rows": [
+          {
+            "title": "雨后的约定与下一次旅程 BeforeTheRainStopsAndWeMeetAgain",
+            "titleBox": {
+              "x": 100,
+              "y": 294.20001220703125,
+              "width": 418,
+              "height": 42
+            },
+            "rowBox": {
+              "x": 33,
+              "y": 281.20001220703125,
+              "width": 502,
+              "height": 147
+            },
+            "coverBox": {
+              "x": 50,
+              "y": 317.70001220703125,
+              "width": 36,
+              "height": 36
+            },
+            "actionBox": {
+              "x": 100,
+              "y": 371.20001220703125,
+              "width": 94,
+              "height": 44
+            }
+          }
+        ]
+      }
+    },
+    {
+      "viewport": {
+        "width": 568,
+        "height": 320
+      },
+      "view": "音乐室",
+      "result": {
+        "overflow": 0,
+        "rows": [
+          {
+            "title": "雨后的约定与下一次旅程 BeforeTheRainStopsAndWeMeetAgain",
+            "titleBox": {
+              "x": 96,
+              "y": 201,
+              "width": 422,
+              "height": 42
+            },
+            "rowBox": {
+              "x": 33,
+              "y": 188,
+              "width": 502,
+              "height": 226
+            },
+            "coverBox": {
+              "x": 50,
+              "y": 295,
+              "width": 36,
+              "height": 36
+            },
+            "actionBox": null
+          }
+        ]
+      }
+    },
+    {
+      "viewport": {
+        "width": 568,
+        "height": 320
+      },
+      "view": "结局",
+      "result": {
+        "overflow": 0,
+        "rows": [
+          {
+            "title": "雨后的约定与下一次旅程 BeforeTheRainStopsAndWeMeetAgain",
+            "titleBox": {
+              "x": 100,
+              "y": 201,
+              "width": 418,
+              "height": 42
+            },
+            "rowBox": {
+              "x": 33,
+              "y": 188,
+              "width": 502,
+              "height": 89
+            },
+            "coverBox": {
+              "x": 50,
+              "y": 224.5,
+              "width": 36,
+              "height": 36
+            },
+            "actionBox": null
+          }
+        ]
+      }
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "view": "场景回想",
+      "result": {
+        "overflow": 0,
+        "rows": [
+          {
+            "title": "雨后的约定与下一次旅程 BeforeTheRainStopsAndWeMeetAgain",
+            "titleBox": {
+              "x": 100,
+              "y": 319.79998779296875,
+              "width": 240,
+              "height": 63
+            },
+            "rowBox": {
+              "x": 33,
+              "y": 306.79998779296875,
+              "width": 324,
+              "height": 168
+            },
+            "coverBox": {
+              "x": 50,
+              "y": 353.79998779296875,
+              "width": 36,
+              "height": 36
+            },
+            "actionBox": {
+              "x": 100,
+              "y": 417.79998779296875,
+              "width": 94,
+              "height": 44
+            }
+          }
+        ]
+      }
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "view": "音乐室",
+      "result": {
+        "overflow": 0,
+        "rows": [
+          {
+            "title": "雨后的约定与下一次旅程 BeforeTheRainStopsAndWeMeetAgain",
+            "titleBox": {
+              "x": 96,
+              "y": 201,
+              "width": 244,
+              "height": 63
+            },
+            "rowBox": {
+              "x": 33,
+              "y": 188,
+              "width": 324,
+              "height": 247
+            },
+            "coverBox": {
+              "x": 50,
+              "y": 305.5,
+              "width": 36,
+              "height": 36
+            },
+            "actionBox": null
+          }
+        ]
+      }
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "view": "结局",
+      "result": {
+        "overflow": 0,
+        "rows": [
+          {
+            "title": "雨后的约定与下一次旅程 BeforeTheRainStopsAndWeMeetAgain",
+            "titleBox": {
+              "x": 100,
+              "y": 201,
+              "width": 240,
+              "height": 63
+            },
+            "rowBox": {
+              "x": 33,
+              "y": 188,
+              "width": 324,
+              "height": 110
+            },
+            "coverBox": {
+              "x": 50,
+              "y": 235,
+              "width": 36,
+              "height": 36
+            },
+            "actionBox": null
+          }
+        ]
+      }
+    },
+    {
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "view": "场景回想",
+      "result": {
+        "overflow": 0,
+        "rows": [
+          {
+            "title": "雨后的约定与下一次旅程 BeforeTheRainStopsAndWeMeetAgain",
+            "titleBox": {
+              "x": 151.75,
+              "y": 269.3500061035156,
+              "width": 518.5,
+              "height": 21
+            },
+            "rowBox": {
+              "x": 48.75,
+              "y": 241.35000610351562,
+              "width": 746.5,
+              "height": 98
+            },
+            "coverBox": {
+              "x": 65.75,
+              "y": 274.3500061035156,
+              "width": 72,
+              "height": 52
+            },
+            "actionBox": {
+              "x": 684.25,
+              "y": 268.3500061035156,
+              "width": 94,
+              "height": 44
+            }
+          }
+        ]
+      }
+    },
+    {
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "view": "音乐室",
+      "result": {
+        "overflow": 0,
+        "rows": [
+          {
+            "title": "雨后的约定与下一次旅程 BeforeTheRainStopsAndWeMeetAgain",
+            "titleBox": {
+              "x": 111.75,
+              "y": 229.75,
+              "width": 666.5,
+              "height": 21
+            },
+            "rowBox": {
+              "x": 48.75,
+              "y": 216.75,
+              "width": 746.5,
+              "height": 205
+            },
+            "coverBox": {
+              "x": 65.75,
+              "y": 305.25,
+              "width": 72,
+              "height": 52
+            },
+            "actionBox": null
+          }
+        ]
+      }
+    },
+    {
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "view": "结局",
+      "result": {
+        "overflow": 0,
+        "rows": [
+          {
+            "title": "雨后的约定与下一次旅程 BeforeTheRainStopsAndWeMeetAgain",
+            "titleBox": {
+              "x": 151.75,
+              "y": 244.75,
+              "width": 626.5,
+              "height": 21
+            },
+            "rowBox": {
+              "x": 48.75,
+              "y": 216.75,
+              "width": 746.5,
+              "height": 98
+            },
+            "coverBox": {
+              "x": 65.75,
+              "y": 249.75,
+              "width": 72,
+              "height": 52
+            },
+            "actionBox": null
+          }
+        ]
+      }
+    },
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "view": "场景回想",
+      "result": {
+        "overflow": 0,
+        "rows": [
+          {
+            "title": "雨后的约定与下一次旅程 BeforeTheRainStopsAndWeMeetAgain",
+            "titleBox": {
+              "x": 156,
+              "y": 322.6000061035156,
+              "width": 946,
+              "height": 21
+            },
+            "rowBox": {
+              "x": 53,
+              "y": 294.6000061035156,
+              "width": 1174,
+              "height": 98
+            },
+            "coverBox": {
+              "x": 70,
+              "y": 327.6000061035156,
+              "width": 72,
+              "height": 52
+            },
+            "actionBox": {
+              "x": 1116,
+              "y": 321.6000061035156,
+              "width": 94,
+              "height": 44
+            }
+          }
+        ]
+      }
+    },
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "view": "音乐室",
+      "result": {
+        "overflow": 0,
+        "rows": [
+          {
+            "title": "雨后的约定与下一次旅程 BeforeTheRainStopsAndWeMeetAgain",
+            "titleBox": {
+              "x": 116,
+              "y": 240,
+              "width": 1094,
+              "height": 21
+            },
+            "rowBox": {
+              "x": 53,
+              "y": 227,
+              "width": 1174,
+              "height": 205
+            },
+            "coverBox": {
+              "x": 70,
+              "y": 315.5,
+              "width": 72,
+              "height": 52
+            },
+            "actionBox": null
+          }
+        ]
+      }
+    },
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "view": "结局",
+      "result": {
+        "overflow": 0,
+        "rows": [
+          {
+            "title": "雨后的约定与下一次旅程 BeforeTheRainStopsAndWeMeetAgain",
+            "titleBox": {
+              "x": 156,
+              "y": 255,
+              "width": 1054,
+              "height": 21
+            },
+            "rowBox": {
+              "x": 53,
+              "y": 227,
+              "width": 1174,
+              "height": 98
+            },
+            "coverBox": {
+              "x": 70,
+              "y": 260,
+              "width": 72,
+              "height": 52
+            },
+            "actionBox": null
+          }
+        ]
+      }
+    }
+  ],
+  "errors": [],
+  "scope": "Configured catalog covers and long names in an isolated native-browser fixture. Not an authored Rain story export or full-story acceptance."
+}

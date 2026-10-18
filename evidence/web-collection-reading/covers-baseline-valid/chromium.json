@@ -1,0 +1,14 @@
+{
+  "baseline": true,
+  "engine": "chromium",
+  "identity": {
+    "codeSha256": "6eb98f465e29354064f520963c034d63f3b008249bee2baab5f74790fd815be9",
+    "cssSha256": "44ab478c9e24ade04cbf03b353d5f0e8e02bdb6444f79cb6955e58d0a02e162d",
+    "fixtureSha256": "1200a893c9ef8b400ce579de82481b5c7713163e8b39d70ccea407d3e0814fe8"
+  },
+  "samples": [],
+  "errors": [
+    "locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: '继续下一句', exact: true })\u001b[22m\n\n    at E:\\ProjectSave\\GeminiProject\\WorLdGame\\tools\\run-web-collection-covers.mjs:26:86"
+  ],
+  "scope": "Configured catalog covers and long names in an isolated native-browser fixture. Not an authored Rain story export or full-story acceptance."
+}

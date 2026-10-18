@@ -8,6 +8,7 @@ import { createServer } from 'node:http';
 import { spawn } from 'node:child_process';
 import { once } from 'node:events';
 import { inspectLocalSite, prepareWebsiteDirectory, deploymentBaseUrl, inspectDeployedSite, parseSiteBuildInfo } from '../apps/editor/src/export-deployment-check.mjs';
+import { listenBrowserLoopback } from './listen-browser-loopback.mjs';
 
 const owned = [], servers = [], children = [], prefix = join(tmpdir(), 'world-site-test-');
 const digest = bytes => 'sha256:' + createHash('sha256').update(bytes).digest('hex');
@@ -32,7 +33,9 @@ async function server(files, options = {}) {
     const mime = path.endsWith('.js') ? 'text/javascript' : path.endsWith('.css') ? 'text/css' : path.endsWith('.html') ? 'text/html' : path.endsWith('.wav') ? 'audio/wav' : 'application/json';
     response.writeHead(bytes ? 200 : 404, { 'Content-Type': options.mime?.[path] ?? mime, 'Cache-Control': options.cacheControl ?? 'no-cache' }).end(bytes ?? 'missing');
   });
-  await new Promise(resolve => service.listen(0, '127.0.0.1', resolve)); servers.push(service);
+  // Windows listen(0) can return a fetch-forbidden port such as 5061, causing
+  // NETWORK_ERROR before the redirect fixture receives any request.
+  await listenBrowserLoopback(service); servers.push(service);
   return { url: `http://127.0.0.1:${service.address().port}/game/`, hits, methods };
 }
 afterEach(async () => {

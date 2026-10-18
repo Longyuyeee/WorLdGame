@@ -1,5 +1,7 @@
 # WorLd Studio（工作名）产品与开发设计文档
 
+> 当前接续（2026-10-18）：[#415 收藏列表辨认与原进度返回](docs/415-web-collection-reading-and-return.md)。修复配置封面后的手机列表重叠、收录音乐漏封面，并明确返回标题／结局／正文。新 [HTML](evidence/web-collection-reading/before-rain-stops.html)／[网站 ZIP](evidence/web-collection-reading/before-rain-stops-website.zip)的三引擎五视口、原档与回想／刷新续读、完整双路线及审计见 #415；1,531 项功能和 121 项工具测试通过，失败探针与端口诊断保留。仍为 1.11.0 候选／S0.41，#394 源／25 条未人工批准记录／26 媒体及 #414 原游戏保留；下一批复核可配置动效下的中断返回，再继续逐场节奏与发布准备，人工／真机／许可／公网边界不扩大。以下为历史。
+
 > 当前接续（2026-10-18）：[#414 回想快退的画面恢复与已读正文保持](docs/414-web-replay-image-and-reveal-recovery.md)。实际复现旋转快退时旧图片尚未释放，新画面误入预算故障；展示只对退役解码做一次限时等待，真实超限仍拒绝并可明确重试。已读正文返回后不再重新渐显。新 [HTML](evidence/web-replay-recovery/before-rain-stops.html)／[网站 ZIP](evidence/web-replay-recovery/before-rain-stops-website.zip)的三引擎快退、默认显示、受控恢复、完整路线及最终审计见 #414。1.11.0 候选／S0.41、#394 源／25 条未人工批准记录／26 媒体保持，#413 原游戏保留；实际永久解码停滞、部分渐显精确时刻、真机／自然听读／许可／公网仍未验收。以下为历史。
 
 > 当前接续（2026-10-18）：[#413 双路线存档接续与回想返回阅读](docs/413-web-route-replay-reading-return.md)。修复回想后正文回段首，以及结局键盘返回未恢复 Auto／焦点；真实分歧存档接续两路线，正常回想三引擎／本地 HTML、四视口及两格式×两路线范围见 #413。新 [HTML](evidence/web-route-replay-continuity/before-rain-stops.html)／[网站 ZIP](evidence/web-route-replay-continuity/before-rain-stops-website.zip)仍为 1.11.0 候选／S0.41，#394 源／25 条未人工批准记录／26 媒体保持，#412 原游戏保留。快速未呈现即退出的图片故障、默认渐显复核及人工／真机／许可／公网继续开放，不将正常流程通过扩大为边界验收。以下为历史。

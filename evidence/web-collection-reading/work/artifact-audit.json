@@ -1,0 +1,36 @@
+{
+  "passed": true,
+  "unchangedPayloadAndAll26Media": true,
+  "sameContentVersion": "1.11.0",
+  "unchangedNotesPending": 25,
+  "sourceAndNotes": "evidence/web-story-plans-and-farewell",
+  "retained": [
+    {
+      "name": "before-rain-stops-project.zip",
+      "sha256": "43ef6e1673ed3dffbf705b4f178b2122fc960971eaf47286b33742fa285f0576"
+    },
+    {
+      "name": "before-rain-stops.worldreview",
+      "sha256": "747534249345da6ce337054b4e7f47a1516556beda7079ef7b6d093e590bce8f"
+    },
+    {
+      "name": "before-rain-stops.html",
+      "sha256": "6e5dfb4dfb88b5e210354fbcaeb8ccc4e79d50aa935a1d449f750bde8fc822fa"
+    },
+    {
+      "name": "before-rain-stops-website.zip",
+      "sha256": "25ef0ab90a396f01dcfb09e60f754fb31a82f59aedb8da869b4a199a59e8f19e"
+    }
+  ],
+  "websiteFiles": 37,
+  "artifacts": {
+    "html": {
+      "bytes": 46844460,
+      "sha256": "105dc3dfb186df992fa1df887460a76380f5825ed1653fffb47137a9f80bb0bd"
+    },
+    "website": {
+      "bytes": 35430909,
+      "sha256": "c3661566d08c887b160601ed1535b0caee41d5f7c6a4295bf2511ee041f10518"
+    }
+  }
+}

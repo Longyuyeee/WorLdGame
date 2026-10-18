@@ -442,6 +442,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
   const creditsLayout = usePlayerPanelLayout(skin?.layout?.credits, "credits", preferencesOpen && infoView === "credits");
   const endingLayout = usePlayerPanelLayout(skin?.layout?.ending, "ending", content.kind === "ending");
   const additionalSurface: WebAdditionalLayoutSurface = additionalContentView === "overview" ? "additional" : additionalContentView;
+  const additionalReturnLabel = content.kind === 'title' ? '返回标题' : content.kind === 'ending' ? '返回结局' : '返回剧情';
   const overviewLayout = usePlayerPanelLayout(skin?.layout?.additional, "additional", additionalContentOpen && additionalSurface === "additional");
   const galleryLayout = usePlayerPanelLayout(skin?.layout?.gallery, "gallery", additionalContentOpen && additionalSurface === "gallery");
   const musicLayout = usePlayerPanelLayout(skin?.layout?.music, "music", additionalContentOpen && additionalSurface === "music");
@@ -2314,7 +2315,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
             <PlayerPanelRegion enabled={additionalLayout.enabled} rect={additionalLayout.layout?.secondary} kind="secondary">
             <header>
               <div><span>EXTRAS</span><h2>{additionalLayout.enabled ? WEB_ADDITIONAL_LAYOUT_LABELS[additionalSurface] : "附加内容"}</h2></div>
-              <button ref={additionalContentClose} type="button" aria-label="返回剧情" onClick={closeAdditionalContent}>返回剧情</button>
+              <button ref={additionalContentClose} type="button" onClick={closeAdditionalContent}>{additionalReturnLabel}</button>
               {additionalLayout.enabled && additionalContentView !== "overview" && <button ref={additionalContentDetailBack} type="button" aria-label="返回附加内容总览" onClick={() => setAdditionalContentView("overview")}>← 返回总览</button>}
             </header>
             </PlayerPanelRegion>
@@ -2391,9 +2392,9 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
                 ? <p className="player-additional-content__empty">这个故事暂时没有可回想的场景。</p>
                 : <ol className="player-additional-content__replay">
                   {snapshot.additionalContent.replayItems.map((item, index) => <li key={item.replayId} data-unlocked={item.unlocked}>
-                    <span>{String(index + 1).padStart(2, "0")}</span>
+                    <div className="player-additional-content__catalog-visual"><span>{String(index + 1).padStart(2, "0")}</span>
                     {item.coverAssetId !== null && additionalContentSources.get(item.coverAssetId)?.mimeType.startsWith("image/") === true && <DeferredAtlasImage atlas={additionalContentSources.get(item.coverAssetId)!.atlas} className="player-additional-content__catalog-cover" src={additionalContentSources.get(item.coverAssetId)!.url} alt="" />}
-                    <div><strong>{item.title ?? "未解锁的场景"}</strong><small>{!item.unlocked ? "达成相关结局后解锁" : canEnterPlayerCoreReplayV1(state, item.replayId) ? "按当时的路线重温 · 原进度保持" : "已解锁 · 等待路线入口"}</small></div>
+                    </div><div className="player-additional-content__catalog-copy"><strong>{item.title ?? "未解锁的场景"}</strong><small>{!item.unlocked ? "达成相关结局后解锁" : canEnterPlayerCoreReplayV1(state, item.replayId) ? "按当时的路线重温 · 原进度保持" : "已解锁 · 等待路线入口"}</small></div>
                     <button type="button" disabled={!canEnterPlayerCoreReplayV1(state, item.replayId)} aria-label={item.unlocked ? `开始回想 ${item.title}` : `场景 ${index + 1} 尚未解锁`} onClick={() => enterSceneReplay(item.replayId)}>{item.unlocked ? "开始回想" : "未解锁"}</button>
                   </li>)}
                 </ol>}
@@ -2409,14 +2410,16 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
                 : <ol className="player-additional-content__music">
                   {snapshot.additionalContent.musicItems.map((item, index) => {
                     if (!item.unlocked) return <li className="is-locked" key={item.assetId}>
-                      <span>{String(index + 1).padStart(2, "0")}</span>
+                      <div className="player-additional-content__catalog-visual"><span>{String(index + 1).padStart(2, "0")}</span>
                       {item.coverAssetId !== null && additionalContentSources.get(item.coverAssetId)?.mimeType.startsWith("image/") === true && <DeferredAtlasImage atlas={additionalContentSources.get(item.coverAssetId)!.atlas} className="player-additional-content__catalog-cover" src={additionalContentSources.get(item.coverAssetId)!.url} alt="" />}
-                      <div><strong>{item.displayName ?? "未发现的音乐"}</strong><small>继续推进剧情来收录</small></div>
+                      </div><div className="player-additional-content__catalog-copy"><strong>{item.displayName ?? "未发现的音乐"}</strong><small>继续推进剧情来收录</small></div>
                     </li>;
                     const source = additionalContentSources.get(item.assetId);
                     const unavailable = source === undefined || !source.mimeType.startsWith("audio/") || additionalContentMediaErrors.includes(item.assetId);
                     return <li key={item.assetId} data-resource={unavailable ? "missing" : "ready"}>
-                      <span>{String(index + 1).padStart(2, "0")}</span><div><strong>{item.displayName}</strong>{unavailable
+                      <div className="player-additional-content__catalog-visual"><span>{String(index + 1).padStart(2, "0")}</span>
+                        {item.coverAssetId !== null && additionalContentSources.get(item.coverAssetId)?.mimeType.startsWith("image/") === true && <DeferredAtlasImage atlas={additionalContentSources.get(item.coverAssetId)!.atlas} className="player-additional-content__catalog-cover" src={additionalContentSources.get(item.coverAssetId)!.url} alt="" />}
+                      </div><div className="player-additional-content__catalog-copy"><strong>{item.displayName}</strong>{unavailable
                         ? <><small role="status">资源暂不可用，收录记录仍然保留。</small>{onRetryMedia !== undefined && <button type="button" onClick={() => { setAdditionalContentMediaErrors([]); onRetryMedia(); }}>重试资源</button>}</>
                         : <PlayerMusicPreview src={source.url} label={`试听 ${item.displayName}`} muted={effectiveMuted} volume={galAudioGainV1(settingsApplication, 'bgm')} active={hostActivity === "active"} onError={() => setAdditionalContentMediaErrors((current) => [...new Set([...current, item.assetId])])} />}</div>
                     </li>;
@@ -2433,9 +2436,9 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
                 ? <p className="player-additional-content__empty">这个故事暂时没有可记录的结局。</p>
                 : <ol className="player-additional-content__endings">
                   {snapshot.additionalContent.endingItems.map((item, index) => <li key={item.endingId} data-unlocked={item.unlocked}>
-                    <span>{String(index + 1).padStart(2, "0")}</span>
+                    <div className="player-additional-content__catalog-visual"><span>{String(index + 1).padStart(2, "0")}</span>
                     {item.coverAssetId !== null && additionalContentSources.get(item.coverAssetId)?.mimeType.startsWith("image/") === true && <DeferredAtlasImage atlas={additionalContentSources.get(item.coverAssetId)!.atlas} className="player-additional-content__catalog-cover" src={additionalContentSources.get(item.coverAssetId)!.url} alt="" />}
-                    <div><strong>{item.name ?? "未发现的结局"}</strong><small>{item.unlocked ? "已达成" : "继续探索不同选择"}</small></div>
+                    </div><div className="player-additional-content__catalog-copy"><strong>{item.name ?? "未发现的结局"}</strong><small>{item.unlocked ? "已达成" : "继续探索不同选择"}</small></div>
                   </li>)}
                 </ol>}
             </section>}
